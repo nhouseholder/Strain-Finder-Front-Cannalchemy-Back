@@ -160,8 +160,10 @@ function DispensaryCardItem({ dispensary }) {
             {dispensary.deliveryEta && ` (${dispensary.deliveryEta})`}
           </span>
         )}
-        {dispensary.priceRange && (
+        {dispensary.priceRange ? (
           <span className="font-medium">{dispensary.priceRange}</span>
+        ) : (
+          <span className="text-gray-400 dark:text-[#5a6a5e] italic text-[10px]">Check menu for prices</span>
         )}
       </div>
 

@@ -8,57 +8,87 @@ def explain_strain_match(
     desired_effects: list[str],
     effect_receptor_map: dict[str, str],
 ) -> str:
-    """Build a natural language explanation of why a strain matches.
+    """Build a beginner-friendly explanation of why a strain matches.
 
-    Uses receptor binding data to explain the molecular mechanism.
+    Uses receptor binding data but writes in plain language.
     Template-based (no LLM call) for speed.
     """
     profile = get_strain_profile(graph, strain_name)
     if not profile or not profile.get("compositions"):
-        return f"{strain_name} matches your desired effects based on community reports."
+        return (
+            f"{strain_name} is a great match based on what other users report. "
+            f"Community data shows this strain aligns well with your desired effects."
+        )
 
-    # Get top 3 molecules by percentage
+    # Get top molecules by percentage
     top_molecules = profile["compositions"][:3]
 
-    sentences = []
-    for mol in top_molecules:
-        mol_name = mol["molecule"]
-        pct = mol["percentage"]
-        mol_type = mol.get("type", "terpene")
-        pathways = get_molecule_pathways(graph, mol_name)
+    # Friendly names for molecule actions
+    FRIENDLY_MOLECULE = {
+        "myrcene": ("a calming terpene found in mangoes and hops", "relaxation and physical comfort"),
+        "limonene": ("an uplifting terpene found in citrus peels", "mood elevation and stress relief"),
+        "caryophyllene": ("a spicy terpene found in black pepper", "anti-inflammatory effects and calm focus"),
+        "linalool": ("a soothing terpene found in lavender", "relaxation and anxiety relief"),
+        "pinene": ("a refreshing terpene found in pine needles", "mental clarity and alertness"),
+        "terpinolene": ("a floral terpene found in lilacs and tea tree", "a balanced uplifting-yet-calming effect"),
+        "humulene": ("an earthy terpene found in hops", "appetite control and subtle relaxation"),
+        "ocimene": ("a sweet terpene found in basil and orchids", "energizing and uplifting effects"),
+        "bisabolol": ("a gentle terpene found in chamomile", "soothing effects and anti-irritation"),
+        "thc": ("the primary active compound in cannabis", "euphoria, relaxation, and pain relief"),
+        "cbd": ("a non-intoxicating cannabinoid", "calming effects without the high"),
+        "cbg": ("a minor cannabinoid sometimes called the 'parent molecule'", "focus and gentle relaxation"),
+        "cbn": ("a cannabinoid associated with aged cannabis", "drowsiness and deep relaxation"),
+    }
 
+    FRIENDLY_RECEPTOR = {
+        "CB1": "brain receptors that regulate mood, pain, and appetite",
+        "CB2": "immune system receptors that help reduce inflammation",
+        "TRPV1": "pain-sensing receptors (the same ones activated by chili peppers)",
+        "5-HT1A": "serotonin receptors linked to mood and anxiety",
+        "PPARgamma": "receptors involved in reducing inflammation",
+        "GPR55": "receptors that help regulate bone health and blood pressure",
+    }
+
+    parts = []
+    for mol in top_molecules:
+        mol_name = mol["molecule"].lower()
+        pct = mol["percentage"]
+        pathways = get_molecule_pathways(graph, mol_name)
         if not pathways:
             continue
 
-        # Find the most relevant pathway for the user's desired effects
         best_pathway = _find_best_pathway(pathways, desired_effects, effect_receptor_map)
         if not best_pathway:
             best_pathway = pathways[0]
 
         receptor = best_pathway["receptor"]
-        ki = best_pathway.get("ki_nm")
-        action = best_pathway.get("action_type", "modulator")
-        receptor_fn = best_pathway.get("receptor_function", "")
-
-        # Build sentence
-        if ki:
-            binding_str = f" (Ki={ki}nM, {action})" if ki < 1000 else f" ({action})"
-        else:
-            binding_str = f" ({action})" if action else ""
-
-        # Match to a desired effect
         matched_effect = _pathway_matches_effect(receptor, desired_effects, effect_receptor_map)
-        effect_clause = f", contributing to {matched_effect}" if matched_effect else ""
 
-        display_name = mol_name.capitalize()
-        sentences.append(
-            f"{display_name} ({pct:.2f}%) targets {receptor}{binding_str}{effect_clause}."
+        mol_info = FRIENDLY_MOLECULE.get(mol_name)
+        rec_info = FRIENDLY_RECEPTOR.get(receptor, f"receptors in your body")
+
+        if mol_info:
+            description, benefit = mol_info
+            effect_str = f" — especially for {matched_effect}" if matched_effect else ""
+            parts.append(
+                f"{mol_name.capitalize()} ({pct:.1f}%) is {description} that "
+                f"works with your {rec_info}, promoting {benefit}{effect_str}."
+            )
+        else:
+            display = mol_name.capitalize()
+            parts.append(
+                f"{display} ({pct:.1f}%) interacts with your {rec_info}"
+                + (f", supporting {matched_effect}." if matched_effect else ".")
+            )
+
+    if not parts:
+        return (
+            f"{strain_name} is a great match based on what other users report. "
+            f"Community data shows this strain aligns well with your desired effects."
         )
 
-    if not sentences:
-        return f"{strain_name} matches your desired effects based on community reports."
-
-    return f"{strain_name}'s profile: " + " ".join(sentences)
+    intro = f"{strain_name} works with your body's natural chemistry. "
+    return intro + " ".join(parts)
 
 
 def get_strain_pathways(graph, strain_name: str) -> list[dict]:

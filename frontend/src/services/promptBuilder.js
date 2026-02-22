@@ -169,9 +169,14 @@ export function buildDispensaryPrompt(location, strainNames) {
     ? location
     : `latitude ${location.lat}, longitude ${location.lng}`
 
-  return `Search for cannabis dispensaries near ${locationStr}. I'm looking for these specific strains: ${strainNames.join(', ')}.
+  return `Search for REAL cannabis dispensaries near ${locationStr} that carry or may carry these strains: ${strainNames.join(', ')}.
 
-For each dispensary found, return the following data as a JSON array. Search for REAL dispensaries with actual addresses. Include current deals and promotions if available.
+CRITICAL RULES:
+- Only include dispensaries you can verify actually exist via web search
+- Only include prices if you can verify them from the dispensary's actual menu (Weedmaps, Leafly, or their website)
+- If you cannot verify a price, set priceRange to null — do NOT guess or make up prices
+- Include the dispensary's real website URL and their Weedmaps/Leafly menu link
+- Check if each dispensary actually carries the requested strains or similar ones
 
 Return ONLY valid JSON (no markdown, no backticks):
 
@@ -179,29 +184,25 @@ Return ONLY valid JSON (no markdown, no backticks):
   "dispensaries": [
     {
       "name": "Real Dispensary Name",
-      "address": "Full street address",
-      "lat": 34.0522,
-      "lng": -118.2437,
+      "address": "Full verified street address",
       "distance": "2.3 mi",
       "rating": 4.7,
       "reviewCount": 234,
       "delivery": true,
-      "deliveryFee": "$5",
-      "deliveryMin": "$35",
       "deliveryEta": "45-60 min",
-      "matchedStrains": ["Strain1", "Strain2"],
-      "alternativeStrains": ["Similar Strain1"],
-      "deals": ["20% off first order", "Happy hour 4-6pm"],
-      "priceRange": "$$",
+      "matchedStrains": ["Only strains VERIFIED on their menu"],
+      "alternativeStrains": ["Similar strains found on their menu"],
+      "deals": ["Only REAL current promotions you found"],
+      "priceRange": null,
       "hours": "9am-9pm",
       "phone": "(555) 123-4567",
-      "website": "https://example.com",
-      "menuUrl": "https://example.com/menu"
+      "website": "https://their-actual-website.com",
+      "menuUrl": "https://weedmaps.com/dispensaries/their-name or leafly link"
     }
   ]
 }
 
-Return 4-6 dispensaries, prioritizing those with matching strains and active deals. Include real business information from your web search.`
+Return 4-6 dispensaries. Prioritize those with matching strains on their menu. Always include menuUrl so users can check real-time prices and availability themselves.`
 }
 
 export function buildTrendingPrompt(location) {
