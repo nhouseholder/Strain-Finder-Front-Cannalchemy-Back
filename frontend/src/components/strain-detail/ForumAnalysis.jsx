@@ -133,9 +133,9 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
         <div className="mb-3">
           <h5 className="text-[10px] font-semibold text-leaf-400 mb-2">Reported Positive Effects</h5>
           <div className="space-y-2">
-            {positiveEffects.map((eff) => (
+            {positiveEffects.map((eff, idx) => (
               <EffectBar
-                key={eff.name || 'unknown'}
+                key={eff.name || `pos-${idx}`}
                 label={eff.name || 'Unknown'}
                 pct={eff.pct}
                 baseline={eff.baseline}
@@ -151,9 +151,9 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
         <div>
           <h5 className="text-[10px] font-semibold text-red-400 mb-2">Reported Negative Effects</h5>
           <div className="space-y-2">
-            {negativeEffects.map((eff) => (
+            {negativeEffects.map((eff, idx) => (
               <EffectBar
-                key={eff.name || 'unknown'}
+                key={eff.name || `neg-${idx}`}
                 label={eff.name || 'Unknown'}
                 pct={eff.pct}
                 baseline={eff.baseline}

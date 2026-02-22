@@ -18,7 +18,6 @@ import {
   ChevronLeft,
   Loader2,
   AlertCircle,
-  Filter,
   ArrowUpDown,
 } from 'lucide-react'
 
@@ -79,7 +78,7 @@ function LocationInput({ onSubmit, geoLoading, onAutoDetect }) {
 /* ------------------------------------------------------------------ */
 /*  DispensaryFilters (inline)                                        */
 /* ------------------------------------------------------------------ */
-function DispensaryFilters({ sortBy, onSortChange, filters, onFilterChange }) {
+function DispensaryFilters({ sortBy, onSortChange }) {
   const sortOptions = [
     { value: 'closest', label: 'Closest' },
     { value: 'rating', label: 'Top Rated' },
@@ -315,7 +314,7 @@ export default function DispensaryPage() {
     const list = [...dispensaries]
     switch (sortBy) {
       case 'closest':
-        return list.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance))
+        return list.sort((a, b) => (parseFloat(a.distance) || 999) - (parseFloat(b.distance) || 999))
       case 'rating':
         return list.sort((a, b) => (b.rating || 0) - (a.rating || 0))
       case 'deals':

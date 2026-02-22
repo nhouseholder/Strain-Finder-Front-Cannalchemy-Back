@@ -249,8 +249,6 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
     return { nodes: allNodes, links: linkList, width: w, height: h }
   }, [pathways, effectPredictions])
 
-  if (!nodes.length) return null
-
   // Determine which nodes/links are connected to hovered node
   const connectedIds = useMemo(() => {
     if (!hoveredNode) return null
@@ -263,6 +261,8 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
     })
     return ids
   }, [hoveredNode, links])
+
+  if (!nodes.length) return null
 
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-4">

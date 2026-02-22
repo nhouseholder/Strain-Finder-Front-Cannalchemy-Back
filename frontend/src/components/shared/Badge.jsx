@@ -43,7 +43,9 @@ export function SaleBadge() {
 }
 
 export function ConfidenceBadge({ reviewCount }) {
-  const count = typeof reviewCount === 'number' ? reviewCount : parseInt(reviewCount) || 0
+  const count = typeof reviewCount === 'number'
+    ? reviewCount
+    : parseInt(String(reviewCount).replace(/[^0-9]/g, ''), 10) || 0
   let level, color
   if (count < 50) {
     level = 'Limited Data'

@@ -18,20 +18,21 @@ export default function EffectVerification({ predictions, forumData }) {
     const matchedPairs = []
     let matches = 0
 
+    const normalize = (s) => (s || '').toLowerCase().replace(/[-_]/g, ' ').trim()
+
     for (const pred of predictions.slice(0, 5)) {
       const displayName = pred.effect
         .replace(/-/g, ' ')
         .replace(/\b\w/g, (c) => c.toUpperCase())
 
-      // Find matching community report
+      // Find matching community report (normalized comparison)
       const report = pros.find(
-        (r) =>
-          (r.effect || r.name || '').toLowerCase() === displayName.toLowerCase()
+        (r) => normalize(r.effect || r.name) === normalize(displayName)
       )
 
       matchedPairs.push({
         effect: displayName,
-        predicted: Math.round(pred.probability * 100),
+        predicted: Math.round((pred.probability || 0) * 100),
         reported: report ? report.pct : null,
         matched: !!report,
         pathway: pred.pathway || '',

@@ -20,8 +20,6 @@ import {
   ThumbsDown,
   MessageSquare,
   ArrowRight,
-  Filter,
-  X,
 } from 'lucide-react'
 import { useState } from 'react'
 
@@ -130,7 +128,7 @@ function StrainCard({ strain, isFavorite, onToggleFavorite }) {
                 color: tc.hex,
               }}
             >
-              {strain.matchPct}%
+              {strain.matchPct != null ? `${Math.round(strain.matchPct)}%` : '—'}
             </div>
 
             {/* Favorite */}
@@ -166,11 +164,11 @@ function StrainCard({ strain, isFavorite, onToggleFavorite }) {
           <span>
             CBD <strong className="text-gray-700 dark:text-[#b0c4b4]">{strain.cbd}%</strong>
           </span>
-          {strain.sentimentScore > 0 && (
+          {Number(strain.sentimentScore) > 0 && (
             <span className="flex items-center gap-1">
               <Star size={12} className="text-amber-400" />
               <strong className="text-gray-700 dark:text-[#b0c4b4]">
-                {strain.sentimentScore.toFixed(1)}
+                {Number(strain.sentimentScore).toFixed(1)}
               </strong>
             </span>
           )}
@@ -445,10 +443,10 @@ function AiPicksSection({ picks }) {
               <div className="flex items-center gap-3 text-[10px] text-gray-400 dark:text-[#5a6a5e]">
                 <span>THC {pick.thc}%</span>
                 <span>CBD {pick.cbd}%</span>
-                {pick.sentimentScore > 0 && (
+                {Number(pick.sentimentScore) > 0 && (
                   <span className="flex items-center gap-0.5">
                     <Star size={10} className="text-amber-400" />
-                    {pick.sentimentScore?.toFixed(1)}
+                    {Number(pick.sentimentScore).toFixed(1)}
                   </span>
                 )}
               </div>

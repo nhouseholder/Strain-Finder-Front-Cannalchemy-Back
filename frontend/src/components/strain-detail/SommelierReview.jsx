@@ -51,7 +51,7 @@ export default function SommelierReview({ notes, scores }) {
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartData}>
             <PolarGrid
-              stroke="rgba(255,255,255,0.1)"
+              stroke="rgba(120,120,120,0.2)"
               strokeDasharray="3 3"
             />
             <PolarAngleAxis

@@ -110,7 +110,7 @@ export default function StrainCard({ strain, expanded, onToggle, isFavorite, onF
               className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 dark:text-[#6a7a6e] hover:text-leaf-400 hover:bg-leaf-500/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
               onClick={(e) => {
                 e.stopPropagation()
-                navigate('/dispensary')
+                navigate('/dispensaries')
               }}
               aria-label="Find near me"
               title="Find at nearby dispensaries"
