@@ -16,13 +16,13 @@ export default function TerpeneProfile({ terpenes }) {
         Terpene Profile
       </h4>
       <div className="space-y-2">
-        {terpenes.map((t) => {
+        {terpenes.map((t, idx) => {
           const color = getTerpeneColor(t.name)
           const numPct = parsePct(t.pct)
           const widthPct = maxPct > 0 ? (numPct / maxPct) * 100 : 0
 
           return (
-            <div key={t.name} className="flex items-center gap-3">
+            <div key={t.name || `terp-${idx}`} className="flex items-center gap-3">
               <div className="w-24 flex-shrink-0">
                 <TerpBadge name={t.name} pct={numPct > 0 ? `${numPct}%` : ''} />
               </div>

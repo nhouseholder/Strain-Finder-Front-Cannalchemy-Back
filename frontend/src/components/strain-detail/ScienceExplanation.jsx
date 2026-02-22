@@ -7,6 +7,7 @@ import { buildScienceExplanation } from '../../services/promptBuilder'
 const CACHE_PREFIX = 'science_'
 
 function getCached(strainName) {
+  if (!strainName) return null
   try {
     const raw = localStorage.getItem(CACHE_PREFIX + strainName)
     if (!raw) return null
@@ -45,7 +46,7 @@ export default function ScienceExplanation({ strain }) {
     try {
       const prompt = buildScienceExplanation(strain, quiz?.state)
       const result = await callAnthropic({ prompt, maxTokens: 500, retries: 2 })
-      const cleaned = result.trim()
+      const cleaned = (result || '').trim()
       setExplanation(cleaned)
       if (strain?.name) setCache(strain.name, cleaned)
     } catch (err) {

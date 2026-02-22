@@ -57,6 +57,12 @@ export async function searchDispensaries(location, strainNames) {
   }
 }
 
+function sanitizeLLMJson(str) {
+  return str
+    .replace(/,\s*([\]}])/g, '$1')    // trailing commas before } or ]
+    .replace(/\n/g, ' ')              // remove newlines inside JSON
+}
+
 function parseDispensaryResponse(rawText) {
   if (!rawText) throw new Error('Empty response')
 
@@ -71,14 +77,23 @@ function parseDispensaryResponse(rawText) {
     const arrStart = cleaned.indexOf('[')
     const arrEnd = cleaned.lastIndexOf(']')
     if (arrStart !== -1 && arrEnd !== -1) {
-      const arr = JSON.parse(cleaned.slice(arrStart, arrEnd + 1))
-      return { dispensaries: arr }
+      try {
+        const arr = JSON.parse(sanitizeLLMJson(cleaned.slice(arrStart, arrEnd + 1)))
+        return { dispensaries: arr }
+      } catch {
+        throw new Error('Could not parse dispensary array response')
+      }
     }
     throw new Error('No JSON found in dispensary response')
   }
 
-  const json = cleaned.slice(start, end + 1)
-  const parsed = JSON.parse(json)
+  const json = sanitizeLLMJson(cleaned.slice(start, end + 1))
+  let parsed
+  try {
+    parsed = JSON.parse(json)
+  } catch {
+    throw new Error('Dispensary response contained malformed JSON')
+  }
 
   // Handle various response shapes
   if (Array.isArray(parsed)) return { dispensaries: parsed }
@@ -88,14 +103,15 @@ function parseDispensaryResponse(rawText) {
   // If it's a single object with dispensary-like fields, wrap it
   if (parsed.name && parsed.address) return { dispensaries: [parsed] }
 
-  return parsed
+  // Unrecognized shape — return empty to avoid silent failure
+  return { dispensaries: [] }
 }
 
 function buildCacheKey(location, strainNames) {
   const locStr = typeof location === 'string'
     ? location
     : location?.lat != null && location?.lng != null
-      ? `${location.lat.toFixed(2)},${location.lng.toFixed(2)}`
+      ? `${Number(location.lat).toFixed(2)},${Number(location.lng).toFixed(2)}`
       : 'unknown'
   const strainsKey = (strainNames || []).sort().join(',').slice(0, 100)
   return `${CACHE_PREFIX}${locStr}_${strainsKey}`

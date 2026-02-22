@@ -165,9 +165,14 @@ CRITICAL RULES:
 }
 
 export function buildDispensaryPrompt(location, strainNames) {
-  const locationStr = typeof location === 'string'
-    ? location
-    : `latitude ${location.lat}, longitude ${location.lng}`
+  let locationStr
+  if (typeof location === 'string') {
+    locationStr = location
+  } else if (location?.lat != null && location?.lng != null) {
+    locationStr = `latitude ${location.lat}, longitude ${location.lng}`
+  } else {
+    throw new Error('Invalid location for dispensary search')
+  }
 
   return `Search for REAL cannabis dispensaries near ${locationStr} that carry or may carry these strains: ${strainNames.join(', ')}.
 
@@ -231,7 +236,7 @@ export function buildScienceExplanation(strain, quizState) {
     .join(', ')
 
   const cannabStr = (strain.cannabinoids || [])
-    .filter(c => c.value > 0)
+    .filter(c => parseFloat(c.value) > 0)
     .map(c => `${c.name}: ${c.value}%`)
     .join(', ')
 

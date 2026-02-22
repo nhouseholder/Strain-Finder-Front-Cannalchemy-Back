@@ -50,7 +50,7 @@ export default function StrainCard({ strain, expanded, onToggle, isFavorite, onF
       {/* Clickable header region */}
       <div
         className="cursor-pointer"
-        onClick={onToggle}
+        onClick={() => onToggle?.()}
         role="button"
         tabIndex={0}
         onKeyDown={(e) => {
@@ -155,9 +155,9 @@ export default function StrainCard({ strain, expanded, onToggle, isFavorite, onF
         <div className="flex items-center justify-between mt-3">
           {/* Terpenes */}
           <div className="flex flex-wrap gap-1">
-            {topTerpenes.map((t) => (
+            {topTerpenes.map((t, idx) => (
               <TerpBadge
-                key={t.name}
+                key={t.name || `terp-${idx}`}
                 name={t.name}
                 pct={t.pct != null ? (String(t.pct).includes('%') ? t.pct : `${t.pct}%`) : ''}
               />
