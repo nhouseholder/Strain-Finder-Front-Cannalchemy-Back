@@ -2,7 +2,7 @@ import { Atom, Zap } from 'lucide-react'
 import { RECEPTOR_COLORS } from '../../utils/colors'
 
 function EffectPredictionBar({ prediction }) {
-  const pct = Math.round(prediction.probability * 100)
+  const pct = Math.round((prediction.probability || 0) * 100)
   const displayName = prediction.effect.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   return (

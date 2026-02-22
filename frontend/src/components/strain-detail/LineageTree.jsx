@@ -9,7 +9,6 @@ function StrainNode({ x, y, name, onClick }) {
     <g
       className="cursor-pointer"
       onClick={() => {
-        console.log(`Navigate to strain: ${name}`)
         onClick?.(name)
       }}
     >
@@ -147,9 +146,9 @@ export default function LineageTree({ lineage, onNodeClick }) {
           })}
 
           {/* Grandparent nodes */}
-          {gpPositions.map((gp) => (
+          {gpPositions.map((gp, i) => (
             <StrainNode
-              key={`gp-${gp.name}`}
+              key={`gp-${gp.parentName}-${gp.name}-${i}`}
               x={gp.x}
               y={gpY}
               name={gp.name}

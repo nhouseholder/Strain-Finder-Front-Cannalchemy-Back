@@ -144,9 +144,12 @@ def _build_strain_result(
     # Forum analysis from real data
     forum = _build_forum_analysis(strain_data["strain_id"])
 
-    # Sommelier notes (from flavors if available)
+    # Sommelier notes and scores (from flavors + terpene data)
     flavors = _get_strain_flavors(strain_data["strain_id"])
     sommelier_notes = _build_sommelier_notes(flavors, strain_type)
+    sommelier_scores = _compute_sommelier_scores(
+        terpene_list, cannabinoid_values, flavors, strain_type, forum
+    )
 
     return StrainResult(
         name=name,
@@ -163,7 +166,7 @@ def _build_strain_result(
         forumAnalysis=forum,
         sentimentScore=forum.sentimentScore if forum else 0.0,
         sommelierNotes=sommelier_notes,
-        sommelierScores=SommelierScores(),
+        sommelierScores=sommelier_scores,
         bestFor=meta.get("best_for", []),
         notIdealFor=meta.get("not_ideal_for", []),
         description=meta.get("description", ""),
@@ -292,6 +295,92 @@ def _build_forum_analysis(strain_id: int) -> ForumAnalysis:
         pros=pros,
         cons=cons,
         sources="Strain Tracker community data (24,853 strains)",
+    )
+
+
+def _compute_sommelier_scores(
+    terpene_list: list,
+    cannabinoid_values: dict,
+    flavors: list[str],
+    strain_type: str,
+    forum: "ForumAnalysis | None",
+) -> SommelierScores:
+    """Compute sommelier scores from terpene/cannabinoid/flavor data.
+
+    Produces varied, deterministic scores per strain based on actual composition.
+    """
+    import hashlib
+
+    terp_names = [getattr(t, 'name', '') for t in terpene_list]
+    terp_lower = [n.lower() for n in terp_names]
+    terp_pcts = [float(getattr(t, 'pct', '0').replace('%', '')) for t in terpene_list]
+    total_terp = sum(terp_pcts)
+    dominant_terp = terp_lower[0] if terp_lower else ""
+    dominant_pct = terp_pcts[0] if terp_pcts else 0
+    n_terps = len(terp_names)
+    thc = cannabinoid_values.get("thc", 0)
+    cbd = cannabinoid_values.get("cbd", 0)
+    n_flavors = len(flavors)
+    sentiment = forum.sentimentScore if forum else 7.0
+
+    # Deterministic per-strain variation from composition fingerprint
+    fingerprint = f"{','.join(terp_lower)}:{thc:.1f}:{cbd:.1f}:{strain_type}"
+    h = int(hashlib.md5(fingerprint.encode()).hexdigest()[:8], 16)
+    # Extract 5 small offsets (-0.8 to +0.8) from hash
+    offsets = [((h >> (i * 5)) & 0x1F) / 31.0 * 1.6 - 0.8 for i in range(5)]
+
+    # === TASTE: dominant terpene flavor profile ===
+    taste_terp_map = {"limonene": 1.5, "linalool": 1.2, "terpinolene": 1.3,
+                      "ocimene": 1.0, "myrcene": 0.5, "caryophyllene": 0.8,
+                      "pinene": 0.7, "humulene": 0.6, "bisabolol": 0.9}
+    taste = 5.5 + taste_terp_map.get(dominant_terp, 0.4) + min(n_flavors * 0.6, 1.8)
+    taste += min(dominant_pct * 1.2, 1.0) + offsets[0]
+
+    # === AROMA: aromatic terpene richness ===
+    aromatic = {"limonene", "linalool", "terpinolene", "ocimene", "bisabolol"}
+    aroma_count = sum(1 for t in terp_lower if t in aromatic)
+    aroma = 5 + aroma_count * 1.2 + min(total_terp * 0.8, 1.5)
+    if dominant_terp in aromatic:
+        aroma += 0.8
+    aroma += offsets[1]
+
+    # === SMOKE: smoothness from CBD, myrcene, linalool ===
+    smooth = {"myrcene", "linalool", "bisabolol"}
+    smooth_count = sum(1 for t in terp_lower if t in smooth)
+    smoke = 5 + smooth_count * 0.9 + min(cbd * 0.5, 1.5)
+    if dominant_terp == "myrcene":
+        smoke += 0.7
+    smoke += min(total_terp * 0.4, 0.8) + offsets[2]
+
+    # === THROAT: THC harshness vs smoothing agents ===
+    throat = 7 - min(max(thc - 18, 0) * 0.15, 2.5)
+    if "linalool" in terp_lower:
+        throat += 1.0
+    if "myrcene" in terp_lower:
+        throat += 0.5
+    throat += min(cbd * 0.3, 1.0) + offsets[3]
+
+    # === BURN: overall quality indicator from sentiment + composition ===
+    burn = 4 + min(sentiment * 0.45, 3.5)
+    burn += min(n_terps * 0.3, 1.0) + min(total_terp * 0.3, 0.5) + offsets[4]
+
+    # Strain type adjustments
+    if strain_type == "indica":
+        smoke += 0.4
+        throat += 0.3
+    elif strain_type == "sativa":
+        aroma += 0.5
+        taste += 0.3
+
+    def clamp(v):
+        return max(3, min(10, round(v)))
+
+    return SommelierScores(
+        taste=clamp(taste),
+        aroma=clamp(aroma),
+        smoke=clamp(smoke),
+        throat=clamp(throat),
+        burn=clamp(burn),
     )
 
 

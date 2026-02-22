@@ -135,8 +135,8 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
           <div className="space-y-2">
             {positiveEffects.map((eff) => (
               <EffectBar
-                key={eff.name || eff.label}
-                label={eff.name || eff.label}
+                key={eff.name || 'unknown'}
+                label={eff.name || 'Unknown'}
                 pct={eff.pct}
                 baseline={eff.baseline}
                 variant="positive"
@@ -153,8 +153,8 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
           <div className="space-y-2">
             {negativeEffects.map((eff) => (
               <EffectBar
-                key={eff.name || eff.label}
-                label={eff.name || eff.label}
+                key={eff.name || 'unknown'}
+                label={eff.name || 'Unknown'}
                 pct={eff.pct}
                 baseline={eff.baseline}
                 variant="negative"

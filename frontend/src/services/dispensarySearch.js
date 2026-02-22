@@ -94,7 +94,7 @@ function parseDispensaryResponse(rawText) {
 function buildCacheKey(location, strainNames) {
   const locStr = typeof location === 'string'
     ? location
-    : location?.lat
+    : location?.lat != null && location?.lng != null
       ? `${location.lat.toFixed(2)},${location.lng.toFixed(2)}`
       : 'unknown'
   const strainsKey = (strainNames || []).sort().join(',').slice(0, 100)

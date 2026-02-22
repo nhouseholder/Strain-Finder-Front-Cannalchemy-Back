@@ -44,10 +44,10 @@ export default function ScienceExplanation({ strain }) {
     setError(null)
     try {
       const prompt = buildScienceExplanation(strain, quiz?.state)
-      const result = await callAnthropic({ prompt, maxTokens: 500, retries: 1 })
+      const result = await callAnthropic({ prompt, maxTokens: 500, retries: 2 })
       const cleaned = result.trim()
       setExplanation(cleaned)
-      setCache(strain.name, cleaned)
+      if (strain?.name) setCache(strain.name, cleaned)
     } catch (err) {
       console.error('Science explanation failed:', err)
       setError('Could not generate explanation. Check your API key or try again.')
@@ -77,23 +77,25 @@ export default function ScienceExplanation({ strain }) {
   }
 
   return (
-    <button
-      type="button"
-      onClick={fetchExplanation}
-      disabled={loading}
-      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-purple-500/20 bg-purple-500/[0.04] text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? (
-        <Loader2 size={14} className="animate-spin" />
-      ) : (
-        <Sparkles size={14} />
-      )}
-      <span className="text-xs font-medium">
-        {loading ? 'Analyzing molecular profile...' : 'Why This Strain? (AI)'}
-      </span>
+    <div className="space-y-1.5">
+      <button
+        type="button"
+        onClick={fetchExplanation}
+        disabled={loading}
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-purple-500/20 bg-purple-500/[0.04] text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? (
+          <Loader2 size={14} className="animate-spin" />
+        ) : (
+          <Sparkles size={14} />
+        )}
+        <span className="text-xs font-medium">
+          {loading ? 'Analyzing molecular profile...' : 'Why This Strain? (AI)'}
+        </span>
+      </button>
       {error && (
-        <span className="text-[10px] text-red-400 ml-2">{error}</span>
+        <p className="text-[10px] text-red-400 text-center">{error}</p>
       )}
-    </button>
+    </div>
   )
 }

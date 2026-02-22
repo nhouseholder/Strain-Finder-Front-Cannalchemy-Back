@@ -159,7 +159,7 @@ export default function StrainCard({ strain, expanded, onToggle, isFavorite, onF
               <TerpBadge
                 key={t.name}
                 name={t.name}
-                pct={t.pct != null ? `${t.pct}%` : ''}
+                pct={t.pct != null ? (String(t.pct).includes('%') ? t.pct : `${t.pct}%`) : ''}
               />
             ))}
           </div>

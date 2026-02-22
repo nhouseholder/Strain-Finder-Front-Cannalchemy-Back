@@ -243,8 +243,12 @@ export function buildScienceExplanation(strain, quizState) {
     .map(p => `${p.effect} (${p.pct}% of users)`)
     .join(', ')
 
-  const userEffects = (quizState?.effects || []).join(', ')
-  const userAvoid = (quizState?.avoidEffects || []).join(', ') || 'none specified'
+  const userEffects = (quizState?.effects || [])
+    .map(id => EFFECTS.find(e => e.id === id)?.label || id)
+    .join(', ')
+  const userAvoid = (quizState?.avoidEffects || [])
+    .map(id => id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
+    .join(', ') || 'none specified'
 
   return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 2-3 sentences WHY this strain matches this specific user. Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist.
 
