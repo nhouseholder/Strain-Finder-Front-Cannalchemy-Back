@@ -51,6 +51,17 @@ export async function searchDispensaries(location, strainNames, options = {}) {
     return dispensaries
   } catch (err) {
     console.error('Dispensary search failed:', err)
+
+    if (err.message === 'API_KEY_MISSING') {
+      throw new Error('API_KEY_MISSING')
+    }
+
+    if (err.message?.includes('credit balance') || err.message?.includes('billing')) {
+      throw new Error(
+        'API credits exhausted. Add credits at console.anthropic.com, or search directly on Weedmaps or Leafly.'
+      )
+    }
+
     throw new Error(
       'Could not find dispensaries right now. Try searching directly on Weedmaps or Leafly, or try again in a moment.'
     )

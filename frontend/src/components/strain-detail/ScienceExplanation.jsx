@@ -51,7 +51,11 @@ export default function ScienceExplanation({ strain }) {
       if (strain?.name) setCache(strain.name, cleaned)
     } catch (err) {
       console.error('Science explanation failed:', err)
-      setError('Could not generate explanation. Check your API key or try again.')
+      if (err.message === 'API_KEY_MISSING') {
+        setError('AI explanations require an Anthropic API key. Add it to frontend/.env.local to enable this feature.')
+      } else {
+        setError('Could not generate explanation. Check your API key or try again.')
+      }
     } finally {
       setLoading(false)
     }

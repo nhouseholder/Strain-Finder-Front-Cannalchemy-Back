@@ -63,11 +63,16 @@ async function callAnthropicViaFunction({ prompt, maxTokens }) {
 
 // Dev: direct non-streaming call via Vite proxy
 async function callAnthropicDirect({ prompt, maxTokens }) {
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  if (!apiKey || apiKey.trim().length < 10) {
+    throw new Error('API_KEY_MISSING')
+  }
+
   const response = await fetch('/api/anthropic/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
       'anthropic-dangerous-direct-browser-access': 'true',
     },

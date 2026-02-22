@@ -448,12 +448,69 @@ export default function DispensaryPage() {
 
       {/* Error */}
       {error && !loading && (
-        <Card className="p-6 text-center mb-6">
-          <AlertCircle size={24} className="text-red-400 mx-auto mb-2" />
-          <p className="text-sm text-gray-600 dark:text-[#8a9a8e] mb-3">{error}</p>
-          <Button variant="secondary" size="sm" onClick={() => doSearch(locationUsed)}>
-            Try Again
-          </Button>
+        <Card className="p-6 mb-6">
+          {error === 'API_KEY_MISSING' ? (
+            <div className="text-center">
+              <AlertCircle size={24} className="text-amber-400 mx-auto mb-3" />
+              <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">
+                AI Dispensary Search Not Configured
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 max-w-sm mx-auto">
+                The AI-powered dispensary finder needs an Anthropic API key. In the meantime, search these sites directly for your strains:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center mb-4">
+                <a
+                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-leaf-500/10 text-leaf-400 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors"
+                >
+                  <ExternalLink size={14} />
+                  Search Weedmaps
+                </a>
+                <a
+                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
+                >
+                  <ExternalLink size={14} />
+                  Search Leafly
+                </a>
+              </div>
+              <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+                To enable AI search, add your key to <code className="font-mono text-[10px] bg-gray-100 dark:bg-white/[0.06] px-1 rounded">frontend/.env.local</code>
+              </p>
+            </div>
+          ) : (
+            <div className="text-center">
+              <AlertCircle size={24} className="text-red-400 mx-auto mb-2" />
+              <p className="text-sm text-gray-600 dark:text-[#8a9a8e] mb-3">{error}</p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Button variant="secondary" size="sm" onClick={() => doSearch(locationUsed)}>
+                  Try Again
+                </Button>
+                <a
+                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  Try Weedmaps
+                </a>
+                <a
+                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  Try Leafly
+                </a>
+              </div>
+            </div>
+          )}
         </Card>
       )}
 
