@@ -164,7 +164,7 @@ CRITICAL RULES:
 - All data should be based on actual strain data from web searches`
 }
 
-export function buildDispensaryPrompt(location, strainNames) {
+export function buildDispensaryPrompt(location, strainNames, options = {}) {
   let locationStr
   if (typeof location === 'string') {
     locationStr = location
@@ -174,14 +174,20 @@ export function buildDispensaryPrompt(location, strainNames) {
     throw new Error('Invalid location for dispensary search')
   }
 
-  return `Search for REAL cannabis dispensaries near ${locationStr} that carry or may carry these strains: ${strainNames.join(', ')}.
+  const budgetLine = options.budgetDesc
+    ? `\nUSER BUDGET: ${options.budgetDesc} — prioritize dispensaries and deals that fit this price range.`
+    : ''
 
+  return `Search for REAL cannabis dispensaries near ${locationStr} that carry or may carry these strains: ${strainNames.join(', ')}.
+${budgetLine}
 CRITICAL RULES:
 - Only include dispensaries you can verify actually exist via web search
-- Only include prices if you can verify them from the dispensary's actual menu (Weedmaps, Leafly, or their website)
+- Search Weedmaps, Leafly, and dispensary websites for REAL current pricing on these strains
+- Include actual eighth prices when found (e.g. "$45/eighth", "$35-50/eighth")
 - If you cannot verify a price, set priceRange to null — do NOT guess or make up prices
 - Include the dispensary's real website URL and their Weedmaps/Leafly menu link
 - Check if each dispensary actually carries the requested strains or similar ones
+- Look for current deals, daily specials, first-time patient discounts, and happy hour pricing
 
 Return ONLY valid JSON (no markdown, no backticks):
 
@@ -198,7 +204,7 @@ Return ONLY valid JSON (no markdown, no backticks):
       "matchedStrains": ["Only strains VERIFIED on their menu"],
       "alternativeStrains": ["Similar strains found on their menu"],
       "deals": ["Only REAL current promotions you found"],
-      "priceRange": null,
+      "priceRange": "$45/eighth",
       "hours": "9am-9pm",
       "phone": "(555) 123-4567",
       "website": "https://their-actual-website.com",
@@ -207,7 +213,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   ]
 }
 
-Return 4-6 dispensaries. Prioritize those with matching strains on their menu. Always include menuUrl so users can check real-time prices and availability themselves.`
+Return 4-6 dispensaries. Prioritize those with matching strains on their menu AND the best prices/deals. Always include menuUrl so users can check real-time prices and availability themselves.`
 }
 
 export function buildTrendingPrompt(location) {

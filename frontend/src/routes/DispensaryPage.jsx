@@ -1,8 +1,10 @@
-import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
+import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ResultsContext } from '../context/ResultsContext'
+import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { searchDispensaries } from '../services/dispensarySearch'
+import { BUDGETS } from '../data/budgets'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import {
@@ -24,8 +26,8 @@ import {
 /* ------------------------------------------------------------------ */
 /*  LocationInput (inline)                                            */
 /* ------------------------------------------------------------------ */
-function LocationInput({ onSubmit, geoLoading, onAutoDetect }) {
-  const [manualLocation, setManualLocation] = useState('')
+function LocationInput({ onSubmit, geoLoading, onAutoDetect, initialZip }) {
+  const [manualLocation, setManualLocation] = useState(initialZip || '')
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -265,6 +267,10 @@ function DispensaryCardItem({ dispensary }) {
 export default function DispensaryPage() {
   const navigate = useNavigate()
   const { state: resultsState } = useContext(ResultsContext)
+  const quizCtx = useContext(QuizContext)
+  const quizZipCode = quizCtx?.state?.zipCode || ''
+  const quizBudget = quizCtx?.state?.budget || null
+  const budgetDesc = BUDGETS.find((b) => b.id === quizBudget)?.desc || null
   const { location: geoLocation, error: geoError, loading: geoLoading, requestLocation } = useGeolocation()
 
   const [dispensaries, setDispensaries] = useState([])
@@ -272,6 +278,7 @@ export default function DispensaryPage() {
   const [error, setError] = useState(null)
   const [locationUsed, setLocationUsed] = useState(null)
   const [sortBy, setSortBy] = useState('closest')
+  const autoSearched = useRef(false)
 
   const strainNames = useMemo(
     () => (resultsState.strains || []).map((s) => s.name),
@@ -285,7 +292,7 @@ export default function DispensaryPage() {
       setError(null)
       setLocationUsed(typeof loc === 'string' ? loc : 'Current location')
       try {
-        const results = await searchDispensaries(loc, strainNames)
+        const results = await searchDispensaries(loc, strainNames, { budgetDesc })
         setDispensaries(results)
       } catch (err) {
         console.error('Dispensary search error:', err)
@@ -294,13 +301,21 @@ export default function DispensaryPage() {
         setLoading(false)
       }
     },
-    [strainNames]
+    [strainNames, budgetDesc]
   )
 
   /* Auto-detect callback -------------------------------------------- */
   const handleAutoDetect = useCallback(() => {
     requestLocation()
   }, [requestLocation])
+
+  /* Auto-search with quiz zip code ---------------------------------- */
+  useEffect(() => {
+    if (quizZipCode.length === 5 && !autoSearched.current && dispensaries.length === 0 && !loading) {
+      autoSearched.current = true
+      doSearch(quizZipCode)
+    }
+  }, [quizZipCode, dispensaries.length, loading, doSearch])
 
   /* When geo location arrives --------------------------------------- */
   useEffect(() => {
@@ -379,6 +394,7 @@ export default function DispensaryPage() {
           onSubmit={doSearch}
           geoLoading={geoLoading}
           onAutoDetect={handleAutoDetect}
+          initialZip={quizZipCode}
         />
         {geoError && (
           <p className="mt-2 text-xs text-red-400 flex items-center gap-1">

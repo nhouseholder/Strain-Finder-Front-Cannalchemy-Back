@@ -12,6 +12,7 @@ export function useQuizState() {
   const setConsumptionMethod = useCallback((val) => dispatch({ type: 'SET_CONSUMPTION_METHOD', payload: val }), [dispatch])
   const setBudget = useCallback((val) => dispatch({ type: 'SET_BUDGET', payload: val }), [dispatch])
   const setOpenToDeals = useCallback((val) => dispatch({ type: 'SET_OPEN_TO_DEALS', payload: val }), [dispatch])
+  const setZipCode = useCallback((val) => dispatch({ type: 'SET_ZIP_CODE', payload: val }), [dispatch])
   const setSubtype = useCallback((val) => dispatch({ type: 'SET_SUBTYPE', payload: val }), [dispatch])
   const setThcPreference = useCallback((val) => dispatch({ type: 'SET_THC_PREFERENCE', payload: val }), [dispatch])
   const setCbdPreference = useCallback((val) => dispatch({ type: 'SET_CBD_PREFERENCE', payload: val }), [dispatch])
@@ -27,6 +28,7 @@ export function useQuizState() {
     setConsumptionMethod,
     setBudget,
     setOpenToDeals,
+    setZipCode,
     setSubtype,
     setThcPreference,
     setCbdPreference,

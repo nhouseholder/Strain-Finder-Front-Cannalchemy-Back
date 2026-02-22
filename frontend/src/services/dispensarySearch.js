@@ -11,13 +11,13 @@ import { buildDispensaryPrompt } from './promptBuilder'
 const CACHE_PREFIX = 'dispensary_'
 const CACHE_TTL = 30 * 60 * 1000 // 30 minutes
 
-export async function searchDispensaries(location, strainNames) {
+export async function searchDispensaries(location, strainNames, options = {}) {
   // Check cache first
   const cached = getCachedResults(location, strainNames)
   if (cached) return cached
 
   try {
-    const prompt = buildDispensaryPrompt(location, strainNames)
+    const prompt = buildDispensaryPrompt(location, strainNames, options)
     const rawText = await callAnthropic({ prompt, maxTokens: 4000, retries: 2 })
     const parsed = parseDispensaryResponse(rawText)
 

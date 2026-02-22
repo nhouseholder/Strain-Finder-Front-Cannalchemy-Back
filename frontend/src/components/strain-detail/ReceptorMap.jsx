@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { Network } from 'lucide-react'
 import { getReceptorColor, RECEPTOR_COLORS } from '../../utils/colors'
 
@@ -9,93 +9,100 @@ import { getReceptorColor, RECEPTOR_COLORS } from '../../utils/colors'
  *   Molecule nodes → Receptor nodes → Effect nodes
  * with animated links colored by receptor type.
  *
- * Uses a simple spring-force simulation (no D3 dependency).
+ * Uses a deterministic 3-column layout with strong repulsion to prevent overlap.
  */
 
-const NODE_TYPES = {
-  molecule: {
-    radius: 20,
-    fill: (_, dark) => dark ? 'rgba(100,140,120,0.15)' : 'rgba(60,120,80,0.08)',
-    stroke: (_, dark) => dark ? 'rgba(140,180,160,0.4)' : 'rgba(60,120,80,0.3)',
-    textFill: (_, dark) => dark ? '#c0d4c6' : '#374151',
-    label: 'Compound',
-  },
-  receptor: {
-    radius: 22,
-    fill: (name) => `${getReceptorColor(name)}22`,
-    stroke: (name) => getReceptorColor(name),
-    textFill: (name) => getReceptorColor(name),
-    label: 'Receptor',
-  },
-  effect: {
-    radius: 18,
-    fill: (_, dark) => dark ? 'rgba(50,200,100,0.12)' : 'rgba(50,200,100,0.08)',
-    stroke: (_, dark) => dark ? 'rgba(50,200,100,0.45)' : 'rgba(50,200,100,0.35)',
-    textFill: (_, dark) => dark ? '#6ee7a0' : '#16a34a',
-    label: 'Effect',
-  },
-}
+const NODE_RADIUS = { molecule: 18, receptor: 20, effect: 16 }
+const MIN_NODE_GAP = 58 // minimum vertical gap between node centers
 
 function simpleForceLayout(nodes, links, width, height) {
-  // Place nodes in 3 columns: molecules left, receptors center, effects right
   const byType = { molecule: [], receptor: [], effect: [] }
   nodes.forEach((n) => byType[n.type]?.push(n))
 
-  const colX = { molecule: width * 0.18, receptor: width * 0.5, effect: width * 0.82 }
-  const colSpacing = { molecule: 52, receptor: 48, effect: 44 }
+  // 3-column positions
+  const colX = { molecule: width * 0.15, receptor: width * 0.5, effect: width * 0.85 }
 
+  // Initial even spacing per column
   Object.entries(byType).forEach(([type, group]) => {
-    const totalH = (group.length - 1) * colSpacing[type]
-    const startY = height / 2 - totalH / 2
+    const gap = Math.max(MIN_NODE_GAP, height / (group.length + 1))
     group.forEach((n, i) => {
-      n.x = colX[type] + (Math.sin(i * 1.5) * 8)
-      n.y = startY + i * colSpacing[type]
+      n.x = colX[type]
+      n.y = gap * (i + 1)
     })
   })
 
-  // Simple spring iterations for organic feel
-  for (let iter = 0; iter < 30; iter++) {
-    // Repulsion between same-type nodes
+  // Run repulsion + link-spring for 60 iterations
+  for (let iter = 0; iter < 60; iter++) {
+    // Strong repulsion between same-column nodes
     Object.values(byType).forEach((group) => {
       for (let i = 0; i < group.length; i++) {
         for (let j = i + 1; j < group.length; j++) {
           const dy = group[j].y - group[i].y
-          const dist = Math.max(Math.abs(dy), 1)
-          if (dist < 40) {
-            const force = (40 - dist) * 0.1
-            group[i].y -= force
-            group[j].y += force
+          const dist = Math.abs(dy) || 1
+          if (dist < MIN_NODE_GAP) {
+            const push = (MIN_NODE_GAP - dist) * 0.35
+            group[i].y -= push
+            group[j].y += push
           }
         }
       }
     })
 
-    // Pull linked nodes closer vertically
+    // Gentle vertical attraction between linked nodes
     links.forEach((l) => {
       const a = nodes.find((n) => n.id === l.source)
       const b = nodes.find((n) => n.id === l.target)
       if (a && b) {
         const dy = b.y - a.y
-        a.y += dy * 0.02
-        b.y -= dy * 0.02
+        a.y += dy * 0.015
+        b.y -= dy * 0.015
       }
     })
   }
 
-  // Clamp positions
+  // Clamp to viewbox with padding
+  const pad = 30
   nodes.forEach((n) => {
-    n.y = Math.max(24, Math.min(height - 24, n.y))
+    n.y = Math.max(pad, Math.min(height - pad, n.y))
   })
 
   return nodes
 }
 
 function GraphNode({ node, dark, onHover, isHovered, connections }) {
-  const config = NODE_TYPES[node.type]
-  if (!config) return null
+  const r = (NODE_RADIUS[node.type] || 16) + (isHovered ? 3 : 0)
+  const opacity = connections === false ? 0.2 : 1
 
-  const r = config.radius + (isHovered ? 4 : 0)
-  const opacity = connections === false ? 0.25 : 1
+  // Colors by type
+  const colors = {
+    molecule: {
+      fill: dark ? 'rgba(100,140,120,0.15)' : 'rgba(60,120,80,0.08)',
+      stroke: dark ? 'rgba(140,180,160,0.5)' : 'rgba(60,120,80,0.35)',
+      text: dark ? '#c0d4c6' : '#374151',
+    },
+    receptor: {
+      fill: `${getReceptorColor(node.label)}18`,
+      stroke: getReceptorColor(node.label),
+      text: getReceptorColor(node.label),
+    },
+    effect: {
+      fill: dark ? 'rgba(50,200,100,0.12)' : 'rgba(50,200,100,0.08)',
+      stroke: dark ? 'rgba(50,200,100,0.5)' : 'rgba(50,200,100,0.4)',
+      text: dark ? '#6ee7a0' : '#16a34a',
+    },
+  }
+  const c = colors[node.type] || colors.molecule
+
+  // Label — truncate long names
+  const displayLabel = node.label.length > 14 ? node.label.slice(0, 13) + '\u2026' : node.label
+  const fontSize = node.label.length > 10 ? 6.5 : 7.5
+
+  // Place label outside the node to prevent overlap
+  const labelY = node.type === 'effect'
+    ? node.y + r + 10
+    : node.type === 'molecule'
+      ? node.y - r - 6
+      : node.y - r - 6
 
   return (
     <g
@@ -104,47 +111,68 @@ function GraphNode({ node, dark, onHover, isHovered, connections }) {
       onMouseLeave={() => onHover?.(null)}
       className="cursor-pointer"
     >
-      {/* Glow */}
+      {/* Glow on hover */}
       {isHovered && (
-        <circle
-          cx={node.x}
-          cy={node.y}
-          r={r + 6}
-          fill={config.stroke(node.label, dark)}
-          opacity={0.12}
-        />
+        <circle cx={node.x} cy={node.y} r={r + 5} fill={c.stroke} opacity={0.12} />
       )}
       {/* Node circle */}
       <circle
         cx={node.x}
         cy={node.y}
         r={r}
-        fill={config.fill(node.label, dark)}
-        stroke={config.stroke(node.label, dark)}
+        fill={c.fill}
+        stroke={c.stroke}
         strokeWidth={isHovered ? 2 : 1.2}
       />
-      {/* Label */}
+      {/* Short label inside circle (abbreviation for receptors) */}
       <text
         x={node.x}
-        y={node.y - (node.subtitle ? 4 : 0)}
+        y={node.y + 1}
         textAnchor="middle"
         dominantBaseline="central"
-        fill={config.textFill(node.label, dark)}
-        fontSize={node.label.length > 10 ? 7 : 8}
+        fill={c.text}
+        fontSize={node.type === 'receptor' ? 7 : 6}
+        fontWeight={700}
+        className="pointer-events-none select-none"
+      >
+        {node.type === 'receptor' ? node.label : ''}
+      </text>
+      {/* Full label outside the circle */}
+      <text
+        x={node.x}
+        y={labelY}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill={c.text}
+        fontSize={fontSize}
         fontWeight={600}
         className="pointer-events-none select-none"
       >
-        {node.label.length > 12 ? node.label.slice(0, 11) + '\u2026' : node.label}
+        {node.type === 'receptor' ? '' : displayLabel}
       </text>
-      {/* Subtitle (percentage or probability) */}
-      {node.subtitle && (
+      {/* Subtitle below circle for molecules/effects */}
+      {node.subtitle && node.type !== 'receptor' && (
         <text
           x={node.x}
-          y={node.y + 9}
+          y={labelY + 9}
           textAnchor="middle"
           dominantBaseline="central"
           fill={dark ? '#6a7a6e' : '#9ca3af'}
-          fontSize={6}
+          fontSize={5.5}
+          className="pointer-events-none select-none"
+        >
+          {node.subtitle}
+        </text>
+      )}
+      {/* Subtitle below label for receptors */}
+      {node.subtitle && node.type === 'receptor' && (
+        <text
+          x={node.x}
+          y={node.y + r + 9}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill={dark ? '#6a7a6e' : '#9ca3af'}
+          fontSize={5.5}
           className="pointer-events-none select-none"
         >
           {node.subtitle}
@@ -155,17 +183,19 @@ function GraphNode({ node, dark, onHover, isHovered, connections }) {
 }
 
 function GraphLink({ x1, y1, x2, y2, color, highlighted, dimmed }) {
-  const midX = (x1 + x2) / 2
-  const curve = (y2 - y1) * 0.15
-  const d = `M ${x1} ${y1} Q ${midX} ${y1 + curve} ${midX} ${(y1 + y2) / 2} T ${x2} ${y2}`
+  // Smooth bezier curve from source to target
+  const dx = x2 - x1
+  const cp1x = x1 + dx * 0.4
+  const cp2x = x1 + dx * 0.6
+  const d = `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`
 
   return (
     <path
       d={d}
       fill="none"
       stroke={color}
-      strokeWidth={highlighted ? 2 : 1.2}
-      strokeOpacity={dimmed ? 0.08 : highlighted ? 0.7 : 0.25}
+      strokeWidth={highlighted ? 2.2 : 1}
+      strokeOpacity={dimmed ? 0.06 : highlighted ? 0.65 : 0.2}
       style={{ transition: 'stroke-opacity 0.2s, stroke-width 0.2s' }}
     />
   )
@@ -188,8 +218,9 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
       const recId = `rec:${p.receptor}`
       if (!nodeMap.has(molId)) {
         nodeMap.set(molId, {
-          id: molId, type: 'molecule', label: p.molecule.charAt(0).toUpperCase() + p.molecule.slice(1),
-          subtitle: p.ki_nm ? `Ki: ${p.ki_nm}nM` : '',
+          id: molId, type: 'molecule',
+          label: p.molecule.charAt(0).toUpperCase() + p.molecule.slice(1),
+          subtitle: p.ki_nm ? `Ki ${p.ki_nm} nM` : '',
           x: 0, y: 0,
         })
       }
@@ -215,11 +246,11 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
         if (!nodeMap.has(effId)) {
           nodeMap.set(effId, {
             id: effId, type: 'effect', label: name,
-            subtitle: `${Math.round((ep.probability || 0) * 100)}% likely`,
+            subtitle: `${Math.round((ep.probability || 0) * 100)}%`,
             x: 0, y: 0,
           })
         }
-        // Link receptors to this effect
+        // Link receptors → effect
         if (ep.pathway) {
           for (const rec of ep.pathway.split(',').map((s) => s.trim())) {
             const recId = `rec:${rec}`
@@ -241,8 +272,9 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
       allNodes.filter((n) => n.type === 'receptor').length,
       allNodes.filter((n) => n.type === 'effect').length,
     )
-    const h = Math.max(maxCol * 52 + 40, 200)
-    const w = 380
+    // Give each node plenty of vertical space
+    const h = Math.max(maxCol * MIN_NODE_GAP + 80, 260)
+    const w = 420
 
     simpleForceLayout(allNodes, linkList, w, h)
 
@@ -276,22 +308,28 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
           </h4>
         </div>
         {/* Legend */}
-        <div className="flex items-center gap-2">
-          {['molecule', 'receptor', 'effect'].map((type) => (
+        <div className="flex items-center gap-3">
+          {[
+            { type: 'molecule', color: '#8a9a8e', label: 'Compound' },
+            { type: 'receptor', color: '#3b82f6', label: 'Receptor' },
+            { type: 'effect', color: '#32c864', label: 'Effect' },
+          ].map(({ type, color, label }) => (
             <div key={type} className="flex items-center gap-1">
-              <div
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: type === 'molecule' ? '#8a9a8e' : type === 'receptor' ? '#3b82f6' : '#32c864',
-                }}
-              />
-              <span className="text-[8px] text-gray-400 dark:text-[#6a7a6e] capitalize">{type}s</span>
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+              <span className="text-[8px] text-gray-400 dark:text-[#6a7a6e]">{label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ maxHeight: 320 }}>
+      {/* Column headers */}
+      <div className="flex justify-between px-2 mb-1">
+        <span className="text-[8px] font-semibold text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider">Compounds</span>
+        <span className="text-[8px] font-semibold text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider">Receptors</span>
+        <span className="text-[8px] font-semibold text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider">Effects</span>
+      </div>
+
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full" style={{ maxHeight: 380 }}>
         {/* Links */}
         {links.map((l, i) => {
           const source = nodes.find((n) => n.id === l.source)
@@ -329,13 +367,13 @@ export default function ReceptorMap({ pathways, effectPredictions }) {
       </svg>
 
       {/* Receptor color key */}
-      <div className="flex flex-wrap gap-2 justify-center mt-2">
+      <div className="flex flex-wrap gap-3 justify-center mt-2 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
         {Object.entries(RECEPTOR_COLORS).map(([name, color]) => {
           const hasReceptor = nodes.some((n) => n.id === `rec:${name}`)
           if (!hasReceptor) return null
           return (
-            <div key={name} className="flex items-center gap-1 text-[8px] text-gray-400 dark:text-[#6a7a6e]">
-              <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color }} />
+            <div key={name} className="flex items-center gap-1 text-[9px] text-gray-500 dark:text-[#8a9a8e]">
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
               {name}
             </div>
           )

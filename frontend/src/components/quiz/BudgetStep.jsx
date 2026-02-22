@@ -2,14 +2,49 @@ import { useQuizState } from '../../hooks/useQuizState'
 import { BUDGETS } from '../../data/budgets'
 import Card from '../shared/Card'
 import Button from '../shared/Button'
+import { MapPin } from 'lucide-react'
 
 export default function BudgetStep() {
-  const { budget, openToDeals, setBudget, setOpenToDeals, setStep } = useQuizState()
+  const { budget, openToDeals, zipCode, setBudget, setOpenToDeals, setZipCode, setStep } = useQuizState()
 
   const canContinue = budget !== null
 
   return (
     <div className="space-y-8">
+      {/* Zip code — find deals near you */}
+      <div className="rounded-2xl border border-leaf-500/20 bg-leaf-500/[0.04] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-lg bg-leaf-500/15 flex items-center justify-center flex-shrink-0">
+            <MapPin size={15} className="text-leaf-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              Find cannabis deals near you
+            </p>
+            <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] leading-snug">
+              Enter your zip code so we can find real prices and nearby dispensaries
+            </p>
+          </div>
+        </div>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={5}
+          value={zipCode}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 5)
+            setZipCode(val)
+          }}
+          placeholder="e.g. 90210"
+          aria-label="Your zip code for finding local deals"
+          className="w-full mt-1 px-4 py-2.5 text-sm rounded-xl bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
+        />
+        {zipCode.length > 0 && zipCode.length < 5 && (
+          <p className="text-[10px] text-amber-500 mt-1 ml-1">Enter a 5-digit zip code</p>
+        )}
+      </div>
+
       {/* Heading */}
       <div className="text-center">
         <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">

@@ -11,6 +11,7 @@ const initialState = {
   consumptionMethod: null,
   budget: null,
   openToDeals: true,
+  zipCode: '',
   subtype: 'no_preference',
   thcPreference: 'no_preference',
   cbdPreference: 'none',
@@ -46,6 +47,8 @@ function quizReducer(state, action) {
       return { ...state, budget: action.payload }
     case 'SET_OPEN_TO_DEALS':
       return { ...state, openToDeals: action.payload }
+    case 'SET_ZIP_CODE':
+      return { ...state, zipCode: action.payload }
     case 'SET_SUBTYPE':
       return { ...state, subtype: action.payload }
     case 'SET_THC_PREFERENCE':
