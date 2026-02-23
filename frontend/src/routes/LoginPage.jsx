@@ -1,13 +1,17 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
+import usePageTitle from '../hooks/usePageTitle'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 
 export default function LoginPage() {
+  usePageTitle('Sign In')
   const navigate = useNavigate()
   const location = useLocation()
   const { signIn, user } = useAuth()
+  const toast = useToast()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
@@ -27,6 +31,7 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password)
+      toast.success('Welcome back!')
       const from = location.state?.from?.pathname || '/quiz'
       navigate(from, { replace: true })
     } catch (err) {

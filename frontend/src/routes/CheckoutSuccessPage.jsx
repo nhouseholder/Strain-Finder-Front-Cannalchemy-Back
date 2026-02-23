@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useToast } from '../context/ToastContext'
 import Button from '../components/shared/Button'
 import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
 
 export default function CheckoutSuccessPage() {
   const [searchParams] = useSearchParams()
   const { refreshProfile } = useAuth()
+  const toast = useToast()
   const [refreshed, setRefreshed] = useState(false)
   const sessionId = searchParams.get('session_id')
 
@@ -16,6 +18,7 @@ export default function CheckoutSuccessPage() {
       const timer = setTimeout(() => {
         refreshProfile()
         setRefreshed(true)
+        toast.success('Premium activated! All features unlocked.')
       }, 2000) // Wait 2s for webhook to process
       return () => clearTimeout(timer)
     }

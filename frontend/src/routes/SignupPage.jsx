@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import usePageTitle from '../hooks/usePageTitle'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 
 export default function SignupPage() {
+  usePageTitle('Sign Up')
   const navigate = useNavigate()
   const { signUp, user } = useAuth()
   const [email, setEmail] = useState('')

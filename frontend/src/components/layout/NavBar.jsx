@@ -3,6 +3,7 @@ import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
+import { useToast } from '../../context/ToastContext'
 
 const navItems = [
   { to: '/quiz', icon: Search, label: 'Find' },
@@ -15,9 +16,11 @@ const navItems = [
 export default function NavBar() {
   const { user, profile, isAdmin, signOut } = useAuth()
   const navigate = useNavigate()
+  const toast = useToast()
 
   const handleSignOut = async () => {
     await signOut()
+    toast.success('Signed out successfully')
     navigate('/')
   }
 

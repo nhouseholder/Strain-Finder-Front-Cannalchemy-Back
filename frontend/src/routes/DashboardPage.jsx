@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { UserContext } from '../context/UserContext'
 import { ResultsContext } from '../context/ResultsContext'
 import { EFFECTS } from '../data/effects'
+import usePageTitle from '../hooks/usePageTitle'
 import {
   Search,
   GitCompareArrows,
@@ -22,6 +23,7 @@ import Card from '../components/shared/Card'
 /*  DashboardPage                                                     */
 /* ------------------------------------------------------------------ */
 export default function DashboardPage() {
+  usePageTitle('Dashboard')
   const navigate = useNavigate()
   const { state: userState, dispatch: userDispatch, getJournalStats } = useContext(UserContext)
   const { dispatch: resultsDispatch } = useContext(ResultsContext)

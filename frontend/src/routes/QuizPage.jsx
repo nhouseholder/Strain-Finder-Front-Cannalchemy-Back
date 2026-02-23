@@ -1,6 +1,7 @@
 import { useState, useCallback, useContext, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuizState } from '../hooks/useQuizState'
+import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { UserContext } from '../context/UserContext'
 import { getRecommendations } from '../services/api'
@@ -68,6 +69,7 @@ function LoadingAnalysis({ phase, message, timedOut }) {
 /*  QuizPage                                                          */
 /* ------------------------------------------------------------------ */
 export default function QuizPage() {
+  usePageTitle('Find My Strain')
   const navigate = useNavigate()
   const quizState = useQuizState()
   const { currentStep, setStep, reset } = quizState

@@ -5,6 +5,7 @@ import { QuizProvider } from './context/QuizContext'
 import { ResultsProvider } from './context/ResultsContext'
 import { UserProvider } from './context/UserContext'
 import { AuthProvider } from './context/AuthContext'
+import { ToastProvider } from './context/ToastContext'
 import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 import ProtectedRoute from './components/shared/ProtectedRoute'
@@ -22,6 +23,7 @@ const SignupPage = lazy(() => import('./routes/SignupPage'))
 const AdminPage = lazy(() => import('./routes/AdminPage'))
 const CheckoutSuccessPage = lazy(() => import('./routes/CheckoutSuccessPage'))
 const ForgotPasswordPage = lazy(() => import('./routes/ForgotPasswordPage'))
+const NotFoundPage = lazy(() => import('./routes/NotFoundPage'))
 
 function LoadingFallback() {
   return (
@@ -35,6 +37,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
+        <ToastProvider>
         <ThemeProvider>
           <UserProvider>
             <QuizProvider>
@@ -65,12 +68,16 @@ export default function App() {
                       {/* Admin — protected + requires admin role */}
                       <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
                     </Route>
+
+                    {/* 404 catch-all */}
+                    <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Suspense>
               </ResultsProvider>
             </QuizProvider>
           </UserProvider>
         </ThemeProvider>
+        </ToastProvider>
       </AuthProvider>
     </ErrorBoundary>
   )

@@ -2,11 +2,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { supabase } from '../services/supabase'
+import usePageTitle from '../hooks/usePageTitle'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import { Shield, Users, Crown, RefreshCw, Search, CheckCircle, XCircle } from 'lucide-react'
 
 export default function AdminPage() {
+  usePageTitle('Admin Dashboard')
   const { isAdmin, loading: authLoading } = useAuth()
   const navigate = useNavigate()
   const [users, setUsers] = useState([])

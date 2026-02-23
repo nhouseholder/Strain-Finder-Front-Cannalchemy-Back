@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react'
 import { useNavigate, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import usePageTitle from '../hooks/usePageTitle'
 import {
   FlaskConical, Fingerprint, BookMarked, ArrowRight, Sparkles,
   Search, Zap, BarChart3, ChevronRight, Star, Lock, Check,
@@ -439,6 +440,7 @@ function HowItWorksSection() {
 /* ------------------------------------------------------------------ */
 function PricingSection({ onGetStarted }) {
   const ref = useScrollReveal()
+  const { user, isPremium } = useAuth()
 
   const free = ['2 strain recommendations per quiz', 'Basic cannabinoid profiles', 'Community reviews']
   const premium = ['Unlimited recommendations', 'Full receptor science & pathways', 'Terpene radar & molecular maps', 'Personal journal & compare tool', 'AI strain analysis', 'Priority support']
@@ -492,8 +494,8 @@ function PricingSection({ onGetStarted }) {
               ))}
             </ul>
             <Button size="full" className="shadow-lg shadow-leaf-500/25" onClick={onGetStarted}>
-              Start Premium
-              <Sparkles size={16} />
+              {isPremium ? 'Go to App' : user ? 'Upgrade Now' : 'Start Premium'}
+              {isPremium ? <ArrowRight size={16} /> : <Sparkles size={16} />}
             </Button>
           </Card>
         </div>
@@ -533,6 +535,7 @@ function CTASection({ onGetStarted }) {
 /*  Landing Page                                                      */
 /* ================================================================== */
 export default function LandingPage() {
+  usePageTitle('Cannabis Science, Personalized')
   const navigate = useNavigate()
   const { user } = useAuth()
 

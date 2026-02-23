@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ResultsContext } from '../context/ResultsContext'
 import { useFavorites } from '../hooks/useFavorites'
 import { useSubscription } from '../hooks/useSubscription'
+import usePageTitle from '../hooks/usePageTitle'
 import StrainCard from '../components/results/StrainCard'
 import AiPicksSection from '../components/results/AiPicksSection'
 import PaywallOverlay from '../components/shared/PaywallOverlay'
@@ -13,6 +14,7 @@ import { MapPin, RotateCcw, ArrowRight } from 'lucide-react'
 /*  ResultsPage                                                       */
 /* ------------------------------------------------------------------ */
 export default function ResultsPage() {
+  usePageTitle('Your Recommendations')
   const navigate = useNavigate()
   const { state, dispatch, getSortedStrains } = useContext(ResultsContext)
   const { toggleFavorite, isFavorite } = useFavorites()

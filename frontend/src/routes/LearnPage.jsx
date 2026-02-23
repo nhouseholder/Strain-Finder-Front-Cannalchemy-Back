@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import usePageTitle from '../hooks/usePageTitle'
 import {
   BookOpen,
   Leaf,
@@ -625,6 +626,7 @@ const TOPICS = [
 /*  LearnPage                                                         */
 /* ------------------------------------------------------------------ */
 export default function LearnPage() {
+  usePageTitle('Learn Cannabis Science')
   const { topic: urlTopic } = useParams()
   const [openTopics, setOpenTopics] = useState(() => {
     if (urlTopic) {
