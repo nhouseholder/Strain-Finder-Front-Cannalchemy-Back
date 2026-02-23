@@ -21,7 +21,7 @@ export default function PaywallOverlay() {
         body: JSON.stringify({
           email: user.email,
           userId: user.id,
-          returnUrl: window.location.origin + '/results',
+          returnUrl: window.location.origin + '/checkout-success',
         }),
       })
 
@@ -66,7 +66,15 @@ export default function PaywallOverlay() {
           {loading ? 'Loading...' : 'Upgrade for $9.99/mo'}
         </Button>
         {error && (
-          <p className="text-[10px] text-red-400 mt-2">{error}</p>
+          <div className="mt-3 space-y-2">
+            <p className="text-xs text-red-400">{error}</p>
+            <button
+              onClick={() => { setError(null); handleUpgrade() }}
+              className="text-[11px] text-leaf-500 hover:text-leaf-400 underline underline-offset-2 transition-colors"
+            >
+              Try again
+            </button>
+          </div>
         )}
       </div>
     </div>

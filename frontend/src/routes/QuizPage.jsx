@@ -20,7 +20,7 @@ const LOADING_PHASES = [
 /* ------------------------------------------------------------------ */
 /*  LoadingAnalysis (inline)                                          */
 /* ------------------------------------------------------------------ */
-function LoadingAnalysis({ phase, message }) {
+function LoadingAnalysis({ phase, message, timedOut }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[50vh] gap-8 animate-fade-in px-4">
       {/* Spinner */}
@@ -56,7 +56,9 @@ function LoadingAnalysis({ phase, message }) {
       </div>
 
       <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
-        This may take 30-60 seconds
+        {timedOut
+          ? 'Still working — almost there...'
+          : 'This may take 30-60 seconds'}
       </p>
     </div>
   )
@@ -76,7 +78,9 @@ export default function QuizPage() {
   const [loadingMsg, setLoadingMsg] = useState(LOADING_PHASES[0])
   const [error, setError] = useState(null)
   const [isRunning, setIsRunning] = useState(false)
+  const [timedOut, setTimedOut] = useState(false)
   const phaseInterval = useRef(null)
+  const timeoutRef = useRef(null)
 
   /* Advance loading messages ---------------------------------------- */
   useEffect(() => {
@@ -97,10 +101,15 @@ export default function QuizPage() {
   const runAnalysis = useCallback(async () => {
     setIsRunning(true)
     setError(null)
+    setTimedOut(false)
     setLoadingPhase(0)
     setLoadingMsg(LOADING_PHASES[0])
     setStep(6)
     resultsDispatch({ type: 'SET_LOADING' })
+
+    // Timeout: show "still working" after 45s
+    clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => setTimedOut(true), 45000)
 
     try {
       // Call Cannalchemy backend — scores 24,853 strains with receptor science
@@ -131,6 +140,8 @@ export default function QuizPage() {
       clearInterval(phaseInterval.current)
     } finally {
       setIsRunning(false)
+      clearTimeout(timeoutRef.current)
+      setTimedOut(false)
     }
   }, [quizState, resultsDispatch, userDispatch, navigate, setStep])
 
@@ -257,7 +268,7 @@ export default function QuizPage() {
             </div>
           </div>
         ) : (
-          <LoadingAnalysis phase={loadingPhase} message={loadingMsg} />
+          <LoadingAnalysis phase={loadingPhase} message={loadingMsg} timedOut={timedOut} />
         )}
       </div>
     )
