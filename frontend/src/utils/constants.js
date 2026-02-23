@@ -1,4 +1,4 @@
-export const APP_NAME = 'Cannalchemy';
+export const APP_NAME = 'Strain Finder';
 export const APP_VERSION = '3.0.4';
 
 export const STORAGE_KEYS = {

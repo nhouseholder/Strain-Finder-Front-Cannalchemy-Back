@@ -114,7 +114,7 @@ export default function QuizPage() {
     timeoutRef.current = setTimeout(() => setTimedOut(true), 45000)
 
     try {
-      // Call Cannalchemy backend — scores 24,853 strains with receptor science
+      // Call Strain Finder backend — scores 24,853 strains with receptor science
       const parsed = await getRecommendations(quizState)
 
       // Dispatch results

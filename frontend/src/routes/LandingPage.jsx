@@ -79,7 +79,7 @@ function HeroSection({ onGetStarted }) {
         </div>
 
         <div className="flex items-center justify-center gap-6 mt-12 text-sm text-gray-400 dark:text-[#5a6a5e]">
-          <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 77 Strains</span>
+          <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 24,000+ Strains</span>
           <span className="flex items-center gap-1.5"><Zap size={14} /> 51 Effects</span>
           <span className="flex items-center gap-1.5"><BarChart3 size={14} /> 6 Receptors</span>
         </div>
@@ -391,7 +391,7 @@ function DemoSection() {
 
         {/* Caption */}
         <p className="text-center text-[11px] text-gray-400 dark:text-[#5a6a5e] mt-4">
-          This is real data from our 77-strain database — every recommendation includes all of this.
+          This is real data from our 24,000+ strain database — every recommendation includes all of this.
         </p>
       </div>
     </section>
@@ -549,7 +549,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-[#0a0f0c]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.04]">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="text-2xl">{'\u{1F33F}'}</span>
-          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">Cannalchemy</span>
+          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">Strain Finder</span>
         </NavLink>
         <div className="flex items-center gap-2">
           {user ? (
@@ -580,7 +580,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="text-center py-8 border-t border-gray-200/50 dark:border-white/[0.04]">
         <p className="text-[11px] text-gray-400 dark:text-[#2a352c]">
-          Cannalchemy &middot; AI-Powered Cannabis Science &middot; {new Date().getFullYear()}
+          Strain Finder &middot; AI-Powered Cannabis Science &middot; {new Date().getFullYear()}
         </p>
       </footer>
     </div>

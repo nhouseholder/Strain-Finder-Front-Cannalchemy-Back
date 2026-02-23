@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <span className="text-3xl">🌿</span>
           <span className="text-2xl font-bold bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Cannalchemy
+            Strain Finder
           </span>
         </Link>
 

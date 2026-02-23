@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 
-const BASE_TITLE = 'Cannalchemy'
+const BASE_TITLE = 'Strain Finder'
 
 export default function usePageTitle(title) {
   useEffect(() => {
