@@ -71,14 +71,11 @@ export default function ResultsPage() {
         </Button>
       </div>
 
-      {/* AI Picks (uses full StrainCard with StrainCardExpanded) */}
-      <AiPicksSection />
-
-      {/* Section label */}
+      {/* Section label — Best Matches */}
       <div className="flex items-center gap-2 mb-3">
         <div className="h-px flex-1 bg-gray-200 dark:bg-white/[0.06]" />
         <span className="text-xs font-semibold text-gray-500 dark:text-[#6a7a6e] uppercase tracking-wider whitespace-nowrap">
-          For You &mdash; Personalized Matches
+          Best Matches &mdash; Personalized For You
         </span>
         <div className="h-px flex-1 bg-gray-200 dark:bg-white/[0.06]" />
       </div>
@@ -105,6 +102,9 @@ export default function ResultsPage() {
           No strains match the current filter. Try a different type.
         </div>
       )}
+
+      {/* AI Hidden Gems — below best matches */}
+      <AiPicksSection />
 
       {/* Dispensary CTA */}
       <div className="text-center pb-4">
