@@ -2,7 +2,7 @@
  * Dispensary search — uses Claude web search when API key is available,
  * falls back to realistic demo data for showcasing the UI.
  */
-import { callAnthropic } from './anthropicApi'
+import { callAnthropic, RateLimitError } from './anthropicApi'
 import { buildDispensaryPrompt } from './promptBuilder'
 
 const CACHE_PREFIX = 'dispensary_'
@@ -45,6 +45,11 @@ export async function searchDispensaries(location, strainNames, options = {}) {
     setCachedResults(location, strainNames, dispensaries)
     return dispensaries
   } catch (err) {
+    // Rate limit errors should surface to the UI — don't silently fall back
+    if (err instanceof RateLimitError) {
+      throw err
+    }
+
     console.error('Dispensary search — falling back to demo data:', err.message)
 
     // Return demo dispensary data so the UI always has something to show

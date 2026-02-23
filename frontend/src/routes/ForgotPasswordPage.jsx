@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import usePageTitle from '../hooks/usePageTitle'
 import { supabase, isSupabaseConfigured } from '../services/supabase'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 
 export default function ForgotPasswordPage() {
+  usePageTitle('Reset Password')
   const [email, setEmail] = useState('')
   const [loading, setLoading] = useState(false)
   const [sent, setSent] = useState(false)

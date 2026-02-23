@@ -1,7 +1,8 @@
-import { useContext, useMemo } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { UserContext } from '../context/UserContext'
 import { ResultsContext } from '../context/ResultsContext'
+import { useAuth } from '../context/AuthContext'
 import { EFFECTS } from '../data/effects'
 import usePageTitle from '../hooks/usePageTitle'
 import {
@@ -15,6 +16,9 @@ import {
   ArrowRight,
   BookOpen,
   RotateCcw,
+  CreditCard,
+  Crown,
+  ExternalLink,
 } from 'lucide-react'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -27,6 +31,8 @@ export default function DashboardPage() {
   const navigate = useNavigate()
   const { state: userState, dispatch: userDispatch, getJournalStats } = useContext(UserContext)
   const { dispatch: resultsDispatch } = useContext(ResultsContext)
+  const { isPremium, profile } = useAuth()
+  const [portalLoading, setPortalLoading] = useState(false)
 
   const { favorites, journal, recentSearches } = userState
   const stats = useMemo(() => getJournalStats(), [getJournalStats])
@@ -349,6 +355,57 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Subscription Management --------------------------------------- */}
+      {isPremium && profile?.stripe_customer_id && (
+        <Card className="p-4 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Crown size={16} className="text-amber-400" />
+              <div>
+                <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4]">
+                  Premium Member
+                </h2>
+                <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+                  Full access to all strain results
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={portalLoading}
+              onClick={async () => {
+                setPortalLoading(true)
+                try {
+                  const res = await fetch('/.netlify/functions/stripe-portal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      customerId: profile.stripe_customer_id,
+                      returnUrl: window.location.href,
+                    }),
+                  })
+                  const data = await res.json()
+                  if (data.url) {
+                    window.location.href = data.url
+                  } else {
+                    console.error('Portal error:', data.error)
+                  }
+                } catch (err) {
+                  console.error('Portal error:', err)
+                } finally {
+                  setPortalLoading(false)
+                }
+              }}
+            >
+              <CreditCard size={12} />
+              {portalLoading ? 'Loading...' : 'Manage Subscription'}
+              {!portalLoading && <ExternalLink size={10} />}
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Browse link -------------------------------------------------- */}
       <div className="text-center pb-4">

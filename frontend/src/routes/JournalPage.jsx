@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import usePageTitle from '../hooks/usePageTitle'
 import { useJournal } from '../hooks/useJournal'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -391,6 +392,7 @@ function JournalStatsSection({ stats }) {
 /*  JournalPage                                                       */
 /* ------------------------------------------------------------------ */
 export default function JournalPage() {
+  usePageTitle('Strain Journal')
   const { entries, addEntry, deleteEntry, getJournalStats } = useJournal()
   const [modalOpen, setModalOpen] = useState(false)
 

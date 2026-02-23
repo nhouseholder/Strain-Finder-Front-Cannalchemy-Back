@@ -143,6 +143,14 @@ export default function SignupPage() {
               <p className="text-xs text-red-400 text-center">{error}</p>
             )}
 
+            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] text-center leading-relaxed">
+              By creating an account, you agree to our{' '}
+              <Link to="/terms" className="text-leaf-500 hover:text-leaf-400 underline">Terms of Service</Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="text-leaf-500 hover:text-leaf-400 underline">Privacy Policy</Link>.
+              You confirm you are at least 21 years old.
+            </p>
+
             <Button type="submit" size="lg" className="w-full" disabled={loading}>
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>

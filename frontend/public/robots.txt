@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /learn
+Allow: /terms
+Allow: /privacy
+Disallow: /dashboard
+Disallow: /quiz
+Disallow: /results
+Disallow: /journal
+Disallow: /compare
+Disallow: /dispensaries
+Disallow: /admin
+Disallow: /checkout-success
+
+Sitemap: https://strain-finder-cannalchemy-2.netlify.app/sitemap.xml

@@ -79,7 +79,7 @@ function HeroSection({ onGetStarted }) {
         </div>
 
         <div className="flex items-center justify-center gap-6 mt-12 text-sm text-gray-400 dark:text-[#5a6a5e]">
-          <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 24,000+ Strains</span>
+          <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 1,000+ Strains</span>
           <span className="flex items-center gap-1.5"><Zap size={14} /> 51 Effects</span>
           <span className="flex items-center gap-1.5"><BarChart3 size={14} /> 6 Receptors</span>
         </div>
@@ -391,7 +391,7 @@ function DemoSection() {
 
         {/* Caption */}
         <p className="text-center text-[11px] text-gray-400 dark:text-[#5a6a5e] mt-4">
-          This is real data from our 24,000+ strain database — every recommendation includes all of this.
+          This is real data from our 1,000+ strain database — every recommendation includes all of this.
         </p>
       </div>
     </section>
@@ -603,11 +603,22 @@ export default function LandingPage() {
       <PricingSection onGetStarted={handleGetStarted} />
       <CTASection onGetStarted={handleGetStarted} />
 
+      {/* Disclaimer */}
+      <div className="max-w-2xl mx-auto px-6 py-6 text-center">
+        <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed">
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> Strain Finder provides educational information only and does not constitute medical advice. Always consult a healthcare professional before using cannabis. Cannabis products are only legal in certain jurisdictions — you are responsible for knowing your local laws. Do not drive or operate machinery while under the influence.
+        </p>
+      </div>
+
       {/* Footer */}
       <footer className="text-center py-8 border-t border-gray-200/50 dark:border-white/[0.04]">
-        <p className="text-[11px] text-gray-400 dark:text-[#2a352c]">
-          Strain Finder &middot; AI-Powered Cannabis Science &middot; {new Date().getFullYear()}
-        </p>
+        <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#2a352c]">
+          <NavLink to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Terms</NavLink>
+          <span>&middot;</span>
+          <NavLink to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Privacy</NavLink>
+          <span>&middot;</span>
+          <span>Strain Finder &copy; {new Date().getFullYear()}</span>
+        </div>
       </footer>
     </div>
   )

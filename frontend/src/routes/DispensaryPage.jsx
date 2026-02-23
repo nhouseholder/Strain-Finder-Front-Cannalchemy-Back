@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
 import { searchDispensaries } from '../services/dispensarySearch'
+import { RateLimitError } from '../services/anthropicApi'
 import { BUDGETS } from '../data/budgets'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -265,6 +267,7 @@ function DispensaryCardItem({ dispensary }) {
 /*  DispensaryPage                                                    */
 /* ------------------------------------------------------------------ */
 export default function DispensaryPage() {
+  usePageTitle('Dispensaries Near You')
   const navigate = useNavigate()
   const { state: resultsState } = useContext(ResultsContext)
   const quizCtx = useContext(QuizContext)
@@ -276,9 +279,11 @@ export default function DispensaryPage() {
   const [dispensaries, setDispensaries] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
   const [locationUsed, setLocationUsed] = useState(null)
   const [sortBy, setSortBy] = useState('closest')
   const autoSearched = useRef(false)
+  const countdownRef = useRef(null)
 
   const strainNames = useMemo(
     () => (resultsState.strains || []).map((s) => s.name),
@@ -286,8 +291,29 @@ export default function DispensaryPage() {
   )
 
   /* Search dispensaries ---------------------------------------------- */
+  // Countdown timer cleanup
+  useEffect(() => {
+    return () => { if (countdownRef.current) clearInterval(countdownRef.current) }
+  }, [])
+
+  const startCountdown = useCallback((seconds) => {
+    if (countdownRef.current) clearInterval(countdownRef.current)
+    setRateLimitCountdown(seconds)
+    countdownRef.current = setInterval(() => {
+      setRateLimitCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownRef.current)
+          countdownRef.current = null
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+  }, [])
+
   const doSearch = useCallback(
     async (loc) => {
+      if (rateLimitCountdown > 0) return // Block while rate-limited
       setLoading(true)
       setError(null)
       setLocationUsed(typeof loc === 'string' ? loc : 'Current location')
@@ -296,12 +322,17 @@ export default function DispensaryPage() {
         setDispensaries(results)
       } catch (err) {
         console.error('Dispensary search error:', err)
-        setError(err.message || 'Failed to find dispensaries. Please try again.')
+        if (err instanceof RateLimitError) {
+          setError('RATE_LIMITED')
+          startCountdown(err.retryAfter)
+        } else {
+          setError(err.message || 'Failed to find dispensaries. Please try again.')
+        }
       } finally {
         setLoading(false)
       }
     },
-    [strainNames, budgetDesc]
+    [strainNames, budgetDesc, rateLimitCountdown, startCountdown]
   )
 
   /* Auto-detect callback -------------------------------------------- */
@@ -449,7 +480,54 @@ export default function DispensaryPage() {
       {/* Error */}
       {error && !loading && (
         <Card className="p-6 mb-6">
-          {error === 'API_KEY_MISSING' ? (
+          {error === 'RATE_LIMITED' ? (
+            <div className="text-center">
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-3">
+                <Clock size={24} className="text-amber-400" />
+              </div>
+              <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">
+                Slow Down — Rate Limit Reached
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 max-w-sm mx-auto">
+                You've made too many searches recently. This protects our service for all users.
+              </p>
+              {rateLimitCountdown > 0 ? (
+                <div className="mb-4">
+                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm font-semibold text-amber-400">
+                    <Clock size={14} />
+                    Try again in {Math.floor(rateLimitCountdown / 60)}:{String(rateLimitCountdown % 60).padStart(2, '0')}
+                  </span>
+                </div>
+              ) : (
+                <Button variant="secondary" size="sm" onClick={() => { setError(null); doSearch(locationUsed) }}>
+                  Try Again
+                </Button>
+              )}
+              <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-3">
+                In the meantime, browse these sites for dispensaries:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center mt-2">
+                <a
+                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  Weedmaps
+                </a>
+                <a
+                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
+                >
+                  <ExternalLink size={12} />
+                  Leafly
+                </a>
+              </div>
+            </div>
+          ) : error === 'API_KEY_MISSING' ? (
             <div className="text-center">
               <AlertCircle size={24} className="text-amber-400 mx-auto mb-3" />
               <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">

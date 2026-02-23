@@ -9,6 +9,7 @@ import { ToastProvider } from './context/ToastContext'
 import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 import ProtectedRoute from './components/shared/ProtectedRoute'
+import AgeGate from './components/shared/AgeGate'
 
 const LandingPage = lazy(() => import('./routes/LandingPage'))
 const QuizPage = lazy(() => import('./routes/QuizPage'))
@@ -23,6 +24,8 @@ const SignupPage = lazy(() => import('./routes/SignupPage'))
 const AdminPage = lazy(() => import('./routes/AdminPage'))
 const CheckoutSuccessPage = lazy(() => import('./routes/CheckoutSuccessPage'))
 const ForgotPasswordPage = lazy(() => import('./routes/ForgotPasswordPage'))
+const TermsPage = lazy(() => import('./routes/TermsPage'))
+const PrivacyPage = lazy(() => import('./routes/PrivacyPage'))
 const NotFoundPage = lazy(() => import('./routes/NotFoundPage'))
 
 function LoadingFallback() {
@@ -36,6 +39,7 @@ function LoadingFallback() {
 export default function App() {
   return (
     <ErrorBoundary>
+      <AgeGate>
       <AuthProvider>
         <ToastProvider>
         <ThemeProvider>
@@ -50,6 +54,10 @@ export default function App() {
                     <Route path="signup" element={<SignupPage />} />
                     <Route path="forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="checkout-success" element={<ProtectedRoute><CheckoutSuccessPage /></ProtectedRoute>} />
+
+                    {/* Legal pages — public, own layout */}
+                    <Route path="terms" element={<TermsPage />} />
+                    <Route path="privacy" element={<PrivacyPage />} />
 
                     {/* App pages — inside AppShell with NavBar */}
                     <Route element={<AppShell />}>
@@ -81,6 +89,7 @@ export default function App() {
         </ThemeProvider>
         </ToastProvider>
       </AuthProvider>
+      </AgeGate>
     </ErrorBoundary>
   )
 }

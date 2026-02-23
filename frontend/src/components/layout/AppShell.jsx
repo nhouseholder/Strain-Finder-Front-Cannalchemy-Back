@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, Link } from 'react-router-dom'
 import NavBar from './NavBar'
 import BGGlow from './BGGlow'
 
@@ -13,8 +13,17 @@ export default function AppShell() {
       <main id="main-content" className="relative z-10 pb-20 sm:pb-8">
         <Outlet />
       </main>
-      <footer className="relative z-10 text-center py-6 pb-20 sm:pb-6 text-[10px] text-gray-300 dark:text-[#2a352c]">
-        Strain Finder &middot; AI-Powered Cannabis Science &middot; v4.1
+      <footer className="relative z-10 text-center py-6 pb-20 sm:pb-6">
+        <p className="text-[9px] text-gray-300 dark:text-[#2a352c] mb-1.5 max-w-md mx-auto px-4 leading-relaxed">
+          For educational purposes only. Not medical advice. Know your local cannabis laws.
+        </p>
+        <div className="flex items-center justify-center gap-3 text-[10px] text-gray-300 dark:text-[#2a352c]">
+          <Link to="/terms" className="hover:text-gray-500 dark:hover:text-[#5a6a5e] transition-colors">Terms</Link>
+          <span>&middot;</span>
+          <Link to="/privacy" className="hover:text-gray-500 dark:hover:text-[#5a6a5e] transition-colors">Privacy</Link>
+          <span>&middot;</span>
+          <span>Strain Finder &copy; {new Date().getFullYear()}</span>
+        </div>
       </footer>
     </div>
   )

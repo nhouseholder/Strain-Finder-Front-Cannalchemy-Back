@@ -1,4 +1,5 @@
 import { useState, useMemo, useContext } from 'react'
+import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { ResultsContext } from '../context/ResultsContext'
 import Card from '../components/shared/Card'
@@ -14,7 +15,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { X, Plus, Search, GitCompareArrows } from 'lucide-react'
+import { X, Plus, Search, GitCompareArrows, Loader2 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
 /*  Color palette for compared strains                                */
@@ -25,7 +26,9 @@ const COMPARE_COLORS = ['#32c864', '#9775fa', '#ff922b']
 /*  ComparePage                                                       */
 /* ------------------------------------------------------------------ */
 export default function ComparePage() {
-  const { query, setQuery, results, getStrainByName } = useStrainSearch()
+  usePageTitle('Compare Strains')
+  const { query, setQuery, results, getStrainByName, allStrains } = useStrainSearch()
+  const strainsLoaded = allStrains.length > 0
   const { state: resultsState } = useContext(ResultsContext)
 
   const [selectedNames, setSelectedNames] = useState([])
@@ -130,10 +133,17 @@ export default function ComparePage() {
       <Card className="p-4 mb-6">
         {/* Search input */}
         <div className="relative mb-3">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#5a6a5e]"
-          />
+          {strainsLoaded ? (
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#5a6a5e]"
+            />
+          ) : (
+            <Loader2
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-leaf-400 animate-spin"
+            />
+          )}
           <input
             type="text"
             value={query}
@@ -142,8 +152,8 @@ export default function ComparePage() {
               setShowDropdown(true)
             }}
             onFocus={() => setShowDropdown(true)}
-            placeholder="Search strains by name, type, or effect..."
-            disabled={selectedNames.length >= MAX_COMPARE_STRAINS}
+            placeholder={strainsLoaded ? 'Search strains by name, type, or effect...' : 'Loading strain database...'}
+            disabled={selectedNames.length >= MAX_COMPARE_STRAINS || !strainsLoaded}
             className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all disabled:opacity-40"
           />
 

@@ -3,6 +3,84 @@
 // for web search tool use, assembling all content blocks.
 // Edge functions have a 50ms CPU limit but I/O wait (fetch) is free,
 // so long API calls are fine.
+//
+// Includes in-memory rate limiting (per IP) and response caching
+// to protect API costs.
+
+// ── In-memory rate limiter ──────────────────────────────────────────────
+// Edge function instances are ephemeral but can handle bursts within a
+// single instance lifetime. This prevents any single IP from hammering
+// the API during a session.
+const rateLimitMap = new Map()
+const RATE_LIMIT = 10       // max calls per window
+const RATE_WINDOW_MS = 3600_000  // 1 hour
+
+function checkRateLimit(ip) {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+
+  // Clean stale entries periodically (keep map small)
+  if (rateLimitMap.size > 1000) {
+    for (const [key, val] of rateLimitMap) {
+      if (now - val.windowStart > RATE_WINDOW_MS) rateLimitMap.delete(key)
+    }
+  }
+
+  if (!entry || now - entry.windowStart > RATE_WINDOW_MS) {
+    rateLimitMap.set(ip, { windowStart: now, count: 1 })
+    return { allowed: true, remaining: RATE_LIMIT - 1 }
+  }
+
+  if (entry.count >= RATE_LIMIT) {
+    const retryAfter = Math.ceil((entry.windowStart + RATE_WINDOW_MS - now) / 1000)
+    return { allowed: false, remaining: 0, retryAfter }
+  }
+
+  entry.count++
+  return { allowed: true, remaining: RATE_LIMIT - entry.count }
+}
+
+// ── Simple in-memory response cache ─────────────────────────────────────
+// Cache keyed by a hash of the prompt content. Short TTL prevents stale
+// data but catches duplicate requests (e.g., user refreshes page).
+const responseCache = new Map()
+const CACHE_TTL_MS = 30 * 60_000  // 30 minutes
+const MAX_CACHE_SIZE = 50
+
+function getCacheKey(body) {
+  // Simple hash of the user message content
+  const msg = body.messages?.[0]?.content || ''
+  const prompt = typeof msg === 'string' ? msg : JSON.stringify(msg)
+  // Simple string hash
+  let hash = 0
+  for (let i = 0; i < prompt.length; i++) {
+    const char = prompt.charCodeAt(i)
+    hash = ((hash << 5) - hash) + char
+    hash |= 0 // Convert to 32-bit int
+  }
+  return `${body.model}:${hash}`
+}
+
+function getCached(key) {
+  const entry = responseCache.get(key)
+  if (!entry) return null
+  if (Date.now() - entry.timestamp > CACHE_TTL_MS) {
+    responseCache.delete(key)
+    return null
+  }
+  return entry.data
+}
+
+function setCache(key, data) {
+  // Evict oldest if over max
+  if (responseCache.size >= MAX_CACHE_SIZE) {
+    const firstKey = responseCache.keys().next().value
+    responseCache.delete(firstKey)
+  }
+  responseCache.set(key, { data, timestamp: Date.now() })
+}
+
+// ── Main handler ────────────────────────────────────────────────────────
 
 export default async (req) => {
   if (req.method !== 'POST') {
@@ -20,6 +98,25 @@ export default async (req) => {
     })
   }
 
+  // Rate limit check
+  const clientIP = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    || req.headers.get('x-real-ip')
+    || 'unknown'
+  const rateCheck = checkRateLimit(clientIP)
+
+  if (!rateCheck.allowed) {
+    return new Response(JSON.stringify({
+      error: `Rate limit exceeded. Please try again in ${rateCheck.retryAfter} seconds. Limit: ${RATE_LIMIT} requests per hour.`,
+    }), {
+      status: 429,
+      headers: {
+        'Content-Type': 'application/json',
+        'Retry-After': String(rateCheck.retryAfter),
+        'X-RateLimit-Remaining': '0',
+      },
+    })
+  }
+
   let body
   try {
     body = await req.json()
@@ -34,6 +131,20 @@ export default async (req) => {
     return new Response(JSON.stringify({ error: 'Missing required fields: model, messages' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  // Check cache
+  const cacheKey = getCacheKey(body)
+  const cached = getCached(cacheKey)
+  if (cached) {
+    return new Response(JSON.stringify(cached), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Cache': 'HIT',
+        'X-RateLimit-Remaining': String(rateCheck.remaining),
+      },
     })
   }
 
@@ -82,8 +193,8 @@ export default async (req) => {
         continue
       }
 
-      // Done — return the assembled response
-      return new Response(JSON.stringify({
+      // Done — assemble, cache, and return
+      const result = {
         id: data.id,
         type: data.type,
         role: data.role,
@@ -91,9 +202,18 @@ export default async (req) => {
         content: allContent,
         stop_reason: data.stop_reason,
         usage: data.usage,
-      }), {
+      }
+
+      // Cache the response
+      setCache(cacheKey, result)
+
+      return new Response(JSON.stringify(result), {
         status: 200,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Cache': 'MISS',
+          'X-RateLimit-Remaining': String(rateCheck.remaining),
+        },
       })
     }
 

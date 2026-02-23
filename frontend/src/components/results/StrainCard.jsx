@@ -214,7 +214,7 @@ function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
               className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-leaf-500/[0.08] via-purple-500/[0.06] to-leaf-500/[0.08] border border-leaf-500/20 hover:border-leaf-500/40 hover:from-leaf-500/[0.14] hover:via-purple-500/[0.10] hover:to-leaf-500/[0.14] transition-all duration-300 group"
             >
               <span className="text-xs font-semibold text-leaf-500 dark:text-leaf-400 group-hover:text-leaf-400">
-                View Full Science Profile
+                View All Details
               </span>
               <ChevronDown
                 size={16}

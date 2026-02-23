@@ -4,6 +4,23 @@
   publish = "dist"
   functions = "netlify/functions"
 
+# ── Security headers ──────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(self)"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://plausible.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co https://api.stripe.com https://plausible.io https://unpkg.com https://*.tile.openstreetmap.org; frame-src https://js.stripe.com https://checkout.stripe.com https://billing.stripe.com"
+
+# Cache static assets aggressively
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # SPA routing — all paths to index.html for React Router.
 # /api/anthropic is handled by the V2 function's config.path export
 # which takes priority over redirects.

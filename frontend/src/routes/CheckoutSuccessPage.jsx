@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import usePageTitle from '../hooks/usePageTitle'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import Button from '../components/shared/Button'
 import { CheckCircle, Sparkles, ArrowRight } from 'lucide-react'
 
 export default function CheckoutSuccessPage() {
+  usePageTitle('Welcome to Premium')
   const [searchParams] = useSearchParams()
   const { refreshProfile } = useAuth()
   const toast = useToast()
