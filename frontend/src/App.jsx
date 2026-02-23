@@ -7,6 +7,7 @@ import { UserProvider } from './context/UserContext'
 import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 
+const LandingPage = lazy(() => import('./routes/LandingPage'))
 const QuizPage = lazy(() => import('./routes/QuizPage'))
 const ResultsPage = lazy(() => import('./routes/ResultsPage'))
 const DispensaryPage = lazy(() => import('./routes/DispensaryPage'))
@@ -14,6 +15,8 @@ const DashboardPage = lazy(() => import('./routes/DashboardPage'))
 const JournalPage = lazy(() => import('./routes/JournalPage'))
 const ComparePage = lazy(() => import('./routes/ComparePage'))
 const LearnPage = lazy(() => import('./routes/LearnPage'))
+const LoginPage = lazy(() => import('./routes/LoginPage'))
+const SignupPage = lazy(() => import('./routes/SignupPage'))
 
 function LoadingFallback() {
   return (
@@ -32,8 +35,14 @@ export default function App() {
             <ResultsProvider>
               <Suspense fallback={<LoadingFallback />}>
                 <Routes>
+                  {/* Public pages — own layout (no AppShell) */}
+                  <Route index element={<LandingPage />} />
+                  <Route path="login" element={<LoginPage />} />
+                  <Route path="signup" element={<SignupPage />} />
+
+                  {/* App pages — inside AppShell with NavBar */}
                   <Route element={<AppShell />}>
-                    <Route index element={<QuizPage />} />
+                    <Route path="quiz" element={<QuizPage />} />
                     <Route path="results" element={<ResultsPage />} />
                     <Route path="dispensaries" element={<DispensaryPage />} />
                     <Route path="dashboard" element={<DashboardPage />} />

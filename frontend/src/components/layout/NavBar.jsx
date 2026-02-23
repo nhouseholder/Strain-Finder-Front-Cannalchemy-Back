@@ -4,7 +4,7 @@ import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 
 const navItems = [
-  { to: '/', icon: Search, label: 'Find' },
+  { to: '/quiz', icon: Search, label: 'Find' },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/journal', icon: BookMarked, label: 'Journal' },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare' },
@@ -25,7 +25,7 @@ export default function NavBar() {
             <NavLink
               key={to}
               to={to}
-              end={to === '/'}
+              end={to === '/quiz'}
               className={({ isActive }) => clsx(
                 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors',
                 isActive

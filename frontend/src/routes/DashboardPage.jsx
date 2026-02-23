@@ -50,7 +50,7 @@ export default function DashboardPage() {
   /* Re-run a recent search ------------------------------------------ */
   const handleRerun = (search) => {
     // We just navigate to quiz; the search is stored for reference
-    navigate('/')
+    navigate('/quiz')
   }
 
   /* ================================================================ */
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         <Button
           size="lg"
           className="shadow-xl shadow-leaf-500/25 hover:scale-[1.02] active:scale-[0.98] transition-all"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/quiz')}
         >
           <Search size={18} />
           Find My Strain
@@ -127,7 +127,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-3 gap-3 mb-8">
         <Card
           hoverable
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/quiz')}
           className="p-4 text-center"
         >
           <div className="w-10 h-10 rounded-xl bg-leaf-500/10 flex items-center justify-center mx-auto mb-2">

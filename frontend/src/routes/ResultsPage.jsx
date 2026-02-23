@@ -35,7 +35,7 @@ export default function ResultsPage() {
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e] text-center max-w-xs mb-6">
           Take the quiz to find your perfect strains, tailored to your needs.
         </p>
-        <Button onClick={() => navigate('/')}>
+        <Button onClick={() => navigate('/quiz')}>
           Take the Quiz
         </Button>
       </div>
@@ -62,7 +62,7 @@ export default function ResultsPage() {
           size="sm"
           onClick={() => {
             dispatch({ type: 'RESET' })
-            navigate('/')
+            navigate('/quiz')
           }}
         >
           <RotateCcw size={14} />
