@@ -1,15 +1,21 @@
 import { useState } from 'react'
-import { Lock, Sparkles, Loader2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Lock, Sparkles, Loader2, UserPlus } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import Button from './Button'
 
 export default function PaywallOverlay() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const handleUpgrade = async () => {
-    if (!user) return
+    if (!user) {
+      // Guest user — redirect to signup
+      navigate('/signup', { state: { from: { pathname: '/results' } } })
+      return
+    }
 
     setLoading(true)
     setError(null)
@@ -50,21 +56,43 @@ export default function PaywallOverlay() {
           Premium Results
         </h3>
         <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 leading-relaxed">
-          Unlock all strain matches, full science data, journal sync, and more.
+          {user
+            ? 'Unlock all strain matches, full science data, journal sync, and more.'
+            : 'Create a free account or go premium to unlock all strain matches.'}
         </p>
-        <Button
-          size="lg"
-          className="w-full shadow-lg shadow-leaf-500/25"
-          onClick={handleUpgrade}
-          disabled={loading}
-        >
-          {loading ? (
-            <Loader2 size={16} className="animate-spin" />
-          ) : (
-            <Sparkles size={16} />
-          )}
-          {loading ? 'Loading...' : 'Upgrade for $9.99/mo'}
-        </Button>
+
+        {user ? (
+          /* Logged-in free user — show upgrade button */
+          <Button
+            size="lg"
+            className="w-full shadow-lg shadow-leaf-500/25"
+            onClick={handleUpgrade}
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 size={16} className="animate-spin" />
+            ) : (
+              <Sparkles size={16} />
+            )}
+            {loading ? 'Loading...' : 'Upgrade for $9.99/mo'}
+          </Button>
+        ) : (
+          /* Guest user — show sign up + upgrade options */
+          <div className="space-y-2">
+            <Button
+              size="lg"
+              className="w-full shadow-lg shadow-leaf-500/25"
+              onClick={() => navigate('/signup', { state: { from: { pathname: '/results' } } })}
+            >
+              <UserPlus size={16} />
+              Sign Up Free
+            </Button>
+            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+              or <button onClick={() => navigate('/login', { state: { from: { pathname: '/results' } } })} className="text-leaf-500 hover:text-leaf-400 underline underline-offset-2 transition-colors">sign in</button> if you have an account
+            </p>
+          </div>
+        )}
+
         {error && (
           <div className="mt-3 space-y-2">
             <p className="text-xs text-red-400">{error}</p>

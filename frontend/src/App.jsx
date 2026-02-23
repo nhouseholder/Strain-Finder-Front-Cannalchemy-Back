@@ -53,10 +53,12 @@ export default function App() {
 
                     {/* App pages — inside AppShell with NavBar */}
                     <Route element={<AppShell />}>
+                      {/* Guest-accessible — quiz & results work without login (freemium gated) */}
+                      <Route path="quiz" element={<QuizPage />} />
+                      <Route path="results" element={<ResultsPage />} />
+                      <Route path="dispensaries" element={<DispensaryPage />} />
+
                       {/* Protected routes — require login */}
-                      <Route path="quiz" element={<ProtectedRoute><QuizPage /></ProtectedRoute>} />
-                      <Route path="results" element={<ProtectedRoute><ResultsPage /></ProtectedRoute>} />
-                      <Route path="dispensaries" element={<ProtectedRoute><DispensaryPage /></ProtectedRoute>} />
                       <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />

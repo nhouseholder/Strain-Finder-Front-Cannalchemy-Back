@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { supabase } from '../services/supabase'
+import { supabase, isSupabaseConfigured } from '../services/supabase'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 
@@ -16,6 +16,7 @@ export default function ForgotPasswordPage() {
     setLoading(true)
 
     try {
+      if (!supabase) throw new Error('Authentication is not configured yet.')
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/login`,
       })

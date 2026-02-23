@@ -113,6 +113,19 @@ export default function LoginPage() {
             Sign up
           </Link>
         </p>
+
+        {/* Guest access */}
+        <div className="text-center mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.04]">
+          <Link
+            to="/quiz"
+            className="text-xs text-gray-400 dark:text-[#5a6a5e] hover:text-gray-600 dark:hover:text-[#8a9a8e] transition-colors"
+          >
+            Continue as guest &rarr;
+          </Link>
+          <p className="text-[10px] text-gray-300 dark:text-[#3a4a3e] mt-0.5">
+            Try free with 2 strain recommendations
+          </p>
+        </div>
       </div>
     </div>
   )

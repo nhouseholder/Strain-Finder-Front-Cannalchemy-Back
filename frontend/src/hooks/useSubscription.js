@@ -5,6 +5,7 @@ const FREE_LIMIT = 2
 export function useSubscription() {
   const { isPremium, user } = useAuth()
 
+  // Guest users (no login) and free users both get 2 results
   const canViewResult = (index) => isPremium || index < FREE_LIMIT
 
   return {
@@ -12,5 +13,6 @@ export function useSubscription() {
     canViewResult,
     FREE_LIMIT,
     user,
+    isGuest: !user,
   }
 }

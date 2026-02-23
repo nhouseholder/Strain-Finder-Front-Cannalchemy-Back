@@ -539,9 +539,10 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
 
+  // Always go straight to quiz — auth is optional
   const handleGetStarted = useCallback(() => {
-    navigate(user ? '/quiz' : '/signup')
-  }, [navigate, user])
+    navigate('/quiz')
+  }, [navigate])
 
   return (
     <div className="min-h-screen relative bg-white dark:bg-[#0a0f0c]">
@@ -559,6 +560,12 @@ export default function LandingPage() {
             </Button>
           ) : (
             <>
+              <button
+                onClick={() => navigate('/quiz')}
+                className="text-xs font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#b0c4b4] transition-colors px-2 py-1.5"
+              >
+                Try Free
+              </button>
               <Button variant="ghost" size="sm" onClick={() => navigate('/login')}>
                 Log In
               </Button>
