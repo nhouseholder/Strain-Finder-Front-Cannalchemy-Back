@@ -285,11 +285,12 @@ function buildForumAnalysis(strain) {
   const posCount = positive.reduce((s, e) => s + (e.reports || 0), 0);
   const sentiment = total > 0 ? Math.round((posCount / total) * 100) / 10 : 5.0;
 
-  const pros = positive.slice(0, 4).map(e => {
+  // Include ALL positive effects so EffectVerification can match user's desired effects
+  const pros = positive.map(e => {
     const pct = Math.min(Math.round((e.reports / Math.max(total, 1)) * 100), 95);
     return { effect: canonicalToDisplay(e.name), pct, baseline: Math.max(pct - 15, 20) };
   });
-  const cons = negative.slice(0, 3).map(e => {
+  const cons = negative.map(e => {
     const pct = Math.min(Math.round((e.reports / Math.max(total, 1)) * 100), 80);
     return { effect: canonicalToDisplay(e.name), pct, baseline: Math.max(pct - 10, 10) };
   });

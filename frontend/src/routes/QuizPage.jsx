@@ -13,55 +13,105 @@ import Button from '../components/shared/Button'
 /*  Loading-phase messages                                            */
 /* ------------------------------------------------------------------ */
 const LOADING_PHASES = [
-  'Analyzing your preferences...',
-  'Calculating terpene ratios...',
-  'Scoring strain matches...',
-  'Compiling recommendations...',
+  { text: 'Analyzing your preferences...', icon: '\u{1F9EC}', detail: 'Mapping desired effects to receptor pathways' },
+  { text: 'Calculating terpene ratios...', icon: '\u{1F33F}', detail: 'Scoring 24,853 strains against your profile' },
+  { text: 'Scoring molecular matches...', icon: '\u{1F52C}', detail: 'CB1, CB2, 5-HT1A & TRPV1 receptor analysis' },
+  { text: 'Compiling your results...', icon: '\u2728', detail: 'Finding your top personalized matches' },
 ]
+
+const MIN_DISPLAY_MS = 4200 // show animation for at least 4.2s
 
 /* ------------------------------------------------------------------ */
 /*  LoadingAnalysis (inline)                                          */
 /* ------------------------------------------------------------------ */
-function LoadingAnalysis({ phase, message, timedOut }) {
+function LoadingAnalysis({ phase, message, detail, timedOut, progress }) {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-8 animate-fade-in px-4">
-      {/* Spinner */}
-      <div className="relative w-20 h-20">
-        <div className="absolute inset-0 rounded-full border-[3px] border-leaf-500/20" />
-        <div className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-leaf-500 animate-spin" />
-        <div className="absolute inset-2 rounded-full border-[2px] border-transparent border-b-leaf-400/60 animate-spin-slow" />
-        <span className="absolute inset-0 flex items-center justify-center text-2xl select-none">
-          {'\u{1F33F}'}
+    <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 animate-fade-in px-4">
+      {/* Animated orb */}
+      <div className="relative w-28 h-28">
+        {/* Outer glow ring */}
+        <div className="absolute -inset-4 rounded-full bg-leaf-500/8 blur-2xl animate-pulse" />
+        {/* Rotating outer ring */}
+        <div className="absolute inset-0 rounded-full border-[3px] border-leaf-500/15" />
+        <div
+          className="absolute inset-0 rounded-full border-[3px] border-transparent border-t-leaf-500 border-r-leaf-400/40"
+          style={{ animation: 'spin 1.4s linear infinite' }}
+        />
+        {/* Counter-rotating inner ring */}
+        <div
+          className="absolute inset-3 rounded-full border-[2px] border-transparent border-b-purple-400/50 border-l-purple-400/20"
+          style={{ animation: 'spin 2.2s linear infinite reverse' }}
+        />
+        {/* Inner glow */}
+        <div className="absolute inset-5 rounded-full bg-gradient-to-br from-leaf-500/10 to-purple-500/10" />
+        {/* Phase icon (crossfade) */}
+        <span
+          key={phase}
+          className="absolute inset-0 flex items-center justify-center text-3xl select-none"
+          style={{ animation: 'fadeInUp 0.5s ease-out' }}
+        >
+          {LOADING_PHASES[phase]?.icon || '\u{1F33F}'}
         </span>
       </div>
 
-      {/* Phase message */}
-      <div className="text-center space-y-3 max-w-sm">
+      {/* Phase message with crossfade */}
+      <div className="text-center space-y-2 max-w-sm min-h-[72px] flex flex-col items-center justify-center">
         <p
-          key={message}
-          className="text-base font-medium text-gray-700 dark:text-[#c0d4c6] animate-fade-in-fast"
+          key={`msg-${phase}`}
+          className="text-lg font-semibold text-gray-800 dark:text-[#e0ece4]"
+          style={{ animation: 'fadeInUp 0.45s ease-out' }}
         >
           {message}
         </p>
-        <div className="flex justify-center gap-1.5">
+        <p
+          key={`detail-${phase}`}
+          className="text-xs text-gray-400 dark:text-[#6a7a6e]"
+          style={{ animation: 'fadeInUp 0.5s ease-out 0.1s both' }}
+        >
+          {detail}
+        </p>
+      </div>
+
+      {/* Progress bar */}
+      <div className="w-56 sm:w-64">
+        <div className="h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-700 ease-out"
+            style={{
+              width: `${progress}%`,
+              background: 'linear-gradient(90deg, #32c864, #9350ff)',
+            }}
+          />
+        </div>
+        {/* Step indicators below bar */}
+        <div className="flex justify-between mt-2">
           {LOADING_PHASES.map((_, i) => (
-            <div
-              key={i}
-              className={`w-2 h-2 rounded-full transition-all duration-500 ${
-                i <= phase
-                  ? 'bg-leaf-500 scale-100'
-                  : 'bg-gray-300 dark:bg-white/10 scale-75'
-              }`}
-            />
+            <div key={i} className="flex flex-col items-center gap-1">
+              <div
+                className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                  i <= phase
+                    ? 'bg-leaf-500 scale-110 shadow-sm shadow-leaf-500/50'
+                    : 'bg-gray-300 dark:bg-white/10 scale-75'
+                }`}
+              />
+            </div>
           ))}
         </div>
       </div>
 
-      <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
+      <p className="text-[11px] text-gray-400 dark:text-[#5a6a5e] mt-2">
         {timedOut
           ? 'Still working — almost there...'
-          : 'This may take 30-60 seconds'}
+          : 'Powered by receptor pharmacology'}
       </p>
+
+      {/* Animation keyframes */}
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   )
 }
@@ -79,24 +129,35 @@ export default function QuizPage() {
   const { state: userState, dispatch: userDispatch } = useContext(UserContext)
 
   const [loadingPhase, setLoadingPhase] = useState(0)
-  const [loadingMsg, setLoadingMsg] = useState(LOADING_PHASES[0])
+  const [loadingMsg, setLoadingMsg] = useState(LOADING_PHASES[0].text)
+  const [loadingDetail, setLoadingDetail] = useState(LOADING_PHASES[0].detail)
+  const [loadingProgress, setLoadingProgress] = useState(0)
   const [error, setError] = useState(null)
   const [isRunning, setIsRunning] = useState(false)
   const [timedOut, setTimedOut] = useState(false)
   const phaseInterval = useRef(null)
   const timeoutRef = useRef(null)
+  const pendingResult = useRef(null)
+  const startTimeRef = useRef(null)
 
   /* Advance loading messages ---------------------------------------- */
   useEffect(() => {
     if (currentStep !== 6 || !isRunning) return
 
+    // Immediately show first phase
+    setLoadingProgress(8)
+
+    const PHASE_INTERVAL = 1000 // 1s per phase for snappy feel
     phaseInterval.current = setInterval(() => {
       setLoadingPhase((prev) => {
         const next = Math.min(prev + 1, LOADING_PHASES.length - 1)
-        setLoadingMsg(LOADING_PHASES[next])
+        setLoadingMsg(LOADING_PHASES[next].text)
+        setLoadingDetail(LOADING_PHASES[next].detail)
+        // Progress: 8% → 30% → 55% → 80% (last 20% on navigate)
+        setLoadingProgress([8, 30, 55, 80][next] || 80)
         return next
       })
-    }, 3500)
+    }, PHASE_INTERVAL)
 
     return () => clearInterval(phaseInterval.current)
   }, [currentStep, isRunning])
@@ -107,9 +168,13 @@ export default function QuizPage() {
     setError(null)
     setTimedOut(false)
     setLoadingPhase(0)
-    setLoadingMsg(LOADING_PHASES[0])
+    setLoadingMsg(LOADING_PHASES[0].text)
+    setLoadingDetail(LOADING_PHASES[0].detail)
+    setLoadingProgress(0)
     setStep(6)
     resultsDispatch({ type: 'SET_LOADING' })
+    startTimeRef.current = Date.now()
+    pendingResult.current = null
 
     // Timeout: show "still working" after 45s
     clearTimeout(timeoutRef.current)
@@ -119,10 +184,10 @@ export default function QuizPage() {
       // Call Strain Finder backend — scores 24,853 strains with receptor science
       const parsed = await getRecommendations(quizState)
 
-      // Dispatch results
+      // Dispatch results immediately (stored in state)
       resultsDispatch({ type: 'SET_RESULTS', payload: parsed })
 
-      // 7. Save recent search
+      // Save recent search
       userDispatch({
         type: 'ADD_RECENT_SEARCH',
         payload: {
@@ -136,7 +201,22 @@ export default function QuizPage() {
         },
       })
 
-      // 8. Navigate
+      // Enforce minimum display time so animation plays through
+      const elapsed = Date.now() - startTimeRef.current
+      const remaining = Math.max(0, MIN_DISPLAY_MS - elapsed)
+
+      if (remaining > 0) {
+        // Fill progress to 100% then navigate
+        setLoadingPhase(LOADING_PHASES.length - 1)
+        setLoadingMsg(LOADING_PHASES[LOADING_PHASES.length - 1].text)
+        setLoadingDetail(LOADING_PHASES[LOADING_PHASES.length - 1].detail)
+        setLoadingProgress(95)
+        await new Promise((r) => setTimeout(r, remaining))
+      }
+
+      setLoadingProgress(100)
+      // Brief pause at 100% before navigating
+      await new Promise((r) => setTimeout(r, 300))
       navigate('/results')
     } catch (err) {
       console.error('Analysis failed:', err)
@@ -281,7 +361,7 @@ export default function QuizPage() {
             </div>
           </div>
         ) : (
-          <LoadingAnalysis phase={loadingPhase} message={loadingMsg} timedOut={timedOut} />
+          <LoadingAnalysis phase={loadingPhase} message={loadingMsg} detail={loadingDetail} timedOut={timedOut} progress={loadingProgress} />
         )}
       </div>
     )

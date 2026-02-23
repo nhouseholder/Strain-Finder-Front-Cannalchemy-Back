@@ -38,12 +38,13 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
   if (!data && !bestFor?.length && sentimentScore == null) return null
 
   // Backend sends pros/cons with {effect, pct, baseline} — normalize to {name, pct, baseline}
-  const positiveEffects = (data?.pros || data?.positiveEffects || []).map(p => ({
+  // Show top 5 positive and top 4 negative in the UI (full data available for matching)
+  const positiveEffects = (data?.pros || data?.positiveEffects || []).slice(0, 5).map(p => ({
     name: p.effect || p.name || p.label || '',
     pct: p.pct || 0,
     baseline: p.baseline,
   }))
-  const negativeEffects = (data?.cons || data?.negativeEffects || []).map(c => ({
+  const negativeEffects = (data?.cons || data?.negativeEffects || []).slice(0, 4).map(c => ({
     name: c.effect || c.name || c.label || '',
     pct: c.pct || 0,
     baseline: c.baseline,

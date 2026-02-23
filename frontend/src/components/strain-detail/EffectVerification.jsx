@@ -12,23 +12,50 @@ export default function EffectVerification({ predictions, forumData }) {
   const { pairs, correlation } = useMemo(() => {
     if (!predictions?.length || !forumData) return { pairs: [], correlation: 0 }
 
-    const pros = forumData.pros || forumData.positiveEffects || []
+    // Combine all community effects (pros + cons) for comprehensive matching
+    const allCommunity = [
+      ...(forumData.pros || forumData.positiveEffects || []),
+      ...(forumData.cons || forumData.negativeEffects || []),
+    ]
 
     // Build matched pairs
     const matchedPairs = []
     let matches = 0
 
-    const normalize = (s) => (s || '').toLowerCase().replace(/[-_]/g, ' ').trim()
+    // Multi-strategy normalization for robust matching
+    const normalize = (s) => (s || '').toLowerCase().replace(/[-_\s]+/g, ' ').trim()
+
+    // Build a lookup map for fast community effect matching
+    const communityMap = new Map()
+    for (const item of allCommunity) {
+      const name = item.effect || item.name || ''
+      communityMap.set(normalize(name), item)
+    }
 
     for (const pred of predictions.slice(0, 5)) {
       const displayName = pred.effect
         .replace(/-/g, ' ')
         .replace(/\b\w/g, (c) => c.toUpperCase())
 
-      // Find matching community report (normalized comparison)
-      const report = pros.find(
-        (r) => normalize(r.effect || r.name) === normalize(displayName)
-      )
+      // Try multiple matching strategies:
+      // 1. Normalized display name match
+      // 2. Direct canonical name match (e.g., "relaxed" vs "Relaxed")
+      // 3. Partial match (e.g., "body high" found in "Body High")
+      const normalizedPred = normalize(displayName)
+      const normalizedCanonical = normalize(pred.effect)
+
+      let report = communityMap.get(normalizedPred)
+        || communityMap.get(normalizedCanonical)
+
+      // Fallback: partial match (e.g., "pain" matches "Pain Relief")
+      if (!report) {
+        for (const [key, val] of communityMap) {
+          if (key.includes(normalizedCanonical) || normalizedCanonical.includes(key)) {
+            report = val
+            break
+          }
+        }
+      }
 
       matchedPairs.push({
         effect: displayName,

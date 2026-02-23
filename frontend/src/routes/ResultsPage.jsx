@@ -61,8 +61,8 @@ export default function ResultsPage() {
           </h1>
           <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
             {state.strains.length} strains matched &middot; {state.aiPicks?.length || 0} hidden gems
-            {!isPremium && sortedStrains.length > 2 && (
-              <span className="ml-1 text-amber-500">&middot; Upgrade for all results</span>
+            {!isPremium && sortedStrains.length > FREE_LIMIT && (
+              <span className="ml-1 text-amber-500">&middot; Upgrade for all {sortedStrains.length} results</span>
             )}
           </p>
         </div>

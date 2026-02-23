@@ -165,7 +165,7 @@ export default function SignupPage() {
             Continue as guest &rarr;
           </Link>
           <p className="text-[10px] text-gray-300 dark:text-[#3a4a3e] mt-0.5">
-            Try free with 2 strain recommendations
+            Try free with your top strain recommendation
           </p>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useAuth } from '../context/AuthContext'
 
-const FREE_LIMIT = 2
+const FREE_LIMIT = 1
 
 export function useSubscription() {
   const { isPremium, user } = useAuth()

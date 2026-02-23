@@ -442,7 +442,7 @@ function PricingSection({ onGetStarted }) {
   const ref = useScrollReveal()
   const { user, isPremium } = useAuth()
 
-  const free = ['2 strain recommendations per quiz', 'Basic cannabinoid profiles', 'Community reviews']
+  const free = ['Top strain recommendation per quiz', 'Basic cannabinoid profiles', 'Community reviews']
   const premium = ['Unlimited recommendations', 'Full receptor science & pathways', 'Terpene radar & molecular maps', 'Personal journal & compare tool', 'AI strain analysis', 'Priority support']
 
   return (
