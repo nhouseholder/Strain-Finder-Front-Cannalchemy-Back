@@ -5,6 +5,7 @@ import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { UserContext } from '../context/UserContext'
 import { getRecommendations } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import QuizShell from '../components/quiz/QuizShell'
 import Button from '../components/shared/Button'
 
@@ -71,6 +72,7 @@ function LoadingAnalysis({ phase, message, timedOut }) {
 export default function QuizPage() {
   usePageTitle('Find My Strain')
   const navigate = useNavigate()
+  const { user } = useAuth()
   const quizState = useQuizState()
   const { currentStep, setStep, reset } = quizState
   const { dispatch: resultsDispatch } = useContext(ResultsContext)
@@ -215,12 +217,21 @@ export default function QuizPage() {
 
         {/* Sub-links */}
         <div className="flex items-center gap-4 mt-8 text-xs text-gray-400 dark:text-[#6a7a6e]">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="hover:text-leaf-500 transition-colors underline decoration-dotted underline-offset-4"
-          >
-            My Dashboard
-          </button>
+          {user ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="hover:text-leaf-500 transition-colors underline decoration-dotted underline-offset-4"
+            >
+              My Dashboard
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/signup')}
+              className="hover:text-leaf-500 transition-colors underline decoration-dotted underline-offset-4"
+            >
+              Create Account
+            </button>
+          )}
           <span className="text-gray-300 dark:text-[#2a352c]">&middot;</span>
           <button
             onClick={() => navigate('/learn')}
