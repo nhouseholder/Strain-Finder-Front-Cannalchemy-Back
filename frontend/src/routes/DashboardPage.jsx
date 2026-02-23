@@ -5,7 +5,6 @@ import { ResultsContext } from '../context/ResultsContext'
 import { EFFECTS } from '../data/effects'
 import {
   Search,
-  BookMarked,
   GitCompareArrows,
   Star,
   Clock,

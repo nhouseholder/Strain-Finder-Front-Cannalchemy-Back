@@ -8,17 +8,12 @@ import {
   Droplets,
   ChevronDown,
   ChevronUp,
-  Beaker,
   Flame,
-  Wind,
-  Cookie,
-  Hand,
   Clock,
   ThumbsUp,
   ThumbsDown,
   ArrowRight,
   FileText,
-  Shuffle,
 } from 'lucide-react'
 import Card from '../components/shared/Card'
 import terpenes from '../data/terpenes.json'

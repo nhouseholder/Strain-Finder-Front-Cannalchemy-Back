@@ -4,7 +4,7 @@ export const ThemeContext = createContext({ theme: 'dark', toggleTheme: () => {}
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    const stored = localStorage.getItem('sf-theme')
+    const stored = localStorage.getItem('ca-theme')
     if (stored === 'light' || stored === 'dark') return stored
     return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
   })
@@ -18,7 +18,7 @@ export function ThemeProvider({ children }) {
       root.classList.remove('dark')
       root.classList.add('light')
     }
-    localStorage.setItem('sf-theme', theme)
+    localStorage.setItem('ca-theme', theme)
   }, [theme])
 
   const toggleTheme = useCallback(() => {
