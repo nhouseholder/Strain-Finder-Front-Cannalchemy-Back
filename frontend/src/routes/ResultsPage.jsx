@@ -2,8 +2,10 @@ import { useContext, useState, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ResultsContext } from '../context/ResultsContext'
 import { useFavorites } from '../hooks/useFavorites'
+import { useSubscription } from '../hooks/useSubscription'
 import StrainCard from '../components/results/StrainCard'
 import AiPicksSection from '../components/results/AiPicksSection'
+import PaywallOverlay from '../components/shared/PaywallOverlay'
 import Button from '../components/shared/Button'
 import { MapPin, RotateCcw, ArrowRight } from 'lucide-react'
 
@@ -14,13 +16,16 @@ export default function ResultsPage() {
   const navigate = useNavigate()
   const { state, dispatch, getSortedStrains } = useContext(ResultsContext)
   const { toggleFavorite, isFavorite } = useFavorites()
+  const { canViewResult, isPremium } = useSubscription()
   const [expandedStrain, setExpandedStrain] = useState(null)
 
   const sortedStrains = useMemo(() => getSortedStrains(), [getSortedStrains])
 
-  const handleToggle = useCallback((strainName) => {
+  const handleToggle = useCallback((strainName, index) => {
+    // Don't allow expanding paywalled cards
+    if (!canViewResult(index)) return
     setExpandedStrain((prev) => (prev === strainName ? null : strainName))
-  }, [])
+  }, [canViewResult])
 
   /* Empty state */
   if (!state.strains || state.strains.length === 0) {
@@ -55,6 +60,9 @@ export default function ResultsPage() {
           </h1>
           <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
             {state.strains.length} strains matched &middot; {state.aiPicks?.length || 0} hidden gems
+            {!isPremium && sortedStrains.length > 2 && (
+              <span className="ml-1 text-amber-500">&middot; Upgrade for all results</span>
+            )}
           </p>
         </div>
         <Button
@@ -81,20 +89,31 @@ export default function ResultsPage() {
 
       {/* Strain list — uses full StrainCard → StrainCardExpanded */}
       <div className="space-y-3 mb-8">
-        {sortedStrains.map((strain) => (
-          <StrainCard
-            key={strain.name}
-            strain={strain}
-            expanded={expandedStrain === strain.name}
-            onToggle={() => handleToggle(strain.name)}
-            isFavorite={isFavorite(strain.name)}
-            onFavorite={toggleFavorite}
-          />
-        ))}
+        {sortedStrains.map((strain, index) => {
+          const locked = !canViewResult(index)
+
+          return (
+            <div key={strain.name} className="relative">
+              {/* Card — blurred if locked */}
+              <div className={locked ? 'blur-sm pointer-events-none select-none' : ''}>
+                <StrainCard
+                  strain={strain}
+                  expanded={!locked && expandedStrain === strain.name}
+                  onToggle={() => handleToggle(strain.name, index)}
+                  isFavorite={isFavorite(strain.name)}
+                  onFavorite={toggleFavorite}
+                />
+              </div>
+
+              {/* Paywall overlay on locked cards */}
+              {locked && <PaywallOverlay />}
+            </div>
+          )
+        })}
       </div>
 
-      {/* AI Hidden Gems — below best matches */}
-      <AiPicksSection />
+      {/* AI Hidden Gems — only for premium */}
+      {isPremium && <AiPicksSection />}
 
       {/* Dispensary CTA */}
       <div className="text-center pb-4">

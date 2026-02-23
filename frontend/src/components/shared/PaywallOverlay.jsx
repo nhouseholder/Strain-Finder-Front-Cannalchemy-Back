@@ -1,0 +1,74 @@
+import { useState } from 'react'
+import { Lock, Sparkles, Loader2 } from 'lucide-react'
+import { useAuth } from '../../context/AuthContext'
+import Button from './Button'
+
+export default function PaywallOverlay() {
+  const { user } = useAuth()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  const handleUpgrade = async () => {
+    if (!user) return
+
+    setLoading(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/.netlify/functions/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: user.email,
+          userId: user.id,
+          returnUrl: window.location.origin + '/results',
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to create checkout session')
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url
+    } catch (err) {
+      console.error('Checkout error:', err)
+      setError('Could not start checkout. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-white/60 dark:bg-[#0a0f0c]/60 backdrop-blur-sm">
+      <div className="text-center px-6 py-8 max-w-xs">
+        <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+          <Lock size={20} className="text-amber-500" />
+        </div>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea] mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
+          Premium Results
+        </h3>
+        <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 leading-relaxed">
+          Unlock all strain matches, full science data, journal sync, and more.
+        </p>
+        <Button
+          size="lg"
+          className="w-full shadow-lg shadow-leaf-500/25"
+          onClick={handleUpgrade}
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Sparkles size={16} />
+          )}
+          {loading ? 'Loading...' : 'Upgrade for $9.99/mo'}
+        </Button>
+        {error && (
+          <p className="text-[10px] text-red-400 mt-2">{error}</p>
+        )}
+      </div>
+    </div>
+  )
+}
