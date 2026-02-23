@@ -22,20 +22,20 @@ export function removeFromStorage(key) {
 }
 
 export function clearAllAppStorage() {
-  const keys = ['ca-theme', 'ca-quiz', 'ca-results', 'ca-user-favorites', 'ca-user-journal', 'ca-user-recent', 'ca-user-dismissed']
+  const keys = ['sf-theme', 'sf-quiz', 'sf-results', 'sf-user-favorites', 'sf-user-journal', 'sf-user-recent', 'sf-user-dismissed']
   keys.forEach(k => localStorage.removeItem(k))
 }
 
-/** Migrate legacy sf-* keys to ca-* (runs once) */
+/** Migrate legacy ca-* keys to sf-* (Cannalchemy → Strain Finder rebrand) */
 export function migrateStorageKeys() {
   const map = [
-    ['sf-theme', 'ca-theme'],
-    ['sf-quiz', 'ca-quiz'],
-    ['sf-results', 'ca-results'],
-    ['sf-user-favorites', 'ca-user-favorites'],
-    ['sf-user-journal', 'ca-user-journal'],
-    ['sf-user-recent', 'ca-user-recent'],
-    ['sf-user-dismissed', 'ca-user-dismissed'],
+    ['ca-theme', 'sf-theme'],
+    ['ca-quiz', 'sf-quiz'],
+    ['ca-results', 'sf-results'],
+    ['ca-user-favorites', 'sf-user-favorites'],
+    ['ca-user-journal', 'sf-user-journal'],
+    ['ca-user-recent', 'sf-user-recent'],
+    ['ca-user-dismissed', 'sf-user-dismissed'],
   ]
   map.forEach(([old, nw]) => {
     const val = localStorage.getItem(old)

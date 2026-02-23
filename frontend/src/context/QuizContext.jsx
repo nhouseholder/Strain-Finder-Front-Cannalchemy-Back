@@ -1,6 +1,6 @@
 import { createContext, useReducer, useEffect, useCallback, useMemo } from 'react'
 
-const STORAGE_KEY = 'ca-quiz'
+const STORAGE_KEY = 'sf-quiz'
 
 const initialState = {
   currentStep: 0,

@@ -1,10 +1,10 @@
 import { createContext, useReducer, useEffect, useCallback, useMemo } from 'react'
 
 const KEYS = {
-  FAVORITES: 'ca-user-favorites',
-  JOURNAL: 'ca-user-journal',
-  RECENT: 'ca-user-recent',
-  DISMISSED: 'ca-user-dismissed',
+  FAVORITES: 'sf-user-favorites',
+  JOURNAL: 'sf-user-journal',
+  RECENT: 'sf-user-recent',
+  DISMISSED: 'sf-user-dismissed',
 }
 
 function loadJSON(key, fallback) {

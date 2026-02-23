@@ -1,14 +1,14 @@
 export const APP_NAME = 'Strain Finder';
-export const APP_VERSION = '3.0.4';
+export const APP_VERSION = '4.1.0';
 
 export const STORAGE_KEYS = {
-  THEME: 'ca-theme',
-  QUIZ: 'ca-quiz',
-  RESULTS: 'ca-results',
-  FAVORITES: 'ca-user-favorites',
-  JOURNAL: 'ca-user-journal',
-  RECENT_SEARCHES: 'ca-user-recent',
-  DISMISSED: 'ca-user-dismissed',
+  THEME: 'sf-theme',
+  QUIZ: 'sf-quiz',
+  RESULTS: 'sf-results',
+  FAVORITES: 'sf-user-favorites',
+  JOURNAL: 'sf-user-journal',
+  RECENT_SEARCHES: 'sf-user-recent',
+  DISMISSED: 'sf-user-dismissed',
 };
 
 export const MAX_EFFECTS_SELECT = 5;

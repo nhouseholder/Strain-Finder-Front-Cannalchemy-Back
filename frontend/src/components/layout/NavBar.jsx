@@ -1,20 +1,29 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield } from 'lucide-react'
+import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 
-const navItems = [
+/* Nav items adapt based on auth state */
+const coreItems = [
+  { to: '/quiz', icon: Search, label: 'Find', guest: true },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
+  { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
+  { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
+  { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
+]
+
+/* Guest-only items (replace protected nav items on mobile) */
+const guestMobileItems = [
   { to: '/quiz', icon: Search, label: 'Find' },
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/journal', icon: BookMarked, label: 'Journal' },
-  { to: '/compare', icon: GitCompareArrows, label: 'Compare' },
+  { to: '/dispensaries', icon: MapPin, label: 'Map' },
   { to: '/learn', icon: BookOpen, label: 'Learn' },
+  { to: '/signup', icon: UserPlus, label: 'Sign Up' },
 ]
 
 export default function NavBar() {
-  const { user, profile, isAdmin, signOut } = useAuth()
+  const { user, isAdmin, signOut } = useAuth()
   const navigate = useNavigate()
   const toast = useToast()
 
@@ -26,6 +35,11 @@ export default function NavBar() {
 
   const initial = user?.email?.[0]?.toUpperCase() || '?'
 
+  // Desktop nav shows all items regardless (protected routes redirect themselves)
+  const desktopItems = user ? coreItems : coreItems.filter(i => i.guest)
+  // Mobile nav is simplified for guests
+  const mobileItems = user ? coreItems : guestMobileItems
+
   return (
     <>
       {/* Desktop top bar */}
@@ -35,7 +49,7 @@ export default function NavBar() {
           <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">Strain Finder</span>
         </NavLink>
         <div className="flex items-center gap-1">
-          {navItems.map(({ to, icon: Icon, label }) => (
+          {desktopItems.map(({ to, icon: Icon, label }) => (
             <NavLink
               key={to}
               to={to}
@@ -86,12 +100,20 @@ export default function NavBar() {
                 </button>
               </div>
             ) : (
-              <NavLink
-                to="/login"
-                className="px-3 py-1.5 rounded-lg text-xs font-medium text-leaf-500 hover:bg-leaf-500/10 transition-colors"
-              >
-                Log In
-              </NavLink>
+              <div className="flex items-center gap-1">
+                <NavLink
+                  to="/login"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#b0c4b4] transition-colors"
+                >
+                  Log In
+                </NavLink>
+                <NavLink
+                  to="/signup"
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-leaf-500/10 text-leaf-500 hover:bg-leaf-500/20 transition-colors"
+                >
+                  Sign Up
+                </NavLink>
+              </div>
             )}
           </div>
         </div>
@@ -99,7 +121,7 @@ export default function NavBar() {
 
       {/* Mobile bottom bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200 dark:border-white/[0.06] bg-white/90 dark:bg-leaf-900/90 backdrop-blur-md safe-area-bottom" role="navigation" aria-label="Main navigation">
-        {navItems.map(({ to, icon: Icon, label }) => (
+        {mobileItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
