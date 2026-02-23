@@ -30,7 +30,20 @@ export default function StrainCardExpanded({ strain }) {
         <WhyMatchTooltip text={strain.whyMatch} />
       )}
 
-      {/* 2. Forum / Community Analysis — crowd-sourced data */}
+      {/* 2. Cannabinoid Profile — THC/CBD/CBN bars */}
+      <CannabinoidProfile cannabinoids={cannabinoids} />
+
+      {/* 3. Terpene Profile (bars) */}
+      {strain.terpenes?.length > 0 && (
+        <TerpeneProfile terpenes={strain.terpenes} />
+      )}
+
+      {/* 4. Terpene Radar Pentagon */}
+      {strain.terpenes?.length >= 3 && (
+        <TerpeneRadar terpenes={strain.terpenes} strainType={strain.type} />
+      )}
+
+      {/* 5. Forum / Community Analysis — crowd-sourced data */}
       {(strain.forumAnalysis || strain.bestFor?.length > 0 || strain.sentimentScore != null) && (
         <ForumAnalysis
           data={strain.forumAnalysis}
@@ -38,19 +51,6 @@ export default function StrainCardExpanded({ strain }) {
           notIdealFor={strain.notIdealFor}
           sentimentScore={strain.sentimentScore}
         />
-      )}
-
-      {/* 3. Cannabinoid Profile — THC/CBD/CBN bars */}
-      <CannabinoidProfile cannabinoids={cannabinoids} />
-
-      {/* 4. Terpene Profile (bars) */}
-      {strain.terpenes?.length > 0 && (
-        <TerpeneProfile terpenes={strain.terpenes} />
-      )}
-
-      {/* 5. Terpene Radar Pentagon */}
-      {strain.terpenes?.length >= 3 && (
-        <TerpeneRadar terpenes={strain.terpenes} strainType={strain.type} />
       )}
 
       {/* 6. Sommelier Review — expert-style scoring */}
@@ -71,17 +71,17 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 8. Lineage Tree — genetics & heritage */}
-      {strain.lineage && (
-        <LineageTree lineage={strain.lineage} />
-      )}
-
-      {/* 9. Molecular Science (effect probabilities + pathway chips) */}
+      {/* 8. Molecular Science (effect probabilities + pathway chips) */}
       {(strain.effectPredictions?.length > 0 || strain.pathways?.length > 0) && (
         <MolecularScience
           effectPredictions={strain.effectPredictions}
           pathways={strain.pathways}
         />
+      )}
+
+      {/* 9. Lineage Tree — genetics & heritage */}
+      {strain.lineage && (
+        <LineageTree lineage={strain.lineage} />
       )}
 
       {/* 10. Receptor Pathway Map (molecule → receptor → effect flow) */}
