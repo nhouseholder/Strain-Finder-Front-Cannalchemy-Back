@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { supabase } from '../services/supabase'
+import { supabase, isSupabaseConfigured } from '../services/supabase'
 import usePageTitle from '../hooks/usePageTitle'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -26,6 +26,10 @@ export default function AdminPage() {
 
   /* ---- Fetch all users ---- */
   const fetchUsers = useCallback(async () => {
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
     setLoading(true)
     try {
       const { data, error } = await supabase
@@ -55,6 +59,7 @@ export default function AdminPage() {
 
   /* ---- Toggle premium status ---- */
   const togglePremium = async (userId, currentStatus) => {
+    if (!supabase) return
     setUpdating(userId)
     try {
       const newStatus = currentStatus === 'active' ? 'free' : 'active'
@@ -108,6 +113,36 @@ export default function AdminPage() {
   })
 
   if (!isAdmin && !authLoading) return null
+
+  // Show setup instructions when Supabase is not configured
+  if (!isSupabaseConfigured) {
+    return (
+      <div className="w-full max-w-2xl mx-auto px-4 pt-8 animate-fade-in">
+        <Card className="p-8 text-center">
+          <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center mx-auto mb-4">
+            <Shield size={24} className="text-purple-400" />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            Admin Setup Required
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-[#8a9a8e] mb-6 max-w-md mx-auto">
+            Connect Supabase to enable user management, authentication, and the admin dashboard.
+          </p>
+          <div className="text-left bg-gray-50 dark:bg-white/[0.03] rounded-xl p-4 mb-6 max-w-sm mx-auto">
+            <p className="text-xs font-mono text-gray-600 dark:text-[#8a9a8e] leading-relaxed">
+              <span className="text-leaf-500">$</span> bash setup.sh
+            </p>
+            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2">
+              Run from the project root to configure Supabase + Stripe credentials
+            </p>
+          </div>
+          <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+            Need help? Check the README or run the setup script for guided configuration.
+          </p>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto px-4 pt-4 animate-fade-in">

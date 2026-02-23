@@ -1,9 +1,16 @@
 // Netlify serverless function: Create Stripe Checkout Session
 // POST /.netlify/functions/stripe-checkout
 
+const SITE_URL = 'https://strain-finder-cannalchemy-2.netlify.app'
+
 export async function handler(event) {
+  // CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers: corsHeaders() }
+  }
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: JSON.stringify({ error: 'Method not allowed' }) }
+    return { statusCode: 405, ...json({ error: 'Method not allowed' }) }
   }
 
   const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY
@@ -12,7 +19,7 @@ export async function handler(event) {
   if (!STRIPE_SECRET_KEY || !STRIPE_PRICE_ID) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY and STRIPE_PRICE_ID.' }),
+      ...json({ error: 'Stripe not configured. Set STRIPE_SECRET_KEY and STRIPE_PRICE_ID.' }),
     }
   }
 
@@ -20,14 +27,13 @@ export async function handler(event) {
     const { email, userId, returnUrl } = JSON.parse(event.body || '{}')
 
     if (!email || !userId) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: 'Missing email or userId' }),
-      }
+      return { statusCode: 400, ...json({ error: 'Missing email or userId' }) }
     }
 
-    const successUrl = `${returnUrl || 'https://cannalchemy.app/results'}?session_id={CHECKOUT_SESSION_ID}`
-    const cancelUrl = returnUrl || 'https://cannalchemy.app/results'
+    // Derive origin from request, fallback to configured site URL
+    const origin = event.headers.origin || event.headers.referer?.replace(/\/[^/]*$/, '') || SITE_URL
+    const successUrl = `${returnUrl || origin + '/checkout-success'}?session_id={CHECKOUT_SESSION_ID}`
+    const cancelUrl = `${origin}/results`
 
     // Create Stripe Checkout Session via REST API
     const params = new URLSearchParams({
@@ -54,21 +60,32 @@ export async function handler(event) {
 
     if (!response.ok) {
       console.error('Stripe error:', session)
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: session.error?.message || 'Stripe checkout failed' }),
-      }
+      return { statusCode: 400, ...json({ error: session.error?.message || 'Stripe checkout failed' }) }
     }
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({ url: session.url, sessionId: session.id }),
-    }
+    return { statusCode: 200, ...json({ url: session.url, sessionId: session.id }) }
   } catch (err) {
     console.error('Checkout function error:', err)
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: 'Internal server error' }),
-    }
+    return { statusCode: 500, ...json({ error: 'Internal server error' }) }
+  }
+}
+
+function corsHeaders() {
+  return {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    },
+  }
+}
+
+function json(data) {
+  return {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+    },
+    body: JSON.stringify(data),
   }
 }

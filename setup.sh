@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# Cannalchemy SaaS — One-Command Setup Script
+# Strain Finder SaaS — One-Command Setup Script
 # Run: bash setup.sh
 # ============================================================
 
@@ -14,7 +14,7 @@ BOLD='\033[1m'
 NC='\033[0m'
 
 echo ""
-echo -e "${GREEN}${BOLD}🌿 Cannalchemy SaaS Setup${NC}"
+echo -e "${GREEN}${BOLD}🌿 Strain Finder SaaS Setup${NC}"
 echo -e "${CYAN}This will configure Supabase auth + Stripe payments${NC}"
 echo "============================================================"
 echo ""
@@ -26,7 +26,7 @@ echo ""
 echo -e "Opening Supabase dashboard..."
 open "https://supabase.com/dashboard/projects" 2>/dev/null || echo "  Visit: https://supabase.com/dashboard/projects"
 echo ""
-echo -e "${BOLD}Create a new project named 'Cannalchemy' if you haven't already.${NC}"
+echo -e "${BOLD}Create a new project named 'Strain Finder' if you haven't already.${NC}"
 echo -e "Then go to: ${CYAN}Settings → API${NC}"
 echo ""
 
@@ -73,7 +73,7 @@ echo ""
 echo -e "Opening Stripe dashboard..."
 open "https://dashboard.stripe.com/test/products/create" 2>/dev/null || echo "  Visit: https://dashboard.stripe.com/test/products/create"
 echo ""
-echo -e "${BOLD}Create a product: 'Cannalchemy Premium' — \$9.99/month recurring${NC}"
+echo -e "${BOLD}Create a product: 'Strain Finder Premium' — \$9.99/month recurring${NC}"
 echo -e "Then go to: ${CYAN}Developers → API Keys${NC}"
 echo ""
 
@@ -147,7 +147,7 @@ cd ..
 
 echo ""
 echo -e "${GREEN}${BOLD}============================================================${NC}"
-echo -e "${GREEN}${BOLD}🎉 Cannalchemy SaaS is LIVE!${NC}"
+echo -e "${GREEN}${BOLD}🎉 Strain Finder SaaS is LIVE!${NC}"
 echo -e "${GREEN}${BOLD}============================================================${NC}"
 echo ""
 echo -e "  🌐 Live site:  ${CYAN}https://strain-finder-cannalchemy-2.netlify.app${NC}"
