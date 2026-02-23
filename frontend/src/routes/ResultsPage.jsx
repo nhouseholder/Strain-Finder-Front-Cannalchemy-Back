@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ResultsContext } from '../context/ResultsContext'
 import { useFavorites } from '../hooks/useFavorites'
 import StrainCard from '../components/results/StrainCard'
-import SortControls from '../components/results/SortControls'
+
 import AiPicksSection from '../components/results/AiPicksSection'
 import Button from '../components/shared/Button'
 import { MapPin, RotateCcw, ArrowRight } from 'lucide-react'
@@ -79,9 +79,6 @@ export default function ResultsPage() {
         </span>
         <div className="h-px flex-1 bg-gray-200 dark:bg-white/[0.06]" />
       </div>
-
-      {/* Sort & Filter (reads from ResultsContext internally) */}
-      <SortControls />
 
       {/* Strain list — uses full StrainCard → StrainCardExpanded */}
       <div className="space-y-3 mb-8">
