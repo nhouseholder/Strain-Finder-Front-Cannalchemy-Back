@@ -72,7 +72,7 @@ export default function DashboardPage() {
           className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-[#e8f0ea] text-center mb-3"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          Welcome to StrainFinder
+          Welcome to Cannalchemy
         </h1>
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e] text-center max-w-md mb-8 leading-relaxed">
           Your personalized cannabis dashboard. Take the quiz to get started with AI-powered

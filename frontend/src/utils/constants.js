@@ -1,5 +1,5 @@
-export const APP_NAME = 'StrainFinder';
-export const APP_VERSION = '1.0.0';
+export const APP_NAME = 'Cannalchemy';
+export const APP_VERSION = '3.0.0';
 
 export const STORAGE_KEYS = {
   THEME: 'sf-theme',

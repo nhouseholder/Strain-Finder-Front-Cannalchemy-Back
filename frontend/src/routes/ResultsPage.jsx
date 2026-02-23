@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { ResultsContext } from '../context/ResultsContext'
 import { useFavorites } from '../hooks/useFavorites'
 import StrainCard from '../components/results/StrainCard'
-
 import AiPicksSection from '../components/results/AiPicksSection'
 import Button from '../components/shared/Button'
 import { MapPin, RotateCcw, ArrowRight } from 'lucide-react'
@@ -93,12 +92,6 @@ export default function ResultsPage() {
           />
         ))}
       </div>
-
-      {sortedStrains.length === 0 && state.strains.length > 0 && (
-        <div className="text-center py-8 text-sm text-gray-400 dark:text-[#5a6a5e]">
-          No strains match the current filter. Try a different type.
-        </div>
-      )}
 
       {/* AI Hidden Gems — below best matches */}
       <AiPicksSection />
