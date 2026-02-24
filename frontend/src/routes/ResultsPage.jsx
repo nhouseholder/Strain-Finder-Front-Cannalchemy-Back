@@ -129,7 +129,7 @@ export default function ResultsPage() {
           ) : (
             <Button size="sm" className="shadow-lg shadow-leaf-500/25" onClick={() => navigate('/#pricing')}>
               <Sparkles size={14} />
-              Upgrade for $9.99/mo
+              Upgrade for $0.99/mo
             </Button>
           )}
         </div>

@@ -59,7 +59,7 @@ export default function TermsPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">6. Accounts & Subscriptions</h2>
             <p>
-              You may create a free account or subscribe to our Premium plan ($9.99/month). Premium subscriptions are billed monthly through Stripe. You may cancel at any time through the subscription management portal in your dashboard. Cancellations take effect at the end of the current billing period. Refunds are handled on a case-by-case basis.
+              You may create a free account or subscribe to our Premium plan ($0.99/month). Premium subscriptions are billed monthly through Stripe. You may cancel at any time through the subscription management portal in your dashboard. Cancellations take effect at the end of the current billing period. Refunds are handled on a case-by-case basis.
             </p>
           </div>
 

@@ -74,7 +74,7 @@ export default function PaywallOverlay() {
             ) : (
               <Sparkles size={16} />
             )}
-            {loading ? 'Loading...' : 'Upgrade for $9.99/mo'}
+            {loading ? 'Loading...' : 'Upgrade for $0.99/mo'}
           </Button>
         ) : (
           /* Guest user — show sign up + upgrade options */

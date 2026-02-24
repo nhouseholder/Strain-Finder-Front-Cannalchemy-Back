@@ -502,7 +502,7 @@ function PricingSection({ onGetStarted }) {
               Popular
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">Premium</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$9.99<span className="text-sm font-normal text-gray-400">/mo</span></p>
+            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$0.99<span className="text-sm font-normal text-gray-400">/mo</span></p>
             <p className="text-xs text-gray-400 dark:text-[#6a7a6e] mb-6">Full access to every feature</p>
             <ul className="space-y-3 mb-8">
               {premium.map(p => (
