@@ -12,4 +12,4 @@ Disallow: /dispensaries
 Disallow: /admin
 Disallow: /checkout-success
 
-Sitemap: https://strain-finder.netlify.app/sitemap.xml
+Sitemap: https://mystrainplus.netlify.app/sitemap.xml
