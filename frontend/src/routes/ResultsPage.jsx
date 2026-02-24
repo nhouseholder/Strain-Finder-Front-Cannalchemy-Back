@@ -98,6 +98,7 @@ export default function ResultsPage() {
             onToggle={() => handleToggle(strain.name, index)}
             isFavorite={isFavorite(strain.name)}
             onFavorite={toggleFavorite}
+            isPremium={isPremium}
           />
         ))}
       </div>
@@ -168,6 +169,7 @@ export default function ResultsPage() {
               onToggle={() => handleToggle(strain.name, i + FREE_LIMIT)}
               isFavorite={isFavorite(strain.name)}
               onFavorite={toggleFavorite}
+              isPremium={isPremium}
             />
           ))}
         </div>

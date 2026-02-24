@@ -36,7 +36,7 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
+function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite, isPremium }) {
   const navigate = useNavigate()
   const tc = getTypeColor(strain.type)
   const topTerpenes = (strain.terpenes || []).slice(0, 3)
@@ -227,7 +227,7 @@ function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
 
       {/* Expanded detail section */}
       {expanded && (
-        <StrainCardExpanded strain={strain} />
+        <StrainCardExpanded strain={strain} isPremium={isPremium} />
       )}
     </Card>
   )
