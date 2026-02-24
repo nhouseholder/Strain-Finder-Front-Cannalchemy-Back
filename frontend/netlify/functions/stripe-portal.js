@@ -29,7 +29,7 @@ export async function handler(event) {
     }
 
     // Derive return URL
-    const origin = event.headers.origin || event.headers.referer?.replace(/\/[^/]*$/, '') || 'https://strain-finder-cannalchemy-2.netlify.app'
+    const origin = event.headers.origin || event.headers.referer?.replace(/\/[^/]*$/, '') || 'https://strain-finder.netlify.app'
     const finalReturnUrl = returnUrl || `${origin}/dashboard`
 
     // Create Stripe Billing Portal Session via REST API

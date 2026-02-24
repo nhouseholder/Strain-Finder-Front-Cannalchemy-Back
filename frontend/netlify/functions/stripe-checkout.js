@@ -1,7 +1,7 @@
 // Netlify serverless function: Create Stripe Checkout Session
 // POST /.netlify/functions/stripe-checkout
 
-const SITE_URL = 'https://strain-finder-cannalchemy-2.netlify.app'
+const SITE_URL = 'https://strain-finder.netlify.app'
 
 export async function handler(event) {
   // CORS preflight

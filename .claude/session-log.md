@@ -5,7 +5,7 @@ This file is updated by Claude at the end of work sessions to preserve context a
 ## Session: 2026-02-23 (final) — DEPLOYED & PRODUCTION-READY
 
 ### Current State
-- **Live URL:** https://strain-finder-cannalchemy-2.netlify.app
+- **Live URL:** https://strain-finder.netlify.app
 - **GitHub (both synced):** origin → nhouseholder/Strain-Finder-Front-Cannalchemy-Back, cannalchemy-v2 → nhouseholder/cannalchemy-v2
 - **Latest commit:** `04dcad0` — Performance + production hardening
 - **Status:** Code-complete. All automated work done. Waiting on Nick's manual tasks for live payments.
