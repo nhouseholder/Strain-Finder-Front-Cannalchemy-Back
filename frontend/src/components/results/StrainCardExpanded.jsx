@@ -34,20 +34,7 @@ export default function StrainCardExpanded({ strain }) {
         effects={strain.effects}
       />
 
-      {/* 3. What's Inside — Cannabinoids */}
-      <CannabinoidProfile cannabinoids={cannabinoids} />
-
-      {/* 4. What's Inside — Terpenes */}
-      {strain.terpenes?.length > 0 && (
-        <TerpeneProfile terpenes={strain.terpenes} />
-      )}
-
-      {/* 5. Terpene Shape — radar visualization */}
-      {strain.terpenes?.length >= 3 && (
-        <TerpeneRadar terpenes={strain.terpenes} strainType={strain.type} />
-      )}
-
-      {/* 6. What People Say — community reviews (without bestFor/notIdealFor to avoid duplication) */}
+      {/* 3. What People Say — community reviews (right after predicted effects) */}
       {(strain.forumAnalysis || strain.sentimentScore != null) && (
         <ForumAnalysis
           data={strain.forumAnalysis}
@@ -55,6 +42,19 @@ export default function StrainCardExpanded({ strain }) {
           notIdealFor={[]}
           sentimentScore={strain.sentimentScore}
         />
+      )}
+
+      {/* 4. What's Inside — Cannabinoids */}
+      <CannabinoidProfile cannabinoids={cannabinoids} />
+
+      {/* 5. What's Inside — Terpenes */}
+      {strain.terpenes?.length > 0 && (
+        <TerpeneProfile terpenes={strain.terpenes} />
+      )}
+
+      {/* 6. Terpene Shape — radar visualization */}
+      {strain.terpenes?.length >= 3 && (
+        <TerpeneRadar terpenes={strain.terpenes} strainType={strain.type} />
       )}
 
       {/* 7. Taste & Experience — sommelier review */}
