@@ -6,12 +6,12 @@ import { RECEPTOR_COLORS } from '../../utils/colors'
  * Friendly receptor descriptions for non-scientists
  */
 const RECEPTOR_INFO = {
-  CB1: { icon: Brain, label: 'Brain & Mood', desc: 'Regulates mood, appetite, pain, and memory', color: RECEPTOR_COLORS.CB1 },
-  CB2: { icon: Shield, label: 'Immune System', desc: 'Reduces inflammation and supports recovery', color: RECEPTOR_COLORS.CB2 },
-  TRPV1: { icon: Flame, label: 'Pain Sensors', desc: 'Same receptors activated by chili peppers', color: RECEPTOR_COLORS.TRPV1 },
-  '5-HT1A': { icon: Heart, label: 'Serotonin (Mood)', desc: 'Linked to anxiety relief and emotional balance', color: RECEPTOR_COLORS['5-HT1A'] },
-  PPARgamma: { icon: Shield, label: 'Anti-Inflammatory', desc: 'Reduces chronic inflammation', color: RECEPTOR_COLORS.PPARgamma },
-  GPR55: { icon: Bone, label: 'Bone & Blood Pressure', desc: 'Helps regulate bone density and circulation', color: RECEPTOR_COLORS.GPR55 },
+  CB1: { icon: Brain, label: 'Brain & Mood', desc: 'Involved in mood, appetite, and memory signaling', color: RECEPTOR_COLORS.CB1 },
+  CB2: { icon: Shield, label: 'Immune System', desc: 'Involved in immune response and recovery signaling', color: RECEPTOR_COLORS.CB2 },
+  TRPV1: { icon: Flame, label: 'Sensory Receptors', desc: 'Same receptors activated by chili peppers and heat', color: RECEPTOR_COLORS.TRPV1 },
+  '5-HT1A': { icon: Heart, label: 'Serotonin Pathway', desc: 'Involved in mood and emotional balance signaling', color: RECEPTOR_COLORS['5-HT1A'] },
+  PPARgamma: { icon: Shield, label: 'Metabolic Pathway', desc: 'Involved in metabolic and immune signaling', color: RECEPTOR_COLORS.PPARgamma },
+  GPR55: { icon: Bone, label: 'Bone & Vascular', desc: 'Involved in bone and cardiovascular signaling', color: RECEPTOR_COLORS.GPR55 },
 }
 
 function ReceptorCard({ receptor, molecules, isActive }) {

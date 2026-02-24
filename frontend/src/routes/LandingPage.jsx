@@ -283,7 +283,7 @@ function DemoSection() {
               </div>
               <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mb-4">Full molecular breakdown of active compounds</p>
               <div className="space-y-3">
-                {[{ n: 'THC', v: 21, m: 35, c: '#32c864', d: 'Primary psychoactive — euphoria, pain relief' }, { n: 'CBD', v: 2.0, m: 20, c: '#3b82f6', d: 'Non-psychoactive — anti-anxiety, anti-inflammatory' }, { n: 'CBN', v: 0.3, m: 5, c: '#a855f7', d: 'Mildly sedative — may support sleep' }, { n: 'CBG', v: 1.1, m: 5, c: '#f59e0b', d: 'Neuroprotective — anti-inflammatory precursor' }, { n: 'THCV', v: 0.2, m: 5, c: '#ef4444', d: 'Appetite suppressant — short-acting stimulant' }, { n: 'CBC', v: 0.4, m: 5, c: '#22d3ee', d: 'Anti-depressant — works with other cannabinoids' }].map(({ n, v, m, c, d }) => (
+                {[{ n: 'THC', v: 21, m: 35, c: '#32c864', d: 'Primary psychoactive compound' }, { n: 'CBD', v: 2.0, m: 20, c: '#3b82f6', d: 'Non-psychoactive — may modulate THC effects' }, { n: 'CBN', v: 0.3, m: 5, c: '#a855f7', d: 'Mildly psychoactive — formed as THC ages' }, { n: 'CBG', v: 1.1, m: 5, c: '#f59e0b', d: 'Precursor cannabinoid — research ongoing' }, { n: 'THCV', v: 0.2, m: 5, c: '#ef4444', d: 'Reported as clear-headed and shorter-lasting' }, { n: 'CBC', v: 0.4, m: 5, c: '#22d3ee', d: 'Non-psychoactive — may contribute to entourage effect' }].map(({ n, v, m, c, d }) => (
                   <div key={n}>
                     <div className="flex items-center justify-between mb-0.5">
                       <span className="text-xs font-semibold text-gray-700 dark:text-[#b0c4b4]">{n}</span>
@@ -308,7 +308,7 @@ function DemoSection() {
               </div>
               <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mb-4">Aromatic compounds that shape effects, flavor, and synergy</p>
               <div className="space-y-3">
-                {[{ n: 'Myrcene', p: 1.2, c: '#22c55e', a: 'Earthy, musky', e: 'Sedation, pain relief, anti-inflammatory' }, { n: 'Limonene', p: 0.8, c: '#facc15', a: 'Citrus, lemon', e: 'Mood elevation, anti-anxiety, anti-fungal' }, { n: 'Caryophyllene', p: 0.6, c: '#f97316', a: 'Peppery, spicy', e: 'Anti-inflammatory, pain relief (CB2 agonist)' }, { n: 'Pinene', p: 0.4, c: '#10b981', a: 'Pine, herbal', e: 'Alertness, memory retention, bronchodilator' }, { n: 'Humulene', p: 0.2, c: '#8b5cf6', a: 'Hoppy, woody', e: 'Appetite suppressant, anti-bacterial' }].map(({ n, p, c, a, e }) => (
+                {[{ n: 'Myrcene', p: 1.2, c: '#22c55e', a: 'Earthy, musky', e: 'Commonly associated with relaxation and body calm' }, { n: 'Limonene', p: 0.8, c: '#facc15', a: 'Citrus, lemon', e: 'Commonly associated with mood elevation' }, { n: 'Caryophyllene', p: 0.6, c: '#f97316', a: 'Peppery, spicy', e: 'Unique CB2 receptor interaction (research ongoing)' }, { n: 'Pinene', p: 0.4, c: '#10b981', a: 'Pine, herbal', e: 'Commonly associated with alertness and focus' }, { n: 'Humulene', p: 0.2, c: '#8b5cf6', a: 'Hoppy, woody', e: 'Earthy terpene found in hops and sage' }].map(({ n, p, c, a, e }) => (
                   <div key={n} className="flex items-start gap-3">
                     <TerpBadge name={n} pct={`${p}%`} />
                     <div className="flex-1 min-w-0">
@@ -539,7 +539,7 @@ function CTASection({ onGetStarted }) {
           Ready to find your strain?
         </h2>
         <p className="text-gray-500 dark:text-[#8a9a8e] mb-8">
-          Join thousands making smarter cannabis choices with real science.
+          Make smarter cannabis choices backed by real science.
         </p>
         <Button size="lg" className="shadow-xl shadow-leaf-500/25" onClick={onGetStarted}>
           Take the Quiz
@@ -613,7 +613,7 @@ export default function LandingPage() {
       {/* Disclaimer */}
       <div className="max-w-2xl mx-auto px-6 py-6 text-center">
         <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed">
-          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> MyStrain+ provides educational information only and does not constitute medical advice. Always consult a healthcare professional before using cannabis. Cannabis products are only legal in certain jurisdictions — you are responsible for knowing your local laws. Do not drive or operate machinery while under the influence.
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> MyStrain+ provides general educational and informational content only. It does not provide medical advice, diagnoses, or treatment recommendations. All strain data is based on community-reported information and may not reflect actual products. Individual experiences vary. Always consult a qualified healthcare professional before using cannabis. Cannabis is a Schedule I substance under federal law; legality varies by jurisdiction — you are solely responsible for knowing and complying with your local laws. Do not drive or operate machinery while under the influence. Must be 21+ to use this site. By using MyStrain+ you agree to our <a href="/terms" class="underline hover:text-gray-600 dark:hover:text-[#6a7a6e]">Terms of Service</a>.
         </p>
       </div>
 

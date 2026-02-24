@@ -284,34 +284,36 @@ function EntourageEffect() {
         <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-[#8a9a8e]">
           <span className="text-leaf-500 mt-0.5">1.</span>
           <span>
-            <strong className="text-gray-700 dark:text-[#b0c4b4]">CBD modulates THC:</strong> CBD can
-            reduce the anxiety and paranoia sometimes caused by high THC levels, while preserving
-            therapeutic benefits.
+            <strong className="text-gray-700 dark:text-[#b0c4b4]">CBD may modulate THC:</strong> Some research suggests CBD
+            may reduce the anxiety and paranoia sometimes associated with high THC levels.
           </span>
         </div>
         <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-[#8a9a8e]">
           <span className="text-leaf-500 mt-0.5">2.</span>
           <span>
-            <strong className="text-gray-700 dark:text-[#b0c4b4]">Myrcene enhances absorption:</strong> This
-            terpene increases the permeability of cell membranes, helping cannabinoids cross the
-            blood-brain barrier more efficiently.
+            <strong className="text-gray-700 dark:text-[#b0c4b4]">Myrcene and absorption:</strong> Some researchers
+            theorize this terpene may influence cell membrane permeability, potentially affecting
+            how cannabinoids are absorbed.
           </span>
         </div>
         <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-[#8a9a8e]">
           <span className="text-leaf-500 mt-0.5">3.</span>
           <span>
-            <strong className="text-gray-700 dark:text-[#b0c4b4]">Caryophyllene binds CB2:</strong> The
-            only terpene that directly activates cannabinoid receptors, providing anti-inflammatory
-            effects without psychoactivity.
+            <strong className="text-gray-700 dark:text-[#b0c4b4]">Caryophyllene and CB2:</strong> The
+            only terpene known to interact with CB2 cannabinoid receptors. Researchers are studying
+            what this unique interaction may mean.
           </span>
         </div>
         <div className="flex items-start gap-2 text-xs text-gray-600 dark:text-[#8a9a8e]">
           <span className="text-leaf-500 mt-0.5">4.</span>
           <span>
-            <strong className="text-gray-700 dark:text-[#b0c4b4]">Pinene preserves memory:</strong> May
-            counteract the short-term memory impairment often associated with THC consumption.
+            <strong className="text-gray-700 dark:text-[#b0c4b4]">Pinene and memory:</strong> Some anecdotal reports
+            suggest pinene may counteract the short-term memory effects sometimes associated with THC.
           </span>
         </div>
+        <p className="text-[9px] text-gray-400 dark:text-[#5a6a5e] mt-3 italic">
+          Note: The entourage effect is a scientific hypothesis still being actively researched. The information above is for educational purposes only and does not constitute medical advice.
+        </p>
       </div>
     </div>
   )

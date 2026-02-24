@@ -17,9 +17,9 @@
     },
     "aroma": ["Earthy", "Musky", "Herbal"],
     "boilingPoint": "168°C / 334°F",
-    "description": "The most abundant terpene in cannabis. Myrcene is responsible for the sedating, couch-lock effect often associated with indica strains. It enhances THC's ability to cross the blood-brain barrier.",
+    "description": "The most abundant terpene in cannabis. Myrcene is commonly associated with the sedating, couch-lock experience often attributed to indica strains. It is thought to influence how cannabinoids interact with the body.",
     "alsoFoundIn": ["Mangoes", "Hops", "Lemongrass", "Thyme"],
-    "medicalResearch": "Studies suggest anti-inflammatory and analgesic properties. May increase cell membrane permeability, allowing more efficient absorption of cannabinoids."
+    "medicalResearch": "Preliminary studies are exploring potential properties. Some research suggests it may influence cell membrane permeability. More human clinical trials are needed."
   },
   "limonene": {
     "name": "Limonene",
@@ -39,9 +39,9 @@
     },
     "aroma": ["Citrus", "Lemon", "Orange"],
     "boilingPoint": "176°C / 349°F",
-    "description": "A mood-elevating terpene with a bright citrus scent. Limonene is known for its energizing and uplifting qualities, making it a hallmark of many sativa-dominant strains. It may also aid in the absorption of other terpenes and chemicals through the skin.",
+    "description": "A bright citrus-scented terpene commonly associated with mood elevation and energizing qualities. Limonene is a hallmark of many sativa-dominant strains and is also widely used in food and cosmetic products.",
     "alsoFoundIn": ["Citrus rinds", "Juniper", "Peppermint", "Rosemary"],
-    "medicalResearch": "Research indicates potential anti-depressant and anxiolytic effects. Studies show promise as an anti-fungal agent and may help with gastric reflux and heartburn."
+    "medicalResearch": "Some research is exploring its potential mood-related and calming properties. It is widely used in food and cosmetics with a long safety record. Clinical studies in humans are ongoing."
   },
   "linalool": {
     "name": "Linalool",
@@ -61,9 +61,9 @@
     },
     "aroma": ["Floral", "Lavender", "Spicy"],
     "boilingPoint": "198°C / 388°F",
-    "description": "Best known for its presence in lavender, linalool delivers calming and sedative effects. It is one of the most widely used terpenes in aromatherapy and is valued for its ability to temper the anxious edge that THC can produce.",
+    "description": "Best known for its presence in lavender, linalool is commonly associated with calming and relaxing experiences. It is one of the most widely used terpenes in aromatherapy and may temper the anxious edge that THC can produce in some people.",
     "alsoFoundIn": ["Lavender", "Birch bark", "Coriander", "Cinnamon"],
-    "medicalResearch": "Demonstrated anxiolytic and sedative effects in multiple studies. Shows promise as an anticonvulsant and may boost the immune system by reducing stress-induced changes."
+    "medicalResearch": "Some studies have explored its calming properties, particularly in aromatherapy contexts. Research is ongoing to understand its interactions with other compounds. Not a substitute for medical treatment."
   },
   "caryophyllene": {
     "name": "Caryophyllene",
@@ -83,9 +83,9 @@
     },
     "aroma": ["Peppery", "Spicy", "Woody"],
     "boilingPoint": "130°C / 266°F",
-    "description": "The only terpene known to directly bind to CB2 cannabinoid receptors, making it functionally a dietary cannabinoid. This unique property gives caryophyllene powerful anti-inflammatory and pain-relieving effects without any psychoactive impact.",
+    "description": "The only terpene known to interact with CB2 cannabinoid receptors, making it unique among terpenes. Researchers are studying this interaction to better understand how it may influence the body without psychoactive effects.",
     "alsoFoundIn": ["Black pepper", "Cloves", "Cinnamon", "Oregano"],
-    "medicalResearch": "Unique ability to activate CB2 receptors makes it a target for anti-inflammatory therapies. Studies suggest gastroprotective properties and potential for treating anxiety and depression."
+    "medicalResearch": "Its unique CB2 receptor interaction is an active area of scientific research. Some preclinical studies have explored potential properties. Human clinical data is limited; more research is needed."
   },
   "pinene": {
     "name": "Pinene",
@@ -105,9 +105,9 @@
     },
     "aroma": ["Pine", "Fresh", "Woodsy"],
     "boilingPoint": "155°C / 311°F",
-    "description": "The most common terpene found in nature, responsible for the fresh scent of pine forests. Pinene is known for promoting alertness and memory retention, and may counteract some of THC's short-term memory impairment.",
+    "description": "The most common terpene found in nature, responsible for the fresh scent of pine forests. Pinene is commonly associated with alertness and mental clarity among cannabis users.",
     "alsoFoundIn": ["Pine needles", "Rosemary", "Basil", "Parsley"],
-    "medicalResearch": "Research shows bronchodilator effects, potentially useful for asthma. May counteract THC-induced short-term memory loss and demonstrates anti-inflammatory properties."
+    "medicalResearch": "Some preclinical research has explored its potential properties. It is widely found in nature with a long history of use in folk remedies. Human clinical studies are needed."
   },
   "terpinolene": {
     "name": "Terpinolene",
@@ -127,9 +127,9 @@
     },
     "aroma": ["Floral", "Herbal", "Piney"],
     "boilingPoint": "186°C / 367°F",
-    "description": "A complex, multifaceted terpene found in small amounts in many strains. Terpinolene is paradoxical: it is often described as uplifting and creative in low doses but can become sedating at higher concentrations. Strains dominant in terpinolene are relatively rare.",
+    "description": "A complex, multifaceted terpene found in small amounts in many strains. Terpinolene is often described as uplifting and creative at lower concentrations. Strains dominant in terpinolene are relatively rare and sought after.",
     "alsoFoundIn": ["Nutmeg", "Tea tree", "Apples", "Lilacs"],
-    "medicalResearch": "Studies indicate antioxidant and anticancer potential. Has shown sedative properties in animal studies despite frequently being associated with uplifting strains."
+    "medicalResearch": "Some early preclinical studies have explored potential properties. Research is in early stages and human clinical data is limited."
   },
   "humulene": {
     "name": "Humulene",
@@ -149,9 +149,9 @@
     },
     "aroma": ["Earthy", "Woody", "Hoppy"],
     "boilingPoint": "198°C / 388°F",
-    "description": "Sharing a close relationship with caryophyllene, humulene is notable for its appetite-suppressing properties, making it unique among cannabis terpenes. It provides subtle earthy and woody notes and contributes to the overall entourage effect.",
+    "description": "Sharing a close relationship with caryophyllene, humulene is notable for community reports of appetite-moderating properties. It provides subtle earthy and woody notes and contributes to the overall terpene profile.",
     "alsoFoundIn": ["Hops", "Sage", "Ginseng", "Basil"],
-    "medicalResearch": "Distinguished as an appetite suppressant, unlike most cannabis compounds. Studies show anti-inflammatory, antibacterial, and anti-tumor properties in early research."
+    "medicalResearch": "Some preclinical research has explored various properties. Unlike many cannabis-related compounds, it is sometimes associated with reduced appetite in anecdotal reports. More research is needed."
   },
   "ocimene": {
     "name": "Ocimene",
@@ -171,9 +171,9 @@
     },
     "aroma": ["Sweet", "Herbal", "Woody"],
     "boilingPoint": "100°C / 212°F",
-    "description": "A delicate, sweet-scented terpene often associated with uplifting effects. Ocimene is commonly found in plants used as natural decongestants and antiviral agents. In cannabis, it contributes to energizing and clear-headed experiences.",
+    "description": "A delicate, sweet-scented terpene commonly associated with energizing experiences. Ocimene is found in many plants traditionally used in folk remedies and contributes to the aromatic complexity of cannabis.",
     "alsoFoundIn": ["Mint", "Parsley", "Orchids", "Kumquats"],
-    "medicalResearch": "Research highlights antiviral, antifungal, and decongestant properties. Shows potential as an anti-inflammatory agent and may provide antiseptic benefits."
+    "medicalResearch": "Some preclinical research has explored various properties. It is commonly found in nature. Human clinical studies are needed to validate any specific effects."
   },
   "bisabolol": {
     "name": "Bisabolol",
@@ -193,8 +193,8 @@
     },
     "aroma": ["Floral", "Sweet", "Chamomile"],
     "boilingPoint": "153°C / 307°F",
-    "description": "A gentle, soothing terpene best known as the primary component of chamomile essential oil. Bisabolol is prized for its anti-irritation and healing properties, particularly for skin. In cannabis, it adds a subtle sweetness and contributes to calming effects.",
+    "description": "A gentle terpene best known as the primary component of chamomile essential oil. Bisabolol is widely used in skincare products. In cannabis, it adds a subtle sweetness and is commonly associated with calming experiences.",
     "alsoFoundIn": ["Chamomile", "Candeia tree", "Sage"],
-    "medicalResearch": "Well-documented anti-inflammatory and skin-healing properties. Studies demonstrate wound-healing acceleration, analgesic effects, and potential antimicrobial activity."
+    "medicalResearch": "Widely used in cosmetics with a long safety record. Some studies have explored various properties. As with all terpenes, human clinical trials specific to cannabis contexts are limited."
   }
 }

@@ -110,6 +110,13 @@ export default function ResultsPage() {
           <ArrowRight size={16} />
         </Button>
       </div>
+
+      {/* Legal disclaimer */}
+      <div className="max-w-xl mx-auto px-2 pb-6">
+        <p className="text-[9px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed text-center">
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> These results are for informational and educational purposes only, based on community-reported data. They do not constitute medical advice. Individual experiences vary. Always consult a healthcare professional before using cannabis. Verify all product details with your licensed dispensary.
+        </p>
+      </div>
     </div>
   )
 }

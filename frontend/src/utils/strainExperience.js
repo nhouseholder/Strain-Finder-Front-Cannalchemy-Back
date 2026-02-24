@@ -51,16 +51,16 @@ const FLAVOR_SPECIFICS = {
 const TERPENE_VIBES = {
   myrcene:       { aroma: 'ripe mango and fresh hops',          feel: 'heavy-lidded body melt' },
   limonene:      { aroma: 'tangerine zest and lemon rind',      feel: 'sunny, uplifting mood lift' },
-  caryophyllene: { aroma: 'cracked black pepper and clove',     feel: 'warm, anti-inflammatory ease' },
-  linalool:      { aroma: 'French lavender and sweet basil',    feel: 'soft anxiety-dissolving calm' },
+  caryophyllene: { aroma: 'cracked black pepper and clove',     feel: 'warm, soothing ease' },
+  linalool:      { aroma: 'French lavender and sweet basil',    feel: 'soft, tension-dissolving calm' },
   pinene:        { aroma: 'blue spruce and rosemary',           feel: 'crisp, clear-headed focus' },
   terpinolene:   { aroma: 'fresh lilac and green apple',        feel: 'dreamy, creative float' },
-  humulene:      { aroma: 'dried hops and coriander',           feel: 'grounded, appetite-quieting stillness' },
-  ocimene:       { aroma: 'sweet basil and orchid',             feel: 'energizing, clear-breathing freshness' },
-  bisabolol:     { aroma: 'chamomile tea and warm honey',       feel: 'gentle, skin-soothing ease' },
+  humulene:      { aroma: 'dried hops and coriander',           feel: 'grounded, earthy stillness' },
+  ocimene:       { aroma: 'sweet basil and orchid',             feel: 'energizing, open-air freshness' },
+  bisabolol:     { aroma: 'chamomile tea and warm honey',       feel: 'gentle, silky ease' },
   valencene:     { aroma: 'Valencia orange peel',               feel: 'cheerful, light-hearted pep' },
-  geraniol:      { aroma: 'rose petal and peach skin',          feel: 'calming, neuroprotective softness' },
-  nerolidol:     { aroma: 'jasmine bark and fresh ginger',      feel: 'sedating, tranquil wind-down' },
+  geraniol:      { aroma: 'rose petal and peach skin',          feel: 'calming, floral softness' },
+  nerolidol:     { aroma: 'jasmine bark and fresh ginger',      feel: 'deep, tranquil wind-down' },
 }
 
 /* ------------------------------------------------------------------ */
