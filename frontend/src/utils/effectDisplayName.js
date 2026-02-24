@@ -1,26 +1,26 @@
 /**
  * Maps canonical effect names (from the quiz engine) to user-friendly display names.
- * Conditions like "stress", "pain", "anxiety" should read as relief/alleviation,
- * while positive effects like "relaxed", "euphoric" just get capitalized.
+ * Uses wellness-oriented language rather than medical/clinical terminology.
+ * These describe community-reported experiences, not medical claims.
  */
 const CANONICAL_TO_DISPLAY = {
-  pain: 'Pain Relief',
-  stress: 'Stress Relief',
-  anxiety: 'Anxiety Relief',
-  inflammation: 'Anti-Inflammatory',
-  insomnia: 'Sleep Aid',
-  'appetite-loss': 'Appetite Stimulant',
-  arthritis: 'Arthritis Relief',
-  fibromyalgia: 'Fibromyalgia Relief',
+  pain: 'Body Comfort',
+  stress: 'Stress Ease',
+  anxiety: 'Calm & Ease',
+  inflammation: 'Soothing',
+  insomnia: 'Restful',
+  'appetite-loss': 'Appetite Boost',
+  arthritis: 'Joint Comfort',
+  fibromyalgia: 'Full-Body Ease',
   depression: 'Mood Lift',
-  nausea: 'Anti-Nausea',
+  nausea: 'Stomach Calm',
   fatigue: 'Energy Boost',
-  'muscle-spasms': 'Muscle Relaxation',
-  headache: 'Headache Relief',
-  migraines: 'Migraine Relief',
-  seizures: 'Seizure Relief',
-  ptsd: 'PTSD Relief',
-  cramps: 'Cramp Relief',
+  'muscle-spasms': 'Muscle Ease',
+  headache: 'Head Comfort',
+  migraines: 'Head Ease',
+  seizures: 'Calming',
+  ptsd: 'Emotional Ease',
+  cramps: 'Body Ease',
 }
 
 /**

@@ -229,6 +229,11 @@ function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
       {expanded && (
         <StrainCardExpanded strain={strain} />
       )}
+
+      {/* Legal micro-disclaimer */}
+      <p className="text-[8px] text-gray-300 dark:text-[#2a352c] text-center mt-2 px-2">
+        Community-reported data. Not medical advice. Individual results vary.
+      </p>
     </Card>
   )
 }

@@ -32,7 +32,7 @@ const METHOD_LABELS = {
 const COMMON_EFFECTS = [
   'Relaxed', 'Happy', 'Euphoric', 'Creative', 'Energetic',
   'Focused', 'Sleepy', 'Uplifted', 'Hungry', 'Talkative',
-  'Pain Relief', 'Anxiety Relief', 'Calm', 'Giggly',
+  'Body Comfort', 'Calm & Ease', 'Calm', 'Giggly',
 ]
 
 /* ------------------------------------------------------------------ */

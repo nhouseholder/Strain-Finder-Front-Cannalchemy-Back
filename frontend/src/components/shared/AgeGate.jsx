@@ -1,13 +1,39 @@
-import { useState } from 'react'
-import { ShieldCheck } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { ShieldCheck, AlertCircle } from 'lucide-react'
 
 const STORAGE_KEY = 'sf_age_verified'
 
 /**
  * Full-screen age verification + legal disclaimer gate.
+ * Requires date-of-birth entry (month + year) and validates ≥ 21.
  * Shows once per device — stores confirmation in localStorage.
  * Required for cannabis-related apps (21+ in most US jurisdictions).
  */
+
+const MONTHS = [
+  { value: 1, label: 'January' },
+  { value: 2, label: 'February' },
+  { value: 3, label: 'March' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'May' },
+  { value: 6, label: 'June' },
+  { value: 7, label: 'July' },
+  { value: 8, label: 'August' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'October' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'December' },
+]
+
+function calculateAge(month, year) {
+  const now = new Date()
+  const currentYear = now.getFullYear()
+  const currentMonth = now.getMonth() + 1 // 1-indexed
+  let age = currentYear - year
+  if (currentMonth < month) age -= 1
+  return age
+}
+
 export default function AgeGate({ children }) {
   const [verified, setVerified] = useState(() => {
     try {
@@ -16,17 +42,42 @@ export default function AgeGate({ children }) {
       return false
     }
   })
+  const [month, setMonth] = useState('')
+  const [year, setYear] = useState('')
+  const [error, setError] = useState('')
   const [declining, setDeclining] = useState(false)
 
-  const handleConfirm = () => {
+  const currentYear = new Date().getFullYear()
+
+  const yearOptions = useMemo(() => {
+    const years = []
+    for (let y = currentYear; y >= currentYear - 100; y--) {
+      years.push(y)
+    }
+    return years
+  }, [currentYear])
+
+  const handleVerify = () => {
+    const m = parseInt(month, 10)
+    const y = parseInt(year, 10)
+
+    if (!m || !y) {
+      setError('Please select your birth month and year.')
+      return
+    }
+
+    const age = calculateAge(m, y)
+
+    if (age < 21) {
+      setDeclining(true)
+      setError('')
+      return
+    }
+
     try {
       localStorage.setItem(STORAGE_KEY, 'true')
     } catch { /* localStorage unavailable */ }
     setVerified(true)
-  }
-
-  const handleDecline = () => {
-    setDeclining(true)
   }
 
   if (verified) return children
@@ -42,7 +93,7 @@ export default function AgeGate({ children }) {
             Cannabis products are restricted to adults of legal age in your jurisdiction.
           </p>
           <button
-            onClick={() => setDeclining(false)}
+            onClick={() => { setDeclining(false); setMonth(''); setYear(''); setError('') }}
             className="text-sm text-leaf-400 hover:text-leaf-300 transition-colors"
           >
             Go Back
@@ -71,8 +122,46 @@ export default function AgeGate({ children }) {
         </p>
 
         <p className="text-base font-semibold text-[#e8f0ea] mb-5">
-          Are you 21 years of age or older?
+          Please enter your date of birth
         </p>
+
+        {/* DOB Entry */}
+        <div className="flex gap-3 justify-center mb-4 max-w-xs mx-auto">
+          <select
+            value={month}
+            onChange={(e) => { setMonth(e.target.value); setError('') }}
+            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all appearance-none"
+            aria-label="Birth month"
+          >
+            <option value="" disabled className="bg-[#0a0f0c] text-[#5a6a5e]">Month</option>
+            {MONTHS.map((m) => (
+              <option key={m.value} value={m.value} className="bg-[#0a0f0c] text-[#e8f0ea]">
+                {m.label}
+              </option>
+            ))}
+          </select>
+          <select
+            value={year}
+            onChange={(e) => { setYear(e.target.value); setError('') }}
+            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all appearance-none"
+            aria-label="Birth year"
+          >
+            <option value="" disabled className="bg-[#0a0f0c] text-[#5a6a5e]">Year</option>
+            {yearOptions.map((y) => (
+              <option key={y} value={y} className="bg-[#0a0f0c] text-[#e8f0ea]">
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="flex items-center justify-center gap-1.5 mb-4 text-red-400 text-xs animate-fade-in">
+            <AlertCircle size={12} />
+            <span>{error}</span>
+          </div>
+        )}
 
         {/* Legal disclaimers box */}
         <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 mb-6 text-left max-w-sm mx-auto">
@@ -106,25 +195,18 @@ export default function AgeGate({ children }) {
           </ul>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 justify-center">
-          <button
-            onClick={handleConfirm}
-            className="px-8 py-3 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-lg shadow-leaf-500/25"
-          >
-            I Agree &mdash; I'm 21+
-          </button>
-          <button
-            onClick={handleDecline}
-            className="px-8 py-3 rounded-xl text-sm font-semibold bg-white/[0.06] text-[#8a9a8e] border border-white/10 hover:bg-white/[0.1] transition-colors"
-          >
-            No
-          </button>
-        </div>
+        {/* Verify button */}
+        <button
+          onClick={handleVerify}
+          className="px-8 py-3 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-lg shadow-leaf-500/25"
+        >
+          Verify &amp; Enter
+        </button>
 
         <p className="text-[10px] text-[#3a4a3e] mt-6 leading-relaxed max-w-xs mx-auto">
-          By clicking "I Agree," you confirm that you are at least 21 years old, that you accept the terms above,
-          and that cannabis use is legal in your jurisdiction.
+          By verifying your age, you confirm that you are at least 21 years old,
+          that you accept the terms above, and that cannabis use is legal in your jurisdiction.
+          We do not store your date of birth.
         </p>
       </div>
     </div>
