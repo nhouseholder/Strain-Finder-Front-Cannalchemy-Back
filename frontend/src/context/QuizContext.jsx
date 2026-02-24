@@ -3,7 +3,7 @@ import { createContext, useReducer, useEffect, useCallback, useMemo } from 'reac
 const STORAGE_KEY = 'sf-quiz'
 
 const initialState = {
-  currentStep: 0,
+  currentStep: 1, // Start directly at effects step (skip splash)
   effects: [],
   effectRanking: [],
   tolerance: null,
@@ -81,7 +81,7 @@ export function QuizProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored)
         // Never restore the loading step — it's transient
-        if (parsed.currentStep >= 6) parsed.currentStep = 0
+        if (parsed.currentStep >= 6 || parsed.currentStep === 0) parsed.currentStep = 1
         return { ...initialState, ...parsed }
       }
     } catch {}

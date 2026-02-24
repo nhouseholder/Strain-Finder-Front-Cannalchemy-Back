@@ -245,7 +245,7 @@ export default function QuizPage() {
     reset()
     resultsDispatch({ type: 'RESET' })
     setError(null)
-    setStep(0)
+    setStep(1) // Go directly to effects step (skip splash)
   }, [reset, resultsDispatch, setStep])
 
   /* ================================================================ */

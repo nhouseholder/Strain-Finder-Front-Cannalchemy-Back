@@ -1,7 +1,7 @@
 import { memo } from 'react'
-import { Heart, Info, ChevronDown, ChevronUp, Star, MapPin } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { Heart, Info, ChevronDown, ChevronUp, Star } from 'lucide-react'
 import clsx from 'clsx'
+// useNavigate removed — AvailabilityBadge handles its own navigation
 import Card from '../shared/Card'
 import { TypeBadge, EffectBadge } from '../shared/Badge'
 import TerpBadge from '../shared/TerpBadge'
@@ -9,6 +9,7 @@ import ProgressBar from '../shared/ProgressBar'
 import Tooltip from '../shared/Tooltip'
 import { getTypeColor } from '../../utils/colors'
 import StrainCardExpanded from './StrainCardExpanded'
+import AvailabilityBadge from './AvailabilityBadge'
 
 function CannabinoidMiniGrid({ strain }) {
   const items = [
@@ -36,8 +37,7 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
-  const navigate = useNavigate()
+function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary }) {
   const tc = getTypeColor(strain.type)
   const topTerpenes = (strain.terpenes || []).slice(0, 3)
 
@@ -112,19 +112,15 @@ function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite }) {
               </div>
             )}
 
-            {/* Find Near Me button */}
-            <button
-              type="button"
-              className="flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 dark:text-[#6a7a6e] hover:text-leaf-400 hover:bg-leaf-500/10 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate('/dispensaries')
-              }}
-              aria-label="Find near me"
-              title="Find at nearby dispensaries"
-            >
-              <MapPin size={16} />
-            </button>
+            {/* Availability badge */}
+            <div onClick={(e) => e.stopPropagation()}>
+              <AvailabilityBadge
+                strainName={strain.name}
+                availability={availability}
+                loading={availabilityLoading}
+                onViewDispensary={onViewDispensary}
+              />
+            </div>
 
             {/* Favorite button */}
             <button

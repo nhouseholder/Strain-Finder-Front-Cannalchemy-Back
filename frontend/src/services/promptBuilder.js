@@ -183,11 +183,12 @@ ${budgetLine}
 CRITICAL RULES:
 - Only include dispensaries you can verify actually exist via web search
 - Search Weedmaps, Leafly, and dispensary websites for REAL current pricing on these strains
-- Include actual eighth prices when found (e.g. "$45/eighth", "$35-50/eighth")
-- If you cannot verify a price, set priceRange to null — do NOT guess or make up prices
+- For EACH matched strain, include its specific price and a direct URL to that strain on the dispensary's online menu
+- If you cannot verify a price for a specific strain, set price to null — do NOT guess or make up prices
 - Include the dispensary's real website URL and their Weedmaps/Leafly menu link
 - Check if each dispensary actually carries the requested strains or similar ones
 - Look for current deals, daily specials, first-time patient discounts, and happy hour pricing
+- Include estimated pickup readiness time (e.g. "15 min", "30 min") if available
 
 Return ONLY valid JSON (no markdown, no backticks):
 
@@ -201,10 +202,15 @@ Return ONLY valid JSON (no markdown, no backticks):
       "reviewCount": 234,
       "delivery": true,
       "deliveryEta": "45-60 min",
-      "matchedStrains": ["Only strains VERIFIED on their menu"],
-      "alternativeStrains": ["Similar strains found on their menu"],
+      "pickupReady": "15 min",
+      "matchedStrains": [
+        { "name": "Exact Strain Name", "price": "$45/eighth", "inStock": true, "strainMenuUrl": "https://weedmaps.com/dispensaries/name/menu/strain-slug" }
+      ],
+      "alternativeStrains": [
+        { "name": "Similar Strain", "price": "$38/eighth", "strainMenuUrl": "https://weedmaps.com/dispensaries/name/menu/strain-slug" }
+      ],
       "deals": ["Only REAL current promotions you found"],
-      "priceRange": "$45/eighth",
+      "priceRange": "$35-50/eighth",
       "hours": "9am-9pm",
       "phone": "(555) 123-4567",
       "website": "https://their-actual-website.com",
@@ -213,7 +219,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   ]
 }
 
-Return 4-6 dispensaries. Prioritize those with matching strains on their menu AND the best prices/deals. Always include menuUrl so users can check real-time prices and availability themselves.`
+Return 6-8 dispensaries. Prioritize those with matching strains on their menu AND the best prices/deals. Always include menuUrl so users can check real-time prices and availability themselves.`
 }
 
 export function buildTrendingPrompt(location) {

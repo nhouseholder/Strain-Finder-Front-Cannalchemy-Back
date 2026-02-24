@@ -4,9 +4,10 @@ import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
-import { searchDispensaries } from '../services/dispensarySearch'
+import { useDispensaryAvailability } from '../hooks/useDispensaryAvailability'
 import { RateLimitError } from '../services/anthropicApi'
 import { BUDGETS } from '../data/budgets'
+import DispensaryDrawer from '../components/dispensary/DispensaryDrawer'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import {
@@ -23,6 +24,8 @@ import {
   Loader2,
   AlertCircle,
   ArrowUpDown,
+  ShoppingBag,
+  Store,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -112,35 +115,40 @@ function DispensaryFilters({ sortBy, onSortChange }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  DispensaryCard (inline)                                           */
+/*  DispensaryCard (inline — now clickable to open drawer)            */
 /* ------------------------------------------------------------------ */
-function DispensaryCardItem({ dispensary }) {
+function DispensaryCardItem({ dispensary, onClick }) {
+  const d = dispensary
+
   return (
-    <Card className="p-4">
+    <Card
+      className="p-4 cursor-pointer hover:border-leaf-500/20 transition-all duration-200"
+      onClick={() => onClick?.(d)}
+    >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
           <h3 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] truncate">
-            {dispensary.name}
+            {d.name}
           </h3>
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-[#6a7a6e] mt-0.5">
             <MapPin size={12} />
-            <span className="truncate">{dispensary.address}</span>
+            <span className="truncate">{d.address}</span>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-1 flex-shrink-0">
-          {dispensary.distance && (
+          {d.distance && (
             <span className="text-xs font-medium text-gray-700 dark:text-[#b0c4b4]">
-              {dispensary.distance}
+              {d.distance}
             </span>
           )}
-          {dispensary.rating && (
+          {d.rating && (
             <span className="flex items-center gap-1 text-xs text-amber-500">
               <Star size={12} className="fill-amber-400 text-amber-400" />
-              {dispensary.rating}
-              {dispensary.reviewCount && (
+              {d.rating}
+              {d.reviewCount > 0 && (
                 <span className="text-gray-400 dark:text-[#5a6a5e]">
-                  ({dispensary.reviewCount})
+                  ({d.reviewCount})
                 </span>
               )}
             </span>
@@ -150,69 +158,83 @@ function DispensaryCardItem({ dispensary }) {
 
       {/* Details row */}
       <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-[#6a7a6e] mb-3">
-        {dispensary.hours && (
+        {d.hours && (
           <span className="flex items-center gap-1">
             <Clock size={11} />
-            {dispensary.hours}
+            {d.hours}
           </span>
         )}
-        {dispensary.delivery && (
+        {d.delivery && (
           <span className="flex items-center gap-1 text-leaf-500">
             <Truck size={11} />
             Delivery
-            {dispensary.deliveryEta && ` (${dispensary.deliveryEta})`}
+            {d.deliveryEta && ` (${d.deliveryEta})`}
           </span>
         )}
-        {dispensary.priceRange ? (
-          <span className="font-medium">{dispensary.priceRange}</span>
+        {d.pickupReady && (
+          <span className="flex items-center gap-1 text-blue-400">
+            <ShoppingBag size={11} />
+            Pickup {d.pickupReady}
+          </span>
+        )}
+        {d.priceRange ? (
+          <span className="font-medium">{d.priceRange}</span>
         ) : (
           <span className="text-gray-400 dark:text-[#5a6a5e] italic text-[10px]">Check menu for prices</span>
         )}
       </div>
 
       {/* Matched strains */}
-      {dispensary.matchedStrains?.length > 0 && (
+      {d.matchedStrains?.length > 0 && (
         <div className="mb-3">
           <span className="text-[10px] uppercase tracking-wider text-leaf-400 block mb-1">
             Your Strains In Stock
           </span>
           <div className="flex flex-wrap gap-1">
-            {dispensary.matchedStrains.map((s) => (
-              <span
-                key={s}
-                className="px-2 py-0.5 rounded-md text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
-              >
-                {s}
-              </span>
-            ))}
+            {d.matchedStrains.map((s, idx) => {
+              const name = typeof s === 'string' ? s : s.name
+              const price = typeof s === 'object' ? s.price : null
+              return (
+                <span
+                  key={`${name}-${idx}`}
+                  className="px-2 py-0.5 rounded-md text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
+                >
+                  {name}{price ? ` · ${price}` : ''}
+                </span>
+              )
+            })}
           </div>
         </div>
       )}
 
       {/* Alternative strains */}
-      {dispensary.alternativeStrains?.length > 0 && (
+      {d.alternativeStrains?.length > 0 && (
         <div className="mb-3">
           <span className="text-[10px] uppercase tracking-wider text-blue-400 block mb-1">
             Similar Alternatives
           </span>
           <div className="flex flex-wrap gap-1">
-            {dispensary.alternativeStrains.map((s) => (
-              <span
-                key={s}
-                className="px-2 py-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20"
-              >
-                {s}
-              </span>
-            ))}
+            {d.alternativeStrains.map((s, idx) => {
+              const name = typeof s === 'string' ? s : s.name
+              const price = typeof s === 'object' ? s.price : null
+              return (
+                <span
+                  key={`${name}-${idx}`}
+                  className="px-2 py-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                >
+                  {name}{price ? ` · ${price}` : ''}
+                </span>
+              )
+            })}
           </div>
         </div>
       )}
 
       {/* Deals */}
-      {dispensary.deals?.length > 0 && (
+      {d.deals?.length > 0 && (
         <div className="mb-3">
           <div className="flex flex-wrap gap-1.5">
-            {dispensary.deals.map((deal, i) => (
+            {d.deals.map((deal, i) => (
               <span
                 key={i}
                 className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20"
@@ -225,39 +247,12 @@ function DispensaryCardItem({ dispensary }) {
         </div>
       )}
 
-      {/* Action row */}
-      <div className="flex items-center gap-2 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
-        {dispensary.phone && (
-          <a
-            href={`tel:${dispensary.phone}`}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-          >
-            <Phone size={12} />
-            Call
-          </a>
-        )}
-        {dispensary.website && (
-          <a
-            href={dispensary.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-          >
-            <ExternalLink size={12} />
-            Website
-          </a>
-        )}
-        {dispensary.menuUrl && (
-          <a
-            href={dispensary.menuUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 px-3 py-1.5 text-xs rounded-lg bg-leaf-500/10 text-leaf-400 hover:bg-leaf-500/20 transition-colors ml-auto"
-          >
-            View Menu
-            <ExternalLink size={12} />
-          </a>
-        )}
+      {/* Tap to expand hint */}
+      <div className="flex items-center justify-center gap-1.5 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
+        <Store size={11} className="text-leaf-400/60" />
+        <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+          Tap for full details & menu
+        </span>
       </div>
     </Card>
   )
@@ -276,22 +271,34 @@ export default function DispensaryPage() {
   const budgetDesc = BUDGETS.find((b) => b.id === quizBudget)?.desc || null
   const { location: geoLocation, error: geoError, loading: geoLoading, requestLocation } = useGeolocation()
 
-  const [dispensaries, setDispensaries] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  // Use shared availability hook
+  const {
+    dispensaries,
+    loading,
+    error: availError,
+    locationUsed,
+    forceSearch,
+    hasData,
+  } = useDispensaryAvailability()
+
+  const [localError, setLocalError] = useState(null)
   const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
-  const [locationUsed, setLocationUsed] = useState(null)
   const [sortBy, setSortBy] = useState('closest')
   const autoSearched = useRef(false)
   const countdownRef = useRef(null)
+
+  // Dispensary drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [drawerDispensary, setDrawerDispensary] = useState(null)
+
+  const error = localError || availError
 
   const strainNames = useMemo(
     () => (resultsState.strains || []).map((s) => s.name),
     [resultsState.strains]
   )
 
-  /* Search dispensaries ---------------------------------------------- */
-  // Countdown timer cleanup
+  /* Countdown timer cleanup */
   useEffect(() => {
     return () => { if (countdownRef.current) clearInterval(countdownRef.current) }
   }, [])
@@ -313,49 +320,43 @@ export default function DispensaryPage() {
 
   const doSearch = useCallback(
     async (loc) => {
-      if (rateLimitCountdown > 0) return // Block while rate-limited
-      setLoading(true)
-      setError(null)
-      setLocationUsed(typeof loc === 'string' ? loc : 'Current location')
+      if (rateLimitCountdown > 0) return
+      setLocalError(null)
       try {
-        const results = await searchDispensaries(loc, strainNames, { budgetDesc })
-        setDispensaries(results)
+        await forceSearch(loc, strainNames, budgetDesc)
       } catch (err) {
-        console.error('Dispensary search error:', err)
         if (err instanceof RateLimitError) {
-          setError('RATE_LIMITED')
+          setLocalError('RATE_LIMITED')
           startCountdown(err.retryAfter)
         } else {
-          setError(err.message || 'Failed to find dispensaries. Please try again.')
+          setLocalError(err.message || 'Failed to find dispensaries. Please try again.')
         }
-      } finally {
-        setLoading(false)
       }
     },
-    [strainNames, budgetDesc, rateLimitCountdown, startCountdown]
+    [strainNames, budgetDesc, rateLimitCountdown, startCountdown, forceSearch]
   )
 
-  /* Auto-detect callback -------------------------------------------- */
+  /* Auto-detect callback */
   const handleAutoDetect = useCallback(() => {
     requestLocation()
   }, [requestLocation])
 
-  /* Auto-search with quiz zip code ---------------------------------- */
+  /* Auto-search with quiz zip code */
   useEffect(() => {
-    if (quizZipCode.length === 5 && !autoSearched.current && dispensaries.length === 0 && !loading) {
+    if (quizZipCode.length === 5 && !autoSearched.current && !hasData && !loading) {
       autoSearched.current = true
       doSearch(quizZipCode)
     }
-  }, [quizZipCode, dispensaries.length, loading, doSearch])
+  }, [quizZipCode, hasData, loading, doSearch])
 
-  /* When geo location arrives --------------------------------------- */
+  /* When geo location arrives */
   useEffect(() => {
-    if (geoLocation && !loading && dispensaries.length === 0) {
+    if (geoLocation && !loading && !hasData) {
       doSearch(geoLocation)
     }
   }, [geoLocation]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Sort dispensaries ------------------------------------------------ */
+  /* Sort dispensaries */
   const sortedDispensaries = useMemo(() => {
     const list = [...dispensaries]
     switch (sortBy) {
@@ -374,7 +375,13 @@ export default function DispensaryPage() {
     }
   }, [dispensaries, sortBy])
 
-  /* No strains state ------------------------------------------------ */
+  /* Open drawer */
+  const handleCardClick = useCallback((dispensary) => {
+    setDrawerDispensary(dispensary)
+    setDrawerOpen(true)
+  }, [])
+
+  /* No strains state */
   if (!resultsState.strains || resultsState.strains.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 animate-fade-in">
@@ -499,7 +506,7 @@ export default function DispensaryPage() {
                   </span>
                 </div>
               ) : (
-                <Button variant="secondary" size="sm" onClick={() => { setError(null); doSearch(locationUsed) }}>
+                <Button variant="secondary" size="sm" onClick={() => { setLocalError(null); doSearch(locationUsed) }}>
                   Try Again
                 </Button>
               )}
@@ -526,39 +533,6 @@ export default function DispensaryPage() {
                   Leafly
                 </a>
               </div>
-            </div>
-          ) : error === 'API_KEY_MISSING' ? (
-            <div className="text-center">
-              <AlertCircle size={24} className="text-amber-400 mx-auto mb-3" />
-              <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">
-                AI Dispensary Search Not Configured
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 max-w-sm mx-auto">
-                The AI-powered dispensary finder needs an Anthropic API key. In the meantime, search these sites directly for your strains:
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2 justify-center mb-4">
-                <a
-                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-leaf-500/10 text-leaf-400 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors"
-                >
-                  <ExternalLink size={14} />
-                  Search Weedmaps
-                </a>
-                <a
-                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 transition-colors"
-                >
-                  <ExternalLink size={14} />
-                  Search Leafly
-                </a>
-              </div>
-              <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-                To enable AI search, add your key to <code className="font-mono text-[10px] bg-gray-100 dark:bg-white/[0.06] px-1 rounded">frontend/.env.local</code>
-              </p>
             </div>
           ) : (
             <div className="text-center">
@@ -602,7 +576,11 @@ export default function DispensaryPage() {
 
           <div className="space-y-4 mb-8">
             {sortedDispensaries.map((d) => (
-              <DispensaryCardItem key={d.id} dispensary={d} />
+              <DispensaryCardItem
+                key={d.id}
+                dispensary={d}
+                onClick={handleCardClick}
+              />
             ))}
           </div>
         </>
@@ -614,6 +592,13 @@ export default function DispensaryPage() {
           No dispensaries found in this area. Try a different location.
         </div>
       )}
+
+      {/* Dispensary Drawer */}
+      <DispensaryDrawer
+        dispensary={drawerDispensary}
+        open={drawerOpen}
+        onClose={() => { setDrawerOpen(false); setDrawerDispensary(null) }}
+      />
     </div>
   )
 }
