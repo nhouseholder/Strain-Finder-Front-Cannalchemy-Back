@@ -30,6 +30,30 @@ export async function handler(event) {
       return { statusCode: 400, ...json({ error: 'Missing email or userId' }) }
     }
 
+    // Check if user already has an active subscription in Supabase
+    const SUPABASE_URL = process.env.VITE_SUPABASE_URL
+    const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (SUPABASE_URL && SERVICE_ROLE_KEY) {
+      try {
+        const profileRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/profiles?id=eq.${userId}&select=subscription_status`,
+          {
+            headers: {
+              'apikey': SERVICE_ROLE_KEY,
+              'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
+            },
+          }
+        )
+        const profiles = await profileRes.json()
+        if (profiles?.[0]?.subscription_status === 'active') {
+          return { statusCode: 400, ...json({ error: 'You already have an active subscription! Refresh the page to see your premium features.' }) }
+        }
+      } catch (e) {
+        console.warn('Could not check existing subscription:', e.message)
+        // Continue to checkout anyway
+      }
+    }
+
     // Derive origin from request, fallback to configured site URL
     const origin = event.headers.origin || event.headers.referer?.replace(/\/[^/]*$/, '') || SITE_URL
     const successUrl = `${returnUrl || origin + '/checkout-success'}?session_id={CHECKOUT_SESSION_ID}`

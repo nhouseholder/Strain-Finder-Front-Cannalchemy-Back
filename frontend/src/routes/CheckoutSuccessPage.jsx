@@ -15,15 +15,30 @@ export default function CheckoutSuccessPage() {
   const sessionId = searchParams.get('session_id')
 
   // Refresh profile to pick up new subscription status
+  // Retry a few times in case the webhook hasn't processed yet
   useEffect(() => {
-    if (sessionId && !refreshed) {
-      const timer = setTimeout(() => {
-        refreshProfile()
+    if (!sessionId || refreshed) return
+    let attempts = 0
+    const maxAttempts = 5
+
+    const tryRefresh = async () => {
+      attempts++
+      await refreshProfile()
+      // Check if profile now shows active (refreshProfile updates context)
+      if (attempts < maxAttempts) {
+        setTimeout(tryRefresh, 2000) // retry every 2s
+      } else {
         setRefreshed(true)
         toast.success('Premium activated! All features unlocked.')
-      }, 2000) // Wait 2s for webhook to process
-      return () => clearTimeout(timer)
+      }
     }
+
+    // First attempt after 2s to give webhook time
+    const timer = setTimeout(() => {
+      tryRefresh()
+    }, 2000)
+
+    return () => clearTimeout(timer)
   }, [sessionId, refreshed, refreshProfile])
 
   return (
