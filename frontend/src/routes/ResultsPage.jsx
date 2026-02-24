@@ -37,24 +37,15 @@ export default function ResultsPage() {
     setExpandedStrain((prev) => (prev === strainName ? null : strainName))
   }, [canViewResult])
 
-  /* Empty state */
+  /* No results — redirect to home page */
+  useEffect(() => {
+    if (!state.strains || state.strains.length === 0) {
+      navigate('/', { replace: true })
+    }
+  }, [state.strains, navigate])
+
   if (!state.strains || state.strains.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 animate-fade-in">
-        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/[0.04] flex items-center justify-center mb-4">
-          <span className="text-3xl select-none">{'\u{1F50D}'}</span>
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">
-          No results yet
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-[#8a9a8e] text-center max-w-xs mb-6">
-          Take the quiz to find your perfect strains, tailored to your needs.
-        </p>
-        <Button onClick={() => navigate('/quiz')}>
-          Take the Quiz
-        </Button>
-      </div>
-    )
+    return null
   }
 
   return (
