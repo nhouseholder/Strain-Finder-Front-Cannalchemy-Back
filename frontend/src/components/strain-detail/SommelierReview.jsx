@@ -1,11 +1,4 @@
 import { useState } from 'react'
-import {
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  Radar,
-  ResponsiveContainer,
-} from 'recharts'
 import { ChevronDown, ChevronUp, Wine } from 'lucide-react'
 
 const AXES = [
@@ -20,12 +13,6 @@ export default function SommelierReview({ notes, scores }) {
   const [expandedNote, setExpandedNote] = useState(null)
 
   if (!scores) return null
-
-  const chartData = AXES.map(({ key, label }) => ({
-    axis: label,
-    value: scores[key] || 0,
-    fullMark: 10,
-  }))
 
   const overall =
     AXES.reduce((sum, { key }) => sum + (scores[key] || 0), 0) / AXES.length
@@ -49,34 +36,6 @@ export default function SommelierReview({ notes, scores }) {
           </span>
           <span className="text-[10px] text-gray-500 dark:text-[#6a7a6e]">/10</span>
         </div>
-      </div>
-
-      {/* Radar Chart */}
-      <div className="w-full h-52">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="60%" data={chartData}>
-            <PolarGrid
-              stroke="rgba(120,120,120,0.2)"
-              strokeDasharray="3 3"
-            />
-            <PolarAngleAxis
-              dataKey="axis"
-              tick={{
-                fill: '#8a9a8e',
-                fontSize: 10,
-                fontWeight: 500,
-              }}
-            />
-            <Radar
-              name="Score"
-              dataKey="value"
-              stroke="#32c864"
-              fill="#32c864"
-              fillOpacity={0.3}
-              strokeWidth={2}
-            />
-          </RadarChart>
-        </ResponsiveContainer>
       </div>
 
       {/* Expandable Notes */}
