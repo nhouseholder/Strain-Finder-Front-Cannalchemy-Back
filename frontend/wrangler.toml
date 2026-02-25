@@ -9,4 +9,4 @@ pages_build_output_dir = "dist"
 # Then paste the id below
 [[kv_namespaces]]
 binding = "CACHE"
-id = "placeholder_create_via_wrangler_cli"
+id = "f7a280ca8f2347c8b5bcdb02b5ed6161"
