@@ -14,7 +14,6 @@ export default function SignupPage() {
   const [confirm, setConfirm] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState(false)
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [confirmed21, setConfirmed21] = useState(false)
 
@@ -47,41 +46,13 @@ export default function SignupPage() {
 
     setLoading(true)
     try {
-      const data = await signUp(email, password)
-      // Supabase may require email confirmation
-      if (data?.user?.identities?.length === 0) {
-        setError('An account with this email already exists.')
-      } else if (data?.user && !data?.session) {
-        // Email confirmation required
-        setSuccess(true)
-      } else {
-        // Auto-confirmed, redirect
-        navigate('/quiz', { replace: true })
-      }
+      await signUp(email, password)
+      navigate('/quiz', { replace: true })
     } catch (err) {
       setError(err.message || 'Sign up failed. Please try again.')
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
-        <div className="w-full max-w-sm text-center">
-          <div className="text-5xl mb-4">📧</div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Check your email
-          </h1>
-          <p className="text-sm text-gray-500 dark:text-[#8a9a8e] mb-6">
-            We sent a confirmation link to <strong className="text-gray-700 dark:text-[#b0c4b4]">{email}</strong>. Click it to activate your account.
-          </p>
-          <Link to="/login" className="text-leaf-500 hover:text-leaf-400 font-medium text-sm transition-colors">
-            Go to Sign In
-          </Link>
-        </div>
-      </div>
-    )
   }
 
   return (

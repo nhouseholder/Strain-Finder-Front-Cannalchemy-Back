@@ -18,6 +18,7 @@ const DispensaryPage = lazy(() => import('./routes/DispensaryPage'))
 const DashboardPage = lazy(() => import('./routes/DashboardPage'))
 const JournalPage = lazy(() => import('./routes/JournalPage'))
 const ComparePage = lazy(() => import('./routes/ComparePage'))
+const StrainSearchPage = lazy(() => import('./routes/StrainSearchPage'))
 const LearnPage = lazy(() => import('./routes/LearnPage'))
 const LoginPage = lazy(() => import('./routes/LoginPage'))
 const SignupPage = lazy(() => import('./routes/SignupPage'))
@@ -68,6 +69,7 @@ export default function App() {
 
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                      <Route path="search" element={<ProtectedRoute><StrainSearchPage /></ProtectedRoute>} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
 

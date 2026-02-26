@@ -2,7 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 
 export default function ProtectedRoute({ children }) {
-  const { user, loading, isSupabaseConfigured } = useAuth()
+  const { user, loading, isFirebaseConfigured } = useAuth()
   const location = useLocation()
 
   if (loading) {
@@ -13,12 +13,12 @@ export default function ProtectedRoute({ children }) {
     )
   }
 
-  // If Supabase is not configured, allow access (dev mode / demo mode)
-  if (!isSupabaseConfigured) {
+  // If Firebase is not configured, allow access (dev mode / demo mode)
+  if (!isFirebaseConfigured) {
     return children
   }
 
-  // If Supabase is configured but user not logged in, redirect to login
+  // If Firebase is configured but user not logged in, redirect to login
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }

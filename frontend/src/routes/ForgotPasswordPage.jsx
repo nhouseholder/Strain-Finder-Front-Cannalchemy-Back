@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
-import { supabase, isSupabaseConfigured } from '../services/supabase'
+import { isFirebaseConfigured } from '../services/firebase'
+import { useAuth } from '../context/AuthContext'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 
@@ -12,17 +13,16 @@ export default function ForgotPasswordPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState(null)
 
+  const { resetPassword } = useAuth()
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
     try {
-      if (!supabase) throw new Error('Authentication is not configured yet.')
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/login`,
-      })
-      if (resetError) throw resetError
+      if (!isFirebaseConfigured) throw new Error('Authentication is not configured yet.')
+      await resetPassword(email)
       setSent(true)
     } catch (err) {
       setError(err.message || 'Failed to send reset email')

@@ -1,7 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { supabase, isSupabaseConfigured } from '../services/supabase'
+import { db, isFirebaseConfigured } from '../services/firebase'
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+} from 'firebase/firestore'
 import usePageTitle from '../hooks/usePageTitle'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -26,19 +32,19 @@ export default function AdminPage() {
 
   /* ---- Fetch all users ---- */
   const fetchUsers = useCallback(async () => {
-    if (!supabase) {
+    if (!db) {
       setLoading(false)
       return
     }
     setLoading(true)
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) throw error
-
+      const snap = await getDocs(collection(db, 'profiles'))
+      const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      data.sort((a, b) => {
+        const aTime = a.created_at?.toMillis?.() || 0
+        const bTime = b.created_at?.toMillis?.() || 0
+        return bTime - aTime
+      })
       setUsers(data || [])
       const premiumCount = (data || []).filter(u => u.subscription_status === 'active').length
       setStats({
@@ -59,7 +65,7 @@ export default function AdminPage() {
 
   /* ---- Toggle premium status ---- */
   const togglePremium = async (userId, currentStatus) => {
-    if (!supabase) return
+    if (!db) return
     setUpdating(userId)
     try {
       const newStatus = currentStatus === 'active' ? 'free' : 'active'
@@ -70,13 +76,8 @@ export default function AdminPage() {
           : { subscription_end: null }
         ),
       }
-
-      const { error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', userId)
-
-      if (error) throw error
+      const profileRef = doc(db, 'profiles', userId)
+      await updateDoc(profileRef, updates)
 
       // Update local state
       setUsers(prev => prev.map(u =>
@@ -115,7 +116,7 @@ export default function AdminPage() {
   if (!isAdmin && !authLoading) return null
 
   // Show setup instructions when Supabase is not configured
-  if (!isSupabaseConfigured) {
+  if (!isFirebaseConfigured) {
     return (
       <div className="w-full max-w-2xl mx-auto px-4 pt-8 animate-fade-in">
         <Card className="p-8 text-center">
@@ -126,14 +127,14 @@ export default function AdminPage() {
             Admin Setup Required
           </h2>
           <p className="text-sm text-gray-500 dark:text-[#8a9a8e] mb-6 max-w-md mx-auto">
-            Connect Supabase to enable user management, authentication, and the admin dashboard.
+            Connect Firebase to enable user management, authentication, and the admin dashboard.
           </p>
           <div className="text-left bg-gray-50 dark:bg-white/[0.03] rounded-xl p-4 mb-6 max-w-sm mx-auto">
             <p className="text-xs font-mono text-gray-600 dark:text-[#8a9a8e] leading-relaxed">
               <span className="text-leaf-500">$</span> bash setup.sh
             </p>
             <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2">
-              Run from the project root to configure Supabase + Stripe credentials
+              Run from the project root to configure Firebase + Stripe credentials
             </p>
           </div>
           <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">

@@ -17,7 +17,7 @@ export default memo(function TerpeneProfile({ terpenes }) {
         Terpenes
       </h4>
       <p className="text-[9px] text-gray-400 dark:text-[#5a6a5e] mb-3">
-        Aromatic compounds that shape flavor and effects
+        Terpenes are aromatic oils that shape flavor and can subtly steer how a strain feels.
       </p>
       <div className="space-y-2">
         {terpenes.map((t, idx) => {

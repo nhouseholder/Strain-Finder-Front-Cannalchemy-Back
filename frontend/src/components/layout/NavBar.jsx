@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus } from 'lucide-react'
+import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, Target } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -9,6 +9,7 @@ import { useToast } from '../../context/ToastContext'
 const coreItems = [
   { to: '/quiz', icon: Search, label: 'Find', guest: true },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
+  { to: '/search', icon: Target, label: 'Search', guest: false },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
