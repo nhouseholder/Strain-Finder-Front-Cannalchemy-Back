@@ -222,7 +222,7 @@ export function CannabinoidGuide() {
         endocannabinoid system. Each one is associated with different reported experiences, and
         understanding them may help you make more informed choices. Click any card to learn more.
       </p>
-      <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] mb-6 max-w-2xl">
+      <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mb-6 max-w-2xl">
         Note: Cannabinoid research is still evolving. The information below reflects current scientific understanding and community reports, not medical claims. Always consult a healthcare professional.
       </p>
 

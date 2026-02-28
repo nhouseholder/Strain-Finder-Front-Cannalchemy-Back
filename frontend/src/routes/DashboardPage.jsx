@@ -320,7 +320,7 @@ export default function DashboardPage() {
                 </span>
                 <button
                   onClick={() => userDispatch({ type: 'TOGGLE_FAVORITE', payload: name })}
-                  className="p-1 rounded-md hover:bg-red-500/10 text-gray-300 dark:text-[#4a5a4e] hover:text-red-400 transition-colors flex-shrink-0"
+                  className="p-1 rounded-md hover:bg-red-500/10 text-gray-300 dark:text-[#6a7a6e] hover:text-red-400 transition-colors flex-shrink-0"
                   aria-label={`Remove ${name} from favorites`}
                 >
                   <Heart size={14} className="fill-current" />

@@ -253,7 +253,7 @@ function DispensaryDrawer({ dispensary, open, onClose, highlightStrain }) {
       </div>
 
       {/* Disclaimer */}
-      <p className="text-[8px] text-gray-300 dark:text-[#2a352c] text-center mt-4 px-2">
+      <p className="text-[8px] text-gray-300 dark:text-[#6a7a6e] text-center mt-4 px-2">
         Menu data is community-sourced and may not reflect real-time inventory. Always verify with the dispensary.
       </p>
     </Modal>

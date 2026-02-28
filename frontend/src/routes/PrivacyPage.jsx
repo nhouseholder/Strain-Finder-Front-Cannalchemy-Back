@@ -164,7 +164,7 @@ export default function PrivacyPage() {
       </article>
 
       <footer className="text-center py-8 border-t border-gray-200/50 dark:border-white/[0.04]">
-        <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#3a4a3e]">
+        <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#5a6a5e]">
           <Link to="/" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Home</Link>
           <span>&middot;</span>
           <Link to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Terms of Service</Link>

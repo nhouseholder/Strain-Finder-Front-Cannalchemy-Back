@@ -23,7 +23,7 @@ export default function ExperienceDescription({ strain }) {
           <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b0c4b4] italic">
             {description}
           </p>
-          <p className="text-[8px] text-gray-400 dark:text-[#3a4a3e] mt-2 not-italic">
+          <p className="text-[8px] text-gray-400 dark:text-[#5a6a5e] mt-2 not-italic">
             Based on community reports. Individual experiences vary. Not medical advice.
           </p>
         </div>

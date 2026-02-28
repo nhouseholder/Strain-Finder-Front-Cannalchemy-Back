@@ -200,7 +200,7 @@ export default function JournalForm({ onSubmit, onCancel, initialData }) {
                       'w-7 h-7 transition-colors',
                       isFilled
                         ? 'text-amber-400 fill-amber-400'
-                        : 'text-gray-300 dark:text-[#3a4a3e]'
+                        : 'text-gray-300 dark:text-[#5a6a5e]'
                     )}
                   />
                 </button>

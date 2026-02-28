@@ -312,7 +312,7 @@ export default function QuizPage() {
               Create Account
             </button>
           )}
-          <span className="text-gray-300 dark:text-[#2a352c]">&middot;</span>
+          <span className="text-gray-300 dark:text-[#6a7a6e]">&middot;</span>
           <button
             onClick={() => navigate('/learn')}
             className="hover:text-leaf-500 transition-colors underline decoration-dotted underline-offset-4"

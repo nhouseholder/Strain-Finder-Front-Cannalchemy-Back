@@ -162,7 +162,7 @@ export default function EffectVerification({ predictions, forumData }) {
                   />
                 ) : (
                   <div className="h-full flex items-center justify-center">
-                    <span className="text-[7px] text-gray-300 dark:text-[#3a4a3e]">—</span>
+                    <span className="text-[7px] text-gray-300 dark:text-[#5a6a5e]">—</span>
                   </div>
                 )}
               </div>

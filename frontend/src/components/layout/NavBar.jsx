@@ -50,7 +50,7 @@ export default function NavBar() {
           <span className="text-2xl">🌿</span>
           <div className="flex flex-col leading-tight">
             <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
-            <span className="text-[9px] font-normal text-gray-400 dark:text-[#4a5a4e] tracking-wide">{APP_VERSION}</span>
+            <span className="text-[9px] font-normal text-gray-400 dark:text-[#7a9a7e] tracking-wide">{APP_VERSION}</span>
           </div>
         </NavLink>
         <div className="flex items-center gap-1">
@@ -62,8 +62,8 @@ export default function NavBar() {
               className={({ isActive }) => clsx(
                 'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors',
                 isActive
-                  ? 'bg-leaf-500/10 text-leaf-500'
-                  : 'text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#b0c4b4] hover:bg-gray-100 dark:hover:bg-white/[0.04]'
+                  ? 'bg-leaf-500/15 text-leaf-500 dark:text-leaf-400'
+                  : 'text-gray-500 dark:text-[#8a9a8e] hover:text-gray-800 dark:hover:text-[#c8dccb] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
               )}
             >
               <Icon size={16} />
@@ -87,7 +87,7 @@ export default function NavBar() {
             </NavLink>
           )}
 
-          <div className="ml-2 border-l border-gray-200 dark:border-white/[0.08] pl-2 flex items-center gap-2">
+          <div className="ml-2 border-l border-gray-200/70 dark:border-white/[0.10] pl-2 flex items-center gap-2">
             <ThemeToggle />
 
             {user ? (
@@ -134,8 +134,8 @@ export default function NavBar() {
             className={({ isActive }) => clsx(
               'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-colors min-w-[56px]',
               isActive
-                ? 'text-leaf-500'
-                : 'text-gray-400 dark:text-[#4a5a4e]'
+                ? 'text-leaf-400'
+                : 'text-gray-400 dark:text-[#8a9a8e]'
             )}
           >
             <Icon size={20} />

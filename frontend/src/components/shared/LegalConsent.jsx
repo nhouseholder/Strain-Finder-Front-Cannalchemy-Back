@@ -126,7 +126,7 @@ export default function LegalConsent({ children }) {
         I Understand &mdash; Show My Results
       </button>
 
-      <p className="text-[9px] text-gray-300 dark:text-[#2a352c] text-center mt-4 leading-relaxed">
+      <p className="text-[9px] text-gray-300 dark:text-[#6a7a6e] text-center mt-4 leading-relaxed">
         This consent is stored locally on your device. You will not be asked again unless you clear your browser data.
       </p>
     </div>

@@ -62,7 +62,7 @@ export default function CheckoutSuccessPage() {
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e] mb-2 leading-relaxed">
           Your software subscription is active. You now have full access to all informational strain suggestions, data profiles, and premium features.
         </p>
-        <p className="text-[9px] text-gray-400 dark:text-[#3a4a3e] mb-2 leading-relaxed">
+        <p className="text-[9px] text-gray-400 dark:text-[#5a6a5e] mb-2 leading-relaxed">
           This subscription provides access to our recommendation software only. It is not a purchase of cannabis products. All information is for educational purposes only.
         </p>
 

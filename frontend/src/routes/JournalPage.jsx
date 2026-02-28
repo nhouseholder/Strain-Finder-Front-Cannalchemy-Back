@@ -58,7 +58,7 @@ function StarRating({ value, onChange, size = 20 }) {
             className={
               star <= (hover || value)
                 ? 'fill-amber-400 text-amber-400'
-                : 'text-gray-300 dark:text-[#3a4a3e]'
+                : 'text-gray-300 dark:text-[#5a6a5e]'
             }
           />
         </button>
@@ -254,7 +254,7 @@ function JournalEntryCard({ entry, onDelete }) {
                   className={
                     s <= (entry.rating || 0)
                       ? 'fill-amber-400 text-amber-400'
-                      : 'text-gray-200 dark:text-[#2a352c]'
+                      : 'text-gray-200 dark:text-[#6a7a6e]'
                   }
                 />
               ))}
@@ -294,7 +294,7 @@ function JournalEntryCard({ entry, onDelete }) {
           </span>
           <button
             onClick={() => onDelete(entry.id)}
-            className="p-1.5 rounded-lg text-gray-300 dark:text-[#3a4a3e] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+            className="p-1.5 rounded-lg text-gray-300 dark:text-[#5a6a5e] hover:text-red-400 hover:bg-red-500/10 transition-colors"
             aria-label="Delete entry"
           >
             <Trash2 size={14} />
@@ -447,7 +447,7 @@ export default function JournalPage() {
       ) : (
         <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
           <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/[0.04] flex items-center justify-center mb-4">
-            <BookMarked size={28} className="text-gray-300 dark:text-[#3a4a3e]" />
+            <BookMarked size={28} className="text-gray-300 dark:text-[#5a6a5e]" />
           </div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">
             Your journal is empty

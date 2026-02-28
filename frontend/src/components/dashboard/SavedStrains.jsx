@@ -23,7 +23,7 @@ export default function SavedStrains({ favorites = [], onRemove }) {
   if (favorites.length === 0) {
     return (
       <Card className="p-6 text-center">
-        <Heart className="w-10 h-10 text-gray-300 dark:text-[#3a4a3e] mx-auto mb-3" />
+        <Heart className="w-10 h-10 text-gray-300 dark:text-[#5a6a5e] mx-auto mb-3" />
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
           No saved strains yet. Favorite strains from your results to see them here.
         </p>

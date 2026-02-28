@@ -6,7 +6,7 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('sf-theme')
     if (stored === 'light' || stored === 'dark') return stored
-    return window.matchMedia?.('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+    return 'dark' // default is always dark
   })
 
   useEffect(() => {

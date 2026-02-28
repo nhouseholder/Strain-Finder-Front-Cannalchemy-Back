@@ -33,7 +33,7 @@ export default function JournalStats({ stats }) {
   if (!stats) {
     return (
       <Card className="p-6 text-center">
-        <BarChart3 className="w-10 h-10 text-gray-300 dark:text-[#3a4a3e] mx-auto mb-3" />
+        <BarChart3 className="w-10 h-10 text-gray-300 dark:text-[#5a6a5e] mx-auto mb-3" />
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
           No journal data yet. Add entries to see your patterns.
         </p>

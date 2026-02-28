@@ -96,7 +96,7 @@ export default function JournalEntry({ entry, onEdit, onDelete }) {
               'w-4 h-4',
               star <= rating
                 ? 'text-amber-400 fill-amber-400'
-                : 'text-gray-300 dark:text-[#3a4a3e]'
+                : 'text-gray-300 dark:text-[#5a6a5e]'
             )}
           />
         ))}

@@ -105,7 +105,7 @@ export default function PaywallOverlay() {
           </div>
         )}
 
-        <p className="text-[8px] text-gray-300 dark:text-[#2a352c] mt-3 leading-relaxed">
+        <p className="text-[8px] text-gray-300 dark:text-[#6a7a6e] mt-3 leading-relaxed">
           Subscription is for software access only &mdash; not a purchase of cannabis products. Informational purposes only.
         </p>
       </div>

@@ -122,7 +122,7 @@ export default function LoginPage() {
           >
             Continue as guest &rarr;
           </Link>
-          <p className="text-[10px] text-gray-300 dark:text-[#3a4a3e] mt-0.5">
+          <p className="text-[10px] text-gray-300 dark:text-[#5a6a5e] mt-0.5">
             Try free with your top strain recommendation
           </p>
         </div>
