@@ -69,7 +69,7 @@ export default function App() {
 
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-                      <Route path="search" element={<ProtectedRoute><StrainSearchPage /></ProtectedRoute>} />
+                      <Route path="search" element={<StrainSearchPage />} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
 

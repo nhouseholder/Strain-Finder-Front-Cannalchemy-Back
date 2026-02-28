@@ -39,6 +39,44 @@ function useScrollReveal() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Inline strain search bar for the hero                             */
+/* ------------------------------------------------------------------ */
+function StrainSearchBar() {
+  const navigate = useNavigate()
+  const [q, setQ] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (q.trim().length >= 2) navigate(`/search?q=${encodeURIComponent(q.trim())}`)
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-8 max-w-md mx-auto w-full">
+      <div className="relative group">
+        <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6a7a6e] pointer-events-none" />
+        <input
+          type="text"
+          placeholder="Search any strain by name..."
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          className="w-full pl-11 pr-24 py-3.5 rounded-2xl border border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] text-sm text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#6a7a6e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 backdrop-blur-md transition-all shadow-lg shadow-black/5 dark:shadow-black/20"
+          aria-label="Search strains"
+        />
+        <button
+          type="submit"
+          className="absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-xl bg-leaf-500 text-leaf-900 text-xs font-semibold hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/25"
+        >
+          Search
+        </button>
+      </div>
+      <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2 text-center">
+        Or search our database of 1,000+ strains directly
+      </p>
+    </form>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Section 1: Hero                                                   */
 /* ------------------------------------------------------------------ */
 function HeroSection({ onGetStarted }) {
@@ -78,6 +116,9 @@ function HeroSection({ onGetStarted }) {
             See How It Works
           </Button>
         </div>
+
+        {/* Quick strain search */}
+        <StrainSearchBar />
 
         <div className="flex items-center justify-center gap-6 mt-12 text-sm text-gray-400 dark:text-[#5a6a5e]">
           <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 1,000+ Strains</span>

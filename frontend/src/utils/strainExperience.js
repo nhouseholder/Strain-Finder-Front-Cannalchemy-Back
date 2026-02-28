@@ -220,15 +220,5 @@ export function generateExperienceDescription(strain) {
     parts.push(`At ${thc}% THC it's a lighter touch — good for staying functional and clear.`)
   }
 
-  /* ---- 5. APPEARANCE (the closer) ---- */
-  const appear  = TYPE_APPEARANCE[type] || TYPE_APPEARANCE.hybrid
-  const colors  = TERPENE_COLORS[terpNames[0]] || DEFAULT_COLORS
-  const shape   = hashPick(appear.shape, name)
-  const density = hashPick(appear.density, name + 'density')
-
-  parts.push(
-    `The buds are ${colors.bud}, dressed in ${colors.trichomes} trichomes with ${colors.pistils} pistils threading through — ${shape}, ${density}.`
-  )
-
   return parts.join(' ')
 }

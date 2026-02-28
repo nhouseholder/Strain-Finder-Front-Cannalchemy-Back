@@ -1,4 +1,5 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
@@ -8,9 +9,16 @@ import LegalConsent from '../components/shared/LegalConsent'
 
 export default function StrainSearchPage() {
   usePageTitle('Search Strains')
+  const [searchParams] = useSearchParams()
   const { query, setQuery, results } = useStrainSearch()
   const { toggleFavorite, isFavorite } = useFavorites()
   const [expandedStrain, setExpandedStrain] = useState(null)
+
+  // Pre-fill from ?q= URL param (e.g. from landing page search)
+  useEffect(() => {
+    const q = searchParams.get('q')
+    if (q && q.trim().length >= 2 && !query) setQuery(q.trim())
+  }, [searchParams])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const hasQuery = query.trim().length >= 2
   const visibleResults = useMemo(

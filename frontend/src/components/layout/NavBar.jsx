@@ -10,7 +10,7 @@ import { APP_VERSION } from '../../utils/constants'
 const coreItems = [
   { to: '/quiz', icon: Search, label: 'Find', guest: true },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
-  { to: '/search', icon: Target, label: 'Search', guest: false },
+  { to: '/search', icon: Target, label: 'Search', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
@@ -19,7 +19,7 @@ const coreItems = [
 /* Guest-only items (replace protected nav items on mobile) */
 const guestMobileItems = [
   { to: '/quiz', icon: Search, label: 'Find' },
-  { to: '/dispensaries', icon: MapPin, label: 'Map' },
+  { to: '/search', icon: Target, label: 'Search' },
   { to: '/learn', icon: BookOpen, label: 'Learn' },
   { to: '/signup', icon: UserPlus, label: 'Sign Up' },
 ]

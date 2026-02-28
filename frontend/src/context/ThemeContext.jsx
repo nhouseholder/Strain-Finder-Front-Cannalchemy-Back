@@ -4,9 +4,16 @@ export const ThemeContext = createContext({ theme: 'dark', toggleTheme: () => {}
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
+    const migrationKey = 'sf-theme-v'
+    const currentVersion = '2' // bump this to force-reset all users to dark
+    if (localStorage.getItem(migrationKey) !== currentVersion) {
+      localStorage.setItem(migrationKey, currentVersion)
+      localStorage.setItem('sf-theme', 'dark')
+      return 'dark'
+    }
     const stored = localStorage.getItem('sf-theme')
     if (stored === 'light' || stored === 'dark') return stored
-    return 'dark' // default is always dark
+    return 'dark'
   })
 
   useEffect(() => {
