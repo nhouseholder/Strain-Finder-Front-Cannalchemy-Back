@@ -11,7 +11,9 @@ function EffectRow({ effect, maxReports, barColor }) {
   const name = typeof effect === 'string' ? effect : (effect?.name || '')
   const reports = effect?.reports || 0
   const confidence = effect?.confidence || 0
-  const widthPct = maxReports > 0 ? Math.max((reports / maxReports) * 100, 4) : 4
+  // Normalize raw report count to 0-100 scale relative to the highest-reported effect
+  const pct = maxReports > 0 ? Math.round((reports / maxReports) * 100) : 0
+  const widthPct = Math.max(pct, 4)
   const confLabel = confidence >= 0.9 ? 'High' : confidence >= 0.6 ? 'Med' : 'Low'
 
   return (
@@ -25,7 +27,7 @@ function EffectRow({ effect, maxReports, barColor }) {
             {confLabel} conf.
           </span>
           <span className="text-[10px] text-gray-500 dark:text-[#8a9a8e] font-mono w-10 text-right">
-            {reports}%
+            {pct}%
           </span>
         </div>
       </div>

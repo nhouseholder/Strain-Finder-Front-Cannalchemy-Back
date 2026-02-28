@@ -99,14 +99,17 @@ export function normalizeStrain(raw) {
     }
   }
 
-  // Derive effectPredictions from effects with confidence
+  // Derive effectPredictions from effects — use normalized report counts as probability
+  // (confidence is always 0.9-1.0, making bars useless; reports vary 14-110)
   if (!s.effectPredictions && effects.length > 0) {
+    const maxRep = Math.max(...effects.map(e => e.reports || 0), 1)
     s.effectPredictions = effects
-      .filter(e => e.confidence != null)
+      .filter(e => e.reports != null)
+      .sort((a, b) => (b.reports || 0) - (a.reports || 0))
       .slice(0, 8)
       .map(e => ({
         effect: effectStr(e),
-        probability: e.confidence || 0,
+        probability: (e.reports || 0) / maxRep,  // 0-1 scale, normalized to max
         pathway: e.category === 'medical' ? 'Therapeutic' : e.category === 'positive' ? 'Recreational' : 'Side effect',
       }))
   }
