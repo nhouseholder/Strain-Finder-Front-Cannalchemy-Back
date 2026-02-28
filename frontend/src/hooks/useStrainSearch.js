@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
+import { normalizeStrain } from '../utils/normalizeStrain'
 
 // Lazy-loaded strain data — loaded on first use, not at bundle time.
 // This keeps strains.json (~1.4MB) out of the initial chunk.
@@ -9,7 +10,8 @@ function loadStrains() {
   if (_strainsCache) return Promise.resolve(_strainsCache)
   if (!_strainsPromise) {
     _strainsPromise = import('../data/strains.json').then((mod) => {
-      _strainsCache = mod.default || mod
+      const raw = mod.default || mod
+      _strainsCache = raw.map(normalizeStrain)
       return _strainsCache
     })
   }
@@ -39,7 +41,7 @@ export function useStrainSearch() {
           return (
             str(s.name).toLowerCase().includes(lower) ||
             str(s.type).toLowerCase().includes(lower) ||
-            (Array.isArray(s.effects) && s.effects.some(e => str(e).toLowerCase().includes(lower))) ||
+            (Array.isArray(s.effects) && s.effects.some(e => str(typeof e === 'string' ? e : e?.name || '').toLowerCase().includes(lower))) ||
             (Array.isArray(s.flavors) && s.flavors.some(f => str(f).toLowerCase().includes(lower)))
           )
         } catch { return false }

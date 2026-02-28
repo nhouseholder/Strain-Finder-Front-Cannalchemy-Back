@@ -1,13 +1,13 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Heart, Info, ChevronDown, ChevronUp, Star } from 'lucide-react'
 import clsx from 'clsx'
-// useNavigate removed — AvailabilityBadge handles its own navigation
 import Card from '../shared/Card'
 import { TypeBadge, EffectBadge } from '../shared/Badge'
 import TerpBadge from '../shared/TerpBadge'
 import ProgressBar from '../shared/ProgressBar'
 import Tooltip from '../shared/Tooltip'
 import { getTypeColor } from '../../utils/colors'
+import { normalizeStrain } from '../../utils/normalizeStrain'
 import StrainCardExpanded from './StrainCardExpanded'
 import AvailabilityBadge from './AvailabilityBadge'
 
@@ -37,7 +37,8 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary }) {
+function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary }) {
+  const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const tc = getTypeColor(strain.type)
   const topTerpenes = (strain.terpenes || []).slice(0, 3)
 
