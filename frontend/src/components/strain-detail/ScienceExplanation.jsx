@@ -79,18 +79,18 @@ export default function ScienceExplanation({ strain }) {
   if (!hasQuizData || (!explanation && !loading && !error)) return null
 
   return (
-    <div className="rounded-xl border border-purple-500/20 bg-purple-500/[0.04] p-4">
+    <div className="rounded-xl border border-teal-500/20 bg-teal-500/[0.04] p-4">
       <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
           {loading ? (
-            <Loader2 size={14} className="text-purple-400 animate-spin" />
+            <Loader2 size={14} className="text-teal-400 animate-spin" />
           ) : (
-            <Sparkles size={14} className="text-purple-400" />
+            <Sparkles size={14} className="text-teal-400" />
           )}
         </div>
         <div className="min-w-0">
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1.5">
-            Why This Strain <span className="text-purple-400/50 normal-case font-normal">(AI)</span>
+          <h4 className="text-[10px] font-bold uppercase tracking-wider text-teal-400 mb-1.5">
+            Why This Strain <span className="text-teal-400/50 normal-case font-normal">(AI)</span>
           </h4>
           {loading ? (
             <p className="text-xs text-gray-400 dark:text-[#6a7a6e] italic">
