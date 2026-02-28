@@ -181,7 +181,7 @@ export default function QuizPage() {
     timeoutRef.current = setTimeout(() => setTimedOut(true), 45000)
 
     try {
-      // Call MyStrainAi backend — scores 24,853 strains with receptor science
+      // Call MyStrainAI backend — scores 24,853 strains with receptor science
       const parsed = await getRecommendations(quizState)
 
       // Dispatch results immediately (stored in state)

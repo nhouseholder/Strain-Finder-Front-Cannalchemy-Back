@@ -576,7 +576,7 @@ export default function LandingPage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-[#0a0f0c]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.04]">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="text-2xl">{'\u{1F33F}'}</span>
-          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAi</span>
+          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
         </NavLink>
         <div className="flex items-center gap-2">
           {user ? (
@@ -615,17 +615,17 @@ export default function LandingPage() {
         <div className="rounded-xl border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02] p-4 mb-4">
           <p className="text-[11px] font-bold text-gray-500 dark:text-[#6a7a6e] uppercase tracking-wider mb-2">Important Notice</p>
           <p className="text-[11px] text-gray-500 dark:text-[#5a6a5e] leading-relaxed">
-            <strong className="text-gray-600 dark:text-[#8a9a8e]">MyStrainAi is an informational and educational software platform only.</strong> We are <strong className="text-gray-600 dark:text-[#8a9a8e]">not</strong> a cannabis retailer, dispensary, distributor, or medical provider. We do not sell, deliver, prescribe, or facilitate the sale of any cannabis products. All recommendations are AI-generated based on community-sourced data and may contain inaccuracies. Premium subscriptions provide access to our recommendation software only &mdash; not to cannabis products.
+            <strong className="text-gray-600 dark:text-[#8a9a8e]">MyStrainAI is an informational and educational software platform only.</strong> We are <strong className="text-gray-600 dark:text-[#8a9a8e]">not</strong> a cannabis retailer, dispensary, distributor, or medical provider. We do not sell, deliver, prescribe, or facilitate the sale of any cannabis products. All recommendations are AI-generated based on community-sourced data and may contain inaccuracies. Premium subscriptions provide access to our recommendation software only &mdash; not to cannabis products.
           </p>
         </div>
         <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed mb-3">
-          <strong className="text-gray-500 dark:text-[#5a6a5e]">Medical Disclaimer:</strong> MyStrainAi does not provide medical advice, diagnoses, or treatment recommendations. No information on this site should be interpreted as a claim that any cannabis product can treat, cure, prevent, or diagnose any disease or medical condition. Individual experiences vary widely. Always consult a qualified healthcare professional before using cannabis, especially if you are pregnant or nursing, have a mental health condition, take prescription medications, or have a history of substance use disorder.
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Medical Disclaimer:</strong> MyStrainAI does not provide medical advice, diagnoses, or treatment recommendations. No information on this site should be interpreted as a claim that any cannabis product can treat, cure, prevent, or diagnose any disease or medical condition. Individual experiences vary widely. Always consult a qualified healthcare professional before using cannabis, especially if you are pregnant or nursing, have a mental health condition, take prescription medications, or have a history of substance use disorder.
         </p>
         <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed mb-3">
           <strong className="text-gray-500 dark:text-[#5a6a5e]">Health Warnings:</strong> Cannabis may impair cognitive and motor function. Do not drive or operate machinery while under the influence. Cannabis use during pregnancy or breastfeeding may harm fetal or infant development. Individuals with a personal or family history of psychosis, schizophrenia, or other mental health conditions should use extreme caution. Cannabis use carries a risk of dependence and may interact with medications.
         </p>
         <p className="text-[10px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed">
-          <strong className="text-gray-500 dark:text-[#5a6a5e]">Legal Notice:</strong> Cannabis remains a Schedule I substance under federal law. Legality varies by jurisdiction &mdash; you are solely responsible for knowing and complying with all applicable local, state, and federal laws. Must be 21+ to use this site. By using MyStrainAi you agree to our <a href="/terms" className="underline hover:text-gray-600 dark:hover:text-[#6a7a6e]">Terms of Service</a> and <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-[#6a7a6e]">Privacy Policy</a>.
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Legal Notice:</strong> Cannabis remains a Schedule I substance under federal law. Legality varies by jurisdiction &mdash; you are solely responsible for knowing and complying with all applicable local, state, and federal laws. Must be 21+ to use this site. By using MyStrainAI you agree to our <a href="/terms" className="underline hover:text-gray-600 dark:hover:text-[#6a7a6e]">Terms of Service</a> and <a href="/privacy" className="underline hover:text-gray-600 dark:hover:text-[#6a7a6e]">Privacy Policy</a>.
         </p>
       </div>
 
@@ -636,7 +636,7 @@ export default function LandingPage() {
           <span>&middot;</span>
           <NavLink to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Privacy</NavLink>
           <span>&middot;</span>
-          <span>MyStrainAi &copy; {new Date().getFullYear()}</span>
+          <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
     </div>

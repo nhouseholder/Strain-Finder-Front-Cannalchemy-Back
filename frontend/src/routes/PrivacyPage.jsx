@@ -10,7 +10,7 @@ export default function PrivacyPage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-[#0a0f0c]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.04]">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="text-2xl">{'\u{1F33F}'}</span>
-          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAi</span>
+          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
         </Link>
       </nav>
 
@@ -127,7 +127,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">11. NOT a Healthcare Provider &mdash; Not HIPAA Compliant</h2>
             <p>
-              <strong className="text-gray-800 dark:text-[#b0c4b4]">MyStrainAi is NOT a healthcare provider, medical facility, or covered entity under the Health Insurance Portability and Accountability Act (HIPAA).</strong> We do not collect, store, or process Protected Health Information (PHI) as defined by HIPAA. Your quiz responses, strain preferences, and usage data are NOT medical records. We do not maintain medical records or patient files of any kind.
+              <strong className="text-gray-800 dark:text-[#b0c4b4]">MyStrainAI is NOT a healthcare provider, medical facility, or covered entity under the Health Insurance Portability and Accountability Act (HIPAA).</strong> We do not collect, store, or process Protected Health Information (PHI) as defined by HIPAA. Your quiz responses, strain preferences, and usage data are NOT medical records. We do not maintain medical records or patient files of any kind.
             </p>
             <p className="mt-2">
               If you share health-related information with us (e.g., via quiz responses about desired effects), this data is treated as general preference information and is NOT protected under HIPAA or any healthcare privacy regulation. Do not share sensitive medical information through our platform. For medical advice, consult a licensed healthcare professional.
@@ -137,7 +137,7 @@ export default function PrivacyPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">12. AI &amp; Machine Learning Data Processing</h2>
             <p>
-              MyStrainAi uses artificial intelligence and machine learning algorithms to generate strain recommendations and informational content. Here is how your data interacts with our AI systems:
+              MyStrainAI uses artificial intelligence and machine learning algorithms to generate strain recommendations and informational content. Here is how your data interacts with our AI systems:
             </p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li>Quiz responses are processed by our matching algorithm in real-time to generate informational suggestions. This processing happens server-side and results are not used to train external AI models.</li>
@@ -169,7 +169,7 @@ export default function PrivacyPage() {
           <span>&middot;</span>
           <Link to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Terms of Service</Link>
           <span>&middot;</span>
-          <span>MyStrainAi &copy; {new Date().getFullYear()}</span>
+          <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
     </div>

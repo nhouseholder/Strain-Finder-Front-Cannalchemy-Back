@@ -10,7 +10,7 @@ export default function TermsPage() {
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-[#0a0f0c]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.04]">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="text-2xl">{'\u{1F33F}'}</span>
-          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAi</span>
+          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
         </Link>
       </nav>
 
@@ -24,24 +24,24 @@ export default function TermsPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using MyStrainAi ("the Service," "we," "us," or "our"), you ("User," "you," or "your") agree to be bound by these Terms of Service ("Terms"). If you do not agree to all of these Terms, do not access or use the Service. You must be at least 21 years of age to use this Service. Your continued use of the Service constitutes ongoing acceptance of these Terms.
+              By accessing or using MyStrainAI ("the Service," "we," "us," or "our"), you ("User," "you," or "your") agree to be bound by these Terms of Service ("Terms"). If you do not agree to all of these Terms, do not access or use the Service. You must be at least 21 years of age to use this Service. Your continued use of the Service constitutes ongoing acceptance of these Terms.
             </p>
           </div>
 
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">2. Service Description &amp; Platform Identity</h2>
             <p>
-              MyStrainAi is an <strong className="text-gray-900 dark:text-[#e8f0ea]">informational and educational software platform</strong> that provides cannabis strain information based on publicly available community-reported data, terpene profiles, and cannabinoid compositions. The Service includes a quiz-based informational tool, strain comparison features, a personal journal, and educational content.
+              MyStrainAI is an <strong className="text-gray-900 dark:text-[#e8f0ea]">informational and educational software platform</strong> that provides cannabis strain information based on publicly available community-reported data, terpene profiles, and cannabinoid compositions. The Service includes a quiz-based informational tool, strain comparison features, a personal journal, and educational content.
             </p>
             <p className="mt-2">
-              <strong className="text-gray-900 dark:text-[#e8f0ea]">MyStrainAi is NOT a cannabis retailer, dispensary, distributor, medical provider, or healthcare facility.</strong> We do not sell, distribute, deliver, prescribe, or facilitate the sale or delivery of any cannabis products. We do not provide medical, legal, or professional advice of any kind. Any premium subscription fees are for access to our recommendation software technology only &mdash; not for the purchase of cannabis products.
+              <strong className="text-gray-900 dark:text-[#e8f0ea]">MyStrainAI is NOT a cannabis retailer, dispensary, distributor, medical provider, or healthcare facility.</strong> We do not sell, distribute, deliver, prescribe, or facilitate the sale or delivery of any cannabis products. We do not provide medical, legal, or professional advice of any kind. Any premium subscription fees are for access to our recommendation software technology only &mdash; not for the purchase of cannabis products.
             </p>
           </div>
 
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">3. Not Medical, Legal, or Professional Advice</h2>
             <p>
-              <strong className="text-gray-900 dark:text-[#e8f0ea]">THE SERVICE DOES NOT PROVIDE MEDICAL ADVICE, DIAGNOSES, OR TREATMENT RECOMMENDATIONS.</strong> All information, content, strain descriptions, effect predictions, and recommendations presented on MyStrainAi are for <strong className="text-gray-900 dark:text-[#e8f0ea]">general educational and informational purposes only</strong>. They are based on aggregated community-reported data and publicly available research, and do not constitute medical, legal, or professional advice of any kind.
+              <strong className="text-gray-900 dark:text-[#e8f0ea]">THE SERVICE DOES NOT PROVIDE MEDICAL ADVICE, DIAGNOSES, OR TREATMENT RECOMMENDATIONS.</strong> All information, content, strain descriptions, effect predictions, and recommendations presented on MyStrainAI are for <strong className="text-gray-900 dark:text-[#e8f0ea]">general educational and informational purposes only</strong>. They are based on aggregated community-reported data and publicly available research, and do not constitute medical, legal, or professional advice of any kind.
             </p>
             <p className="mt-2">
               No information on this Service should be interpreted as a claim that any cannabis strain or product can treat, cure, prevent, or diagnose any disease or medical condition. Individual experiences with cannabis vary widely based on personal physiology, tolerance, dosage, product quality, and other factors.
@@ -60,7 +60,7 @@ export default function TermsPage() {
               <strong className="text-gray-900 dark:text-[#e8f0ea]">You are solely and exclusively responsible</strong> for understanding and complying with all applicable local, state, federal, and international laws in your jurisdiction. The Service does not encourage, facilitate, or advise any illegal activity. Use of this Service does not constitute legal permission to purchase, possess, or consume cannabis in any jurisdiction.
             </p>
             <p className="mt-2">
-              MyStrainAi makes no representation or warranty that the information provided is legal, appropriate, or applicable in your jurisdiction.
+              MyStrainAI makes no representation or warranty that the information provided is legal, appropriate, or applicable in your jurisdiction.
             </p>
           </div>
 
@@ -108,7 +108,7 @@ export default function TermsPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">10. Disclaimer of Warranties</h2>
             <p>
-              <strong className="text-gray-900 dark:text-[#e8f0ea]">THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.</strong> To the fullest extent permitted by applicable law, MyStrainAi disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.
+              <strong className="text-gray-900 dark:text-[#e8f0ea]">THE SERVICE IS PROVIDED ON AN "AS IS" AND "AS AVAILABLE" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED.</strong> To the fullest extent permitted by applicable law, MyStrainAI disclaims all warranties, express or implied, including but not limited to implied warranties of merchantability, fitness for a particular purpose, title, and non-infringement.
             </p>
             <p className="mt-2">
               We do not warrant that (a) the Service will meet your requirements; (b) the Service will be uninterrupted, timely, secure, or error-free; (c) the information provided through the Service will be accurate, reliable, or complete; or (d) any defects in the Service will be corrected.
@@ -128,14 +128,14 @@ export default function TermsPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">12. Indemnification</h2>
             <p>
-              You agree to indemnify, defend, and hold harmless MyStrainAi and its owners, operators, affiliates, and contributors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or related to: (a) your use of the Service; (b) your violation of these Terms; (c) your violation of any applicable law or regulation; (d) any cannabis-related decision, purchase, or consumption; or (e) any claim that your use of the Service caused harm to you or any third party.
+              You agree to indemnify, defend, and hold harmless MyStrainAI and its owners, operators, affiliates, and contributors from and against any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising out of or related to: (a) your use of the Service; (b) your violation of these Terms; (c) your violation of any applicable law or regulation; (d) any cannabis-related decision, purchase, or consumption; or (e) any claim that your use of the Service caused harm to you or any third party.
             </p>
           </div>
 
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">13. Intellectual Property</h2>
             <p>
-              All content, design, code, logos, trademarks, and other intellectual property on the Service are owned by or licensed to MyStrainAi. You may not copy, modify, distribute, sell, or lease any part of the Service without prior written consent. Community-reported data is aggregated from publicly available sources and is not claimed as proprietary.
+              All content, design, code, logos, trademarks, and other intellectual property on the Service are owned by or licensed to MyStrainAI. You may not copy, modify, distribute, sell, or lease any part of the Service without prior written consent. Community-reported data is aggregated from publicly available sources and is not claimed as proprietary.
             </p>
           </div>
 
@@ -169,20 +169,20 @@ export default function TermsPage() {
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">17. AI-Generated Content &amp; No Reliance</h2>
             <p>
-              <strong className="text-gray-900 dark:text-[#e8f0ea]">All recommendations, predictions, strain analyses, and effect suggestions provided by MyStrainAi are generated by artificial intelligence and machine learning algorithms.</strong> These AI-generated outputs are based on community-sourced data and publicly available information. They may contain inaccuracies, errors, outdated information, or misrepresentations.
+              <strong className="text-gray-900 dark:text-[#e8f0ea]">All recommendations, predictions, strain analyses, and effect suggestions provided by MyStrainAI are generated by artificial intelligence and machine learning algorithms.</strong> These AI-generated outputs are based on community-sourced data and publicly available information. They may contain inaccuracies, errors, outdated information, or misrepresentations.
             </p>
             <p className="mt-2">
               <strong className="text-gray-900 dark:text-[#e8f0ea]">You should not rely on any information provided by the Service as the sole basis for any cannabis-related decision, health decision, or purchase decision.</strong> All information should be independently verified with a licensed dispensary, healthcare professional, or other qualified source. The Service is a starting point for exploration, not a definitive guide.
             </p>
             <p className="mt-2">
-              MyStrainAi expressly disclaims any responsibility for decisions you make based on AI-generated content. You acknowledge that AI systems are imperfect and that the information provided may not be accurate, complete, or applicable to your specific circumstances.
+              MyStrainAI expressly disclaims any responsibility for decisions you make based on AI-generated content. You acknowledge that AI systems are imperfect and that the information provided may not be accurate, complete, or applicable to your specific circumstances.
             </p>
           </div>
 
           <div>
             <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">18. Subscription &amp; Payment Terms</h2>
             <p>
-              MyStrainAi may offer optional premium subscriptions for enhanced software features. <strong className="text-gray-900 dark:text-[#e8f0ea]">All subscription payments are for access to our recommendation software and informational technology only.</strong> You are not purchasing cannabis, cannabis products, medical advice, or any guarantee of outcomes. Subscription fees are processed by Stripe, Inc. and are subject to Stripe's terms of service.
+              MyStrainAI may offer optional premium subscriptions for enhanced software features. <strong className="text-gray-900 dark:text-[#e8f0ea]">All subscription payments are for access to our recommendation software and informational technology only.</strong> You are not purchasing cannabis, cannabis products, medical advice, or any guarantee of outcomes. Subscription fees are processed by Stripe, Inc. and are subject to Stripe's terms of service.
             </p>
             <p className="mt-2">
               Subscriptions automatically renew unless cancelled. You may cancel at any time through your account settings or by contacting us. No refunds are issued for partial billing periods. Our total liability for subscription-related claims shall not exceed the total amount you paid us in the twelve (12) months preceding the claim.
@@ -226,7 +226,7 @@ export default function TermsPage() {
           <span>&middot;</span>
           <Link to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Privacy Policy</Link>
           <span>&middot;</span>
-          <span>MyStrainAi &copy; {new Date().getFullYear()}</span>
+          <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
     </div>

@@ -568,7 +568,7 @@ function IndicaSativaGuide() {
         <p>
           <strong className="text-gray-700 dark:text-[#b0c4b4]">What to do instead:</strong> Rather than
           relying on indica/sativa labels, look at the lab-tested terpene profile and cannabinoid
-          ratios. MyStrainAi uses this approach to match you with strains based on chemistry,
+          ratios. MyStrainAI uses this approach to match you with strains based on chemistry,
           not marketing labels.
         </p>
       </div>

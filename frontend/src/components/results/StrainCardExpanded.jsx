@@ -1,4 +1,5 @@
 import WhyMatchTooltip from '../strain-detail/WhyMatchTooltip'
+import ExperienceDescription from '../strain-detail/ExperienceDescription'
 import WhatToExpect from '../strain-detail/WhatToExpect'
 import CannabinoidProfile from '../strain-detail/CannabinoidProfile'
 import TerpeneProfile from '../strain-detail/TerpeneProfile'
@@ -25,6 +26,9 @@ export default function StrainCardExpanded({ strain }) {
       {strain.whyMatch && (
         <WhyMatchTooltip text={strain.whyMatch} />
       )}
+
+      {/* 1b. The Experience — personal, empathetic strain description */}
+      <ExperienceDescription strain={strain} />
 
       {/* 2. What's Inside — Cannabinoids */}
       <CannabinoidProfile cannabinoids={cannabinoids} />

@@ -47,7 +47,7 @@ export default function NavBar() {
       <nav className="hidden sm:flex items-center justify-between px-6 py-3 border-b border-gray-200 dark:border-white/[0.06] bg-white/80 dark:bg-leaf-900/80 backdrop-blur-md sticky top-0 z-40" role="navigation" aria-label="Main navigation">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold font-display text-gray-900 dark:text-[#e8f0ea]">
           <span className="text-2xl">🌿</span>
-          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAi</span>
+          <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
         </NavLink>
         <div className="flex items-center gap-1">
           {desktopItems.map(({ to, icon: Icon, label }) => (

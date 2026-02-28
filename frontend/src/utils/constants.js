@@ -1,4 +1,4 @@
-export const APP_NAME = 'MyStrainAi';
+export const APP_NAME = 'MyStrainAI';
 export const APP_VERSION = '4.1.0';
 
 export const STORAGE_KEYS = {

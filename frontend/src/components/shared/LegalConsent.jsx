@@ -71,7 +71,7 @@ export default function LegalConsent({ children }) {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-amber-500 mt-0.5 flex-shrink-0">&bull;</span>
-            <span><strong className="text-gray-600 dark:text-[#8a9a8e]">Not a retailer:</strong> MyStrainAi does not sell, distribute, or deliver cannabis products. We are an informational software platform only.</span>
+            <span><strong className="text-gray-600 dark:text-[#8a9a8e]">Not a retailer:</strong> MyStrainAI does not sell, distribute, or deliver cannabis products. We are an informational software platform only.</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-amber-500 mt-0.5 flex-shrink-0">&bull;</span>

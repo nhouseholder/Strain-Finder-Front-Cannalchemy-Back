@@ -62,7 +62,7 @@ export default function SignupPage() {
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <span className="text-3xl">🌿</span>
           <span className="text-2xl font-bold bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent" style={{ fontFamily: "'Playfair Display', serif" }}>
-            MyStrainAi
+            MyStrainAI
           </span>
         </Link>
 
@@ -138,7 +138,7 @@ export default function SignupPage() {
                   <Link to="/terms" target="_blank" className="text-leaf-500 hover:text-leaf-400 underline">Terms of Service</Link>
                   {' '}and{' '}
                   <Link to="/privacy" target="_blank" className="text-leaf-500 hover:text-leaf-400 underline">Privacy Policy</Link>.
-                  I understand that MyStrainAi is an informational platform only and does not provide medical advice, sell cannabis, or guarantee outcomes.
+                  I understand that MyStrainAI is an informational platform only and does not provide medical advice, sell cannabis, or guarantee outcomes.
                 </span>
               </label>
               <label className="flex items-start gap-2 cursor-pointer group">

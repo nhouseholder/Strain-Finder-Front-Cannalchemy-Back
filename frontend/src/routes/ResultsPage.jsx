@@ -205,7 +205,7 @@ export default function ResultsPage() {
       {/* Legal disclaimer */}
       <div className="max-w-xl mx-auto px-2 pb-6">
         <p className="text-[9px] text-gray-400 dark:text-[#3a4a3e] leading-relaxed text-center">
-          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> These AI-generated suggestions are for informational and educational purposes only, based on community-reported data and publicly available information. They may contain inaccuracies. They do not constitute medical, legal, or professional advice. MyStrainAi does not sell or distribute cannabis. Individual experiences vary widely. Always consult a healthcare professional before using cannabis. Do not use cannabis if pregnant or nursing. Verify all product details with your licensed dispensary.
+          <strong className="text-gray-500 dark:text-[#5a6a5e]">Disclaimer:</strong> These AI-generated suggestions are for informational and educational purposes only, based on community-reported data and publicly available information. They may contain inaccuracies. They do not constitute medical, legal, or professional advice. MyStrainAI does not sell or distribute cannabis. Individual experiences vary widely. Always consult a healthcare professional before using cannabis. Do not use cannabis if pregnant or nursing. Verify all product details with your licensed dispensary.
         </p>
       </div>
 

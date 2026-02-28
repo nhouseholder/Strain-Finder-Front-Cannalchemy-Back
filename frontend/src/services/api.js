@@ -1,5 +1,5 @@
 /**
- * MyStrainAi Backend API Client
+ * MyStrainAI Backend API Client
  *
  * Replaces the local matchingEngine.js + localResultsBuilder.js.
  * All strain scoring now happens server-side using the full 24,853 strain
@@ -9,7 +9,7 @@
 const API_BASE = '/api/v1'
 
 /**
- * Get strain recommendations from the MyStrainAi backend.
+ * Get strain recommendations from the MyStrainAI backend.
  * Sends quiz state, returns 5 main results + 2 AI picks.
  *
  * @param {Object} quizState - The quiz context state
