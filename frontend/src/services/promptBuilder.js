@@ -242,6 +242,57 @@ Return ONLY valid JSON:
 Return 5-8 trending strains and 3 favorites per category.`
 }
 
+export function buildExperiencePrompt(strain) {
+  const terpStr = (strain.terpenes || [])
+    .map(t => `${t.name} (${t.pct})`)
+    .join(', ')
+
+  const cannabStr = (strain.cannabinoids || [])
+    .filter(c => parseFloat(c.value) > 0)
+    .map(c => `${c.name}: ${c.value}%`)
+    .join(', ')
+
+  const effectsStr = (strain.effects || []).join(', ')
+  const flavorsStr = (strain.flavors || []).join(', ')
+
+  const somNotes = strain.sommelierNotes
+    ? `Taste: ${strain.sommelierNotes.taste || 'N/A'}; Aroma: ${strain.sommelierNotes.aroma || 'N/A'}; Smoke: ${strain.sommelierNotes.smoke || 'N/A'}`
+    : 'No sommelier data'
+
+  const forumPros = (strain.forumAnalysis?.pros || [])
+    .map(p => `${p.effect} (${p.pct}% of users)`)
+    .join(', ')
+  const forumCons = (strain.forumAnalysis?.cons || [])
+    .map(c => `${c.effect} (${c.pct}% of users)`)
+    .join(', ')
+
+  const pathwayStr = (strain.pathways || [])
+    .slice(0, 5)
+    .map(p => `${p.molecule} binds ${p.receptor} (Ki=${p.ki_nm}nM, ${p.action_type || 'modulator'})`)
+    .join('; ')
+
+  return `You are a cannabis sommelier and experience writer. Write a vivid, authentic 3-4 sentence description of what it's like to consume ${strain.name}. This must be UNIQUE to this specific strain — grounded in its actual terpene profile, cannabinoid levels, community-reported effects, and flavor data below. Do NOT describe the bud's appearance.
+
+STRAIN: ${strain.name} (${strain.type})
+THC: ${strain.thc || 'unknown'}% | CBD: ${strain.cbd || 0}%
+TERPENES: ${terpStr || 'No data'}
+CANNABINOIDS: ${cannabStr || 'No data'}
+EFFECTS (community-reported): ${effectsStr || 'No data'}
+FLAVORS: ${flavorsStr || 'No data'}
+SOMMELIER NOTES: ${somNotes}
+COMMUNITY PROS: ${forumPros || 'Limited data'}
+COMMUNITY CONS: ${forumCons || 'Limited data'}
+RECEPTOR PATHWAYS: ${pathwayStr || 'No data'}
+
+RULES:
+- Describe the flavor on inhale/exhale, the onset of effects, the peak experience, and the fade
+- Reference specific terpenes or cannabinoids by name when explaining WHY it feels a certain way
+- Be honest about both positives and negatives reported by the community
+- Write in second person ("you'll notice...", "expect to feel...")
+- Keep it poetic but factually grounded — no hype, no medical claims
+- Write ONLY the description paragraph. No headers, no JSON, no formatting.`
+}
+
 export function buildScienceExplanation(strain, quizState) {
   const terpStr = (strain.terpenes || [])
     .map(t => `${t.name} (${t.pct})`)

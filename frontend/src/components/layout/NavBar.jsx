@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, Target } from 'lucide-react'
+import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -8,9 +8,9 @@ import { APP_VERSION } from '../../utils/constants'
 
 /* Nav items adapt based on auth state */
 const coreItems = [
-  { to: '/quiz', icon: Search, label: 'Find', guest: true },
+  { to: '/quiz', icon: ClipboardList, label: 'Quiz', guest: true },
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
-  { to: '/search', icon: Target, label: 'Search', guest: true },
+  { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
@@ -18,8 +18,8 @@ const coreItems = [
 
 /* Guest-only items (replace protected nav items on mobile) */
 const guestMobileItems = [
-  { to: '/quiz', icon: Search, label: 'Find' },
-  { to: '/search', icon: Target, label: 'Search' },
+  { to: '/quiz', icon: ClipboardList, label: 'Quiz' },
+  { to: '/search', icon: Search, label: 'Search' },
   { to: '/learn', icon: BookOpen, label: 'Learn' },
   { to: '/signup', icon: UserPlus, label: 'Sign Up' },
 ]

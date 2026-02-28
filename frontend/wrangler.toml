@@ -10,3 +10,7 @@ pages_build_output_dir = "dist"
 [[kv_namespaces]]
 binding = "CACHE"
 id = "f7a280ca8f2347c8b5bcdb02b5ed6161"
+
+# Workers AI — free Llama 3.3 70B for strain descriptions and explanations
+[ai]
+binding = "AI"

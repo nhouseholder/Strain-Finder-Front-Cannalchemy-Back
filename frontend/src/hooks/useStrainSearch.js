@@ -32,13 +32,18 @@ export function useStrainSearch() {
   const results = useMemo(() => {
     if (!query || query.length < 2 || strainsData.length === 0) return []
     const lower = query.toLowerCase()
+    const str = (v) => (typeof v === 'string' ? v : String(v || ''))
     return strainsData
-      .filter(s =>
-        s.name.toLowerCase().includes(lower) ||
-        s.type.toLowerCase().includes(lower) ||
-        s.effects?.some(e => e.toLowerCase().includes(lower)) ||
-        s.flavors?.some(f => f.toLowerCase().includes(lower))
-      )
+      .filter(s => {
+        try {
+          return (
+            str(s.name).toLowerCase().includes(lower) ||
+            str(s.type).toLowerCase().includes(lower) ||
+            (Array.isArray(s.effects) && s.effects.some(e => str(e).toLowerCase().includes(lower))) ||
+            (Array.isArray(s.flavors) && s.flavors.some(f => str(f).toLowerCase().includes(lower)))
+          )
+        } catch { return false }
+      })
       .slice(0, 20)
   }, [query, strainsData])
 

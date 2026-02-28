@@ -1,7 +1,7 @@
 import { useState, useContext } from 'react'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { QuizContext } from '../../context/QuizContext'
-import { callAnthropic } from '../../services/anthropicApi'
+import { callFreeAI } from '../../services/freeAi'
 import { buildScienceExplanation } from '../../services/promptBuilder'
 
 const CACHE_PREFIX = 'science_'
@@ -45,16 +45,20 @@ export default function ScienceExplanation({ strain }) {
     setError(null)
     try {
       const prompt = buildScienceExplanation(strain, quiz?.state)
-      const result = await callAnthropic({ prompt, maxTokens: 500, retries: 2 })
+      const result = await callFreeAI({ prompt, maxTokens: 500, retries: 2 })
       const cleaned = (result || '').trim()
       setExplanation(cleaned)
       if (strain?.name) setCache(strain.name, cleaned)
     } catch (err) {
       console.error('Science explanation failed:', err)
       if (err.message === 'API_KEY_MISSING') {
-        setError('AI explanations require an Anthropic API key. Add it to frontend/.env.local to enable this feature.')
+        setError('AI service is being configured. This feature will be available shortly.')
+      } else if (err.message?.includes('API key not configured')) {
+        setError('AI service is being configured. This feature will be available shortly.')
+      } else if (err.name === 'RateLimitError') {
+        setError(err.message)
       } else {
-        setError('Could not generate explanation. Check your API key or try again.')
+        setError('AI is temporarily unavailable. Please try again in a moment.')
       }
     } finally {
       setLoading(false)
