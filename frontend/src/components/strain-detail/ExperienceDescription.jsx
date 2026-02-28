@@ -4,7 +4,7 @@ import { callFreeAI } from '../../services/freeAi'
 import { buildExperiencePrompt } from '../../services/promptBuilder'
 import { generateExperienceDescription } from '../../utils/strainExperience'
 
-const CACHE_PREFIX = 'exp2_'
+const CACHE_PREFIX = 'exp4_'
 
 function getCached(strainName) {
   if (!strainName) return null

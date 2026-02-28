@@ -271,7 +271,7 @@ export function buildExperiencePrompt(strain) {
     .map(p => `${p.molecule} binds ${p.receptor} (Ki=${p.ki_nm}nM, ${p.action_type || 'modulator'})`)
     .join('; ')
 
-  return `You are a cannabis sommelier. Write a vivid, authentic 2-sentence description of what it's like to consume ${strain.name}. This must be UNIQUE to this strain — grounded in its terpene profile, cannabinoid levels, and community-reported effects. Do NOT describe appearance.
+  return `You are a cannabis sommelier. Write a vivid, authentic description (3 sentences maximum) of what it's like to consume ${strain.name}. This must be UNIQUE to this strain — grounded in its terpene profile, cannabinoid levels, and community-reported effects. Do NOT describe appearance.
 
 STRAIN: ${strain.name} (${strain.type})
 THC: ${strain.thc || 'unknown'}% | CBD: ${strain.cbd || 0}%
@@ -285,11 +285,11 @@ COMMUNITY CONS: ${forumCons || 'Limited data'}
 RECEPTOR PATHWAYS: ${pathwayStr || 'No data'}
 
 RULES:
-- Mention the onset and peak experience in 2 concise sentences total
+- Mention the onset and peak experience in 3 concise sentences maximum
 - Reference at least one terpene or cannabinoid by name
 - Write in second person ("you'll notice...", "expect to feel...")
 - Keep it poetic but factually grounded — no hype, no medical claims
-- Write ONLY the 2 sentences. No headers, no JSON, no formatting.`
+- Write ONLY the sentences. No headers, no JSON, no formatting.`
 }
 
 export function buildScienceExplanation(strain, quizState) {
@@ -318,7 +318,7 @@ export function buildScienceExplanation(strain, quizState) {
     .map(id => id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
     .join(', ') || 'none specified'
 
-  return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 2-3 sentences WHY this strain matches this specific user. Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist.
+  return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 3 sentences maximum WHY this strain matches this specific user. Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist. NEVER say "high THC content" or make generic THC potency claims — focus on the specific terpenes, cannabinoids, and receptor pathways that make this strain unique.
 
 STRAIN: ${strain.name} (${strain.type}) — ${strain.matchPct}% match
 TERPENES: ${terpStr || 'No terpene data'}
@@ -328,5 +328,8 @@ COMMUNITY REPORTS: Top effects — ${forumPros || 'Limited data'}
 USER WANTS: ${userEffects || 'General wellness'}
 USER AVOIDS: ${userAvoid}
 
-Write ONLY the explanation. No JSON, no headers, no formatting.`
+RULES:
+- 3 sentences maximum
+- Do NOT mention "high THC" or generic THC potency as a reason — be specific about terpenes, minor cannabinoids, and pathways
+- Write ONLY the explanation. No JSON, no headers, no formatting.`
 }

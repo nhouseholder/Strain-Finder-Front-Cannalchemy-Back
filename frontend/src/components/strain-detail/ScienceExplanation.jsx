@@ -4,7 +4,7 @@ import { QuizContext } from '../../context/QuizContext'
 import { callFreeAI } from '../../services/freeAi'
 import { buildScienceExplanation } from '../../services/promptBuilder'
 
-const CACHE_PREFIX = 'science_'
+const CACHE_PREFIX = 'science2_'
 
 function getCached(strainName) {
   if (!strainName) return null
