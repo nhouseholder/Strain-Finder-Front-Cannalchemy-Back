@@ -14,7 +14,7 @@ export default function ToleranceStep() {
       {/* Section 1: Experience Level */}
       <div>
         <div className="text-center mb-5">
-          <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">
+          <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-[#e8f0ea] mb-2">
             How experienced are you?
           </h2>
           <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
@@ -50,7 +50,7 @@ export default function ToleranceStep() {
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] leading-tight">
                       {t.label}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-[#6a7a6e] mt-0.5">{t.desc}</p>
@@ -65,7 +65,7 @@ export default function ToleranceStep() {
       {/* Section 2: Effects to Avoid */}
       <div>
         <div className="text-center mb-5">
-          <h3 className="text-lg font-display text-gray-900 dark:text-white mb-1">
+          <h3 className="text-lg font-display text-gray-900 dark:text-[#e8f0ea] mb-1">
             Any effects you want to avoid?
           </h3>
           <p className="text-xs text-gray-500 dark:text-[#8a9a8e]">
@@ -87,7 +87,7 @@ export default function ToleranceStep() {
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'bg-red-500/10 dark:bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400'
-                    : 'bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+                    : 'bg-gray-50 dark:bg-gray-50/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.06]',
                 ].join(' ')}
                 aria-pressed={isSelected}
                 aria-label={`Avoid ${effect.label}`}

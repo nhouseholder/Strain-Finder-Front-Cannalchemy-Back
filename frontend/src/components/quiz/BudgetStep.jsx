@@ -18,7 +18,7 @@ export default function BudgetStep() {
             <MapPin size={15} className="text-leaf-400" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">
+            <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea]">
               Find cannabis deals near you <span className="text-xs font-normal text-gray-400 dark:text-[#6a7a6e]">(Optional)</span>
             </p>
             <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] leading-snug">
@@ -38,7 +38,7 @@ export default function BudgetStep() {
           }}
           placeholder="e.g. 90210"
           aria-label="Your zip code for finding local deals"
-          className="w-full mt-1 px-4 py-2.5 text-sm rounded-xl bg-white dark:bg-white/[0.06] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
+          className="w-full mt-1 px-4 py-2.5 text-sm rounded-xl bg-gray-50 dark:bg-gray-50/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
         />
         {zipCode.length > 0 && zipCode.length < 5 && (
           <p className="text-[10px] text-amber-500 mt-1 ml-1">Enter a 5-digit zip code</p>
@@ -47,7 +47,7 @@ export default function BudgetStep() {
 
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">
+        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-[#e8f0ea] mb-2">
           What's your budget? <span className="text-lg font-normal text-gray-400 dark:text-[#6a7a6e]">(Optional)</span>
         </h2>
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
@@ -75,7 +75,7 @@ export default function BudgetStep() {
                   'text-3xl font-bold mb-1 transition-colors duration-200',
                   isSelected
                     ? 'text-leaf-500'
-                    : 'text-gray-700 dark:text-white',
+                    : 'text-gray-700 dark:text-[#e8f0ea]',
                 ].join(' ')}
               >
                 {tier.label}
@@ -87,9 +87,9 @@ export default function BudgetStep() {
       </div>
 
       {/* Open to deals toggle */}
-      <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-surface-border bg-white dark:bg-surface p-4">
+      <div className="flex items-center justify-between rounded-2xl border border-gray-200 dark:border-surface-border bg-gray-50 dark:bg-surface p-4">
         <div className="min-w-0 pr-4">
-          <p className="text-sm font-semibold text-gray-900 dark:text-white">
+          <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea]">
             Open to deals outside your tier?
           </p>
           <p className="text-xs text-gray-500 dark:text-[#6a7a6e] mt-0.5">
@@ -107,12 +107,12 @@ export default function BudgetStep() {
           className={[
             'relative inline-flex h-6 w-11 flex-shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 cursor-pointer',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
-            openToDeals ? 'bg-leaf-500' : 'bg-gray-300 dark:bg-white/10',
+            openToDeals ? 'bg-leaf-500' : 'bg-gray-300 dark:bg-gray-50/10',
           ].join(' ')}
         >
           <span
             className={[
-              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition-transform duration-200',
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-gray-50 shadow-lg ring-0 transition-transform duration-200',
               openToDeals ? 'translate-x-5' : 'translate-x-0',
             ].join(' ')}
           />

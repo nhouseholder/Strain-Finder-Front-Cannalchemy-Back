@@ -46,7 +46,7 @@ export default function QuizShell({ onComplete }) {
                     'rounded-full transition-all duration-300',
                     isCompleted && 'w-3 h-3 bg-leaf-500',
                     isCurrent && 'w-4 h-4 bg-leaf-500 ring-4 ring-leaf-500/20',
-                    isFuture && 'w-3 h-3 bg-gray-300 dark:bg-white/10',
+                    isFuture && 'w-3 h-3 bg-gray-300 dark:bg-gray-50/10',
                   ]
                     .filter(Boolean)
                     .join(' ')}
@@ -81,7 +81,7 @@ export default function QuizShell({ onComplete }) {
                   <div
                     className={[
                       'h-0.5 w-6 sm:w-8 transition-colors duration-300',
-                      filled ? 'bg-leaf-500/40' : 'bg-gray-200 dark:bg-white/5',
+                      filled ? 'bg-leaf-500/40' : 'bg-gray-200 dark:bg-gray-50/5',
                     ].join(' ')}
                   />
                 </div>

@@ -1,6 +1,6 @@
 {
-  "name": "MyStrainAi",
-  "short_name": "MyStrainAi",
+  "name": "MyStrainAI",
+  "short_name": "MyStrainAI",
   "description": "AI-powered cannabis strain recommendations backed by receptor science",
   "start_url": "/",
   "display": "standalone",

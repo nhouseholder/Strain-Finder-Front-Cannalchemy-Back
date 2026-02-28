@@ -26,7 +26,7 @@ export default function OptionalPrefsStep({ onComplete }) {
     <div className="space-y-8">
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">
+        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-[#e8f0ea] mb-2">
           Fine-tune your preferences
         </h2>
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
@@ -37,7 +37,7 @@ export default function OptionalPrefsStep({ onComplete }) {
       {/* Section 1: Preferred Subtype */}
       <div>
         <div className="flex items-center justify-center gap-2 mb-3">
-          <h3 className="text-base font-display text-gray-900 dark:text-white">
+          <h3 className="text-base font-display text-gray-900 dark:text-[#e8f0ea]">
             Preferred Subtype
           </h3>
           <Tooltip content={SUBTYPE_TOOLTIP} />
@@ -57,7 +57,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'text-white shadow-md'
-                    : 'bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.08]',
+                    : 'bg-gray-50 dark:bg-gray-50/[0.04] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.08]',
                 ].join(' ')}
                 style={isSelected ? { backgroundColor: st.color } : undefined}
                 aria-pressed={isSelected}
@@ -72,7 +72,7 @@ export default function OptionalPrefsStep({ onComplete }) {
 
       {/* Section 2: THC & CBD Preferences */}
       <div className="space-y-5">
-        <h3 className="text-base font-display text-gray-900 dark:text-white text-center">
+        <h3 className="text-base font-display text-gray-900 dark:text-[#e8f0ea] text-center">
           THC & CBD Preferences
         </h3>
 
@@ -95,7 +95,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isSelected
                       ? 'bg-sativa-500/15 border border-sativa-500/40 text-sativa-400'
-                      : 'bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+                      : 'bg-gray-50 dark:bg-gray-50/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.06]',
                   ].join(' ')}
                   aria-pressed={isSelected}
                   aria-label={`THC: ${pref.label} - ${pref.desc}`}
@@ -127,7 +127,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isSelected
                       ? 'bg-indica-500/15 border border-indica-500/40 text-indica-400'
-                      : 'bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+                      : 'bg-gray-50 dark:bg-gray-50/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.06]',
                   ].join(' ')}
                   aria-pressed={isSelected}
                   aria-label={`CBD: ${pref.label} - ${pref.desc}`}
@@ -143,7 +143,7 @@ export default function OptionalPrefsStep({ onComplete }) {
 
       {/* Section 3: Flavor Preferences */}
       <div>
-        <h3 className="text-base font-display text-gray-900 dark:text-white text-center mb-3">
+        <h3 className="text-base font-display text-gray-900 dark:text-[#e8f0ea] text-center mb-3">
           Flavor Preferences
         </h3>
 
@@ -164,7 +164,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'border shadow-sm'
-                    : 'bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+                    : 'bg-gray-50 dark:bg-gray-50/[0.03] border border-gray-200 dark:border-white/8 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.06]',
                 ].join(' ')}
                 style={
                   isSelected

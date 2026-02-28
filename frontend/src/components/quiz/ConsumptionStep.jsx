@@ -12,7 +12,7 @@ export default function ConsumptionStep() {
     <div className="space-y-8">
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">
+        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-[#e8f0ea] mb-2">
           How do you consume?
         </h2>
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
@@ -50,7 +50,7 @@ export default function ConsumptionStep() {
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] leading-tight">
                       {method.label}
                     </p>
                   </div>
@@ -61,13 +61,13 @@ export default function ConsumptionStep() {
                   {/* Onset & Duration info */}
                   {method.onset && method.duration && (
                     <div className="flex items-center gap-3 mt-2">
-                      <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-[#5a6a5e] bg-gray-100 dark:bg-white/[0.04] px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-[#5a6a5e] bg-gray-100 dark:bg-gray-50/[0.04] px-2 py-0.5 rounded-full">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         Onset: {method.onset}
                       </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-[#5a6a5e] bg-gray-100 dark:bg-white/[0.04] px-2 py-0.5 rounded-full">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-gray-400 dark:text-[#5a6a5e] bg-gray-100 dark:bg-gray-50/[0.04] px-2 py-0.5 rounded-full">
                         <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>

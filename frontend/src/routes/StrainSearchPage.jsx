@@ -48,7 +48,7 @@ export default function StrainSearchPage() {
             placeholder="Search strains by name, type, effects, or flavors..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-10 pr-9 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-surface text-sm text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#6a7a6e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40"
+            className="w-full pl-10 pr-9 py-3 rounded-xl border border-gray-200/50 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] text-sm text-gray-900 dark:text-[#e8f0ea] placeholder-gray-500 dark:placeholder-[#6a7a6e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all shadow-sm"
             aria-label="Search strains"
           />
           {query && (

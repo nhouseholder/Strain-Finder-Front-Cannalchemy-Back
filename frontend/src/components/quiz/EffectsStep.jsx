@@ -40,7 +40,7 @@ export default function EffectsStep() {
     <div className="space-y-8">
       {/* Heading */}
       <div className="text-center">
-        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-white mb-2">
+        <h2 className="text-2xl sm:text-3xl font-display text-gray-900 dark:text-[#e8f0ea] mb-2">
           What effects are you looking for?
         </h2>
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
@@ -74,7 +74,7 @@ export default function EffectsStep() {
                   {effect.emoji}
                 </span>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white leading-tight">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] leading-tight">
                     {effect.label}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-[#6a7a6e] mt-0.5">
@@ -111,7 +111,7 @@ export default function EffectsStep() {
       {showRanking && (
         <div className="animate-fade-in-fast">
           <div className="text-center mb-4">
-            <h3 className="text-lg font-display text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg font-display text-gray-900 dark:text-[#e8f0ea] mb-1">
               Rank Your Top 3
             </h3>
             <p className="text-xs text-gray-500 dark:text-[#8a9a8e]">
@@ -134,7 +134,7 @@ export default function EffectsStep() {
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isRanked
                       ? 'bg-leaf-500/15 border border-leaf-500/40 text-leaf-400'
-                      : 'bg-white/[0.03] dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-white/[0.06]',
+                      : 'bg-gray-50/[0.03] dark:bg-gray-50/[0.03] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-50 dark:hover:bg-gray-50/[0.06]',
                     effectRanking.length >= MAX_EFFECTS_RANK && !isRanked && 'opacity-40 cursor-not-allowed',
                   ]
                     .filter(Boolean)
