@@ -8,7 +8,7 @@ import {
   Tooltip,
 } from 'recharts'
 import { Hexagon } from 'lucide-react'
-import { getTypeColor, getTerpeneColor } from '../../utils/colors'
+import { getTerpeneColor } from '../../utils/colors'
 
 function CustomAxisTick({ payload, x, y, cx, cy }) {
   const dx = x - cx
@@ -59,7 +59,7 @@ export default memo(function TerpeneRadar({ terpenes, strainType = 'hybrid' }) {
 
   if (data.length < 3) return null
 
-  const typeColor = getTypeColor(strainType)?.hex || '#32c864'
+  const radarColor = '#3b82f6' // consistent blue for the radar shape
 
   return (
     <div className="rounded-2xl border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-4">
@@ -84,11 +84,11 @@ export default memo(function TerpeneRadar({ terpenes, strainType = 'hybrid' }) {
           />
           <Radar
             dataKey="normalized"
-            stroke={typeColor}
-            fill={typeColor}
+            stroke={radarColor}
+            fill={radarColor}
             fillOpacity={0.15}
             strokeWidth={2}
-            dot={{ r: 3, fill: typeColor, strokeWidth: 0 }}
+            dot={{ r: 3, fill: radarColor, strokeWidth: 0 }}
           />
           <Tooltip content={<CustomTooltip />} />
         </RadarChart>
