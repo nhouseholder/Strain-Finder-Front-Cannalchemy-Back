@@ -24,12 +24,13 @@ export default function EffectVerification({ predictions, forumData }) {
     let matches = 0
 
     // Multi-strategy normalization for robust matching
-    const normalize = (s) => (s || '').toLowerCase().replace(/[-_\s]+/g, ' ').trim()
+    const toStr = (v) => typeof v === 'string' ? v : (v?.name || v?.label || String(v ?? ''))
+    const normalize = (s) => toStr(s).toLowerCase().replace(/[-_\s]+/g, ' ').trim()
 
     // Build a lookup map for fast community effect matching
     const communityMap = new Map()
     for (const item of allCommunity) {
-      const name = item.effect || item.name || ''
+      const name = toStr(item.effect || item.name || item)
       communityMap.set(normalize(name), item)
     }
 

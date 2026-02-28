@@ -29,10 +29,11 @@ const CANONICAL_TO_DISPLAY = {
  */
 export function getEffectDisplayName(canonicalName) {
   if (!canonicalName) return ''
-  const lower = canonicalName.toLowerCase().trim()
+  const str = typeof canonicalName === 'string' ? canonicalName : (canonicalName?.name || canonicalName?.label || String(canonicalName))
+  const lower = str.toLowerCase().trim()
   if (CANONICAL_TO_DISPLAY[lower]) return CANONICAL_TO_DISPLAY[lower]
   // Fallback: replace hyphens with spaces and title-case
-  return canonicalName
+  return str
     .replace(/-/g, ' ')
     .replace(/\b\w/g, (c) => c.toUpperCase())
 }

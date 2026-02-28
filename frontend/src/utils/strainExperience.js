@@ -136,7 +136,7 @@ function joinNatural(items) {
   return `${items.slice(0, -1).join(', ')}, and ${items[items.length - 1]}`
 }
 
-function lc(s) { return (s || '').toLowerCase().trim() }
+function lc(s) { return (typeof s === 'string' ? s : (s?.name || s?.label || String(s ?? ''))).toLowerCase().trim() }
 
 /** Deterministic pick from array using a string hash */
 function hashPick(arr, seed) {
@@ -167,13 +167,13 @@ export function generateExperienceDescription(strain) {
   const type      = lc(strain.type) || 'hybrid'
   const tp        = TYPE_PERSONALITY[type] || TYPE_PERSONALITY.hybrid
   const terpNames = (strain.terpenes || []).map(t => lc(t.name))
-  const effects   = (strain.effects || []).slice(0, 5).map(e => lc(e))
+  const effects   = (strain.effects || []).slice(0, 5).map(e => lc(typeof e === 'string' ? e : (e?.name || e?.label || '')))
   const thc       = strain.thc || 0
 
   const parts = []
 
   /* ---- 1. FLAVOR ---- */
-  const rawFlavors = (strain.flavors || []).slice(0, 3)
+  const rawFlavors = (strain.flavors || []).slice(0, 3).map(f => typeof f === 'string' ? f : (f?.name || f?.label || ''))
   if (rawFlavors.length > 0) {
     const specific = rawFlavors.map(f => specifyFlavor(f, name))
     const flavorStr = joinNatural(specific)

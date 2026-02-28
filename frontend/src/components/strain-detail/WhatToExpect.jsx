@@ -51,7 +51,7 @@ const FALLBACK_COLORS = [
 ]
 
 function getEffectColor(label, index) {
-  const key = label.toLowerCase()
+  const key = (typeof label === 'string' ? label : (label?.name || '')).toLowerCase()
   return EFFECT_COLORS[key] || FALLBACK_COLORS[index % FALLBACK_COLORS.length]
 }
 
