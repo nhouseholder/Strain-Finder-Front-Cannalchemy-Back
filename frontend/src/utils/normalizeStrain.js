@@ -60,30 +60,36 @@ export function normalizeStrain(raw) {
   const effectStr = (e) => typeof e === 'string' ? e : (e?.name || '')
 
   // Derive forumAnalysis from effects categories
+  // NOTE: `reports` in strains.json is a raw count (14-110), NOT a percentage.
+  // We normalize to a 0-100 scale relative to the highest-reported effect.
   if (!s.forumAnalysis && effects.length > 0) {
+    const maxReports = Math.max(...effects.map(e => e.reports || 0), 1)
+    const toPct = (r) => Math.round(((r || 0) / maxReports) * 100)
+
     const positive = effects
       .filter(e => e.category === 'positive')
-      .map(e => ({ effect: effectStr(e), pct: e.reports || 0, baseline: null }))
+      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
     const negative = effects
       .filter(e => e.category === 'negative')
-      .map(e => ({ effect: effectStr(e), pct: e.reports || 0, baseline: null }))
+      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
     const medical = effects
       .filter(e => e.category === 'medical')
-      .map(e => ({ effect: effectStr(e), pct: e.reports || 0, baseline: null }))
+      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
 
     const totalReports = effects.reduce((sum, e) => sum + (e.reports || 0), 0)
-    const posReports = positive.reduce((sum, e) => sum + (e.pct || 0), 0)
+    const posCount = effects.filter(e => e.category === 'positive' || e.category === 'medical').length
+    const totalCount = effects.length
 
     s.forumAnalysis = {
       pros: [...positive, ...medical],
       cons: negative,
       totalReviews: totalReports,
-      sourceCount: effects.length,
+      sourceCount: totalCount,
     }
 
-    // Derive sentiment score (1-10 scale based on positive/total ratio)
-    if (s.sentimentScore == null && totalReports > 0) {
-      const ratio = posReports / totalReports
+    // Derive sentiment score (1-10 scale based on positive/total effect ratio)
+    if (s.sentimentScore == null && totalCount > 0) {
+      const ratio = posCount / totalCount
       s.sentimentScore = Math.round(ratio * 10 * 10) / 10 // e.g. 8.3
     }
 

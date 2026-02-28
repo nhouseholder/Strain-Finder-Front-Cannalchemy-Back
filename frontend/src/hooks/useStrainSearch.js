@@ -59,5 +59,7 @@ export function useStrainSearch() {
     return data.find(s => s.id === id)
   }, [strainsData])
 
-  return { query, setQuery, results, getStrainByName, getStrainById, allStrains: strainsData }
+  const dataLoaded = strainsData.length > 0
+
+  return { query, setQuery, results, getStrainByName, getStrainById, allStrains: strainsData, dataLoaded }
 }

@@ -4,7 +4,7 @@ import { callFreeAI } from '../../services/freeAi'
 import { buildExperiencePrompt } from '../../services/promptBuilder'
 import { generateExperienceDescription } from '../../utils/strainExperience'
 
-const CACHE_PREFIX = 'exp_'
+const CACHE_PREFIX = 'exp2_'
 
 function getCached(strainName) {
   if (!strainName) return null
@@ -43,7 +43,7 @@ export default function ExperienceDescription({ strain }) {
       setLoading(true)
       try {
         const prompt = buildExperiencePrompt(strain)
-        const result = await callFreeAI({ prompt, maxTokens: 400, retries: 1 })
+        const result = await callFreeAI({ prompt, maxTokens: 200, retries: 1 })
         const cleaned = (result || '').trim()
         if (!cancelled && cleaned) {
           setAiText(cleaned)

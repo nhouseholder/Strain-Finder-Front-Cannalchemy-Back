@@ -1,6 +1,6 @@
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, X, Cannabis } from 'lucide-react'
+import { Search, X, Cannabis, Loader2 } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
@@ -12,7 +12,7 @@ const effectLabel = (e) => typeof e === 'string' ? e : (e?.name || e?.label || '
 export default function StrainSearchPage() {
   usePageTitle('Search Strains')
   const [searchParams] = useSearchParams()
-  const { query, setQuery, results } = useStrainSearch()
+  const { query, setQuery, results, dataLoaded } = useStrainSearch()
   const { toggleFavorite, isFavorite } = useFavorites()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [showDropdown, setShowDropdown] = useState(false)
@@ -90,11 +90,19 @@ export default function StrainSearchPage() {
 
         {/* Search input with dropdown */}
         <div className="relative mb-4">
-          <Search
-            size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6a7a6e] pointer-events-none z-10"
-            aria-hidden="true"
-          />
+          {!dataLoaded && query ? (
+            <Loader2
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6a7a6e] pointer-events-none z-10 animate-spin"
+              aria-hidden="true"
+            />
+          ) : (
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-[#6a7a6e] pointer-events-none z-10"
+              aria-hidden="true"
+            />
+          )}
           <input
             ref={inputRef}
             type="text"
@@ -175,7 +183,7 @@ export default function StrainSearchPage() {
 
         {!hasQuery && (
           <div className="text-center py-10 text-sm text-gray-400 dark:text-[#6a7a6e]">
-            Start typing to find a strain.
+            {dataLoaded ? 'Start typing to find a strain.' : 'Loading strain database...'}
           </div>
         )}
 

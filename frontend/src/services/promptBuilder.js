@@ -271,7 +271,7 @@ export function buildExperiencePrompt(strain) {
     .map(p => `${p.molecule} binds ${p.receptor} (Ki=${p.ki_nm}nM, ${p.action_type || 'modulator'})`)
     .join('; ')
 
-  return `You are a cannabis sommelier and experience writer. Write a vivid, authentic 3-4 sentence description of what it's like to consume ${strain.name}. This must be UNIQUE to this specific strain — grounded in its actual terpene profile, cannabinoid levels, community-reported effects, and flavor data below. Do NOT describe the bud's appearance.
+  return `You are a cannabis sommelier. Write a vivid, authentic 2-sentence description of what it's like to consume ${strain.name}. This must be UNIQUE to this strain — grounded in its terpene profile, cannabinoid levels, and community-reported effects. Do NOT describe appearance.
 
 STRAIN: ${strain.name} (${strain.type})
 THC: ${strain.thc || 'unknown'}% | CBD: ${strain.cbd || 0}%
@@ -285,12 +285,11 @@ COMMUNITY CONS: ${forumCons || 'Limited data'}
 RECEPTOR PATHWAYS: ${pathwayStr || 'No data'}
 
 RULES:
-- Describe the flavor on inhale/exhale, the onset of effects, the peak experience, and the fade
-- Reference specific terpenes or cannabinoids by name when explaining WHY it feels a certain way
-- Be honest about both positives and negatives reported by the community
+- Mention the onset and peak experience in 2 concise sentences total
+- Reference at least one terpene or cannabinoid by name
 - Write in second person ("you'll notice...", "expect to feel...")
 - Keep it poetic but factually grounded — no hype, no medical claims
-- Write ONLY the description paragraph. No headers, no JSON, no formatting.`
+- Write ONLY the 2 sentences. No headers, no JSON, no formatting.`
 }
 
 export function buildScienceExplanation(strain, quizState) {
