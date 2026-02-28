@@ -1,6 +1,8 @@
 import { useContext } from 'react'
 import { QuizContext } from '../../context/QuizContext'
 import WhyMatchTooltip from '../strain-detail/WhyMatchTooltip'
+import ExperienceDescription from '../strain-detail/ExperienceDescription'
+import WhatToExpect from '../strain-detail/WhatToExpect'
 import ScienceExplanation from '../strain-detail/ScienceExplanation'
 import CannabinoidProfile from '../strain-detail/CannabinoidProfile'
 import TerpeneProfile from '../strain-detail/TerpeneProfile'
@@ -11,12 +13,9 @@ import EffectVerification from '../strain-detail/EffectVerification'
 import SommelierReview from '../strain-detail/SommelierReview'
 import ForumAnalysis from '../strain-detail/ForumAnalysis'
 import LineageTree from '../strain-detail/LineageTree'
-import DosageGuide from '../strain-detail/DosageGuide'
 
 export default function StrainCardExpanded({ strain }) {
   const quiz = useContext(QuizContext)
-  const tolerance = quiz?.state?.tolerance || 'beginner'
-  const method = quiz?.state?.consumptionMethod || 'flower'
 
   // Build cannabinoids array from strain data
   const cannabinoids = strain.cannabinoids || [
@@ -35,23 +34,34 @@ export default function StrainCardExpanded({ strain }) {
         <WhyMatchTooltip text={strain.whyMatch} />
       )}
 
-      {/* 1b. AI Science Explanation (lazy-loaded on click) */}
+      {/* 1b. The Experience — personal, empathetic strain description */}
+      <ExperienceDescription strain={strain} />
+
+      {/* 1c. AI Science Explanation (lazy-loaded on click) */}
       <ScienceExplanation strain={strain} />
 
-      {/* 2. Cannabinoid Profile */}
+      {/* 2. Predicted Effects */}
+      <WhatToExpect
+        bestFor={strain.bestFor}
+        notIdealFor={strain.notIdealFor}
+        effectPredictions={strain.effectPredictions}
+        effects={strain.effects}
+      />
+
+      {/* 3. Cannabinoid Profile */}
       <CannabinoidProfile cannabinoids={cannabinoids} />
 
-      {/* 3. Terpene Profile (bars) */}
+      {/* 4. Terpene Profile (bars) */}
       {strain.terpenes?.length > 0 && (
         <TerpeneProfile terpenes={strain.terpenes} />
       )}
 
-      {/* 3b. Terpene Radar Pentagon */}
+      {/* 4b. Terpene Radar Pentagon */}
       {strain.terpenes?.length >= 3 && (
         <TerpeneRadar terpenes={strain.terpenes} strainType={strain.type} />
       )}
 
-      {/* 4. Molecular Science (effect probabilities + pathway chips) */}
+      {/* 5. Molecular Science (effect probabilities + pathway chips) */}
       {(strain.effectPredictions?.length > 0 || strain.pathways?.length > 0) && (
         <MolecularScience
           effectPredictions={strain.effectPredictions}
@@ -59,7 +69,7 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 4b. Receptor Pathway Map (molecule → receptor → effect flow) */}
+      {/* 5b. Receptor Pathway Map (molecule → receptor → effect flow) */}
       {strain.pathways?.length > 0 && (
         <ReceptorMap
           pathways={strain.pathways}
@@ -67,7 +77,7 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 4c. Effect Verification (predicted vs community) */}
+      {/* 5c. Effect Verification (predicted vs community) */}
       {strain.effectPredictions?.length > 0 && strain.forumAnalysis && (
         <EffectVerification
           predictions={strain.effectPredictions}
@@ -75,7 +85,7 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 5. Sommelier Review */}
+      {/* 6. Sommelier Review */}
       {strain.sommelierScores && (
         <SommelierReview
           scores={strain.sommelierScores}
@@ -83,7 +93,7 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 6. Forum / Community Analysis */}
+      {/* 7. Forum / Community Analysis */}
       {(strain.forumAnalysis || strain.bestFor?.length > 0 || strain.sentimentScore != null) && (
         <ForumAnalysis
           data={strain.forumAnalysis}
@@ -93,17 +103,10 @@ export default function StrainCardExpanded({ strain }) {
         />
       )}
 
-      {/* 6. Lineage Tree */}
+      {/* 8. Lineage Tree */}
       {strain.lineage && (
         <LineageTree lineage={strain.lineage} />
       )}
-
-      {/* 7. Dosage Guide */}
-      <DosageGuide
-        strain={strain}
-        tolerance={tolerance}
-        method={method}
-      />
     </div>
   )
 }
