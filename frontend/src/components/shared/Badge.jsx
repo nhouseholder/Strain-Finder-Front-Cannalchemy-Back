@@ -27,9 +27,12 @@ export function EffectBadge({ effect, variant = 'positive' }) {
     neutral: 'bg-gray-100 dark:bg-white/[0.06] text-gray-600 dark:text-[#8a9a8e] border-gray-200 dark:border-white/10',
   }
 
+  // Normalize: handle both string effects and object effects {name, category, ...}
+  const label = typeof effect === 'string' ? effect : (effect?.name || effect?.label || String(effect ?? ''))
+
   return (
     <span className={clsx('inline-flex px-2 py-0.5 rounded-lg text-[10px] border', colors[variant])}>
-      {effect}
+      {label}
     </span>
   )
 }

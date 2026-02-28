@@ -100,9 +100,10 @@ function ProbabilityBar({ label, probability, pathway, colorIndex }) {
 
 export default memo(function WhatToExpect({ bestFor, notIdealFor, effectPredictions, effects }) {
   // Fallback: if bestFor is empty, derive from top effects
+  const normalizeEffect = (e) => typeof e === 'string' ? e : (e?.name || e?.label || '')
   const displayBestFor = bestFor?.length > 0
-    ? bestFor
-    : (effects || []).slice(0, 3)
+    ? bestFor.map(normalizeEffect)
+    : (effects || []).slice(0, 3).map(normalizeEffect).filter(Boolean)
 
   const topPredictions = (effectPredictions || []).slice(0, 5)
 
@@ -163,9 +164,10 @@ export default memo(function WhatToExpect({ bestFor, notIdealFor, effectPredicti
               <span className="text-[9px] font-semibold text-red-400/50 uppercase tracking-wider mr-0.5">
                 Not ideal for
               </span>
-              {notIdealFor.map(tag => (
-                <EffectBadge key={tag} effect={tag} variant="negative" />
-              ))}
+              {notIdealFor.map((tag, idx) => {
+                const lbl = normalizeEffect(tag)
+                return <EffectBadge key={lbl || idx} effect={lbl} variant="negative" />
+              })}
             </div>
           )}
         </div>

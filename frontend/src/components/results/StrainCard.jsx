@@ -153,9 +153,10 @@ function StrainCard({ strain, expanded, onToggle, isFavorite, onFavorite, availa
               {tag}
             </span>
           ))}
-          {strain.effects?.slice(0, strain.bestFor?.length ? 3 : 6).map((effect) => (
-            <EffectBadge key={effect} effect={effect} variant="positive" />
-          ))}
+          {strain.effects?.slice(0, strain.bestFor?.length ? 3 : 6).map((effect, idx) => {
+            const label = typeof effect === 'string' ? effect : (effect?.name || effect?.label || `effect-${idx}`)
+            return <EffectBadge key={label} effect={label} variant="positive" />
+          })}
         </div>
 
         {/* Row 3: Cannabinoid mini bars */}
