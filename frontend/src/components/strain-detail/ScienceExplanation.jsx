@@ -36,13 +36,14 @@ function setCache(strainName, text) {
 
 export default function ScienceExplanation({ strain }) {
   const quiz = useContext(QuizContext)
-  const [explanation, setExplanation] = useState(() => getCached(strain?.name))
+  const hasQuizData = quiz?.state?.effects?.length > 0
+  const [explanation, setExplanation] = useState(() => hasQuizData ? getCached(strain?.name) : null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  // Auto-fetch on mount if not cached
+  // Auto-fetch on mount if not cached AND user has taken the quiz
   useEffect(() => {
-    if (explanation || !strain?.name) return
+    if (!hasQuizData || explanation || !strain?.name) return
     let cancelled = false
 
     async function fetchAI() {
@@ -72,10 +73,10 @@ export default function ScienceExplanation({ strain }) {
 
     fetchAI()
     return () => { cancelled = true }
-  }, [strain?.name]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [strain?.name, hasQuizData]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Don't render anything if no explanation and no loading
-  if (!explanation && !loading && !error) return null
+  // Don't render if no quiz data, or nothing to show
+  if (!hasQuizData || (!explanation && !loading && !error)) return null
 
   return (
     <div className="rounded-xl border border-purple-500/20 bg-purple-500/[0.04] p-4">
