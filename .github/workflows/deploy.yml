@@ -26,6 +26,15 @@ jobs:
         run: npm ci
         working-directory: frontend
 
+      - name: Bump version with build date
+        run: |
+          BUILD_DATE=$(date +'%b %-d, %Y')
+          BUILD_NUM=$(git rev-list --count HEAD)
+          NEW_VERSION="v4.${BUILD_NUM} · ${BUILD_DATE}"
+          sed -i "s|export const APP_VERSION = '.*';|export const APP_VERSION = '${NEW_VERSION}';|" src/utils/constants.js
+          echo "Version set to: ${NEW_VERSION}"
+        working-directory: frontend
+
       - name: Build
         run: npm run build
         working-directory: frontend
