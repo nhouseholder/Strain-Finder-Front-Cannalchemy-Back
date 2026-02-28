@@ -45,7 +45,7 @@ export default function NavBar() {
   return (
     <>
       {/* Desktop top bar */}
-      <nav className="hidden sm:flex items-center justify-between px-6 py-3 border-b border-gray-200 dark:border-white/[0.06] bg-white/80 dark:bg-leaf-900/80 backdrop-blur-md sticky top-0 z-40" role="navigation" aria-label="Main navigation">
+      <nav className="hidden sm:flex items-center justify-between px-6 py-3 border-b border-gray-200/70 dark:border-white/[0.07] bg-[#f4f7f5]/90 dark:bg-leaf-900/85 backdrop-blur-xl sticky top-0 z-40 shadow-sm dark:shadow-none" role="navigation" aria-label="Main navigation">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold font-display text-gray-900 dark:text-[#e8f0ea]">
           <span className="text-2xl">🌿</span>
           <div className="flex flex-col leading-tight">
@@ -125,7 +125,7 @@ export default function NavBar() {
       </nav>
 
       {/* Mobile bottom bar */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200 dark:border-white/[0.06] bg-white/90 dark:bg-leaf-900/90 backdrop-blur-md safe-area-bottom" role="navigation" aria-label="Main navigation">
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom" role="navigation" aria-label="Main navigation">
         {mobileItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}

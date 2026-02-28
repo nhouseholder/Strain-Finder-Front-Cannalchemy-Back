@@ -6,7 +6,7 @@ import Button from '../components/shared/Button'
 export default function NotFoundPage() {
   usePageTitle('Page Not Found')
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#f4f7f5] dark:bg-leaf-900">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {/* Icon */}
         <div className="relative inline-block mb-6">

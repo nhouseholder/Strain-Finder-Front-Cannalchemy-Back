@@ -42,7 +42,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#f4f7f5] dark:bg-leaf-900 relative overflow-hidden">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">

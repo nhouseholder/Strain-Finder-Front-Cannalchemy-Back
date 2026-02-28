@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* ── Tailwind v4: class-based dark mode ── */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-leaf-50: #f0fdf4;
   --color-leaf-100: #dcfce7;
@@ -27,18 +30,32 @@
   --color-hybrid-500: #32c864;
   --color-hybrid-600: #28a050;
 
-  --color-surface: rgba(255, 255, 255, 0.03);
-  --color-surface-hover: rgba(255, 255, 255, 0.06);
-  --color-surface-border: rgba(255, 255, 255, 0.08);
-  --color-surface-active: rgba(255, 255, 255, 0.1);
+  --color-surface: rgba(255, 255, 255, 0.04);
+  --color-surface-hover: rgba(255, 255, 255, 0.07);
+  --color-surface-border: rgba(255, 255, 255, 0.09);
+  --color-surface-active: rgba(255, 255, 255, 0.12);
 
   --font-display: 'Playfair Display', serif;
   --font-body: 'DM Sans', sans-serif;
 }
 
+html {
+  background-color: #0a0f0c;
+}
+html.light {
+  background-color: #f4f7f5;
+}
+
 body {
   font-family: var(--font-body);
   margin: 0;
+  background-color: #0a0f0c;
+  color: #e8f0ea;
+  min-height: 100vh;
+}
+html.light body {
+  background-color: #f4f7f5;
+  color: #1a2e22;
 }
 
 h1, h2, h3 {

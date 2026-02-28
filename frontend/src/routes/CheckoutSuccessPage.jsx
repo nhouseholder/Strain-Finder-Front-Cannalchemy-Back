@@ -42,7 +42,7 @@ export default function CheckoutSuccessPage() {
   }, [sessionId, refreshed, refreshProfile])
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#f4f7f5] dark:bg-leaf-900">
       <div className="w-full max-w-sm text-center animate-fade-in">
         {/* Success icon */}
         <div className="relative inline-block mb-6">

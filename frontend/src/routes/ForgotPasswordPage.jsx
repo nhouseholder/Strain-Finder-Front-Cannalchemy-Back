@@ -33,7 +33,7 @@ export default function ForgotPasswordPage() {
 
   if (sent) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
+      <div className="min-h-screen flex items-center justify-center px-4 bg-[#f4f7f5] dark:bg-leaf-900">
         <div className="w-full max-w-sm text-center">
           <div className="text-5xl mb-4">📧</div>
           <h1 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white dark:bg-[#0a0f0c]">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-[#f4f7f5] dark:bg-leaf-900">
       <div className="w-full max-w-sm">
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
           <span className="text-3xl">🌿</span>

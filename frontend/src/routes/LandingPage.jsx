@@ -177,7 +177,7 @@ function DemoSection() {
   }
 
   return (
-    <section className="py-24 px-6 overflow-hidden bg-leaf-500/[0.02]" ref={ref}>
+    <section className="py-24 px-6 overflow-hidden bg-leaf-500/[0.03] dark:bg-leaf-500/[0.02]" ref={ref}>
       <div className="max-w-4xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-[#e8f0ea] mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
           Every strain, decoded
@@ -410,7 +410,7 @@ function HowItWorksSection() {
   ]
 
   return (
-    <section className="py-24 px-6 bg-leaf-500/[0.03]" ref={ref}>
+    <section className="py-24 px-6 bg-black/[0.02] dark:bg-leaf-500/[0.025]" ref={ref}>
       <div className="max-w-4xl mx-auto">
         <h2
           className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-[#e8f0ea] mb-16"
@@ -571,9 +571,9 @@ export default function LandingPage() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen relative bg-white dark:bg-[#0a0f0c]">
+    <div className="min-h-screen relative bg-[#f4f7f5] dark:bg-leaf-900">
       {/* Sticky nav */}
-      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white/80 dark:bg-[#0a0f0c]/80 backdrop-blur-md border-b border-gray-200/50 dark:border-white/[0.04]">
+      <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-[#f4f7f5]/90 dark:bg-leaf-900/85 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.06] shadow-sm dark:shadow-none">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
           <span className="text-2xl">{'\u{1F33F}'}</span>
           <span className="bg-gradient-to-r from-leaf-500 to-leaf-400 bg-clip-text text-transparent">MyStrainAI</span>
@@ -630,8 +630,8 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="text-center py-8 border-t border-gray-200/50 dark:border-white/[0.04]">
-        <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#2a352c]">
+      <footer className="text-center py-8 border-t border-gray-200/60 dark:border-white/[0.05]">
+        <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#4a5a4e]">
           <NavLink to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Terms</NavLink>
           <span>&middot;</span>
           <NavLink to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Privacy</NavLink>

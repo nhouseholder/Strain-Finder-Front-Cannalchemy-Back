@@ -5,9 +5,9 @@ export default function Card({ children, className, hoverable = false, active = 
     <div
       className={clsx(
         'rounded-2xl border transition-all duration-200',
-        'bg-white dark:bg-surface border-gray-200 dark:border-surface-border',
-        hoverable && 'hover:bg-gray-50 dark:hover:bg-surface-hover cursor-pointer',
-        active && 'border-leaf-500/40 dark:border-leaf-500/40 bg-leaf-50 dark:bg-leaf-500/[0.08]',
+        'bg-white/70 dark:bg-surface shadow-sm dark:shadow-none border-gray-200/80 dark:border-surface-border backdrop-blur-sm',
+        hoverable && 'hover:bg-white/90 dark:hover:bg-surface-hover hover:shadow-md dark:hover:shadow-none cursor-pointer',
+        active && 'border-leaf-500/50 dark:border-leaf-500/40 bg-leaf-50/80 dark:bg-leaf-500/[0.08]',
         onClick && 'cursor-pointer',
         className
       )}

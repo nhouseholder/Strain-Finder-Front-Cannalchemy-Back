@@ -39,12 +39,12 @@ export default function Modal({ open, onClose, title, children, className }) {
         tabIndex={-1}
         className={clsx(
           'relative w-full sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-t-2xl sm:rounded-2xl',
-          'bg-white dark:bg-[#0f1a12] border border-gray-200 dark:border-white/10 shadow-2xl',
+          'bg-[#f4f7f5] dark:bg-[#0f1a12] border border-gray-200/80 dark:border-white/10 shadow-2xl',
           'animate-slide-up',
           className
         )}
       >
-        <div className="sticky top-0 z-10 flex items-center justify-between p-4 pb-2 bg-white/90 dark:bg-[#0f1a12]/90 backdrop-blur-md border-b border-gray-100 dark:border-white/[0.05]">
+        <div className="sticky top-0 z-10 flex items-center justify-between p-4 pb-2 bg-[#f4f7f5]/90 dark:bg-[#0f1a12]/90 backdrop-blur-md border-b border-gray-200/60 dark:border-white/[0.05]">
           <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">{title}</h2>
           <button
             onClick={onClose}
