@@ -27,24 +27,31 @@ export default function EffectVerification({ predictions, forumData }) {
     const toStr = (v) => typeof v === 'string' ? v : (v?.name || v?.label || String(v ?? ''))
     const normalize = (s) => toStr(s).toLowerCase().replace(/[-_\s]+/g, ' ').trim()
 
-    // Build a lookup map for fast community effect matching
-    const communityMap = new Map()
+    // Build lookup maps for fast community effect matching
+    const communityMap = new Map()         // by display name
+    const communityCanonicalMap = new Map() // by canonical name (raw effect name)
     for (const item of allCommunity) {
       const name = toStr(item.effect || item.name || item)
       communityMap.set(normalize(name), item)
+      // Also index by canonical name if available
+      if (item.canonical) {
+        communityCanonicalMap.set(normalize(item.canonical), item)
+      }
     }
 
-    for (const pred of predictions.slice(0, 5)) {
+    for (const pred of predictions.slice(0, 8)) {
       const displayName = getEffectDisplayName(pred.effect)
 
       // Try multiple matching strategies:
-      // 1. Normalized display name match
-      // 2. Direct canonical name match (e.g., "relaxed" vs "Relaxed")
-      // 3. Partial match (e.g., "body high" found in "Body High")
+      // 1. Direct canonical name match (most reliable — same raw effect name)
+      // 2. Normalized display name match
+      // 3. Direct canonical against display name map
+      // 4. Partial match (e.g., "pain" found in "Pain Relief")
       const normalizedPred = normalize(displayName)
       const normalizedCanonical = normalize(pred.effect)
 
-      let report = communityMap.get(normalizedPred)
+      let report = communityCanonicalMap.get(normalizedCanonical)
+        || communityMap.get(normalizedPred)
         || communityMap.get(normalizedCanonical)
 
       // Fallback: partial match (e.g., "pain" matches "Pain Relief")

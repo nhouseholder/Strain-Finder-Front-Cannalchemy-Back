@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { UserContext } from '../context/UserContext'
 import { ResultsContext } from '../context/ResultsContext'
 import { useAuth } from '../context/AuthContext'
+import { useRatings } from '../hooks/useRatings'
 import { EFFECTS } from '../data/effects'
 import usePageTitle from '../hooks/usePageTitle'
 import {
@@ -19,9 +20,13 @@ import {
   CreditCard,
   Crown,
   ExternalLink,
+  Brain,
 } from 'lucide-react'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
+import PreferenceProfileCard from '../components/ratings/PreferenceProfileCard'
+import MyRatings from '../components/ratings/MyRatings'
+import AiSuggestions from '../components/ratings/AiSuggestions'
 
 /* ------------------------------------------------------------------ */
 /*  DashboardPage                                                     */
@@ -32,13 +37,15 @@ export default function DashboardPage() {
   const { state: userState, dispatch: userDispatch, getJournalStats } = useContext(UserContext)
   const { dispatch: resultsDispatch, hasResults } = useContext(ResultsContext)
   const { isPremium, profile } = useAuth()
+  const { ratings, preferenceProfile, removeRating, syncing, totalRatings } = useRatings()
   const [portalLoading, setPortalLoading] = useState(false)
+  const [showAllRatings, setShowAllRatings] = useState(false)
 
   const { favorites, journal, recentSearches } = userState
   const stats = useMemo(() => getJournalStats(), [getJournalStats])
 
   const isFirstVisit =
-    favorites.length === 0 && journal.length === 0 && recentSearches.length === 0
+    favorites.length === 0 && journal.length === 0 && recentSearches.length === 0 && totalRatings === 0
 
   /* Format effect IDs to labels ------------------------------------ */
   const effectLabel = (id) => EFFECTS.find((e) => e.id === id)?.label || id
@@ -289,6 +296,53 @@ export default function DashboardPage() {
             )}
           </div>
         </Card>
+      )}
+
+      {/* Taste Profile ------------------------------------------------ */}
+      {(totalRatings > 0 || preferenceProfile) && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4] flex items-center gap-2">
+              <Brain size={14} className="text-leaf-500" />
+              Your Taste Profile
+              {syncing && (
+                <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e] italic">
+                  syncing...
+                </span>
+              )}
+            </h2>
+            {totalRatings > 0 && (
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/preferences"
+                  className="text-[10px] text-purple-400 hover:text-purple-300 transition-colors font-medium"
+                >
+                  Full Profile →
+                </Link>
+                <button
+                  onClick={() => setShowAllRatings(!showAllRatings)}
+                  className="text-[10px] text-leaf-500 hover:text-leaf-400 transition-colors font-medium"
+                >
+                  {showAllRatings ? 'Hide Ratings' : `View All ${totalRatings} Ratings`}
+                </button>
+              </div>
+            )}
+          </div>
+
+          <PreferenceProfileCard profile={preferenceProfile} />
+
+          {showAllRatings && (
+            <div className="mt-4">
+              <MyRatings ratings={ratings} onDelete={removeRating} />
+            </div>
+          )}
+
+          {totalRatings >= 2 && (
+            <div className="mt-4">
+              <AiSuggestions ratings={ratings} preferenceProfile={preferenceProfile} />
+            </div>
+          )}
+        </div>
       )}
 
       {/* Saved Strains ------------------------------------------------ */}

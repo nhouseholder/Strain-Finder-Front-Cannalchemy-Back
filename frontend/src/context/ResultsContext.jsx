@@ -6,6 +6,7 @@ const emptyState = {
   strains: [],
   aiPicks: [],
   idealProfile: null,
+  aiAnalysis: null,
   isLoading: false,
   error: null,
 }
@@ -22,6 +23,7 @@ function getInitialState() {
           strains: parsed.strains,
           aiPicks: parsed.aiPicks || [],
           idealProfile: parsed.idealProfile || null,
+          aiAnalysis: parsed.aiAnalysis || null,
         }
       }
     }
@@ -39,6 +41,7 @@ function resultsReducer(state, action) {
         strains: action.payload.strains || [],
         aiPicks: action.payload.aiPicks || [],
         idealProfile: action.payload.idealProfile || null,
+        aiAnalysis: action.payload.aiAnalysis || null,
         isLoading: false,
         error: null,
       }
@@ -66,6 +69,7 @@ export function ResultsProvider({ children }) {
           strains: state.strains,
           aiPicks: state.aiPicks,
           idealProfile: state.idealProfile,
+          aiAnalysis: state.aiAnalysis,
         }))
       } catch { /* storage full or unavailable */ }
     } else {

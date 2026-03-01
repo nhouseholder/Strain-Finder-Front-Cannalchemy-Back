@@ -40,7 +40,7 @@ export async function onRequestPost(context) {
     // Derive return URL
     const origin = request.headers.get('origin')
       || request.headers.get('referer')?.replace(/\/[^/]*$/, '')
-      || 'https://mystrainai.pages.dev'
+      || 'https://mystrainai.com'
     const finalReturnUrl = returnUrl || `${origin}/dashboard`
 
     // Create Stripe Billing Portal Session via REST API

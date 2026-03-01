@@ -60,9 +60,8 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Supabase</strong> — Authentication and user profile storage (email and account status only)</li>
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Plausible Analytics</strong> — Privacy-friendly, cookieless website analytics. No personal data collected. GDPR and CCPA compliant. No data shared with advertisers.</li>
-              <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Cloudflare</strong> — Website hosting and serverless functions</li>
+              <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Cloudflare</strong> — Website hosting, serverless functions, and AI inference (Workers AI). Dispensary discovery and strain analysis features run on Cloudflare's edge AI infrastructure using Meta's Llama model. Location queries are processed on Cloudflare's edge network with no data sent to third-party AI providers.</li>
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Stripe</strong> — Payment processing for optional premium subscriptions. Stripe handles all credit card data directly and is PCI-DSS Level 1 certified. We never see, store, or process your full credit card number.</li>
-              <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Anthropic (Claude AI)</strong> — AI-powered dispensary discovery feature. Location queries (zip codes, city names) may be processed by Anthropic's Claude AI to search for nearby dispensary information. No personal identity data is shared with Anthropic.</li>
             </ul>
             <p className="mt-2">We do not use Google Analytics, Facebook Pixel, or any tracking-based analytics service.</p>
           </div>
@@ -141,7 +140,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li>Quiz responses are processed by our matching algorithm in real-time to generate informational suggestions. This processing happens server-side and results are not used to train external AI models.</li>
-              <li>Dispensary search queries (zip codes, city names) may be processed by third-party AI services (Anthropic Claude) to discover nearby dispensary information. Only location data is shared &mdash; no personal identity information.</li>
+              <li>Dispensary search queries (zip codes, city names) are processed by Cloudflare Workers AI (Meta Llama) running on Cloudflare&#39;s edge network to discover nearby dispensary information. All AI processing stays within Cloudflare&#39;s infrastructure &mdash; no data is sent to third-party AI providers. Only location data is used &mdash; no personal identity information.</li>
               <li>AI-generated content (effect predictions, strain analyses) may contain inaccuracies. All AI outputs are for informational purposes only.</li>
               <li>We do not sell, share, or provide your quiz responses or preference data to any third-party AI training datasets.</li>
             </ul>

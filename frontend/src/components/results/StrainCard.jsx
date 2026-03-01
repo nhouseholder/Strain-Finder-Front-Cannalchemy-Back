@@ -10,6 +10,8 @@ import { getTypeColor } from '../../utils/colors'
 import { normalizeStrain } from '../../utils/normalizeStrain'
 import StrainCardExpanded from './StrainCardExpanded'
 import AvailabilityBadge from './AvailabilityBadge'
+import QuickRate from '../ratings/QuickRate'
+import { useRatings } from '../../hooks/useRatings'
 
 function CannabinoidMiniGrid({ strain }) {
   const items = [
@@ -37,8 +39,10 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary }) {
+function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton }) {
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
+  const { getRating, rateStrain } = useRatings()
+  const existingRating = getRating(strain.name)
   const tc = getTypeColor(strain.type)
   const topTerpenes = (strain.terpenes || []).slice(0, 3)
 
@@ -83,14 +87,14 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
             </div>
 
             {/* Genetics line */}
-            {strain.genetics && (
+            {strain.genetics && strain.genetics.toLowerCase() !== 'null' && (
               <p className="text-[11px] italic text-gray-400 dark:text-[#6a7a6e] mt-0.5 truncate">
                 {strain.genetics}
               </p>
             )}
 
             {/* Description tagline */}
-            {strain.description && (
+            {strain.description && strain.description.toLowerCase() !== 'null' && (
               <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] mt-1 line-clamp-1">
                 {strain.description}
               </p>
@@ -176,30 +180,47 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
             ))}
           </div>
 
-          {/* Community sentiment + review count */}
-          {(strain.sentimentScore != null || strain.reviewCount != null) && (
-            <div className="flex items-center gap-1.5 flex-shrink-0">
-              {strain.sentimentScore != null && (
-                <div className="flex items-center gap-0.5">
-                  <Star size={11} className="text-amber-400" fill="currentColor" />
-                  <span className="text-[11px] font-semibold text-gray-700 dark:text-[#b0c4b4]">
-                    {typeof strain.sentimentScore === 'number'
-                      ? strain.sentimentScore.toFixed(1)
-                      : strain.sentimentScore}
-                  </span>
-                </div>
-              )}
-              {strain.reviewCount != null && (
-                <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
-                  ({strain.reviewCount})
-                </span>
-              )}
+          {/* Community sentiment + Your rating + review count */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Your rating (compact stars) */}
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <span className="text-[9px] uppercase tracking-wider text-gray-400 dark:text-[#5a6a5e] font-semibold">
+                Rate
+              </span>
+              <QuickRate
+                strainName={strain.name}
+                strainType={strain.type}
+                existingRating={existingRating}
+                onRate={rateStrain}
+                compact
+              />
             </div>
-          )}
+
+            {/* Community sentiment */}
+            {(strain.sentimentScore != null || strain.reviewCount != null) && (
+              <div className="flex items-center gap-1.5">
+                {strain.sentimentScore != null && (
+                  <div className="flex items-center gap-0.5">
+                    <Star size={11} className="text-amber-400" fill="currentColor" />
+                    <span className="text-[11px] font-semibold text-gray-700 dark:text-[#b0c4b4]">
+                      {typeof strain.sentimentScore === 'number'
+                        ? strain.sentimentScore.toFixed(1)
+                        : strain.sentimentScore}
+                    </span>
+                  </div>
+                )}
+                {strain.reviewCount != null && (
+                  <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
+                    ({strain.reviewCount})
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Expand / Collapse button */}
-        {expanded ? (
+        {/* Expand / Collapse button — hidden when auto-expanded for single result */}
+        {hideExpandButton ? null : expanded ? (
           <div className="flex items-center justify-center gap-1.5 mt-3 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
             <ChevronUp size={14} className="text-leaf-400" />
             <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">

@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from backend.app.config import CORS_ORIGINS, API_V1_PREFIX, DB_PATH
 from backend.app.database import db
-from backend.app.routers import quiz
+from backend.app.routers import quiz, ratings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,6 +45,7 @@ app.add_middleware(
 
 # Routers
 app.include_router(quiz.router, prefix=API_V1_PREFIX)
+app.include_router(ratings.router, prefix=API_V1_PREFIX)
 
 
 @app.get("/api/health")

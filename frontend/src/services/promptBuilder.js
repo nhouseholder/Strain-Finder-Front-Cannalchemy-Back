@@ -178,17 +178,17 @@ export function buildDispensaryPrompt(location, strainNames, options = {}) {
     ? `\nUSER BUDGET: ${options.budgetDesc} — prioritize dispensaries and deals that fit this price range.`
     : ''
 
-  return `Search for REAL cannabis dispensaries near ${locationStr} that carry or may carry these strains: ${strainNames.join(', ')}.
+  return `List well-known cannabis dispensaries near ${locationStr} that are likely to carry these strains: ${strainNames.join(', ')}.
 ${budgetLine}
-CRITICAL RULES:
-- Only include dispensaries you can verify actually exist via web search
-- Search Weedmaps, Leafly, and dispensary websites for REAL current pricing on these strains
-- For EACH matched strain, include its specific price and a direct URL to that strain on the dispensary's online menu
-- If you cannot verify a price for a specific strain, set price to null — do NOT guess or make up prices
-- Include the dispensary's real website URL and their Weedmaps/Leafly menu link
-- Check if each dispensary actually carries the requested strains or similar ones
-- Look for current deals, daily specials, first-time patient discounts, and happy hour pricing
-- Include estimated pickup readiness time (e.g. "15 min", "30 min") if available
+IMPORTANT CONTEXT: You do NOT have live web access. Use your training knowledge of real dispensaries from Weedmaps, Leafly, and dispensary directories. Only include dispensaries you are confident actually exist based on your knowledge.
+
+RULES:
+- Only include dispensaries you are confident are REAL businesses based on your training data
+- For strain prices, use realistic market-rate estimates for the area. Set price to null if unsure.
+- Include the dispensary's known website URL or Weedmaps/Leafly page if you know it
+- Suggest which of the requested strains each dispensary is likely to carry based on their typical inventory
+- Include realistic deals and promotions typical for the area
+- Include estimated pickup readiness time (e.g. "15 min", "30 min") if typical for the dispensary
 
 Return ONLY valid JSON (no markdown, no backticks):
 
@@ -196,7 +196,7 @@ Return ONLY valid JSON (no markdown, no backticks):
   "dispensaries": [
     {
       "name": "Real Dispensary Name",
-      "address": "Full verified street address",
+      "address": "Full street address",
       "distance": "2.3 mi",
       "rating": 4.7,
       "reviewCount": 234,
@@ -204,22 +204,22 @@ Return ONLY valid JSON (no markdown, no backticks):
       "deliveryEta": "45-60 min",
       "pickupReady": "15 min",
       "matchedStrains": [
-        { "name": "Exact Strain Name", "price": "$45/eighth", "inStock": true, "strainMenuUrl": "https://weedmaps.com/dispensaries/name/menu/strain-slug" }
+        { "name": "Strain Name", "price": "$45/eighth", "inStock": true, "strainMenuUrl": null }
       ],
       "alternativeStrains": [
-        { "name": "Similar Strain", "price": "$38/eighth", "strainMenuUrl": "https://weedmaps.com/dispensaries/name/menu/strain-slug" }
+        { "name": "Similar Strain", "price": "$38/eighth", "strainMenuUrl": null }
       ],
-      "deals": ["Only REAL current promotions you found"],
+      "deals": ["Typical promotions for this dispensary"],
       "priceRange": "$35-50/eighth",
       "hours": "9am-9pm",
       "phone": "(555) 123-4567",
-      "website": "https://their-actual-website.com",
-      "menuUrl": "https://weedmaps.com/dispensaries/their-name or leafly link"
+      "website": "https://their-website.com",
+      "menuUrl": "https://weedmaps.com/dispensaries/their-name"
     }
   ]
 }
 
-Return 6-8 dispensaries. Prioritize those with matching strains on their menu AND the best prices/deals. Always include menuUrl so users can check real-time prices and availability themselves.`
+Return 5-8 dispensaries. Prioritize those most likely to carry the requested strains. Always include menuUrl so users can verify prices and availability themselves.`
 }
 
 export function buildTrendingPrompt(location) {

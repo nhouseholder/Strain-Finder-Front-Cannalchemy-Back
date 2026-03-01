@@ -20,6 +20,7 @@ const JournalPage = lazy(() => import('./routes/JournalPage'))
 const ComparePage = lazy(() => import('./routes/ComparePage'))
 const StrainSearchPage = lazy(() => import('./routes/StrainSearchPage'))
 const LearnPage = lazy(() => import('./routes/LearnPage'))
+const MyPreferencesPage = lazy(() => import('./routes/MyPreferencesPage'))
 const LoginPage = lazy(() => import('./routes/LoginPage'))
 const SignupPage = lazy(() => import('./routes/SignupPage'))
 const AdminPage = lazy(() => import('./routes/AdminPage'))
@@ -72,6 +73,7 @@ export default function App() {
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
+                      <Route path="preferences" element={<ProtectedRoute><MyPreferencesPage /></ProtectedRoute>} />
 
                       {/* Public — SEO funnel, accessible without login */}
                       <Route path="learn" element={<LearnPage />} />

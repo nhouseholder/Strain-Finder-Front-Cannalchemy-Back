@@ -56,8 +56,19 @@ export function normalizeStrain(raw) {
   }
 
   // ── Normalize effects: extract name strings, derive forumAnalysis ──
-  const effects = Array.isArray(s.effects) ? s.effects : []
+  let effects = Array.isArray(s.effects) ? s.effects : []
   const effectStr = (e) => typeof e === 'string' ? e : (e?.name || '')
+
+  // If effects are plain strings (legacy API shape), upgrade to objects
+  if (effects.length > 0 && typeof effects[0] === 'string') {
+    effects = effects.map(name => ({
+      name,
+      category: 'positive',
+      reports: 0,
+      confidence: 0,
+    }))
+    s.effects = effects
+  }
 
   // Derive forumAnalysis from effects categories
   // NOTE: `reports` in strains.json is a raw count (14-110), NOT a percentage.
@@ -68,13 +79,13 @@ export function normalizeStrain(raw) {
 
     const positive = effects
       .filter(e => e.category === 'positive')
-      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
+      .map(e => ({ effect: effectStr(e), canonical: effectStr(e).toLowerCase(), pct: toPct(e.reports), baseline: null }))
     const negative = effects
       .filter(e => e.category === 'negative')
-      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
+      .map(e => ({ effect: effectStr(e), canonical: effectStr(e).toLowerCase(), pct: toPct(e.reports), baseline: null }))
     const medical = effects
       .filter(e => e.category === 'medical')
-      .map(e => ({ effect: effectStr(e), pct: toPct(e.reports), baseline: null }))
+      .map(e => ({ effect: effectStr(e), canonical: effectStr(e).toLowerCase(), pct: toPct(e.reports), baseline: null }))
 
     const totalReports = effects.reduce((sum, e) => sum + (e.reports || 0), 0)
     const posCount = effects.filter(e => e.category === 'positive' || e.category === 'medical').length

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useMemo } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
@@ -61,6 +61,18 @@ export default function StrainSearchPage() {
 
   const hasQuery = searchQuery.trim().length >= 2
 
+  // Auto-expand when there is exactly one result (direct search or autocomplete select)
+  const hasAutoExpanded = useRef(false)
+  useEffect(() => {
+    if (displayStrains.length === 1 && !hasAutoExpanded.current) {
+      setExpandedStrain(displayStrains[0].name)
+      hasAutoExpanded.current = true
+    }
+    if (displayStrains.length !== 1) {
+      hasAutoExpanded.current = false
+    }
+  }, [displayStrains])
+
   return (
     <LegalConsent>
       <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
@@ -110,6 +122,7 @@ export default function StrainSearchPage() {
               availability={[]}
               availabilityLoading={false}
               onViewDispensary={null}
+              hideExpandButton={displayStrains.length === 1}
             />
           ))}
         </div>

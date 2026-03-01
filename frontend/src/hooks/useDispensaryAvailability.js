@@ -11,7 +11,7 @@
  */
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { searchDispensaries, buildStrainAvailability, getRegionKey } from '../services/dispensarySearch'
-import { RateLimitError } from '../services/anthropicApi'
+import { RateLimitError } from '../services/freeAi'
 
 /* ── Module-level singleton state ──────────────────────────────── */
 let _dispensaries = []

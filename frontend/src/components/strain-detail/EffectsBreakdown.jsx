@@ -14,7 +14,8 @@ function EffectRow({ effect, maxReports, barColor }) {
   // Normalize raw report count to 0-100 scale relative to the highest-reported effect
   const pct = maxReports > 0 ? Math.round((reports / maxReports) * 100) : 0
   const widthPct = Math.max(pct, 4)
-  const confLabel = confidence >= 0.9 ? 'High' : confidence >= 0.6 ? 'Med' : 'Low'
+  const confLabel = confidence >= 0.9 ? 'Strong' : confidence >= 0.75 ? 'High' : confidence >= 0.5 ? 'Med' : reports > 0 ? 'Low' : '—'
+  const confColor = confidence >= 0.75 ? 'text-leaf-400' : confidence >= 0.5 ? 'text-amber-400' : reports > 0 ? 'text-orange-400/70' : 'text-gray-500/50'
 
   return (
     <div className="space-y-0.5">
@@ -23,8 +24,13 @@ function EffectRow({ effect, maxReports, barColor }) {
           {name}
         </span>
         <div className="flex items-center gap-2 flex-shrink-0">
-          <span className="text-[9px] text-gray-400 dark:text-[#6a7a6e]">
-            {confLabel} conf.
+          {reports > 0 && (
+            <span className="text-[8px] text-gray-400 dark:text-[#5a6a5e]">
+              {reports} reports
+            </span>
+          )}
+          <span className={`text-[9px] ${confColor}`}>
+            {confLabel}
           </span>
           <span className="text-[10px] text-gray-500 dark:text-[#8a9a8e] font-mono w-10 text-right">
             {pct}%
@@ -34,7 +40,7 @@ function EffectRow({ effect, maxReports, barColor }) {
       <div className="relative w-full h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06]">
         <div
           className={`h-full rounded-full transition-all duration-700 ease-out ${barColor}`}
-          style={{ width: `${widthPct}%`, opacity: 0.7 }}
+          style={{ width: `${widthPct}%`, opacity: Math.max(0.4, Math.min(confidence, 0.9)) }}
         />
       </div>
     </div>

@@ -4,7 +4,7 @@
  *   2. Cloudflare KV regional cache (24 hours, shared across ALL users)
  * Falls back to demo data when API is unavailable.
  */
-import { callAnthropic, RateLimitError } from './anthropicApi'
+import { callFreeAI, RateLimitError } from './freeAi'
 import { buildDispensaryPrompt } from './promptBuilder'
 
 const CACHE_PREFIX = 'dispensary_'
@@ -102,10 +102,10 @@ export async function searchDispensaries(location, strainNames, options = {}) {
     }
   }
 
-  // Layer 3: Call Anthropic API
+  // Layer 3: Call Workers AI (free Llama 3.3 70B)
   try {
     const prompt = buildDispensaryPrompt(location, strainNames, options)
-    const rawText = await callAnthropic({ prompt, maxTokens: 4000, retries: 2 })
+    const rawText = await callFreeAI({ prompt, maxTokens: 4000, retries: 2 })
     const parsed = parseDispensaryResponse(rawText)
     const dispensaries = normalizeDispensaries(parsed.dispensaries || [])
 

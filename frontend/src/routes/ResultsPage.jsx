@@ -10,7 +10,7 @@ import AiPicksSection from '../components/results/AiPicksSection'
 import DispensaryDrawer from '../components/dispensary/DispensaryDrawer'
 import LegalConsent from '../components/shared/LegalConsent'
 import Button from '../components/shared/Button'
-import { MapPin, RotateCcw, ArrowRight, Store, Loader2 } from 'lucide-react'
+import { MapPin, RotateCcw, ArrowRight, Store, Loader2, Brain } from 'lucide-react'
 import { BUDGETS } from '../data/budgets'
 
 /* ------------------------------------------------------------------ */
@@ -155,6 +155,23 @@ export default function ResultsPage() {
               <span>Enter your zip code in the quiz to check local availability</span>
             </div>
           )}
+        </div>
+      )}
+
+      {/* AI Pharmacological Analysis */}
+      {state.aiAnalysis && (
+        <div className="mb-5 p-4 rounded-2xl bg-gradient-to-br from-purple-500/[0.06] via-leaf-500/[0.04] to-blue-500/[0.06] border border-purple-500/10 dark:border-purple-500/[0.07]">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center">
+              <Brain size={13} className="text-purple-400" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-purple-400">
+              AI Pharmacological Analysis
+            </span>
+          </div>
+          <p className="text-xs text-gray-600 dark:text-[#b0c4b4] leading-relaxed">
+            {state.aiAnalysis}
+          </p>
         </div>
       )}
 

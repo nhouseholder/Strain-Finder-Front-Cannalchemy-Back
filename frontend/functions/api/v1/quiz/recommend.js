@@ -203,22 +203,85 @@ function calcPathwayScore(strain, desiredReceptors, desiredEffects) {
 
 function calcEffectReportScore(strain, desiredCanonicals) {
   if (!desiredCanonicals.length) return 50;
-  const effectSet = new Set((strain.effects || []).map(e => e.name?.toLowerCase()));
-  let matched = 0;
-  for (const e of desiredCanonicals) {
-    if (effectSet.has(e)) matched++;
+  const effects = strain.effects || [];
+  const effectMap = {};
+  let maxReports = 1;
+  for (const e of effects) {
+    const name = e.name?.toLowerCase();
+    if (name) {
+      effectMap[name] = e.reports || 0;
+      if (e.reports > maxReports) maxReports = e.reports;
+    }
   }
-  return (matched / desiredCanonicals.length) * 100;
+
+  // Weighted scoring: higher-reported desired effects score more
+  let totalWeight = 0;
+  let matchWeight = 0;
+  for (let i = 0; i < desiredCanonicals.length; i++) {
+    const priority = Math.max(1.0 - i * 0.15, 0.3); // first-ranked effects matter more
+    totalWeight += priority;
+    const reports = effectMap[desiredCanonicals[i]];
+    if (reports !== undefined) {
+      // Scale by report strength: a strain where this effect is dominant scores higher
+      const reportStrength = Math.min((reports / maxReports), 1.0);
+      matchWeight += priority * (0.5 + 0.5 * reportStrength); // 50% for presence, 50% for strength
+    }
+  }
+  return totalWeight > 0 ? (matchWeight / totalWeight) * 100 : 50;
 }
 
 function calcAvoidScore(strain, avoidCanonicals) {
   if (!avoidCanonicals.length) return 100;
-  const effectSet = new Set((strain.effects || []).map(e => e.name?.toLowerCase()));
-  let penalties = 0;
-  for (const e of avoidCanonicals) {
-    if (effectSet.has(e)) penalties++;
+  const effects = strain.effects || [];
+  const effectMap = {};
+  let maxReports = 1;
+  for (const e of effects) {
+    const name = e.name?.toLowerCase();
+    if (name) {
+      effectMap[name] = e.reports || 0;
+      if (e.reports > maxReports) maxReports = e.reports;
+    }
   }
-  return (1 - penalties / avoidCanonicals.length) * 100;
+
+  // Weighted penalty: commonly-reported unwanted effects penalize more
+  let penalty = 0;
+  for (const e of avoidCanonicals) {
+    const reports = effectMap[e];
+    if (reports !== undefined) {
+      const severity = 0.6 + 0.4 * Math.min(reports / maxReports, 1.0);
+      penalty += severity;
+    }
+  }
+  // Harsh penalty — even 1 strong avoided effect significantly drops score
+  return Math.max(0, 100 - (penalty / avoidCanonicals.length) * 120);
+}
+
+// Entourage synergy: terpene combinations that amplify each other
+const SYNERGY_PAIRS = {
+  'myrcene+caryophyllene': 0.15,    // anti-inflammatory synergy
+  'limonene+linalool': 0.15,        // anxiolytic synergy
+  'pinene+limonene': 0.12,          // alertness + mood
+  'myrcene+linalool': 0.12,         // deep sedation synergy
+  'caryophyllene+humulene': 0.10,   // anti-inflammatory duo
+  'limonene+caryophyllene': 0.10,   // stress relief synergy
+  'pinene+caryophyllene': 0.08,     // clarity + focus
+  'terpinolene+ocimene': 0.08,      // uplifting synergy
+};
+
+function calcEntourageSynergyScore(strain) {
+  const terpNames = (strain.terpenes || []).map(t => t.name?.toLowerCase()).filter(Boolean);
+  if (terpNames.length < 2) return 0;
+  let synergy = 0;
+  for (let i = 0; i < terpNames.length; i++) {
+    for (let j = i + 1; j < terpNames.length; j++) {
+      const key1 = `${terpNames[i]}+${terpNames[j]}`;
+      const key2 = `${terpNames[j]}+${terpNames[i]}`;
+      synergy += SYNERGY_PAIRS[key1] || SYNERGY_PAIRS[key2] || 0;
+    }
+  }
+  // Also reward terpene diversity (more terpenes = richer entourage)
+  synergy += Math.min(terpNames.length * 0.03, 0.15);
+  return Math.min(synergy * 100, 100);
 }
 
 function calcCannabinoidScore(strain, thcPref, cbdPref) {
@@ -290,11 +353,11 @@ function buildForumAnalysis(strain) {
 
   const pros = positive.map(e => {
     const pct = Math.min(Math.round((e.reports / Math.max(total, 1)) * 100), 95);
-    return { effect: canonicalToDisplay(e.name), pct, baseline: Math.max(pct - 15, 20) };
+    return { effect: canonicalToDisplay(e.name), canonical: e.name?.toLowerCase(), pct, baseline: Math.max(pct - 15, 20) };
   });
   const cons = negative.map(e => {
     const pct = Math.min(Math.round((e.reports / Math.max(total, 1)) * 100), 80);
-    return { effect: canonicalToDisplay(e.name), pct, baseline: Math.max(pct - 10, 10) };
+    return { effect: canonicalToDisplay(e.name), canonical: e.name?.toLowerCase(), pct, baseline: Math.max(pct - 10, 10) };
   });
 
   return {
@@ -415,7 +478,7 @@ function buildEffectPredictions(strain, desiredCanonicals) {
   const effectMap = {};
   let totalReports = 0;
   for (const e of (strain.effects || [])) {
-    effectMap[e.name?.toLowerCase()] = e.reports || 0;
+    effectMap[e.name?.toLowerCase()] = e;
     totalReports += e.reports || 0;
   }
 
@@ -427,16 +490,43 @@ function buildEffectPredictions(strain, desiredCanonicals) {
     for (const p of getMoleculePathways(c.name)) strainReceptors.add(p.receptor);
   }
 
-  return desiredCanonicals.map(canonical => {
-    const reportCount = effectMap[canonical] || 0;
+  function calcPrediction(effectName) {
+    const eData = effectMap[effectName];
+    const reportCount = eData?.reports || 0;
     const reportProb = reportCount > 0 ? Math.min((reportCount / Math.max(totalReports, 1)) * 5, 1.0) : 0.0;
-    const pathwayStr = EFFECT_RECEPTOR_PATHWAYS[canonical] || '';
+    const pathwayStr = EFFECT_RECEPTOR_PATHWAYS[effectName] || '';
     const effectReceptors = new Set(pathwayStr.split(',').map(r => r.trim()).filter(Boolean));
     const overlap = effectReceptors.size ? [...effectReceptors].filter(r => strainReceptors.has(r)).length / effectReceptors.size : 0.3;
     const probability = Math.round((reportProb * 0.6 + overlap * 0.4) * 100) / 100;
     const confidence = Math.round(Math.min(probability * 0.9, 0.95) * 100) / 100;
-    return { effect: canonical, probability, confidence, pathway: pathwayStr || 'multiple pathways' };
-  }).sort((a, b) => b.probability - a.probability).slice(0, 6);
+    return { effect: effectName, probability, confidence, pathway: pathwayStr || 'multiple pathways' };
+  }
+
+  const included = new Set();
+  const results = [];
+
+  // 1. Include desired canonicals that actually exist in strain effects (real data)
+  for (const canonical of desiredCanonicals) {
+    if (effectMap[canonical]) {
+      results.push(calcPrediction(canonical));
+      included.add(canonical);
+    }
+  }
+
+  // 2. Fill with strain's top positive/medical effects by report count
+  const sortedEffects = (strain.effects || [])
+    .filter(e => e.category === 'positive' || e.category === 'medical')
+    .sort((a, b) => (b.reports || 0) - (a.reports || 0));
+
+  for (const e of sortedEffects) {
+    const name = e.name?.toLowerCase();
+    if (!name || included.has(name)) continue;
+    if (results.length >= 8) break;
+    results.push(calcPrediction(name));
+    included.add(name);
+  }
+
+  return results.sort((a, b) => b.probability - a.probability);
 }
 
 function buildPathways(strain) {
@@ -472,11 +562,15 @@ function buildStrainResult(strain, matchPct, desiredCanonicals) {
   const thcVal = (strain.cannabinoids || []).find(c => c.name.toLowerCase() === 'thc')?.value || 0;
   const cbdVal = (strain.cannabinoids || []).find(c => c.name.toLowerCase() === 'cbd')?.value || 0;
 
-  const displayEffects = (strain.effects || [])
-    .filter(e => e.category === 'positive' || e.category === 'medical')
+  // Pass full effect objects so EffectsBreakdown can display real stats
+  const fullEffects = (strain.effects || [])
     .sort((a, b) => (b.reports || 0) - (a.reports || 0))
-    .slice(0, 6)
-    .map(e => canonicalToDisplay(e.name));
+    .map(e => ({
+      name: canonicalToDisplay(e.name),
+      category: e.category || 'positive',
+      reports: e.reports || 0,
+      confidence: e.confidence || 0,
+    }));
 
   const cannabinoids = ['thc', 'cbd', 'cbn', 'cbg', 'thcv', 'cbc'].map(name => {
     const found = (strain.cannabinoids || []).find(c => c.name.toLowerCase() === name);
@@ -496,7 +590,7 @@ function buildStrainResult(strain, matchPct, desiredCanonicals) {
     cbd: Math.round(cbdVal * 10) / 10,
     genetics: strain.genetics || '',
     lineage: strain.lineage || { self: strain.name },
-    effects: displayEffects,
+    effects: fullEffects,
     terpenes,
     cannabinoids,
     whyMatch,
@@ -563,16 +657,24 @@ export async function onRequestPost(context) {
   const avoidCanonicals = mapAvoidEffects(quiz.avoidEffects || []);
   const desiredReceptors = buildReceptorProfile(desiredCanonicals);
 
-  // Score all strains
+  // Score all strains — 6-layer proprietary matching engine
   const scored = strainData.strains.map(strain => {
     const pathway = calcPathwayScore(strain, desiredReceptors, desiredCanonicals);
     const effect = calcEffectReportScore(strain, desiredCanonicals);
     const avoid = calcAvoidScore(strain, avoidCanonicals);
     const cannabinoid = calcCannabinoidScore(strain, quiz.thcPreference || 'no_preference', quiz.cbdPreference || 'no_preference');
     const preference = calcPreferenceScore(strain, quiz);
+    const synergy = calcEntourageSynergyScore(strain);
 
+    // 6-layer weighted composite:
+    //   35% receptor pharmacology (terpene→receptor binding affinity)
+    //   25% community effect alignment (weighted by report strength)
+    //   15% avoidance penalty (harsh penalty for unwanted effects)
+    //   10% cannabinoid profile match (THC/CBD preference ranges)
+    //   10% user preference alignment (type, method, budget)
+    //    5% entourage synergy bonus (terpene combination interactions)
     const total = Math.max(0, Math.min(100, Math.round(
-      pathway * 0.40 + effect * 0.25 + avoid * 0.15 + cannabinoid * 0.10 + preference * 0.10
+      pathway * 0.35 + effect * 0.25 + avoid * 0.15 + cannabinoid * 0.10 + preference * 0.10 + synergy * 0.05
     )));
 
     return { strain, score: total };
@@ -634,7 +736,51 @@ export async function onRequestPost(context) {
     idealProfile,
   }
 
-  // Store in KV cache (1h TTL — deterministic engine)
+  // ── Workers AI Analysis (free Llama 3.3 70B) ─────────────────────
+  // Generate a personalized AI analysis explaining WHY these strains match
+  // the user's quiz answers from a pharmacological perspective.
+  if (env?.AI) {
+    try {
+      const desiredLabels = desiredCanonicals.map(e => canonicalToDisplay(e)).slice(0, 6);
+      const avoidLabels = avoidCanonicals.map(e => canonicalToDisplay(e)).slice(0, 4);
+
+      const topStrainSummaries = mainResults.slice(0, 3).map(s => {
+        const terps = s.terpenes.slice(0, 3).map(t => `${t.name} (${t.pct})`).join(', ');
+        const effects = s.effects.filter(e => e.category === 'positive' || e.category === 'medical').slice(0, 4).map(e => e.name).join(', ');
+        return `${s.name} (${s.type}, ${s.matchPct}% match, THC ${s.thc}%, CBD ${s.cbd}%): terpenes [${terps}], effects [${effects}]`;
+      }).join('\n');
+
+      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our algorithm matched them with strains. Write a brief, personalized analysis (3-4 sentences max) explaining the scientific reasoning behind the top match.
+
+User's desired effects: ${desiredLabels.join(', ')}
+${avoidLabels.length ? `Effects to avoid: ${avoidLabels.join(', ')}` : ''}
+THC preference: ${quiz.thcPreference || 'no preference'}
+CBD preference: ${quiz.cbdPreference || 'no preference'}
+Type preference: ${quiz.subtype || 'no preference'}
+
+Top matches from our algorithm:
+${topStrainSummaries}
+
+Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for this user, referencing specific terpenes and their receptor interactions. Be scientifically grounded but accessible. Do NOT make medical claims. Start directly with the analysis — no greeting or preamble.`;
+
+      const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
+        messages: [
+          { role: 'system', content: 'You are a cannabis science expert. Be concise, scientific, and never make medical claims.' },
+          { role: 'user', content: aiPrompt },
+        ],
+        max_tokens: 250,
+      });
+
+      if (aiResult?.response) {
+        responseData.aiAnalysis = aiResult.response;
+      }
+    } catch (aiErr) {
+      // AI is optional — algorithmic results still return fine
+      console.error('Workers AI analysis error (non-fatal):', aiErr.message);
+    }
+  }
+
+  // Store in KV cache (1h TTL — deterministic engine + AI analysis)
   if (env?.CACHE) {
     env.CACHE.put(quizCacheKey, JSON.stringify(responseData), { expirationTtl: 3600 })
       .catch(() => {}) // fire-and-forget

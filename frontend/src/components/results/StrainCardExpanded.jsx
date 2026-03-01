@@ -12,10 +12,15 @@ import ConsumptionSuitability from '../strain-detail/ConsumptionSuitability'
 import EffectVerification from '../strain-detail/EffectVerification'
 import ForumAnalysis from '../strain-detail/ForumAnalysis'
 import LineageTree from '../strain-detail/LineageTree'
+import QuickRate from '../ratings/QuickRate'
+import { useRatings } from '../../hooks/useRatings'
+import Card from '../shared/Card'
 
 export default function StrainCardExpanded({ strain: rawStrain }) {
   // Normalize snake_case → camelCase and derive computed fields
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
+  const { getRating, rateStrain } = useRatings()
+  const existingRating = getRating(strain.name)
 
   const cannabinoids = strain.cannabinoids || []
 
@@ -100,6 +105,16 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
       {strain.lineage && (
         <LineageTree lineage={strain.lineage} />
       )}
+
+      {/* 12. Rate This Strain — inline quick-rate widget */}
+      <Card className="p-4 border-leaf-500/20 bg-leaf-500/[0.02]">
+        <QuickRate
+          strainName={strain.name}
+          strainType={strain.type}
+          existingRating={existingRating}
+          onRate={rateStrain}
+        />
+      </Card>
     </div>
   )
 }
