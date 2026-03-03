@@ -115,7 +115,7 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT
       },
       "sentimentScore": 8.2,
       "bestFor": ["Evening relaxation", "Chronic pain", "Insomnia"],
-      "notIdealFor": ["Daytime productivity", "Anxiety-prone beginners"],
+      "notIdealFor": ["Daytime productivity", "Tasks requiring alertness"],
       "description": "Brief 1-2 sentence description"
     }
   ],
@@ -167,6 +167,7 @@ CRITICAL RULES:
 - Include baseline comparison percentages for EVERY pro and con
 - Report negatives HONESTLY — do not minimize or suppress negative user reports
 - bestFor and notIdealFor MUST NOT contradict each other. If a strain is "best for relaxation", do NOT say "not ideal for stress relief" (relaxation and stress relief are related). Review both lists for logical consistency before returning.
+- ANXIETY-PRONE CRITERIA: Only tag "Anxiety-prone individuals" in notIdealFor when ALL of these apply: (1) THC > 20%, (2) CBD < 2%, AND (3) the strain lacks significant linalool or myrcene. Strains with CBD > 5%, balanced THC:CBD ratios, or high linalool/myrcene are PROTECTIVE against anxiety and must NOT carry this tag. This is pharmacology — THC is biphasic at CB1 (anxiolytic at low doses, anxiogenic at high doses), CBD buffers via 5-HT1A, linalool is GABAergic. Do not use "anxiety-prone" as a generic warning.
 - sommelierScores values must be 1-10 integers
 - All data should be based on actual strain data from web searches`
 }

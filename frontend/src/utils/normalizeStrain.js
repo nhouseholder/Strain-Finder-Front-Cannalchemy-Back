@@ -15,12 +15,32 @@ const CANNABINOID_COLORS = {
 
 function deriveFallbackNegatives(strain) {
   // All cannabis has common side effects — derive realistic baseline negatives
-  const thc = (strain.cannabinoids || []).find(c => (c.name || '').toLowerCase() === 'thc')?.value || 15
+  const getCann = (name) => (strain.cannabinoids || []).find(c => (c.name || '').toLowerCase() === name)?.value || 0
+  const thc = getCann('thc') || 15
+  const cbd = getCann('cbd')
   const sType = (strain.type || 'hybrid').toLowerCase()
+
+  // Parse terpene percentages
+  const getTerp = (name) => {
+    const t = (strain.terpenes || []).find(t => (t.name || '').toLowerCase() === name)
+    if (!t) return 0
+    return typeof t.pct === 'number' ? t.pct : parseFloat(String(t.pct || '0').replace('%', '')) || 0
+  }
+  const linalool = getTerp('linalool')
+  const myrcene = getTerp('myrcene')
+
   const cons = []
   cons.push({ effect: 'Dry Mouth', canonical: 'dry-mouth', pct: Math.round(25 + Math.min(thc * 0.5, 15)), baseline: null })
   cons.push({ effect: 'Dry Eyes', canonical: 'dry-eyes', pct: Math.round(15 + Math.min(thc * 0.3, 10)), baseline: null })
-  if (thc > 18) cons.push({ effect: 'Anxiety', canonical: 'anxiety', pct: Math.round(8 + Math.min((thc - 18) * 1.5, 15)), baseline: null })
+
+  // Anxiety negative: only when high THC + low CBD buffer + lacking calming terpenes
+  // THC is biphasic at CB1 — anxiogenic at high doses; CBD buffers via 5-HT1A;
+  // linalool is GABAergic/anxiolytic; myrcene is sedating
+  const hasAnxietyRisk = thc > 20 && cbd < 2 && linalool < 0.15 && myrcene < 0.3
+  if (hasAnxietyRisk) {
+    cons.push({ effect: 'Anxiety', canonical: 'anxiety', pct: Math.round(8 + Math.min((thc - 18) * 1.5, 15)), baseline: null })
+  }
+
   if (sType === 'indica') cons.push({ effect: 'Drowsiness', canonical: 'drowsiness', pct: 20, baseline: null })
   cons.push({ effect: 'Dizziness', canonical: 'dizziness', pct: Math.round(6 + Math.min(thc * 0.2, 5)), baseline: null })
   return cons
@@ -314,6 +334,35 @@ export function normalizeStrain(raw) {
   }
   if (s.forumAnalysis?.sentimentScore != null && (s.forumAnalysis.sentimentScore > 9.2 || s.forumAnalysis.sentimentScore < 3.5)) {
     s.forumAnalysis.sentimentScore = Math.min(9.2, Math.max(3.5, s.forumAnalysis.sentimentScore))
+  }
+
+  // ── Validate notIdealFor anxiety tags against actual chemistry ──
+  // "Anxiety-prone individuals" should only appear when the chemistry supports it:
+  // high THC (>20%), low CBD (<2%), and lacking calming terpenes (linalool, myrcene).
+  if (Array.isArray(s.notIdealFor)) {
+    const getCannVal = (name) => (s.cannabinoids || []).find(c => (c.name || '').toLowerCase() === name)?.value || 0
+    const thcVal = getCannVal('thc')
+    const cbdVal = getCannVal('cbd')
+    const getTerpVal = (name) => {
+      const t = (s.terpenes || []).find(t => (t.name || '').toLowerCase() === name)
+      if (!t) return 0
+      return typeof t.pct === 'number' ? t.pct : parseFloat(String(t.pct || '0').replace('%', '')) || 0
+    }
+    const linaloolVal = getTerpVal('linalool')
+    const myrceneVal = getTerpVal('myrcene')
+    const isAnxietyRisky = thcVal > 20 && cbdVal < 2 && linaloolVal < 0.15 && myrceneVal < 0.3
+
+    s.notIdealFor = s.notIdealFor.filter(tag => {
+      const lower = (typeof tag === 'string' ? tag : '').toLowerCase()
+      // Remove anxiety-prone tags when chemistry doesn't support it
+      if (lower.includes('anxiety') && !isAnxietyRisky) return false
+      return true
+    })
+
+    // Conversely, add the warning if chemistry demands it and it's missing
+    if (isAnxietyRisky && !s.notIdealFor.some(t => (typeof t === 'string' ? t : '').toLowerCase().includes('anxiety'))) {
+      s.notIdealFor.push('Anxiety-prone individuals')
+    }
   }
 
   // ── Compute effectPredictions from TERPENE/CANNABINOID profile (molecular) ──
