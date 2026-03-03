@@ -1,5 +1,5 @@
 export const APP_NAME = 'MyStrainAI';
-export const APP_VERSION = 'v5.7.2 · Mar 2, 2026';
+export const APP_VERSION = 'v5.7.3 · Mar 2, 2026';
 
 export const STORAGE_KEYS = {
   THEME: 'sf-theme',

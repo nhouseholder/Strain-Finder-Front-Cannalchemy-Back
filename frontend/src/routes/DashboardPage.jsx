@@ -83,7 +83,7 @@ function DashboardSearchBar() {
         showSearchButton
         onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
-        inputClassName="py-3.5 rounded-2xl pl-11 border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.05] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20 focus:border-leaf-500/40"
+        inputClassName="py-3.5 rounded-2xl pl-11 border border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.05] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20 focus:border-leaf-500/40"
       />
     </div>
   )

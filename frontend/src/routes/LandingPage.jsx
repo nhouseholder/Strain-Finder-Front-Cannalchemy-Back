@@ -57,7 +57,7 @@ function StrainSearchBar() {
         showSearchButton
         onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
-        inputClassName="py-3.5 rounded-2xl pl-11 border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20"
+        inputClassName="py-3.5 rounded-2xl pl-11 border border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20"
       />
       <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2 text-center">
         Or search our database of 1,000+ strains directly

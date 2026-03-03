@@ -142,7 +142,7 @@ function SearchAutocomplete({
           onFocus={() => query.trim().length >= 1 && setOpen(true)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className={`w-full pl-10 ${showSearchButton ? 'pr-24' : 'pr-9'} py-3 rounded-xl border border-gray-200/50 dark:border-white/10 bg-gray-50 dark:bg-white/[0.03] text-sm text-gray-900 dark:text-[#e8f0ea] placeholder-gray-500 dark:placeholder-[#6a7a6e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all shadow-sm ${inputClassName}`}
+          className={`w-full pl-10 ${showSearchButton ? 'pr-24' : 'pr-9'} py-3 rounded-xl ${inputClassName?.includes('border') ? '' : 'border border-gray-200/50 dark:border-white/10'} bg-gray-50 dark:bg-white/[0.03] text-sm text-gray-900 dark:text-[#e8f0ea] placeholder-gray-500 dark:placeholder-[#6a7a6e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all shadow-sm ${inputClassName}`}
           aria-label="Search strains"
           autoComplete="off"
           role="combobox"
