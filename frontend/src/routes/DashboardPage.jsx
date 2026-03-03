@@ -83,7 +83,7 @@ function DashboardSearchBar() {
         showSearchButton
         onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
-        inputClassName="py-3.5 rounded-2xl pl-11 border border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.05] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20 focus:border-leaf-500/40"
+        inputClassName="py-3.5 rounded-2xl pl-11 border border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-none focus:border-leaf-500/40"
       />
     </div>
   )
@@ -197,8 +197,8 @@ export default function DashboardPage() {
       {/*  Hero — Landing-page style with BG orbs                      */}
       {/* ============================================================ */}
       <section className="relative text-center mb-10">
-        {/* Animated BG orbs */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
+        {/* Animated BG orbs — no overflow-hidden to avoid visible clipping edge */}
+        <div className="absolute inset-0 pointer-events-none -z-10">
           <div className="absolute w-[500px] h-[500px] rounded-full animate-float-a opacity-40" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.12) 0%, transparent 70%)', top: '-30%', left: '-20%' }} />
           <div className="absolute w-[400px] h-[400px] rounded-full animate-float-b opacity-40" style={{ background: 'radial-gradient(circle, rgba(147,80,255,0.08) 0%, transparent 70%)', bottom: '-20%', right: '-15%' }} />
         </div>
