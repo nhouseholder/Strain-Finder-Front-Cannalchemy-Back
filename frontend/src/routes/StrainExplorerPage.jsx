@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe } from 'lucide-react'
+import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe, ArrowUpDown } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
 import StrainCard from '../components/results/StrainCard'
+import SortDropdown, { applySortComparator } from '../components/shared/SortDropdown'
 import LegalConsent from '../components/shared/LegalConsent'
 
 /* ─────────────────────────────────────────────────────────────
@@ -275,16 +276,7 @@ function TypeToggle({ value, onChange }) {
   )
 }
 
-/* ─── Sort options ───────────────────────────────────────── */
-const SORT_OPTIONS = [
-  { id: 'name', label: 'Name A-Z' },
-  { id: 'thc-desc', label: 'THC ↓' },
-  { id: 'thc-asc', label: 'THC ↑' },
-  { id: 'cbd-desc', label: 'CBD ↓' },
-  { id: 'cbd-asc', label: 'CBD ↑' },
-  { id: 'common-desc', label: 'Most Common' },
-  { id: 'common-asc', label: 'Most Rare' },
-]
+/* ─── Sort options — now handled by SortDropdown component ─ */
 
 /* ─── Main page ──────────────────────────────────────────── */
 export default function StrainExplorerPage() {
@@ -367,18 +359,8 @@ export default function StrainExplorerPage() {
       return true
     })
 
-    // Sort
-    const sortKey = filters.sort
-    result.sort((a, b) => {
-      if (sortKey === 'name') return (a.name || '').localeCompare(b.name || '')
-      if (sortKey === 'thc-desc') return (getCannVal(b, 'thc') || 0) - (getCannVal(a, 'thc') || 0)
-      if (sortKey === 'thc-asc') return (getCannVal(a, 'thc') || 0) - (getCannVal(b, 'thc') || 0)
-      if (sortKey === 'cbd-desc') return (getCannVal(b, 'cbd') || 0) - (getCannVal(a, 'cbd') || 0)
-      if (sortKey === 'cbd-asc') return (getCannVal(a, 'cbd') || 0) - (getCannVal(b, 'cbd') || 0)
-      if (sortKey === 'common-desc') return (b.availability || 5) - (a.availability || 5)
-      if (sortKey === 'common-asc') return (a.availability || 5) - (b.availability || 5)
-      return 0
-    })
+    // Sort using the shared comparator
+    result.sort(applySortComparator(filters.sort))
 
     return result
   }, [allStrains, dataLoaded, filters])
@@ -434,18 +416,10 @@ export default function StrainExplorerPage() {
           {/* Type + Sort row */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <TypeToggle value={filters.type} onChange={(v) => updateFilter('type', v)} />
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider">Sort</span>
-              <select
-                value={filters.sort}
-                onChange={(e) => updateFilter('sort', e.target.value)}
-                className="text-[11px] px-2 py-1 rounded-md border border-gray-200/50 dark:border-white/10 bg-white dark:bg-white/[0.04] text-gray-700 dark:text-[#c0d4c6] cursor-pointer"
-              >
-                {SORT_OPTIONS.map(opt => (
-                  <option key={opt.id} value={opt.id}>{opt.label}</option>
-                ))}
-              </select>
-            </div>
+            <SortDropdown
+              value={filters.sort}
+              onChange={(v) => updateFilter('sort', v)}
+            />
           </div>
 
           {/* ── Commonness section ── */}

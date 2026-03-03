@@ -6,6 +6,7 @@ import { useFavorites } from '../hooks/useFavorites'
 import { useSearchHistory } from '../hooks/useSearchHistory'
 import StrainCard from '../components/results/StrainCard'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
+import SortDropdown, { applySortComparator } from '../components/shared/SortDropdown'
 import LegalConsent from '../components/shared/LegalConsent'
 
 export default function StrainSearchPage() {
@@ -17,6 +18,7 @@ export default function StrainSearchPage() {
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [selectedStrain, setSelectedStrain] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('name')
 
   // Pre-fill from ?q= URL param (e.g. from landing page search)
   const urlQ = searchParams.get('q') || ''
@@ -49,7 +51,7 @@ export default function StrainSearchPage() {
     if (!searchQuery || searchQuery.trim().length < 2 || allStrains.length === 0) return []
     const lower = searchQuery.toLowerCase().trim()
     const str = (v) => typeof v === 'string' ? v : String(v || '')
-    return allStrains
+    const matched = allStrains
       .filter(s => {
         try {
           return (
@@ -60,8 +62,12 @@ export default function StrainSearchPage() {
           )
         } catch { return false }
       })
-      .slice(0, 20)
-  }, [searchQuery, selectedStrain, allStrains])
+      .slice(0, 50)
+
+    // Apply sort
+    matched.sort(applySortComparator(sortBy))
+    return matched
+  }, [searchQuery, selectedStrain, allStrains, sortBy])
 
   const hasQuery = searchQuery.trim().length >= 2
 
@@ -101,6 +107,16 @@ export default function StrainSearchPage() {
           onSearch={handleSearch}
           className="mb-4"
         />
+
+        {/* Sort control — visible when there are results */}
+        {hasQuery && displayStrains.length > 1 && (
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e]">
+              <span className="font-semibold text-leaf-400">{displayStrains.length}</span> result{displayStrains.length !== 1 ? 's' : ''}
+            </p>
+            <SortDropdown value={sortBy} onChange={setSortBy} />
+          </div>
+        )}
 
         {!hasQuery && (
           <div className="text-center py-10 text-sm text-gray-400 dark:text-[#6a7a6e]">
