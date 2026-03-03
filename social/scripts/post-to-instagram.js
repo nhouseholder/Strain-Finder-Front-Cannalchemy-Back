@@ -333,20 +333,23 @@ async function postToInstagram(options = {}) {
 }
 
 // ── CLI ─────────────────────────────────────────────────────────
-const args = process.argv.slice(2);
+// Only run CLI when this file is the entry point (not when imported)
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const args = process.argv.slice(2);
 
-if (args.includes('--test')) {
-  testConnection().then(() => checkTokenExpiry());
-} else {
-  const dayArg = args.find((a) => a.startsWith('--day='));
-  const slotArg = args.find((a) => a.startsWith('--slot='));
-  const dryRun = args.includes('--dry-run');
+  if (args.includes('--test')) {
+    testConnection().then(() => checkTokenExpiry());
+  } else {
+    const dayArg = args.find((a) => a.startsWith('--day='));
+    const slotArg = args.find((a) => a.startsWith('--slot='));
+    const dryRun = args.includes('--dry-run');
 
-  const opts = { dryRun };
-  if (dayArg) opts.day = parseInt(dayArg.split('=')[1], 10);
-  if (slotArg) opts.slot = slotArg.split('=')[1];
+    const opts = { dryRun };
+    if (dayArg) opts.day = parseInt(dayArg.split('=')[1], 10);
+    if (slotArg) opts.slot = slotArg.split('=')[1];
 
-  postToInstagram(opts).catch(console.error);
+    postToInstagram(opts).catch(console.error);
+  }
 }
 
 export { postToInstagram, testConnection, createMediaContainer, publishMedia };

@@ -1,0 +1,137 @@
+name: Instagram + Facebook + Reddit Auto-Post
+
+on:
+  schedule:
+    # Morning post: 11 AM ET (15:00 UTC during EDT, 16:00 UTC during EST)
+    - cron: '0 15 * * *'
+    # Evening post: 7 PM ET (23:00 UTC during EDT, 00:00+1 UTC during EST)
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+    inputs:
+      day:
+        description: 'Content calendar day (1-14)'
+        required: false
+        type: number
+      slot:
+        description: 'Time slot'
+        required: false
+        type: choice
+        options:
+          - auto
+          - AM
+          - PM
+      dry_run:
+        description: 'Preview only, do not post'
+        required: false
+        type: boolean
+        default: false
+      platforms:
+        description: 'Which platforms to post to'
+        required: false
+        type: choice
+        options:
+          - all
+          - instagram
+          - facebook
+          - reddit
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    name: Generate & Post
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: social/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --omit=optional || npm install --ignore-scripts
+        working-directory: social
+
+      # Sharp needs platform-specific binaries in CI
+      - name: Rebuild Sharp for Linux
+        run: npm rebuild sharp
+        working-directory: social
+
+      - name: Determine post slot
+        id: slot
+        run: |
+          if [ "${{ github.event.inputs.slot }}" = "AM" ] || [ "${{ github.event.inputs.slot }}" = "PM" ]; then
+            echo "slot=${{ github.event.inputs.slot }}" >> $GITHUB_OUTPUT
+          else
+            HOUR=$(TZ=America/New_York date +%H)
+            if [ "$HOUR" -lt 15 ]; then
+              echo "slot=AM" >> $GITHUB_OUTPUT
+            else
+              echo "slot=PM" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Generate post image
+        run: |
+          DAY_ARG=""
+          if [ -n "${{ github.event.inputs.day }}" ]; then
+            DAY_ARG="--day=${{ github.event.inputs.day }}"
+          else
+            # Calculate day from content calendar based on days since launch
+            DAYS_SINCE=$(( ($(date +%s) - $(date -d '2026-03-03' +%s)) / 86400 ))
+            DAY=$(( (DAYS_SINCE % 14) + 1 ))
+            DAY_ARG="--day=$DAY"
+          fi
+          node scripts/generate-posts.js $DAY_ARG
+        working-directory: social
+
+      - name: Post to all platforms
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          ARGS="--slot=${{ steps.slot.outputs.slot }}"
+          
+          if [ -n "${{ github.event.inputs.day }}" ]; then
+            ARGS="$ARGS --day=${{ github.event.inputs.day }}"
+          fi
+          
+          PLATFORM="${{ github.event.inputs.platforms }}"
+          if [ -n "$PLATFORM" ] && [ "$PLATFORM" != "all" ]; then
+            ARGS="$ARGS --platform=$PLATFORM"
+          fi
+          
+          node scripts/post-all.js $ARGS
+        working-directory: social
+        env:
+          INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
+          INSTAGRAM_BUSINESS_ACCOUNT_ID: ${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}
+          FACEBOOK_PAGE_ID: ${{ secrets.FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_ACCESS_TOKEN: ${{ secrets.FACEBOOK_PAGE_ACCESS_TOKEN }}
+          IMGBB_API_KEY: ${{ secrets.IMGBB_API_KEY }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+          APP_URL: https://mystrainai.com
+
+      - name: Dry run preview
+        if: ${{ github.event.inputs.dry_run == 'true' }}
+        run: |
+          ARGS="--slot=${{ steps.slot.outputs.slot }} --dry-run"
+          if [ -n "${{ github.event.inputs.day }}" ]; then
+            ARGS="$ARGS --day=${{ github.event.inputs.day }}"
+          fi
+          node scripts/post-all.js $ARGS
+        working-directory: social
+        env:
+          APP_URL: https://mystrainai.com
+
+      - name: Upload generated images as artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-posts-${{ github.run_number }}
+          path: social/output/
+          retention-days: 7

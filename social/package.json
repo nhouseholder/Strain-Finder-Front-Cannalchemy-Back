@@ -7,9 +7,13 @@
     "capture": "node scripts/capture-screenshots.js",
     "generate": "node scripts/generate-posts.js",
     "post": "node scripts/post-to-instagram.js",
+    "post:facebook": "node scripts/post-facebook.js",
+    "post:reddit": "node scripts/post-reddit.js",
+    "post:all": "node scripts/post-all.js",
     "schedule": "node scripts/scheduler.js",
     "preview": "node scripts/preview-posts.js",
-    "setup": "node scripts/setup-check.js"
+    "setup": "node scripts/setup-check.js",
+    "test:connections": "node -e \"import './scripts/post-to-instagram.js'\" --test && node scripts/post-facebook.js --test && node scripts/post-reddit.js --test"
   },
   "dependencies": {
     "@canvas/image": "^1.0.0",
