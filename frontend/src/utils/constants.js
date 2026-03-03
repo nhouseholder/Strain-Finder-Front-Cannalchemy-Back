@@ -1,5 +1,5 @@
 export const APP_NAME = 'MyStrainAI';
-export const APP_VERSION = 'v5.10.0 · Mar 3, 2026';
+export const APP_VERSION = 'v5.10.1 · Mar 3, 2026';
 
 export const STORAGE_KEYS = {
   THEME: 'sf-theme',
@@ -23,6 +23,5 @@ export const QUIZ_STEPS = [
   { id: 'effects', label: 'Effects', number: 1 },
   { id: 'tolerance', label: 'Tolerance', number: 2 },
   { id: 'consumption', label: 'Method', number: 3 },
-  { id: 'budget', label: 'Budget', number: 4 },
-  { id: 'preferences', label: 'Fine-Tune', number: 5 },
+  { id: 'preferences', label: 'Fine-Tune', number: 4 },
 ];

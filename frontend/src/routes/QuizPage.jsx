@@ -144,7 +144,7 @@ export default function QuizPage() {
 
   /* Advance loading messages ---------------------------------------- */
   useEffect(() => {
-    if (currentStep !== 6 || !isRunning) return
+    if (currentStep !== 5 || !isRunning) return
 
     // Immediately show first phase
     setLoadingProgress(8)
@@ -173,7 +173,7 @@ export default function QuizPage() {
     setLoadingMsg(LOADING_PHASES[0].text)
     setLoadingDetail(LOADING_PHASES[0].detail)
     setLoadingProgress(0)
-    setStep(6)
+    setStep(5)
     resultsDispatch({ type: 'SET_LOADING' })
     startTimeRef.current = Date.now()
     pendingResult.current = null
@@ -382,9 +382,9 @@ export default function QuizPage() {
   }
 
   /* ================================================================ */
-  /*  Step 6 — Loading / Error                                        */
+  /*  Step 5 — Loading / Error                                        */
   /* ================================================================ */
-  if (currentStep === 6) {
+  if (currentStep === 5) {
     return (
       <div className="w-full max-w-2xl mx-auto px-4">
         {error ? (
@@ -417,7 +417,7 @@ export default function QuizPage() {
   }
 
   /* ================================================================ */
-  /*  Steps 1-5 — Quiz Shell                                          */
+  /*  Steps 1-4 — Quiz Shell                                          */
   /* ================================================================ */
   return <QuizShell onComplete={handleQuizComplete} />
 }

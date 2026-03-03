@@ -91,7 +91,7 @@ export default function ConsumptionStep() {
           Back
         </Button>
 
-        <Button size="lg" disabled={!canContinue} onClick={() => setStep(4)} aria-label="Continue to budget step">
+        <Button size="lg" disabled={!canContinue} onClick={() => setStep(4)} aria-label="Continue to fine-tune step">
           Continue
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />

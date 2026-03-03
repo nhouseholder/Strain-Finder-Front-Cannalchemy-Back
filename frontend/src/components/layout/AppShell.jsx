@@ -4,16 +4,16 @@ import BGGlow from './BGGlow'
 
 export default function AppShell() {
   return (
-    <div className="relative bg-[#f4f7f5] dark:bg-leaf-900" style={{ minHeight: '100dvh' }}>
+    <div className="relative flex flex-col bg-[#f4f7f5] dark:bg-leaf-900" style={{ minHeight: '100dvh' }}>
       <a href="#main-content" className="skip-link bg-leaf-500 text-leaf-900 font-semibold rounded-br-lg z-50">
         Skip to main content
       </a>
       <BGGlow />
       <NavBar />
-      <main id="main-content" className="relative z-10 pb-20 sm:pb-8">
+      <main id="main-content" className="relative z-10 flex-1 pb-20 sm:pb-8">
         <Outlet />
       </main>
-      <footer className="relative z-10 text-center py-6 pb-20 sm:pb-6">
+      <footer className="relative z-20 text-center py-6 pb-20 sm:pb-6 bg-[#f4f7f5] dark:bg-leaf-900">
         <p className="text-[9px] text-gray-500 dark:text-[#6a7a6e] mb-1 max-w-lg mx-auto px-4 leading-relaxed font-semibold">
           MyStrainAI is an informational software platform only. We do not sell, distribute, or deliver cannabis products. We are not a medical provider.
         </p>

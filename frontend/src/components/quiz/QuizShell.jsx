@@ -3,22 +3,20 @@ import { QUIZ_STEPS } from '../../utils/constants'
 import EffectsStep from './EffectsStep'
 import ToleranceStep from './ToleranceStep'
 import ConsumptionStep from './ConsumptionStep'
-import BudgetStep from './BudgetStep'
 import OptionalPrefsStep from './OptionalPrefsStep'
 
 const stepComponents = {
   1: EffectsStep,
   2: ToleranceStep,
   3: ConsumptionStep,
-  4: BudgetStep,
-  5: OptionalPrefsStep,
+  4: OptionalPrefsStep,
 }
 
 export default function QuizShell({ onComplete }) {
   const { currentStep } = useQuizState()
 
-  // Steps 0 (splash) and 6+ (loading/results) are handled externally
-  if (currentStep < 1 || currentStep > 5) return null
+  // Steps 0 (splash) and 5+ (loading/results) are handled externally
+  if (currentStep < 1 || currentStep > 4) return null
 
   const StepComponent = stepComponents[currentStep]
 
@@ -26,7 +24,7 @@ export default function QuizShell({ onComplete }) {
     <div className="w-full max-w-2xl mx-auto px-4 animate-fade-in">
       {/* Step counter text */}
       <p className="text-center text-sm text-gray-500 dark:text-[#6a7a6e] mb-4 font-body">
-        Step {currentStep} of 5
+        Step {currentStep} of {QUIZ_STEPS.length}
       </p>
 
       {/* Progress indicator */}
