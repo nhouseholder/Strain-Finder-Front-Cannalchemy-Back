@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Users, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { ConfidenceBadge, EffectBadge } from '../shared/Badge'
+import sig2 from '../../utils/fmt'
 
 /* ── Contradiction detection: related concept groups ──────── */
 const RELATED_GROUPS = [
@@ -120,7 +121,7 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
         <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-200 dark:border-white/[0.06]">
           <div className="text-center">
             <div className={`text-2xl font-bold ${sentimentColor}`}>
-              {typeof sentimentScore === 'number' ? sentimentScore.toFixed(1) : sentimentScore}
+              {typeof sentimentScore === 'number' ? sig2(sentimentScore) : sentimentScore}
             </div>
             <div className="text-[9px] uppercase tracking-wider text-gray-500 dark:text-[#6a7a6e]">
               /10

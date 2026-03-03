@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { Trophy } from 'lucide-react'
 import clsx from 'clsx'
 import { getTypeColor } from '../../utils/colors'
+import sig2 from '../../utils/fmt'
 
 /**
  * Helper: determines the "winner" index for a numeric row.
@@ -35,7 +36,7 @@ function formatList(items) {
  */
 function formatValue(val, suffix = '') {
   if (val == null) return '\u2014'
-  if (typeof val === 'number') return `${val}${suffix}`
+  if (typeof val === 'number') return `${sig2(val)}${suffix}`
   return String(val)
 }
 
@@ -136,7 +137,7 @@ const ROW_DEFS = [
     format: (s) =>
       s.sentimentScore != null
         ? typeof s.sentimentScore === 'number'
-          ? s.sentimentScore.toFixed(1)
+          ? sig2(s.sentimentScore)
           : String(s.sentimentScore)
         : '\u2014',
     numeric: true,

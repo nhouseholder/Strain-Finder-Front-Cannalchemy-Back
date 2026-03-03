@@ -2,6 +2,7 @@ import { useState, useContext } from 'react'
 import { Sparkles } from 'lucide-react'
 import { ResultsContext } from '../../context/ResultsContext'
 import { useFavorites } from '../../hooks/useFavorites'
+import sig2 from '../../utils/fmt'
 import { TypeBadge } from '../shared/Badge'
 import StrainCard from './StrainCard'
 
@@ -32,12 +33,12 @@ function MiniPickCard({ pick }) {
           )}
           {pick.thc != null && (
             <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
-              THC {pick.thc}%
+              THC {sig2(pick.thc)}%
             </span>
           )}
           {pick.cbd != null && pick.cbd > 0 && (
             <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
-              CBD {pick.cbd}%
+              CBD {sig2(pick.cbd)}%
             </span>
           )}
         </div>

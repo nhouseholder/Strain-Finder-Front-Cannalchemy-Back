@@ -1,5 +1,6 @@
 import { useContext, useMemo, useState, useCallback } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import sig2 from '../utils/fmt'
 import { UserContext } from '../context/UserContext'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
@@ -474,7 +475,7 @@ export default function DashboardPage() {
               <span className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#5a6a5e] block mb-1">Avg Rating</span>
               <div className="flex items-center gap-1">
                 <Star size={14} className="text-amber-400 fill-amber-400" />
-                <span className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">{stats.avgRating.toFixed(1)}</span>
+                <span className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">{sig2(stats.avgRating)}</span>
                 <span className="text-xs text-gray-400 dark:text-[#5a6a5e]">/5</span>
               </div>
             </div>
@@ -500,7 +501,7 @@ export default function DashboardPage() {
                       <span className="text-gray-400 dark:text-[#5a6a5e]">{count}x</span>
                       {stats.avgByType[type] != null && (
                         <span className="flex items-center gap-0.5 text-amber-400">
-                          <Star size={10} className="fill-amber-400" />{stats.avgByType[type].toFixed(1)}
+                          <Star size={10} className="fill-amber-400" />{sig2(stats.avgByType[type])}
                         </span>
                       )}
                     </div>

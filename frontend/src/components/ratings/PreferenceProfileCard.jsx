@@ -6,6 +6,7 @@
 import { Star, TrendingUp, Brain, Leaf, Beaker, Sparkles, Target } from 'lucide-react'
 import clsx from 'clsx'
 import Card from '../shared/Card'
+import sig2 from '../../utils/fmt'
 
 function ConfidenceMeter({ confidence }) {
   const pct = Math.round(confidence * 100)
@@ -49,7 +50,7 @@ function TypeAffinityBar({ type, score, count, maxScore }) {
           {type}
         </span>
         <span className="text-gray-400 dark:text-[#6a7a6e]">
-          {score.toFixed(1)}/5 ({count}x)
+          {sig2(score)}/5 ({count}x)
         </span>
       </div>
       <div className="h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
@@ -125,7 +126,7 @@ export default function PreferenceProfileCard({ profile, className }) {
             <div className="flex items-center justify-center gap-1 mb-0.5">
               <Star size={14} className="fill-amber-400 text-amber-400" />
               <span className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">
-                {avg_rating.toFixed(1)}
+                {sig2(avg_rating)}
               </span>
             </div>
             <span className="text-[9px] uppercase tracking-wider text-gray-400 dark:text-[#5a6a5e] font-semibold">
@@ -195,7 +196,7 @@ export default function PreferenceProfileCard({ profile, className }) {
                       {effect}
                     </span>
                     <span className="text-gray-400 dark:text-[#6a7a6e]">
-                      {score > 0 ? '+' : ''}{score.toFixed(2)} ({count}x)
+                      {score > 0 ? '+' : ''}{sig2(score)} ({count}x)
                     </span>
                   </div>
                   <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
@@ -221,7 +222,7 @@ export default function PreferenceProfileCard({ profile, className }) {
                     key={effect}
                     className="px-2 py-0.5 rounded-md text-[10px] bg-red-500/10 text-red-400 border border-red-500/20"
                   >
-                    {effect} ({score.toFixed(2)})
+                    {effect} ({sig2(score)})
                   </span>
                 ))}
               </div>

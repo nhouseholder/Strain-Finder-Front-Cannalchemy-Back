@@ -1,5 +1,6 @@
 import clsx from 'clsx'
 import ChemTooltip from './ChemTooltip'
+import sig2 from '../../utils/fmt'
 import { getChemDescription } from '../../data/chemDescriptions'
 
 export default function ProgressBar({ value, max = 100, label, color = '#32c864', height = 6, className }) {
@@ -12,7 +13,7 @@ export default function ProgressBar({ value, max = 100, label, color = '#32c864'
     <div className={clsx('w-full mb-1.5', className)}>
       <div className="flex justify-between text-[11px] mb-0.5">
         {hasTooltip ? <ChemTooltip name={label}>{labelEl}</ChemTooltip> : labelEl}
-        <span style={{ color }}>{typeof value === 'number' ? `${value}%` : value}</span>
+        <span style={{ color }}>{typeof value === 'number' ? `${sig2(value)}%` : value}</span>
       </div>
       <div
         className="w-full rounded-full bg-gray-200 dark:bg-white/[0.06]"
@@ -21,7 +22,7 @@ export default function ProgressBar({ value, max = 100, label, color = '#32c864'
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`${label}: ${typeof value === 'number' ? `${value}%` : value}`}
+        aria-label={`${label}: ${typeof value === 'number' ? `${sig2(value)}%` : value}`}
       >
         <div
           className="h-full rounded-full transition-all duration-1000 ease-out"

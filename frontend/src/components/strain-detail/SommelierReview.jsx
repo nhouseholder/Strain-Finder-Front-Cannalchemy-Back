@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Wine } from 'lucide-react'
+import sig2 from '../../utils/fmt'
 
 const AXES = [
   { key: 'taste', label: 'Taste' },
@@ -32,7 +33,7 @@ export default function SommelierReview({ notes, scores }) {
         <div className="flex items-center gap-1.5">
           <span className="text-[10px] text-gray-500 dark:text-[#6a7a6e]">Overall</span>
           <span className="text-sm font-bold text-leaf-400">
-            {overall.toFixed(1)}
+            {sig2(overall)}
           </span>
           <span className="text-[10px] text-gray-500 dark:text-[#6a7a6e]">/10</span>
         </div>

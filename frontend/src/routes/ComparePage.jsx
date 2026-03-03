@@ -7,6 +7,7 @@ import Card from '../components/shared/Card'
 import Button from '../components/shared/Button'
 import { TypeBadge, EffectBadge } from '../components/shared/Badge'
 import { getTerpeneColor, getTypeColor } from '../utils/colors'
+import sig2 from '../utils/fmt'
 import { MAX_COMPARE_STRAINS } from '../utils/constants'
 import {
   RadarChart,
@@ -498,7 +499,7 @@ export default function ComparePage() {
                           )
                           return t ? parseFloat(String(t.pct || 0).replace('%', '')) || 0 : 0
                         }}
-                        format={(v) => v > 0 ? `${v}%` : '\u2014'}
+                        format={(v) => v > 0 ? `${sig2(v)}%` : '\u2014'}
                       />
                     )
                   })}
@@ -548,7 +549,7 @@ export default function ComparePage() {
                     icon={<Star size={12} className="text-yellow-400" />}
                     strains={selectedStrains}
                     getValue={(s) => s.sentimentScore || s.forumAnalysis?.sentimentScore || 0}
-                    format={(v) => v > 0 ? `${v}/10` : '--'}
+                    format={(v) => v > 0 ? `${sig2(v)}/10` : '--'}
                   />
 
                   {/* Community Reports */}
@@ -691,7 +692,7 @@ export default function ComparePage() {
                       icon={<Sparkles size={12} className="text-purple-400" />}
                       strains={selectedStrains}
                       getValue={(s) => s.matchPct || 0}
-                      format={(v) => v > 0 ? `${v}%` : '--'}
+                      format={(v) => v > 0 ? `${sig2(v)}%` : '--'}
                     />
                   )}
                 </tbody>

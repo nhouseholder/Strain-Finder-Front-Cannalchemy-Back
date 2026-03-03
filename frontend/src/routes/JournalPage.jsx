@@ -15,6 +15,7 @@
  */
 import { useState, useMemo, useEffect, useRef } from 'react'
 import usePageTitle from '../hooks/usePageTitle'
+import sig2 from '../utils/fmt'
 import { useJournal } from '../hooks/useJournal'
 import { useRatings } from '../hooks/useRatings'
 import { useStrainSearch } from '../hooks/useStrainSearch'
@@ -878,7 +879,7 @@ function StatsSection({ entries }) {
               <div className="flex items-center justify-center gap-1">
                 <Star size={16} className="fill-amber-400 text-amber-400" />
                 <span className="text-2xl font-bold text-gray-900 dark:text-[#e8f0ea]">
-                  {stats.avgRating.toFixed(1)}
+                  {sig2(stats.avgRating)}
                 </span>
               </div>
             ),
@@ -970,7 +971,7 @@ function StatsSection({ entries }) {
                   />
                 </div>
                 <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e] w-16 text-right">
-                  {s.count}x &middot; {s.avg.toFixed(1)}\u2605
+                  {s.count}x &middot; {sig2(s.avg)}\u2605
                 </span>
               </div>
             ))}

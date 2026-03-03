@@ -1,6 +1,7 @@
 import { memo } from 'react'
 import TerpBadge from '../shared/TerpBadge'
 import { getTerpeneColor } from '../../utils/colors'
+import sig2 from '../../utils/fmt'
 
 function parsePct(val) {
   return parseFloat(String(val || 0).replace('%', '')) || 0
@@ -28,7 +29,7 @@ export default memo(function TerpeneProfile({ terpenes }) {
           return (
             <div key={t.name || `terp-${idx}`} className="flex items-center gap-3">
               <div className="w-36 flex-shrink-0">
-                <TerpBadge name={t.name} pct={numPct > 0 ? `${numPct}%` : ''} />
+                <TerpBadge name={t.name} pct={numPct > 0 ? `${sig2(numPct)}%` : ''} />
               </div>
               <div className="flex-1 ml-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06]">
                 <div

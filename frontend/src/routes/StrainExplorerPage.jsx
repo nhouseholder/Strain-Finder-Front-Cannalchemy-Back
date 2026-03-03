@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
 import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
+import sig2 from '../utils/fmt'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
 import StrainCard from '../components/results/StrainCard'
@@ -98,7 +99,7 @@ function DualRangeSlider({ label, desc, min, max, step, unit, color, value, onCh
           </span>
         </div>
         <span className={`text-[10px] font-mono tabular-nums ${isActive ? 'text-leaf-400 font-semibold' : 'text-gray-400 dark:text-[#6a7a6e]'}`}>
-          {lo.toFixed(unit === '%' && max < 1 ? 2 : 1)}{unit} – {hi.toFixed(unit === '%' && max < 1 ? 2 : 1)}{unit}
+          {sig2(lo)}{unit} – {sig2(hi)}{unit}
         </span>
       </div>
 

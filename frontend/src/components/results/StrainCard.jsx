@@ -9,6 +9,7 @@ import ProgressBar from '../shared/ProgressBar'
 import Tooltip from '../shared/Tooltip'
 import { getTypeColor } from '../../utils/colors'
 import { normalizeStrain } from '../../utils/normalizeStrain'
+import sig2 from '../../utils/fmt'
 import StrainCardExpanded from './StrainCardExpanded'
 import AvailabilityBadge from './AvailabilityBadge'
 import QuickRate from '../ratings/QuickRate'
@@ -195,7 +196,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
               <TerpBadge
                 key={t.name || `terp-${idx}`}
                 name={t.name}
-                pct={t.pct != null ? (String(t.pct).includes('%') ? t.pct : `${t.pct}%`) : ''}
+                pct={t.pct != null ? `${sig2(parseFloat(String(t.pct)))}%` : ''}
               />
             ))}
           </div>
@@ -224,7 +225,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                     <Star size={11} className="text-amber-400" fill="currentColor" />
                     <span className="text-[11px] font-semibold text-gray-700 dark:text-[#b0c4b4]">
                       {typeof strain.sentimentScore === 'number'
-                        ? strain.sentimentScore.toFixed(1)
+                        ? sig2(strain.sentimentScore)
                         : strain.sentimentScore}
                     </span>
                   </div>
