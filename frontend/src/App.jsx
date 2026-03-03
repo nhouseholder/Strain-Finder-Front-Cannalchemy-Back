@@ -10,25 +10,26 @@ import AppShell from './components/layout/AppShell'
 import ErrorBoundary from './components/shared/ErrorBoundary'
 import ProtectedRoute from './components/shared/ProtectedRoute'
 import AgeGate from './components/shared/AgeGate'
+import lazyRetry from './utils/lazyRetry'
 
-const LandingPage = lazy(() => import('./routes/LandingPage'))
-const QuizPage = lazy(() => import('./routes/QuizPage'))
-const ResultsPage = lazy(() => import('./routes/ResultsPage'))
-const DispensaryPage = lazy(() => import('./routes/DispensaryPage'))
-const DashboardPage = lazy(() => import('./routes/DashboardPage'))
-const JournalPage = lazy(() => import('./routes/JournalPage'))
-const ComparePage = lazy(() => import('./routes/ComparePage'))
-const StrainSearchPage = lazy(() => import('./routes/StrainSearchPage'))
-const LearnPage = lazy(() => import('./routes/LearnPage'))
-const MyPreferencesPage = lazy(() => import('./routes/MyPreferencesPage'))
-const LoginPage = lazy(() => import('./routes/LoginPage'))
-const SignupPage = lazy(() => import('./routes/SignupPage'))
-const AdminPage = lazy(() => import('./routes/AdminPage'))
-const CheckoutSuccessPage = lazy(() => import('./routes/CheckoutSuccessPage'))
-const ForgotPasswordPage = lazy(() => import('./routes/ForgotPasswordPage'))
-const TermsPage = lazy(() => import('./routes/TermsPage'))
-const PrivacyPage = lazy(() => import('./routes/PrivacyPage'))
-const NotFoundPage = lazy(() => import('./routes/NotFoundPage'))
+const LandingPage = lazy(() => lazyRetry(() => import('./routes/LandingPage'), 'LandingPage'))
+const QuizPage = lazy(() => lazyRetry(() => import('./routes/QuizPage'), 'QuizPage'))
+const ResultsPage = lazy(() => lazyRetry(() => import('./routes/ResultsPage'), 'ResultsPage'))
+const DispensaryPage = lazy(() => lazyRetry(() => import('./routes/DispensaryPage'), 'DispensaryPage'))
+const DashboardPage = lazy(() => lazyRetry(() => import('./routes/DashboardPage'), 'DashboardPage'))
+const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), 'JournalPage'))
+const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
+const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
+const LearnPage = lazy(() => lazyRetry(() => import('./routes/LearnPage'), 'LearnPage'))
+const MyPreferencesPage = lazy(() => lazyRetry(() => import('./routes/MyPreferencesPage'), 'MyPreferencesPage'))
+const LoginPage = lazy(() => lazyRetry(() => import('./routes/LoginPage'), 'LoginPage'))
+const SignupPage = lazy(() => lazyRetry(() => import('./routes/SignupPage'), 'SignupPage'))
+const AdminPage = lazy(() => lazyRetry(() => import('./routes/AdminPage'), 'AdminPage'))
+const CheckoutSuccessPage = lazy(() => lazyRetry(() => import('./routes/CheckoutSuccessPage'), 'CheckoutSuccessPage'))
+const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPasswordPage'), 'ForgotPasswordPage'))
+const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
+const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
+const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
 
 function LoadingFallback() {
   return (

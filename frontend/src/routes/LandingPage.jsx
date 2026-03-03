@@ -7,6 +7,7 @@ import {
   FlaskConical, Fingerprint, BookMarked, ArrowRight, Sparkles,
   Search, Zap, BarChart3, ChevronRight, Star, Lock, Check,
   ThumbsUp, ThumbsDown, Users, Wine, Lightbulb, ChevronDown,
+  Brain, Dna, ShieldCheck, Database,
 } from 'lucide-react'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -48,7 +49,7 @@ function StrainSearchBar() {
   const { allStrains, dataLoaded } = useStrainSearch()
 
   return (
-    <div className="mt-8 max-w-md mx-auto w-full">
+    <div className="mt-8 max-w-md mx-auto w-full relative z-50">
       <SearchAutocomplete
         strains={allStrains}
         dataLoaded={dataLoaded}
@@ -70,11 +71,13 @@ function StrainSearchBar() {
 /* ------------------------------------------------------------------ */
 function HeroSection({ onGetStarted }) {
   return (
-    <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 overflow-hidden">
-      {/* Animated BG orbs */}
-      <div className="absolute w-[700px] h-[700px] rounded-full animate-float-a opacity-60" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.12) 0%, transparent 70%)', top: '-15%', left: '-15%' }} />
-      <div className="absolute w-[500px] h-[500px] rounded-full animate-float-b opacity-60" style={{ background: 'radial-gradient(circle, rgba(147,80,255,0.08) 0%, transparent 70%)', bottom: '-10%', right: '-10%' }} />
-      <div className="absolute w-[300px] h-[300px] rounded-full animate-pulse-glow" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.06) 0%, transparent 70%)', top: '40%', right: '20%' }} />
+    <section className="relative flex flex-col items-center justify-center text-center px-6" style={{ minHeight: 'min(90vh, 90dvh)' }}>
+      {/* Animated BG orbs – wrapped so overflow is clipped without clipping the search dropdown */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute w-[700px] h-[700px] rounded-full animate-float-a opacity-60" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.12) 0%, transparent 70%)', top: '-15%', left: '-15%' }} />
+        <div className="absolute w-[500px] h-[500px] rounded-full animate-float-b opacity-60" style={{ background: 'radial-gradient(circle, rgba(147,80,255,0.08) 0%, transparent 70%)', bottom: '-10%', right: '-10%' }} />
+        <div className="absolute w-[300px] h-[300px] rounded-full animate-pulse-glow" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.06) 0%, transparent 70%)', top: '40%', right: '20%' }} />
+      </div>
 
       <div className="relative z-10 max-w-2xl animate-fade-in">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-leaf-500/10 border border-leaf-500/20 mb-8">
@@ -113,6 +116,89 @@ function HeroSection({ onGetStarted }) {
           <span className="flex items-center gap-1.5"><FlaskConical size={14} /> 1,000+ Strains</span>
           <span className="flex items-center gap-1.5"><Zap size={14} /> 51 Effects</span>
           <span className="flex items-center gap-1.5"><BarChart3 size={14} /> 6 Receptors</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section 1.5: Value Proposition Banner                             */
+/* ------------------------------------------------------------------ */
+function ValuePropSection() {
+  const ref = useScrollReveal()
+  const pillars = [
+    {
+      icon: Brain,
+      title: 'MD-Developed Algorithm',
+      desc: 'Built on receptor pharmacology and clinical cannabis science — not guesswork.',
+      accent: 'from-leaf-400 to-emerald-500',
+      iconBg: 'bg-leaf-500/10 text-leaf-400',
+    },
+    {
+      icon: Database,
+      title: '24,000+ Strain Database',
+      desc: 'One of the most comprehensive cannabis datasets in the world, continuously updated.',
+      accent: 'from-blue-400 to-cyan-400',
+      iconBg: 'bg-blue-500/10 text-blue-400',
+    },
+    {
+      icon: Dna,
+      title: 'Molecular Precision',
+      desc: 'Matches strains to your needs using terpene profiles, cannabinoid ratios, and 6 receptor pathways.',
+      accent: 'from-purple-400 to-violet-400',
+      iconBg: 'bg-purple-500/10 text-purple-400',
+    },
+    {
+      icon: ShieldCheck,
+      title: 'Evidence-Based Approach',
+      desc: 'Every recommendation is grounded in publicly available research and real community data.',
+      accent: 'from-amber-400 to-orange-400',
+      iconBg: 'bg-amber-500/10 text-amber-400',
+    },
+  ]
+
+  return (
+    <section className="py-16 sm:py-20 px-6" ref={ref}>
+      <div className="max-w-4xl mx-auto">
+        {/* Headline */}
+        <div className="text-center mb-12">
+          <p className="text-xs font-semibold uppercase tracking-widest text-leaf-400 mb-3">Why MyStrainAI</p>
+          <h2
+            className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-4 max-w-2xl mx-auto leading-snug"
+            style={{ fontFamily: "'Playfair Display', serif" }}
+          >
+            The world's smartest cannabis recommendation engine —{' '}
+            <span className="bg-gradient-to-r from-leaf-400 to-leaf-500 bg-clip-text text-transparent">built by doctors, powered by AI.</span>
+          </h2>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-[#8a9a8e] max-w-xl mx-auto leading-relaxed">
+            Our physician-developed algorithm analyzes your unique preferences against thousands of molecular profiles to find the strains that are truly right for you.
+          </p>
+        </div>
+
+        {/* Pillar grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+          {pillars.map((p) => (
+            <div
+              key={p.title}
+              className="group flex items-start gap-4 p-4 sm:p-5 rounded-2xl border border-gray-200/60 dark:border-white/[0.06] bg-white/50 dark:bg-white/[0.02] hover:border-leaf-500/30 dark:hover:border-leaf-500/20 transition-all duration-300"
+            >
+              <div className={`w-10 h-10 rounded-xl ${p.iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                <p.icon size={20} />
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">{p.title}</h3>
+                <p className="text-xs text-gray-500 dark:text-[#8a9a8e] leading-relaxed">{p.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom accent line */}
+        <div className="flex items-center justify-center gap-3 mt-10 text-[11px] text-gray-400 dark:text-[#5a6a5e]">
+          <span className="h-px w-8 bg-gray-200 dark:bg-white/[0.08]" />
+          <span>Science-first. Physician-informed. Personalized to you.</span>
+          <span className="h-px w-8 bg-gray-200 dark:bg-white/[0.08]" />
         </div>
       </div>
     </section>
@@ -364,8 +450,8 @@ function DemoSection() {
                 </div>
                 <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-leaf-500/10 border border-leaf-500/20">
                   <Star size={10} className="text-amber-400 fill-amber-400" />
-                  <span className="text-xs font-bold text-leaf-500">8.7</span>
-                  <span className="text-[9px] text-gray-400">/10</span>
+                  <span className="text-xs font-bold text-leaf-500">4.3</span>
+                  <span className="text-[9px] text-gray-400">/5</span>
                 </div>
               </div>
               <p className="text-[10px] font-semibold text-gray-500 dark:text-[#6a7a6e] uppercase mb-2">Reported Positive Effects</p>
@@ -602,7 +688,7 @@ export default function LandingPage() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen relative bg-[#f4f7f5] dark:bg-leaf-900">
+    <div className="min-h-screen relative bg-[#f4f7f5] dark:bg-leaf-900" style={{ minHeight: '100dvh' }}>
       {/* Sticky nav */}
       <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-[#f4f7f5]/90 dark:bg-leaf-900/85 backdrop-blur-xl border-b border-gray-200/60 dark:border-white/[0.06] shadow-sm dark:shadow-none">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
@@ -638,6 +724,7 @@ export default function LandingPage() {
       </nav>
 
       <HeroSection onGetStarted={handleGetStarted} />
+      <ValuePropSection />
       <FeaturesSection />
       <DemoSection />
       <HowItWorksSection />

@@ -11,7 +11,7 @@ export const TERPENE_COLORS = {
   caryophyllene: '#ff922b',
   pinene: '#51cf66',
   terpinolene: '#22b8cf',
-  humulene: '#e67700',
+  humulene: '#845ef7',
   ocimene: '#f06595',
   bisabolol: '#a9e34b',
   default: '#868e96',

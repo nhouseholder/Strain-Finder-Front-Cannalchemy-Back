@@ -41,6 +41,9 @@
 
 html {
   background-color: #0a0f0c;
+  /* iOS Safari: use dvh with vh fallback for full-height layouts */
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 html.light {
   background-color: #f4f7f5;
@@ -52,10 +55,42 @@ body {
   background-color: #0a0f0c;
   color: #e8f0ea;
   min-height: 100vh;
+  min-height: 100dvh;
+  /* Prevent iOS bounce / over-scroll */
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
 }
 html.light body {
   background-color: #f4f7f5;
   color: #1a2e22;
+}
+
+/* iOS safe-area insets */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* iOS select elements — don't remove native appearance */
+select {
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M6 8L1 3h10z' fill='%238a9a8e'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 32px;
+}
+
+/* Prevent iOS 300ms tap delay */
+a, button, [role="button"] {
+  touch-action: manipulation;
+}
+
+/* Prevent text selection bounce on iOS */
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 h1, h2, h3 {

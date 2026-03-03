@@ -16,10 +16,10 @@
       "purpose": "any"
     },
     {
-      "src": "/apple-touch-icon.svg",
+      "src": "/apple-touch-icon.png",
       "sizes": "180x180",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

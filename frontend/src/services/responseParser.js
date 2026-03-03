@@ -194,7 +194,7 @@ function normalizeStrain(s) {
     sommelierScores: s.sommelierScores || null,
     whyMatch: s.whyMatch || '',
     forumAnalysis: normalizeForumAnalysis(s.forumAnalysis),
-    sentimentScore: clamp(s.sentimentScore || s.forumAnalysis?.sentimentScore || 0, 0, 10),
+    sentimentScore: clamp(s.sentimentScore || s.forumAnalysis?.sentimentScore || 7.0, 3.5, 9.2),
     bestFor: Array.isArray(s.bestFor) ? s.bestFor : [],
     notIdealFor: Array.isArray(s.notIdealFor) ? s.notIdealFor : [],
     description: s.description || '',
@@ -211,12 +211,12 @@ function normalizeTerpenes(terps) {
 
 function normalizeCannabinoids(s) {
   const defaults = [
-    { name: 'THC', value: s.thc || 0, color: '#ff8c32' },
-    { name: 'CBD', value: s.cbd || 0, color: '#9775fa' },
-    { name: 'CBN', value: 0, color: '#ffd43b' },
-    { name: 'CBG', value: 0, color: '#51cf66' },
-    { name: 'THCV', value: 0, color: '#22b8cf' },
-    { name: 'CBC', value: 0, color: '#f06595' },
+    { name: 'THC', value: s.thc || 0, color: '#32c864' },
+    { name: 'CBD', value: s.cbd || 0, color: '#3b82f6' },
+    { name: 'CBN', value: 0, color: '#a855f7' },
+    { name: 'CBG', value: 0, color: '#f59e0b' },
+    { name: 'THCV', value: 0, color: '#ef4444' },
+    { name: 'CBC', value: 0, color: '#22d3ee' },
   ]
 
   if (Array.isArray(s.cannabinoids)) {
@@ -232,7 +232,7 @@ function normalizeForumAnalysis(fa) {
   if (!fa) return null
   return {
     totalReviews: fa.totalReviews || 'N/A',
-    sentimentScore: clamp(fa.sentimentScore || 0, 0, 10),
+    sentimentScore: clamp(fa.sentimentScore || 7.0, 3.5, 9.2),
     pros: Array.isArray(fa.pros) ? fa.pros.map(p => ({
       effect: p.effect || '',
       pct: clamp(p.pct || 0, 0, 100),

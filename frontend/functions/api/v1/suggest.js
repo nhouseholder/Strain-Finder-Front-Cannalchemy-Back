@@ -111,10 +111,14 @@ export async function onRequestPost(context) {
   // Score all unrated strains against the preference profile
   const candidates = strainData.strains
     .filter(s => !ratedNames.has(s.name.toLowerCase()))
-    .map(strain => ({
-      strain,
-      score: profile ? scoreCandidate(strain, profile) : 50,
-    }))
+    .map(strain => {
+      const baseScore = profile ? scoreCandidate(strain, profile) : 50
+      // Availability boost: common strains get a gentle nudge up
+      const avail = strain.availability || 5
+      const availBoost = ((avail - 5) / 5) * 4 // ±4 point swing
+      const score = Math.max(0, Math.min(100, Math.round(baseScore + availBoost)))
+      return { strain, score }
+    })
     .sort((a, b) => b.score - a.score)
 
   // Top 6 algorithmic suggestions

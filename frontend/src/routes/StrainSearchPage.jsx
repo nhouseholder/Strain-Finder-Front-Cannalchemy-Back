@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
+import { useSearchHistory } from '../hooks/useSearchHistory'
 import StrainCard from '../components/results/StrainCard'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
 import LegalConsent from '../components/shared/LegalConsent'
@@ -12,6 +13,7 @@ export default function StrainSearchPage() {
   const [searchParams] = useSearchParams()
   const { allStrains, dataLoaded } = useStrainSearch()
   const { toggleFavorite, isFavorite } = useFavorites()
+  const { recordSearch } = useSearchHistory()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [selectedStrain, setSelectedStrain] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -32,12 +34,14 @@ export default function StrainSearchPage() {
     setSelectedStrain(strain)
     setExpandedStrain(strain.name)
     setSearchQuery(strain.name)
-  }, [])
+    recordSearch(strain.name, strain.name, strain.type)
+  }, [recordSearch])
 
   const handleSearch = useCallback((q) => {
     setSearchQuery(q)
     setSelectedStrain(null)
-  }, [])
+    if (q) recordSearch(q)
+  }, [recordSearch])
 
   // Filter strains for the main results list
   const displayStrains = useMemo(() => {

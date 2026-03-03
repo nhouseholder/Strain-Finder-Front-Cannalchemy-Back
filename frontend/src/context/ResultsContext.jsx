@@ -1,6 +1,6 @@
 import { createContext, useReducer, useCallback, useMemo, useEffect } from 'react'
 
-const STORAGE_KEY = 'sf-results'
+const STORAGE_KEY = 'sf-results-v2'
 
 const emptyState = {
   strains: [],

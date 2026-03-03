@@ -14,6 +14,22 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught:', error, errorInfo)
+
+    // Auto-reload once on stale chunk / dynamic import failures (e.g. after a new deploy)
+    const isChunkError =
+      error?.message?.includes('dynamically imported module') ||
+      error?.message?.includes('Failed to fetch') ||
+      error?.message?.includes('Loading chunk') ||
+      error?.message?.includes('Loading CSS chunk')
+
+    const reloadKey = 'eb-chunk-reload'
+    if (isChunkError && !sessionStorage.getItem(reloadKey)) {
+      sessionStorage.setItem(reloadKey, '1')
+      window.location.reload()
+      return
+    }
+    // Clear the flag so future deploys can retry again
+    sessionStorage.removeItem(reloadKey)
   }
 
   render() {

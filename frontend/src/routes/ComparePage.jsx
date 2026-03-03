@@ -11,16 +11,67 @@ import {
   RadarChart,
   PolarGrid,
   PolarAngleAxis,
+  PolarRadiusAxis,
   Radar,
+  Tooltip,
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-import { X, Plus, Search, GitCompareArrows, Loader2 } from 'lucide-react'
+import { X, Plus, Search, GitCompareArrows, Loader2, Trophy, Star, Leaf, Beaker, Heart, ShieldAlert, Utensils, DollarSign, Dna, Activity, Sparkles, TrendingUp } from 'lucide-react'
+import ChemTooltip from '../components/shared/ChemTooltip'
 
 /* ------------------------------------------------------------------ */
 /*  Color palette for compared strains                                */
 /* ------------------------------------------------------------------ */
 const COMPARE_COLORS = ['#32c864', '#9775fa', '#ff922b']
+
+/* ------------------------------------------------------------------ */
+/*  Reusable compare table row components                             */
+/* ------------------------------------------------------------------ */
+function CompareRow({ label, icon, chemName, children }) {
+  return (
+    <tr className="border-b border-gray-50 dark:border-white/[0.03]">
+      <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
+        <div className="flex items-center gap-1.5">
+          {icon}
+          {chemName ? <ChemTooltip name={chemName}>{label}</ChemTooltip> : label}
+        </div>
+      </td>
+      {children}
+    </tr>
+  )
+}
+
+function CompareNumericRow({ label, icon, strains, getValue, format, chemName }) {
+  const values = strains.map(getValue)
+  const maxVal = Math.max(...values)
+  return (
+    <tr className="border-b border-gray-50 dark:border-white/[0.03]">
+      <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
+        <div className="flex items-center gap-1.5">
+          {icon}
+          {chemName ? <ChemTooltip name={chemName}>{label}</ChemTooltip> : label}
+        </div>
+      </td>
+      {strains.map((s, i) => {
+        const val = values[i]
+        const isHighest = val === maxVal && val > 0 && values.filter(v => v === maxVal).length === 1
+        return (
+          <td
+            key={s.name}
+            className={`px-4 py-3 text-sm font-semibold ${
+              isHighest
+                ? 'text-leaf-400 bg-leaf-500/[0.06]'
+                : 'text-gray-700 dark:text-[#b0c4b4]'
+            }`}
+          >
+            {format(val)}
+          </td>
+        )
+      })}
+    </tr>
+  )
+}
 
 /* ------------------------------------------------------------------ */
 /*  ComparePage                                                       */
@@ -74,37 +125,55 @@ export default function ComparePage() {
       ;(s.terpenes || []).forEach((t) => allTerps.add(t.name || t))
     })
 
-    return [...allTerps].slice(0, 8).map((terpName) => {
+    // Collect raw values first
+    const rawPoints = [...allTerps].slice(0, 8).map((terpName) => {
       const point = { terpene: terpName }
-      selectedStrains.forEach((strain, i) => {
+      selectedStrains.forEach((strain) => {
         const terp = (strain.terpenes || []).find(
           (t) => (t.name || t) === terpName
         )
-        point[strain.name] = terp ? parseFloat(terp.pct) || 0.3 : 0
+        point[strain.name] = terp ? parseFloat(terp.pct) || 0 : 0
       })
       return point
     })
+
+    // Find global max across all strains/terpenes to normalize to 0-100
+    let globalMax = 0
+    rawPoints.forEach((point) => {
+      selectedStrains.forEach((strain) => {
+        const val = point[strain.name] || 0
+        if (val > globalMax) globalMax = val
+      })
+    })
+    if (globalMax === 0) globalMax = 1
+
+    // Normalize to 0-100 scale
+    return rawPoints.map((point) => {
+      const normalized = { terpene: point.terpene }
+      selectedStrains.forEach((strain) => {
+        normalized[strain.name] = Math.round(((point[strain.name] || 0) / globalMax) * 100)
+      })
+      return normalized
+    })
   }, [selectedStrains])
 
-  /* Comparison rows for the table --------------------------------- */
-  const getNumericValue = (strain, key) => {
-    if (key === 'thc') return typeof strain.thc === 'object' ? strain.thc?.avg || strain.thc?.max || 0 : strain.thc || 0
-    if (key === 'cbd') return typeof strain.cbd === 'object' ? strain.cbd?.avg || strain.cbd?.max || 0 : strain.cbd || 0
-    return 0
-  }
-
-  const findHighest = (key) => {
-    let maxVal = -1
-    let maxIdx = -1
-    selectedStrains.forEach((s, i) => {
-      const val = getNumericValue(s, key)
-      if (val > maxVal) {
-        maxVal = val
-        maxIdx = i
-      }
+  /* Sorted unique terpene names across all selected strains ------- */
+  const allTerpNames = useMemo(() => {
+    const terpMap = new Map()
+    selectedStrains.forEach(s => {
+      ;(s.terpenes || []).forEach(t => {
+        const name = (t.name || '').toLowerCase()
+        if (!name) return
+        const pct = parseFloat(String(t.pct || 0).replace('%', '')) || 0
+        const existing = terpMap.get(name) || 0
+        if (pct > existing) terpMap.set(name, pct)
+      })
     })
-    return maxIdx
-  }
+    return [...terpMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .map(([name]) => name)
+      .slice(0, 8)
+  }, [selectedStrains])
 
   /* Strains from results for quick-add buttons -------------------- */
   const resultStrains = useMemo(() => {
@@ -247,16 +316,22 @@ export default function ComparePage() {
               <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4] mb-3">
                 Terpene Profile Comparison
               </h2>
-              <div className="w-full" style={{ height: 320 }}>
+              <div className="w-full" style={{ height: 380 }}>
                 <ResponsiveContainer width="100%" height="100%">
-                  <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="75%">
+                  <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="80%">
                     <PolarGrid
-                      stroke="rgba(255,255,255,0.06)"
+                      stroke="rgba(255,255,255,0.08)"
                       strokeDasharray="3 3"
                     />
                     <PolarAngleAxis
                       dataKey="terpene"
-                      tick={{ fill: '#8a9a8e', fontSize: 11 }}
+                      tick={{ fill: '#b0c4b4', fontSize: 12, fontWeight: 500 }}
+                    />
+                    <PolarRadiusAxis
+                      angle={90}
+                      domain={[0, 100]}
+                      tick={false}
+                      axisLine={false}
                     />
                     {selectedStrains.map((strain, i) => (
                       <Radar
@@ -265,10 +340,22 @@ export default function ComparePage() {
                         dataKey={strain.name}
                         stroke={COMPARE_COLORS[i]}
                         fill={COMPARE_COLORS[i]}
-                        fillOpacity={0.15}
-                        strokeWidth={2}
+                        fillOpacity={0.2}
+                        strokeWidth={2.5}
+                        dot={{ r: 3.5, fill: COMPARE_COLORS[i], strokeWidth: 0 }}
                       />
                     ))}
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(15,26,18,0.95)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: 8,
+                        fontSize: 11,
+                        color: '#b0c4b4',
+                      }}
+                      formatter={(value, name) => [`${value}%`, name]}
+                      labelStyle={{ color: '#e8f0ea', fontSize: 12, fontWeight: 600 }}
+                    />
                     <Legend
                       wrapperStyle={{ fontSize: 12, color: '#8a9a8e' }}
                     />
@@ -284,7 +371,7 @@ export default function ComparePage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-white/[0.06]">
-                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider w-28">
+                    <th className="text-left px-4 py-3 text-xs font-semibold text-gray-400 dark:text-[#5a6a5e] uppercase tracking-wider w-36">
                       Attribute
                     </th>
                     {selectedStrains.map((s, i) => (
@@ -299,140 +386,169 @@ export default function ComparePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {/* Name / Type */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Type
-                    </td>
+                  {/* Type */}
+                  <CompareRow label="Type" icon={<Leaf size={12} className="text-leaf-400" />}>
                     {selectedStrains.map((s) => (
                       <td key={s.name} className="px-4 py-3">
                         <TypeBadge type={s.type} />
                       </td>
                     ))}
+                  </CompareRow>
+
+                  {/* ── Cannabinoid Profile ──────────────── */}
+                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
+                    <td colSpan={selectedStrains.length + 1} className="px-4 pt-5 pb-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-green-400/70 flex items-center gap-1.5">
+                        <Beaker size={10} /> Cannabinoid Profile
+                      </span>
+                    </td>
                   </tr>
 
                   {/* THC */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      THC %
-                    </td>
-                    {selectedStrains.map((s, i) => {
-                      const val = getNumericValue(s, 'thc')
-                      const isHighest = findHighest('thc') === i
-                      return (
-                        <td
-                          key={s.name}
-                          className={`px-4 py-3 text-sm font-semibold ${
-                            isHighest
-                              ? 'text-leaf-400 bg-leaf-500/[0.06]'
-                              : 'text-gray-700 dark:text-[#b0c4b4]'
-                          }`}
-                        >
-                          {val}%
-                        </td>
-                      )
-                    })}
-                  </tr>
+                  <CompareNumericRow
+                    label="THC %"
+                    chemName="THC"
+                    icon={<Activity size={12} className="text-green-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => {
+                      const c = (s.cannabinoids || []).find(c => c.name === 'THC')
+                      return c?.value ?? (typeof s.thc === 'object' ? s.thc?.avg || 0 : s.thc || 0)
+                    }}
+                    format={(v) => `${v}%`}
+                  />
 
                   {/* CBD */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      CBD %
-                    </td>
-                    {selectedStrains.map((s, i) => {
-                      const val = getNumericValue(s, 'cbd')
-                      const isHighest = findHighest('cbd') === i
+                  <CompareNumericRow
+                    label="CBD %"
+                    chemName="CBD"
+                    icon={<Heart size={12} className="text-blue-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => {
+                      const c = (s.cannabinoids || []).find(c => c.name === 'CBD')
+                      return c?.value ?? (typeof s.cbd === 'object' ? s.cbd?.avg || 0 : s.cbd || 0)
+                    }}
+                    format={(v) => `${v}%`}
+                  />
+
+                  {/* CBN */}
+                  <CompareNumericRow
+                    label="CBN %"
+                    chemName="CBN"
+                    icon={<Beaker size={12} className="text-purple-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => (s.cannabinoids || []).find(c => c.name === 'CBN')?.value || 0}
+                    format={(v) => `${v}%`}
+                  />
+
+                  {/* CBG */}
+                  <CompareNumericRow
+                    label="CBG %"
+                    chemName="CBG"
+                    icon={<Beaker size={12} className="text-amber-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => (s.cannabinoids || []).find(c => c.name === 'CBG')?.value || 0}
+                    format={(v) => `${v}%`}
+                  />
+
+                  {/* ── Terpene Profile ───────────────────── */}
+                  {allTerpNames.length > 0 && (
+                    <tr className="border-b border-gray-50 dark:border-white/[0.03]">
+                      <td colSpan={selectedStrains.length + 1} className="px-4 pt-5 pb-1.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-orange-400/70 flex items-center gap-1.5">
+                          <Sparkles size={10} /> Terpene Profile
+                        </span>
+                      </td>
+                    </tr>
+                  )}
+
+                  {allTerpNames.map(terpName => {
+                    const displayName = terpName.charAt(0).toUpperCase() + terpName.slice(1)
+                    return (
+                      <CompareNumericRow
+                        key={terpName}
+                        label={displayName}
+                        chemName={terpName}
+                        icon={
+                          <span
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ backgroundColor: getTerpeneColor(terpName) }}
+                          />
+                        }
+                        strains={selectedStrains}
+                        getValue={(s) => {
+                          const t = (s.terpenes || []).find(
+                            t => (t.name || '').toLowerCase() === terpName
+                          )
+                          return t ? parseFloat(String(t.pct || 0).replace('%', '')) || 0 : 0
+                        }}
+                        format={(v) => v > 0 ? `${v}%` : '\u2014'}
+                      />
+                    )
+                  })}
+
+                  {/* Effects (positive) */}
+                  <CompareRow label="Effects" icon={<TrendingUp size={12} className="text-leaf-400" />}>
+                    {selectedStrains.map((s) => (
+                      <td key={s.name} className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {(s.effects || [])
+                            .filter(e => (e.category || 'positive') !== 'negative')
+                            .slice(0, 5)
+                            .map((eff) => {
+                              const name = typeof eff === 'string' ? eff : eff.name || ''
+                              return <EffectBadge key={name} effect={name} variant="positive" />
+                            })}
+                        </div>
+                      </td>
+                    ))}
+                  </CompareRow>
+
+                  {/* Negatives */}
+                  <CompareRow label="Negatives" icon={<ShieldAlert size={12} className="text-red-400" />}>
+                    {selectedStrains.map((s) => {
+                      const negEffects = (s.effects || []).filter(e => e.category === 'negative')
+                      const notIdeal = s.notIdealFor || s.not_ideal_for || []
+                      const items = negEffects.length > 0
+                        ? negEffects.slice(0, 3).map(e => typeof e === 'string' ? e : e.name || '')
+                        : notIdeal.slice(0, 3)
                       return (
-                        <td
-                          key={s.name}
-                          className={`px-4 py-3 text-sm font-semibold ${
-                            isHighest
-                              ? 'text-leaf-400 bg-leaf-500/[0.06]'
-                              : 'text-gray-700 dark:text-[#b0c4b4]'
-                          }`}
-                        >
-                          {val}%
+                        <td key={s.name} className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {items.length > 0 ? items.map((neg) => (
+                              <EffectBadge key={neg} effect={neg} variant="negative" />
+                            )) : (
+                              <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">None reported</span>
+                            )}
+                          </div>
                         </td>
                       )
                     })}
-                  </tr>
+                  </CompareRow>
 
-                  {/* Top Terpenes */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Top Terpenes
-                    </td>
-                    {selectedStrains.map((s) => (
-                      <td key={s.name} className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(s.terpenes || []).slice(0, 3).map((t) => {
-                            const name = t.name || t
-                            return (
-                              <span
-                                key={name}
-                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px]"
-                                style={{
-                                  backgroundColor: `${getTerpeneColor(name)}15`,
-                                  color: getTerpeneColor(name),
-                                }}
-                              >
-                                <span
-                                  className="w-1.5 h-1.5 rounded-full"
-                                  style={{ backgroundColor: getTerpeneColor(name) }}
-                                />
-                                {name}
-                              </span>
-                            )
-                          })}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
+                  {/* Sentiment Score */}
+                  <CompareNumericRow
+                    label="Sentiment"
+                    icon={<Star size={12} className="text-yellow-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => s.sentimentScore || s.forumAnalysis?.sentimentScore || 0}
+                    format={(v) => v > 0 ? `${v}/10` : '--'}
+                  />
 
-                  {/* Effects */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Effects
-                    </td>
-                    {selectedStrains.map((s) => (
-                      <td key={s.name} className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(s.effects || []).slice(0, 4).map((eff) => (
-                            <EffectBadge key={eff} effect={eff} variant="positive" />
-                          ))}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
-
-                  {/* Negatives */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Negatives
-                    </td>
-                    {selectedStrains.map((s) => (
-                      <td key={s.name} className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(s.negatives || s.notIdealFor || []).slice(0, 3).map((neg) => (
-                            <EffectBadge key={neg} effect={neg} variant="negative" />
-                          ))}
-                          {(!s.negatives || s.negatives?.length === 0) && (!s.notIdealFor || s.notIdealFor?.length === 0) && (
-                            <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">--</span>
-                          )}
-                        </div>
-                      </td>
-                    ))}
-                  </tr>
+                  {/* Community Reports */}
+                  <CompareNumericRow
+                    label="Reports"
+                    icon={<Activity size={12} className="text-cyan-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => s.reviewCount || s.forumAnalysis?.totalReviews || 0}
+                    format={(v) => v > 0 ? v.toLocaleString() : '--'}
+                  />
 
                   {/* Flavors */}
-                  <tr className="border-b border-gray-50 dark:border-white/[0.03]">
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Flavors
-                    </td>
+                  <CompareRow label="Flavors" icon={<Utensils size={12} className="text-pink-400" />}>
                     {selectedStrains.map((s) => (
                       <td key={s.name} className="px-4 py-3">
                         <div className="flex flex-wrap gap-1">
-                          {(s.flavors || []).slice(0, 3).map((f) => (
+                          {(s.flavors || []).slice(0, 4).map((f) => (
                             <span
                               key={f}
                               className="px-1.5 py-0.5 rounded text-[10px] bg-gray-100 dark:bg-white/[0.04] text-gray-500 dark:text-[#6a7a6e]"
@@ -440,19 +556,107 @@ export default function ComparePage() {
                               {f}
                             </span>
                           ))}
-                          {(!s.flavors || s.flavors?.length === 0) && (
+                          {(!s.flavors || s.flavors.length === 0) && (
                             <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">--</span>
                           )}
                         </div>
                       </td>
                     ))}
-                  </tr>
+                  </CompareRow>
+
+                  {/* Genetics / Lineage */}
+                  <CompareRow label="Lineage" icon={<Dna size={12} className="text-indigo-400" />}>
+                    {selectedStrains.map((s) => {
+                      const lineage = s.lineage || {}
+                      const parents = lineage.parents || []
+                      const genetics = s.genetics || ''
+                      return (
+                        <td key={s.name} className="px-4 py-3">
+                          {parents.length > 0 ? (
+                            <div className="space-y-0.5">
+                              <span className="text-xs text-gray-700 dark:text-[#b0c4b4] font-medium">
+                                {parents.join(' × ')}
+                              </span>
+                            </div>
+                          ) : genetics ? (
+                            <span className="text-xs text-gray-500 dark:text-[#8a9a8e]">{genetics}</span>
+                          ) : (
+                            <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">Unknown</span>
+                          )}
+                        </td>
+                      )
+                    })}
+                  </CompareRow>
+
+                  {/* Best For */}
+                  <CompareRow label="Best For" icon={<Trophy size={12} className="text-amber-400" />}>
+                    {selectedStrains.map((s) => {
+                      const items = s.bestFor || s.best_for || []
+                      return (
+                        <td key={s.name} className="px-4 py-3">
+                          <div className="flex flex-wrap gap-1">
+                            {items.length > 0 ? items.slice(0, 3).map((b) => (
+                              <span
+                                key={b}
+                                className="px-1.5 py-0.5 rounded text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
+                              >
+                                {b}
+                              </span>
+                            )) : (
+                              <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">--</span>
+                            )}
+                          </div>
+                        </td>
+                      )
+                    })}
+                  </CompareRow>
+
+                  {/* Consumption Suitability */}
+                  <CompareRow label="Best Method" icon={<Leaf size={12} className="text-emerald-400" />}>
+                    {selectedStrains.map((s) => {
+                      const cs = s.consumptionSuitability || s.consumption_suitability || {}
+                      const sorted = Object.entries(cs)
+                        .sort(([, a], [, b]) => b - a)
+                        .slice(0, 3)
+                      return (
+                        <td key={s.name} className="px-4 py-3">
+                          {sorted.length > 0 ? (
+                            <div className="space-y-1">
+                              {sorted.map(([method, score]) => (
+                                <div key={method} className="flex items-center gap-1.5">
+                                  <span className="text-[10px] text-gray-500 dark:text-[#8a9a8e] capitalize w-16">{method}</span>
+                                  <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06] overflow-hidden max-w-16">
+                                    <div
+                                      className="h-full rounded-full bg-leaf-500/70"
+                                      style={{ width: `${(score / 10) * 100}%` }}
+                                    />
+                                  </div>
+                                  <span className="text-[9px] text-gray-400 dark:text-[#5a6a5e] w-4 text-right">{score}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">--</span>
+                          )}
+                        </td>
+                      )
+                    })}
+                  </CompareRow>
+
+                  {/* Availability */}
+                  <CompareNumericRow
+                    label="Availability"
+                    icon={<Search size={12} className="text-teal-400" />}
+                    strains={selectedStrains}
+                    getValue={(s) => s.availability || 5}
+                    format={(v) => {
+                      const label = v >= 9 ? 'Very Common' : v >= 7 ? 'Common' : v >= 5 ? 'Moderate' : v >= 3 ? 'Uncommon' : 'Rare'
+                      return `${v}/10 · ${label}`
+                    }}
+                  />
 
                   {/* Price range */}
-                  <tr>
-                    <td className="px-4 py-3 text-xs text-gray-400 dark:text-[#5a6a5e] font-medium">
-                      Price Range
-                    </td>
+                  <CompareRow label="Price" icon={<DollarSign size={12} className="text-green-400" />}>
                     {selectedStrains.map((s) => (
                       <td
                         key={s.name}
@@ -461,7 +665,18 @@ export default function ComparePage() {
                         {s.priceRange ? s.priceRange.replace('_', ' ').replace(/^\w/, (c) => c.toUpperCase()) : '--'}
                       </td>
                     ))}
-                  </tr>
+                  </CompareRow>
+
+                  {/* Match % (if from quiz results) */}
+                  {selectedStrains.some(s => s.matchPct > 0) && (
+                    <CompareNumericRow
+                      label="Match %"
+                      icon={<Sparkles size={12} className="text-purple-400" />}
+                      strains={selectedStrains}
+                      getValue={(s) => s.matchPct || 0}
+                      format={(v) => v > 0 ? `${v}%` : '--'}
+                    />
+                  )}
                 </tbody>
               </table>
             </div>

@@ -104,8 +104,8 @@ export default function AgeGate({ children }) {
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0f0c] px-6 overflow-y-auto">
-      <div className="max-w-md w-full text-center py-10">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0a0f0c] px-6 overflow-y-auto" style={{ minHeight: '100dvh' }}>
+      <div className="max-w-md w-full text-center py-10 pb-[calc(2.5rem+env(safe-area-inset-bottom,0px))]">
         {/* Logo */}
         <div className="text-5xl mb-4 select-none">{'\u{1F33F}'}</div>
         <h1
@@ -130,7 +130,8 @@ export default function AgeGate({ children }) {
           <select
             value={month}
             onChange={(e) => { setMonth(e.target.value); setError('') }}
-            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all appearance-none"
+            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all"
+            style={{ fontSize: '16px' }}
             aria-label="Birth month"
           >
             <option value="" disabled className="bg-[#0a0f0c] text-[#5a6a5e]">Month</option>
@@ -143,7 +144,8 @@ export default function AgeGate({ children }) {
           <select
             value={year}
             onChange={(e) => { setYear(e.target.value); setError('') }}
-            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all appearance-none"
+            className="flex-1 px-3 py-3 text-sm rounded-xl bg-white/[0.06] border border-white/10 text-[#e8f0ea] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 transition-all"
+            style={{ fontSize: '16px' }}
             aria-label="Birth year"
           >
             <option value="" disabled className="bg-[#0a0f0c] text-[#5a6a5e]">Year</option>

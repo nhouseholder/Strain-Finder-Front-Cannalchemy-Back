@@ -16,6 +16,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useJournal } from '../hooks/useJournal'
+import { useRatings } from '../hooks/useRatings'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { EFFECTS, AVOID_EFFECTS } from '../data/effects'
 import { CONSUMPTION_METHODS } from '../data/consumptionMethods'
@@ -26,7 +27,7 @@ import {
   Plus, BookMarked, Star, Trash2, Calendar, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Search, Filter, Edit3, Brain, BarChart3,
   List, CalendarDays, Loader2, Clock, Flame, ThumbsUp, ThumbsDown,
-  X, RefreshCw,
+  X, RefreshCw, Sparkles, Award,
 } from 'lucide-react'
 
 /* ================================================================== */
@@ -1054,6 +1055,291 @@ function StatsSection({ entries }) {
 }
 
 /* ================================================================== */
+/*  RatingsPanel — My Ratings + AI Recommendations                    */
+/* ================================================================== */
+function RatingsPanel({ ratings, preferenceProfile }) {
+  const [recommendations, setRecommendations] = useState(null)
+  const [loading, setLoading]   = useState(false)
+  const [error, setError]       = useState('')
+  const [sortBy, setSortBy]     = useState('highest')
+
+  const sortedRatings = useMemo(() => {
+    const list = [...ratings]
+    switch (sortBy) {
+      case 'highest':  return list.sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      case 'lowest':   return list.sort((a, b) => (a.rating || 0) - (b.rating || 0))
+      case 'newest':   return list.sort((a, b) => new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0))
+      case 'name':     return list.sort((a, b) => (a.strain_name || a.strainName || '').localeCompare(b.strain_name || b.strainName || ''))
+      default:         return list
+    }
+  }, [ratings, sortBy])
+
+  const fetchRecommendations = async () => {
+    if (ratings.length < 2) return
+    setLoading(true)
+    setError('')
+    try {
+      const res = await fetch('/api/v1/suggest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ratings, profile: preferenceProfile }),
+      })
+      if (!res.ok) throw new Error('Failed to generate recommendations')
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setRecommendations(data)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const typeColors = {
+    indica: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+    sativa: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+    hybrid: 'text-leaf-400 bg-leaf-500/10 border-leaf-500/20',
+  }
+
+  if (ratings.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-16 animate-fade-in">
+        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/[0.04] flex items-center justify-center mb-4">
+          <Star size={28} className="text-gray-300 dark:text-[#5a6a5e]" />
+        </div>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">No Ratings Yet</h2>
+        <p className="text-sm text-gray-500 dark:text-[#8a9a8e] text-center max-w-xs">
+          Rate strains from their detail page to build your preference profile and unlock AI-powered recommendations.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* ── Rated Strains ──────────────────────────────────────────── */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] flex items-center gap-2">
+            <Star size={15} className="text-amber-400" />
+            My Ratings
+            <span className="text-[10px] font-normal text-gray-400 dark:text-[#5a6a5e] ml-1">
+              {ratings.length} strain{ratings.length !== 1 ? 's' : ''}
+            </span>
+          </h3>
+          <select
+            value={sortBy} onChange={e => setSortBy(e.target.value)}
+            className="px-2 py-1 text-[10px] rounded-lg bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-[#b0c4b4] focus:outline-none"
+          >
+            <option value="highest">Highest Rated</option>
+            <option value="lowest">Lowest Rated</option>
+            <option value="newest">Most Recent</option>
+            <option value="name">Name A-Z</option>
+          </select>
+        </div>
+
+        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+          {sortedRatings.map((r, i) => {
+            const name = r.strain_name || r.strainName || 'Unknown'
+            const type = (r.strain_type || r.strainType || 'hybrid').toLowerCase()
+            const rating = r.rating || 0
+            const effects = r.effects_felt || r.effectsFelt || r.effects || []
+            const negatives = r.negative_effects || r.negativeEffects || []
+            const method = r.method || ''
+            const notes = r.notes || ''
+            const wouldTryAgain = r.would_try_again ?? r.wouldTryAgain
+            const tc = typeColors[type] || typeColors.hybrid
+
+            return (
+              <div
+                key={`${name}-${i}`}
+                className="rounded-xl border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-3 hover:border-leaf-500/30 transition-colors"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
+                        {name}
+                      </span>
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md border ${tc}`}>
+                        {type}
+                      </span>
+                    </div>
+                    {/* Stars */}
+                    <div className="flex items-center gap-0.5 mb-1.5">
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <Star
+                          key={s}
+                          size={12}
+                          className={s <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-[#3a4a3e]'}
+                        />
+                      ))}
+                      <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e] ml-1">{rating}/5</span>
+                    </div>
+                    {/* Effects tags */}
+                    {effects.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {effects.slice(0, 5).map(eff => (
+                          <span key={eff} className="text-[9px] px-1.5 py-0.5 rounded-md bg-leaf-500/10 text-leaf-400 border border-leaf-500/20">
+                            {eff}
+                          </span>
+                        ))}
+                        {effects.length > 5 && (
+                          <span className="text-[9px] text-gray-400 dark:text-[#5a6a5e]">+{effects.length - 5}</span>
+                        )}
+                      </div>
+                    )}
+                    {/* Negatives */}
+                    {negatives.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {negatives.slice(0, 3).map(eff => (
+                          <span key={eff} className="text-[9px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-400 border border-red-500/20">
+                            {eff}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                    {/* Method + would try again */}
+                    <div className="flex items-center gap-2 text-[9px] text-gray-400 dark:text-[#5a6a5e]">
+                      {method && <span>{METHOD_LABELS[method] || method}</span>}
+                      {wouldTryAgain !== undefined && (
+                        <span className={`flex items-center gap-0.5 ${wouldTryAgain ? 'text-leaf-400' : 'text-red-400'}`}>
+                          {wouldTryAgain ? <ThumbsUp size={9} /> : <ThumbsDown size={9} />}
+                          {wouldTryAgain ? 'Would try again' : 'Would not try again'}
+                        </span>
+                      )}
+                    </div>
+                    {/* Notes */}
+                    {notes && (
+                      <p className="text-[10px] text-gray-500 dark:text-[#6a7a6e] mt-1 italic line-clamp-2">
+                        &ldquo;{notes}&rdquo;
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ── AI Recommendations ────────────────────────────────────── */}
+      <div className="border-t border-gray-200 dark:border-white/[0.06] pt-5">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] flex items-center gap-2">
+            <Sparkles size={15} className="text-purple-400" />
+            AI Recommendations
+          </h3>
+          <Button
+            size="sm"
+            onClick={fetchRecommendations}
+            disabled={loading || ratings.length < 2}
+            className={loading ? 'animate-pulse' : ''}
+          >
+            {loading
+              ? <><Loader2 size={14} className="animate-spin" /> Analyzing...</>
+              : recommendations
+                ? <><RefreshCw size={14} /> Refresh</>
+                : <><Brain size={14} /> Get Recommendations</>
+            }
+          </Button>
+        </div>
+
+        {ratings.length < 2 && (
+          <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
+            Rate at least 2 strains to unlock AI-powered recommendations.
+          </p>
+        )}
+
+        {error && (
+          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400">
+            {error}
+          </div>
+        )}
+
+        {recommendations && (
+          <div className="space-y-3 animate-fade-in">
+            {/* AI explanation */}
+            {recommendations.aiExplanation && (
+              <div className="rounded-xl bg-purple-500/5 border border-purple-500/15 p-3">
+                <div className="flex items-start gap-2">
+                  <Brain size={14} className="text-purple-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-gray-700 dark:text-[#b0c4b4] leading-relaxed">
+                    {recommendations.aiExplanation}
+                  </p>
+                </div>
+                <p className="text-[9px] text-gray-400 dark:text-[#4a5a4e] mt-2 text-right">
+                  Based on {recommendations.basedOn || 'your ratings'} &bull; Powered by Llama 3.3 70B
+                </p>
+              </div>
+            )}
+
+            {/* Suggestion cards */}
+            {(recommendations.suggestions || []).map((s, i) => {
+              const tc = typeColors[(s.type || 'hybrid').toLowerCase()] || typeColors.hybrid
+              return (
+                <div
+                  key={s.name || i}
+                  className="rounded-xl border border-gray-200 dark:border-white/[0.06] bg-white dark:bg-white/[0.02] p-3 hover:border-purple-500/30 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-2 mb-1.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
+                        {s.name}
+                      </span>
+                      <span className={`text-[9px] font-bold uppercase px-1.5 py-0.5 rounded-md border ${tc}`}>
+                        {s.type}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <Award size={12} className="text-purple-400" />
+                      <span className="text-xs font-bold text-purple-400">{s.matchScore}%</span>
+                    </div>
+                  </div>
+
+                  {/* THC/CBD */}
+                  <div className="flex items-center gap-3 mb-1.5 text-[10px]">
+                    {s.thc > 0 && (
+                      <span className="text-gray-500 dark:text-[#6a7a6e]">
+                        THC <span className="font-semibold text-gray-700 dark:text-[#b0c4b4]">{s.thc}%</span>
+                      </span>
+                    )}
+                    {s.cbd > 0 && (
+                      <span className="text-gray-500 dark:text-[#6a7a6e]">
+                        CBD <span className="font-semibold text-gray-700 dark:text-[#b0c4b4]">{s.cbd}%</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Effects */}
+                  {s.effects?.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-1.5">
+                      {s.effects.map(eff => (
+                        <span key={eff} className="text-[9px] px-1.5 py-0.5 rounded-md bg-leaf-500/10 text-leaf-400 border border-leaf-500/20">
+                          {eff}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Terpenes */}
+                  {s.terpenes?.length > 0 && (
+                    <div className="flex items-center gap-2 text-[9px] text-gray-400 dark:text-[#5a6a5e]">
+                      <Flame size={9} className="text-orange-400" />
+                      {s.terpenes.map(t => `${t.name} ${t.pct || ''}`).join(' · ')}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/* ================================================================== */
 /*  InsightsPanel                                                     */
 /* ================================================================== */
 function InsightsPanel({ entries }) {
@@ -1252,6 +1538,7 @@ function EmptyState({ onAdd }) {
 export default function JournalPage() {
   usePageTitle('Strain Journal')
   const { entries, addEntry, updateEntry, deleteEntry } = useJournal()
+  const { ratings, preferenceProfile } = useRatings()
 
   const [activeTab, setActiveTab]     = useState('list')
   const [modalOpen, setModalOpen]     = useState(false)
@@ -1295,6 +1582,7 @@ export default function JournalPage() {
 
   const tabs = [
     { id: 'list',     icon: List,         label: 'Sessions' },
+    { id: 'ratings',  icon: Star,         label: 'My Ratings' },
     { id: 'calendar', icon: CalendarDays, label: 'Calendar' },
     { id: 'stats',    icon: BarChart3,    label: 'Stats' },
     { id: 'insights', icon: Brain,        label: 'AI Insights' },
@@ -1380,6 +1668,12 @@ export default function JournalPage() {
         <Card className="p-4 mb-8">
           <CalendarView entries={entries} />
         </Card>
+      )}
+
+      {activeTab === 'ratings' && (
+        <div className="mb-8">
+          <RatingsPanel ratings={ratings} preferenceProfile={preferenceProfile} />
+        </div>
       )}
 
       {activeTab === 'stats' && (

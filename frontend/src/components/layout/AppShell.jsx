@@ -4,7 +4,7 @@ import BGGlow from './BGGlow'
 
 export default function AppShell() {
   return (
-    <div className="min-h-screen relative bg-[#f4f7f5] dark:bg-leaf-900">
+    <div className="relative bg-[#f4f7f5] dark:bg-leaf-900" style={{ minHeight: '100dvh' }}>
       <a href="#main-content" className="skip-link bg-leaf-500 text-leaf-900 font-semibold rounded-br-lg z-50">
         Skip to main content
       </a>

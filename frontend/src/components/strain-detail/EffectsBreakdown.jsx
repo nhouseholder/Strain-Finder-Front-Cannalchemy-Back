@@ -14,8 +14,9 @@ function EffectRow({ effect, maxReports, barColor }) {
   // Normalize raw report count to 0-100 scale relative to the highest-reported effect
   const pct = maxReports > 0 ? Math.round((reports / maxReports) * 100) : 0
   const widthPct = Math.max(pct, 4)
-  const confLabel = confidence >= 0.9 ? 'Strong' : confidence >= 0.75 ? 'High' : confidence >= 0.5 ? 'Med' : reports > 0 ? 'Low' : '—'
-  const confColor = confidence >= 0.75 ? 'text-leaf-400' : confidence >= 0.5 ? 'text-amber-400' : reports > 0 ? 'text-orange-400/70' : 'text-gray-500/50'
+  // Use report frequency (pct) as primary signal for nuanced confidence labels
+  const confLabel = pct >= 85 ? 'Very High' : pct >= 65 ? 'High' : pct >= 45 ? 'Moderate' : pct >= 25 ? 'Low' : reports > 0 ? 'Rare' : '—'
+  const confColor = pct >= 85 ? 'text-leaf-400' : pct >= 65 ? 'text-emerald-400' : pct >= 45 ? 'text-amber-400' : pct >= 25 ? 'text-orange-400/70' : reports > 0 ? 'text-red-400/60' : 'text-gray-500/50'
 
   return (
     <div className="space-y-0.5">

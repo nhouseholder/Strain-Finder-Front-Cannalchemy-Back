@@ -1,11 +1,12 @@
 import { useState, useCallback, useContext, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuizState } from '../hooks/useQuizState'
 import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { UserContext } from '../context/UserContext'
 import { getRecommendations } from '../services/api'
 import { useAuth } from '../context/AuthContext'
+import { useQuizHistory } from '../hooks/useQuizHistory'
 import QuizShell from '../components/quiz/QuizShell'
 import Button from '../components/shared/Button'
 
@@ -127,6 +128,7 @@ export default function QuizPage() {
   const { currentStep, setStep, reset } = quizState
   const { dispatch: resultsDispatch } = useContext(ResultsContext)
   const { state: userState, dispatch: userDispatch } = useContext(UserContext)
+  const { saveQuiz } = useQuizHistory()
 
   const [loadingPhase, setLoadingPhase] = useState(0)
   const [loadingMsg, setLoadingMsg] = useState(LOADING_PHASES[0].text)
@@ -186,6 +188,9 @@ export default function QuizPage() {
 
       // Dispatch results immediately (stored in state)
       resultsDispatch({ type: 'SET_RESULTS', payload: parsed })
+
+      // Save full quiz snapshot for history (per-user)
+      saveQuiz(quizState, parsed.strains || [])
 
       // Save recent search
       userDispatch({
@@ -248,9 +253,25 @@ export default function QuizPage() {
     setStep(1) // Go directly to effects step (skip splash)
   }, [reset, resultsDispatch, setStep])
 
+  /* Auto-start fresh quiz when ?fresh=1 is present (from nav overlay) */
+  const [searchParams, setSearchParams] = useSearchParams()
+  const freshParam = searchParams.get('fresh')
+  useEffect(() => {
+    if (freshParam === '1') {
+      // Remove the query param so refresh doesn't re-trigger
+      setSearchParams({}, { replace: true })
+      reset()
+      resultsDispatch({ type: 'RESET' })
+      setError(null)
+      setStep(1)
+    }
+  }, [freshParam]) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* ================================================================ */
-  /*  Step 0 — Splash                                                 */
+  /*  Step 0 — Splash (with "welcome back" choice if prior results)   */
   /* ================================================================ */
+  const { hasResults } = useContext(ResultsContext)
+
   if (currentStep === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[75vh] px-6 animate-fade-in">
@@ -280,20 +301,48 @@ export default function QuizPage() {
 
         {/* Tagline */}
         <p className="text-base sm:text-lg text-gray-500 dark:text-[#8a9a8e] text-center max-w-md mb-2 font-body leading-relaxed">
-          AI-powered cannabis recommendations tailored to your unique needs, preferences, and wellness goals.
+          {hasResults
+            ? 'Welcome back! View your previous results or start fresh.'
+            : 'AI-powered cannabis recommendations tailored to your unique needs, preferences, and wellness goals.'}
         </p>
-        <p className="text-xs text-gray-400 dark:text-[#5a6a5e] text-center max-w-sm mb-10 font-body">
-          Backed by terpene science, community data, and real user reviews.
-        </p>
+        {!hasResults && (
+          <p className="text-xs text-gray-400 dark:text-[#5a6a5e] text-center max-w-sm mb-10 font-body">
+            Backed by terpene science, community data, and real user reviews.
+          </p>
+        )}
 
-        {/* CTA */}
-        <Button
-          size="lg"
-          className="text-base px-8 py-4 shadow-xl shadow-leaf-500/25 hover:shadow-leaf-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-          onClick={() => setStep(1)}
-        >
-          Let's Find Your Perfect Strain &rarr;
-        </Button>
+        {/* CTA — two choices if prior results exist */}
+        {hasResults ? (
+          <div className="flex flex-col sm:flex-row items-center gap-3 mt-6">
+            <Button
+              size="lg"
+              className="text-base px-8 py-4 shadow-xl shadow-leaf-500/25 hover:shadow-leaf-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              onClick={() => navigate('/results')}
+            >
+              View My Results
+            </Button>
+            <Button
+              size="lg"
+              variant="secondary"
+              className="text-base px-8 py-4 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              onClick={() => {
+                reset()
+                resultsDispatch({ type: 'RESET' })
+                setStep(1)
+              }}
+            >
+              New Quiz &rarr;
+            </Button>
+          </div>
+        ) : (
+          <Button
+            size="lg"
+            className="text-base px-8 py-4 shadow-xl shadow-leaf-500/25 hover:shadow-leaf-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            onClick={() => setStep(1)}
+          >
+            Let's Find Your Perfect Strain &rarr;
+          </Button>
+        )}
 
         {/* Sub-links */}
         <div className="flex items-center gap-4 mt-8 text-xs text-gray-400 dark:text-[#6a7a6e]">

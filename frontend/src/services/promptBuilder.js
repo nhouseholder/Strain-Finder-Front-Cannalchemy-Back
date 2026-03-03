@@ -46,7 +46,7 @@ ${journalContext}
 
 LOCAL ENGINE PRE-FILTERED CANDIDATES: ${candidateNames || 'None - use your own knowledge'}
 
-TASK: Search the web to find the best cannabis strains for this user. For each strain, search Reddit (r/trees, r/cannabis), Leafly, and other cannabis forums for real user reviews and community sentiment. Report BOTH positives AND negatives honestly — this is a research tool, not a sales tool.
+TASK: Search the web to find the best cannabis strains for the user. For each strain, search Reddit (r/trees, r/cannabis), Leafly, and other cannabis forums for real user reviews and community sentiment. Report BOTH positives AND negatives honestly — this is a research tool, not a sales tool.
 
 Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT format:
 
@@ -92,7 +92,7 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT
         "throat": 7,
         "burn": 9
       },
-      "whyMatch": "2-3 sentence explanation connecting this strain's chemistry to the user's specific preferences",
+      "whyMatch": "2-3 sentence explanation speaking directly to the user (use 'you/your') connecting this strain's chemistry to their specific preferences",
       "forumAnalysis": {
         "totalReviews": "~420 across r/trees, r/cannabis, Leafly, AllBud",
         "sentimentScore": 8.2,
@@ -136,7 +136,7 @@ Return ONLY valid JSON (no markdown, no backticks, no explanation) in this EXACT
       ],
       "sommelierNotes": {"taste":"desc","aroma":"desc","smoke":"desc","burn":"desc"},
       "sommelierScores": {"taste":7,"aroma":8,"smoke":7,"throat":8,"burn":7},
-      "whyMatch": "Why this hidden gem is worth trying despite not being an obvious match",
+      "whyMatch": "Why this hidden gem is worth trying for you despite not being an obvious match",
       "forumAnalysis": {
         "totalReviews": "~200",
         "sentimentScore": 7.8,
@@ -318,7 +318,7 @@ export function buildScienceExplanation(strain, quizState) {
     .map(id => id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
     .join(', ') || 'none specified'
 
-  return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 3 sentences maximum WHY this strain matches this specific user. Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist. NEVER say "high THC content" or make generic THC potency claims — focus on the specific terpenes, cannabinoids, and receptor pathways that make this strain unique.
+  return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 3 sentences maximum WHY this strain matches the user. Speak directly to them using "you" and "your". Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist. NEVER say "high THC content" or make generic THC potency claims — focus on the specific terpenes, cannabinoids, and receptor pathways that make this strain unique.
 
 STRAIN: ${strain.name} (${strain.type}) — ${strain.matchPct}% match
 TERPENES: ${terpStr || 'No terpene data'}

@@ -27,10 +27,10 @@ export default memo(function TerpeneProfile({ terpenes }) {
 
           return (
             <div key={t.name || `terp-${idx}`} className="flex items-center gap-3">
-              <div className="w-28 flex-shrink-0">
+              <div className="w-36 flex-shrink-0">
                 <TerpBadge name={t.name} pct={numPct > 0 ? `${numPct}%` : ''} />
               </div>
-              <div className="flex-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06]">
+              <div className="flex-1 ml-1 h-1.5 rounded-full bg-gray-200 dark:bg-white/[0.06]">
                 <div
                   className="h-full rounded-full transition-all duration-700 ease-out"
                   style={{

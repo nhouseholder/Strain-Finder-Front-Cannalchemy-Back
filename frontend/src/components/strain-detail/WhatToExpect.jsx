@@ -58,7 +58,7 @@ function getEffectColor(label, index) {
 function ProbabilityBar({ label, probability, pathway, colorIndex }) {
   const pct = Math.round((probability ?? 0) * 100)
   const barWidth = Math.max(pct, 8) // minimum visible width
-  const strength = pct > 60 ? 'Strong' : pct > 35 ? 'Moderate' : 'Mild'
+  const strength = pct > 75 ? 'Very Likely' : pct > 55 ? 'Likely' : pct > 35 ? 'Possible' : pct > 20 ? 'Unlikely' : 'Rare'
   const color = getEffectColor(label, colorIndex)
 
   return (
