@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe, ArrowUpDown } from 'lucide-react'
+import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
