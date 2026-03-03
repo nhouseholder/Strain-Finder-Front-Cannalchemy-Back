@@ -13,6 +13,7 @@ export function buildRecommendationPrompt(quizState, preFilteredStrains = [], jo
     : effectLabels.join(', ')
 
   const toleranceLabel = TOLERANCES.find(t => t.id === quizState.tolerance)?.label || 'Intermediate'
+  const toleranceId = quizState.tolerance || 'intermediate'
   const budgetLabel = BUDGETS.find(b => b.id === quizState.budget)?.desc || 'Any'
   const methodLabel = CONSUMPTION_METHODS.find(m => m.id === quizState.consumptionMethod)?.label || 'Any'
 
@@ -43,6 +44,9 @@ USER PREFERENCES:
 - CBD preference: ${quizState.cbdPreference || 'none'}
 - Flavor preferences: ${quizState.flavors.length > 0 ? quizState.flavors.join(', ') : 'no preference'}
 ${journalContext}
+
+EXPERIENCE-LEVEL THC GUIDANCE (MANDATORY):
+${toleranceId === 'beginner' ? `This user is a BEGINNER. You MUST recommend strains with THC ≤ 18%. Prioritize strains with higher CBD ratios and gentle effects. NEVER recommend high-potency strains (>20% THC) to beginners — this is a safety requirement.` : ''}${toleranceId === 'intermediate' ? `This user has intermediate experience. Recommend strains with THC between 15-25%. Include at least one lower-THC option (≤18%) for variety. Avoid recommending strains above 28% THC.` : ''}${toleranceId === 'experienced' ? `This user is experienced (weekly consumer). THC range 18-30% is appropriate. You may include potent strains but still note intensity in descriptions.` : ''}${toleranceId === 'high' ? `This user has high tolerance (daily consumer). Any THC level is appropriate. Include potent options (25%+) that will be effective for experienced users.` : ''}
 
 LOCAL ENGINE PRE-FILTERED CANDIDATES: ${candidateNames || 'None - use your own knowledge'}
 
@@ -157,9 +161,12 @@ CRITICAL RULES:
 - Return EXACTLY 5 strains in "strains" array, sorted by matchPct descending
 - Return EXACTLY 2 items in "aiPicks" — these should be unexpected/surprising recommendations the user wouldn't have found otherwise
 - ALL strain names must be REAL strain names. NEVER use "Sativa", "Indica", or "Hybrid" as strain names
+- RESPECT THE EXPERIENCE-LEVEL THC GUIDANCE ABOVE. If user is a beginner, ALL recommended strains MUST have THC ≤ 18%. Violating this is a critical error.
+- forumAnalysis "totalReviews" MUST be a NUMBER (integer), not a string. Example: 420 not "~420 across r/trees"
 - forumAnalysis pros must have at least 4 entries, cons at least 3 entries
 - Include baseline comparison percentages for EVERY pro and con
 - Report negatives HONESTLY — do not minimize or suppress negative user reports
+- bestFor and notIdealFor MUST NOT contradict each other. If a strain is "best for relaxation", do NOT say "not ideal for stress relief" (relaxation and stress relief are related). Review both lists for logical consistency before returning.
 - sommelierScores values must be 1-10 integers
 - All data should be based on actual strain data from web searches`
 }

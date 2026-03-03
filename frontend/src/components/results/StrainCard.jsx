@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react'
-import { Heart, Info, ChevronDown, ChevronUp, Star } from 'lucide-react'
+import { Heart, Info, ChevronDown, ChevronUp, Star, GitCompareArrows } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import Card from '../shared/Card'
 import { TypeBadge, EffectBadge } from '../shared/Badge'
@@ -45,6 +46,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
   const existingRating = getRating(strain.name)
   const tc = getTypeColor(strain.type)
   const topTerpenes = (strain.terpenes || []).slice(0, 3)
+  const navigate = useNavigate()
 
   return (
     <Card
@@ -126,6 +128,24 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                 onViewDispensary={onViewDispensary}
               />
             </div>
+
+            {/* Compare button */}
+            <button
+              type="button"
+              className={clsx(
+                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
+                'text-gray-400 dark:text-[#6a7a6e] hover:text-purple-400 hover:bg-purple-500/10'
+              )}
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate(`/compare?add=${encodeURIComponent(strain.name)}`)
+              }}
+              aria-label={`Compare ${strain.name}`}
+              title="Compare strain"
+            >
+              <GitCompareArrows size={16} />
+            </button>
 
             {/* Favorite button */}
             <button

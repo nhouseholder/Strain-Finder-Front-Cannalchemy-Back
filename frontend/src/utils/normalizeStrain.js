@@ -121,13 +121,21 @@ export function normalizeStrain(raw) {
     const posCount = effects.filter(e => e.category === 'positive' || e.category === 'medical').length
     const totalCount = effects.length
 
+    // Preserve AI-provided totalReviews if it's a larger number than computed sum
+    const existingTotal = typeof s.forumAnalysis?.totalReviews === 'number'
+      ? s.forumAnalysis.totalReviews
+      : typeof s.forumAnalysis?.totalReviews === 'string'
+        ? parseInt(s.forumAnalysis.totalReviews.replace(/[^0-9]/g, ''), 10) || 0
+        : 0
+    const bestTotalReviews = Math.max(totalReports, existingTotal)
+
     // Preserve any metadata from existing forumAnalysis (sources, etc.)
     const existingSources = s.forumAnalysis?.sources || 'Strain Tracker community data'
     s.forumAnalysis = {
       pros: [...positive, ...medical],
       cons: negative.length > 0 ? negative : deriveFallbackNegatives(s),
-      totalReviews: totalReports,
-      sourceCount: totalCount,
+      totalReviews: bestTotalReviews,
+      sourceCount: Math.max(totalCount, bestTotalReviews),
       sources: existingSources,
     }
 

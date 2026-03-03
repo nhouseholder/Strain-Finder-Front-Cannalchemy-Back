@@ -49,11 +49,15 @@ export function ConfidenceBadge({ reviewCount }) {
   const count = typeof reviewCount === 'number'
     ? reviewCount
     : parseInt(String(reviewCount).replace(/[^0-9]/g, ''), 10) || 0
+
+  // Don't show a badge at all if we have zero data — avoids misleading "limited" label
+  if (count === 0) return null
+
   let level, color
-  if (count < 50) {
-    level = 'Limited Data'
+  if (count < 15) {
+    level = 'Emerging'
     color = 'text-amber-400 bg-amber-500/10 border-amber-500/20'
-  } else if (count < 200) {
+  } else if (count < 100) {
     level = 'Moderate'
     color = 'text-blue-400 bg-blue-500/10 border-blue-500/20'
   } else {

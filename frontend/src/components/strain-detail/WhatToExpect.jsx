@@ -1,7 +1,36 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { Zap, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { EffectBadge } from '../shared/Badge'
 import { getEffectDisplayName } from '../../utils/effectDisplayName'
+
+/* ── Contradiction detection: related concept groups ──────── */
+const RELATED_GROUPS = [
+  ['relax', 'stress', 'calm', 'unwind', 'tension', 'chill'],
+  ['sleep', 'insomnia', 'rest', 'bedtime', 'night'],
+  ['pain', 'ache', 'chronic pain', 'discomfort', 'sore'],
+  ['anxiety', 'anxious', 'worry', 'panic', 'nervous'],
+  ['energy', 'energiz', 'uplift', 'motivat', 'active', 'daytime'],
+  ['focus', 'concentrat', 'productiv', 'mental clarity', 'study'],
+  ['creative', 'creativity', 'inspir', 'artistic'],
+  ['appetite', 'hunger', 'munchies', 'eating'],
+  ['mood', 'depress', 'happy', 'euphori', 'joy'],
+  ['social', 'conversation', 'talkative', 'party'],
+]
+
+/**
+ * Returns true if `tagA` and `tagB` belong to the same conceptual group,
+ * meaning one being "best for" contradicts the other being "not ideal for".
+ */
+function areRelated(tagA, tagB) {
+  const a = tagA.toLowerCase()
+  const b = tagB.toLowerCase()
+  for (const group of RELATED_GROUPS) {
+    const aMatch = group.some(keyword => a.includes(keyword))
+    const bMatch = group.some(keyword => b.includes(keyword))
+    if (aMatch && bMatch) return true
+  }
+  return false
+}
 
 /* ── Per-effect color palette ──────────────────────────────── */
 const EFFECT_COLORS = {
@@ -105,6 +134,16 @@ export default memo(function WhatToExpect({ bestFor, notIdealFor, effectPredicti
     ? bestFor.map(normalizeEffect)
     : (effects || []).slice(0, 3).map(normalizeEffect).filter(Boolean)
 
+  // Filter out notIdealFor entries that contradict bestFor (same conceptual group)
+  const filteredNotIdealFor = useMemo(() => {
+    if (!notIdealFor?.length || !displayBestFor.length) return notIdealFor || []
+    return notIdealFor.filter(tag => {
+      const lbl = normalizeEffect(tag)
+      // Remove if it directly overlaps or belongs to same concept group as a bestFor item
+      return !displayBestFor.some(bf => areRelated(bf, lbl))
+    })
+  }, [notIdealFor, displayBestFor])
+
   const topPredictions = (effectPredictions || []).slice(0, 5)
 
   if (!displayBestFor.length && !topPredictions.length) return null
@@ -145,7 +184,7 @@ export default memo(function WhatToExpect({ bestFor, notIdealFor, effectPredicti
       )}
 
       {/* Best For / Not Ideal For tags */}
-      {(displayBestFor.length > 0 || notIdealFor?.length > 0) && (
+      {(displayBestFor.length > 0 || filteredNotIdealFor.length > 0) && (
         <div className="space-y-2 pt-3 border-t border-leaf-500/10">
           {displayBestFor.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -158,13 +197,13 @@ export default memo(function WhatToExpect({ bestFor, notIdealFor, effectPredicti
               ))}
             </div>
           )}
-          {notIdealFor?.length > 0 && (
+          {filteredNotIdealFor.length > 0 && (
             <div className="flex items-center gap-1.5 flex-wrap">
               <ThumbsDown size={10} className="text-red-400/70 flex-shrink-0" />
               <span className="text-[9px] font-semibold text-red-400/50 uppercase tracking-wider mr-0.5">
                 Not ideal for
               </span>
-              {notIdealFor.map((tag, idx) => {
+              {filteredNotIdealFor.map((tag, idx) => {
                 const lbl = normalizeEffect(tag)
                 return <EffectBadge key={lbl || idx} effect={lbl} variant="negative" />
               })}

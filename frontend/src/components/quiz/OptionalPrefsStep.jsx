@@ -2,7 +2,7 @@ import { useQuizState } from '../../hooks/useQuizState'
 import { SUBTYPES, SUBTYPE_TOOLTIP } from '../../data/subtypes'
 import { THC_PREFERENCES, CBD_PREFERENCES } from '../../data/cannabinoids'
 import { FLAVORS } from '../../data/flavors'
-import Tooltip from '../shared/Tooltip'
+import { Info } from 'lucide-react'
 import Button from '../shared/Button'
 
 export default function OptionalPrefsStep({ onComplete }) {
@@ -36,11 +36,18 @@ export default function OptionalPrefsStep({ onComplete }) {
 
       {/* Section 1: Preferred Subtype */}
       <div>
-        <div className="flex items-center justify-center gap-2 mb-3">
+        <div className="flex items-center justify-center gap-2 mb-2">
           <h3 className="text-base font-display text-gray-900 dark:text-[#e8f0ea]">
             Preferred Subtype
           </h3>
-          <Tooltip content={SUBTYPE_TOOLTIP} />
+        </div>
+
+        {/* Always-visible info note replacing hover tooltip */}
+        <div className="flex items-start gap-2 mx-auto max-w-lg mb-4 p-3 rounded-xl bg-leaf-500/[0.06] border border-leaf-500/15">
+          <Info size={14} className="text-leaf-400 flex-shrink-0 mt-0.5" />
+          <p className="text-[11px] leading-relaxed text-gray-500 dark:text-[#8a9a8e]">
+            {SUBTYPE_TOOLTIP}
+          </p>
         </div>
 
         <div className="flex flex-wrap justify-center gap-2">

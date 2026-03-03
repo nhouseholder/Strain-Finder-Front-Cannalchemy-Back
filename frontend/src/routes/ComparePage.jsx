@@ -1,4 +1,5 @@
-import { useState, useMemo, useContext } from 'react'
+import { useState, useMemo, useContext, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { ResultsContext } from '../context/ResultsContext'
@@ -78,12 +79,28 @@ function CompareNumericRow({ label, icon, strains, getValue, format, chemName })
 /* ------------------------------------------------------------------ */
 export default function ComparePage() {
   usePageTitle('Compare Strains')
+  const [searchParams, setSearchParams] = useSearchParams()
   const { query, setQuery, results, getStrainByName, allStrains } = useStrainSearch()
   const strainsLoaded = allStrains.length > 0
   const { state: resultsState } = useContext(ResultsContext)
 
   const [selectedNames, setSelectedNames] = useState([])
   const [showDropdown, setShowDropdown] = useState(false)
+
+  /* Auto-add strain from URL ?add= param on mount ----------------- */
+  useEffect(() => {
+    const addParam = searchParams.get('add')
+    if (addParam) {
+      setSelectedNames((prev) => {
+        if (prev.length >= MAX_COMPARE_STRAINS) return prev
+        if (prev.some((n) => n.toLowerCase() === addParam.toLowerCase())) return prev
+        return [...prev, addParam]
+      })
+      // Clean up the URL param
+      searchParams.delete('add')
+      setSearchParams(searchParams, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
 
   /* Resolve selected strains to full objects ----------------------- */
   const selectedStrains = useMemo(() => {

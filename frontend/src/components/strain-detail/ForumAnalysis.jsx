@@ -1,5 +1,31 @@
+import { useMemo } from 'react'
 import { Users, ThumbsUp, ThumbsDown } from 'lucide-react'
 import { ConfidenceBadge, EffectBadge } from '../shared/Badge'
+
+/* ── Contradiction detection: related concept groups ──────── */
+const RELATED_GROUPS = [
+  ['relax', 'stress', 'calm', 'unwind', 'tension', 'chill'],
+  ['sleep', 'insomnia', 'rest', 'bedtime', 'night'],
+  ['pain', 'ache', 'chronic pain', 'discomfort', 'sore'],
+  ['anxiety', 'anxious', 'worry', 'panic', 'nervous'],
+  ['energy', 'energiz', 'uplift', 'motivat', 'active', 'daytime'],
+  ['focus', 'concentrat', 'productiv', 'mental clarity', 'study'],
+  ['creative', 'creativity', 'inspir', 'artistic'],
+  ['appetite', 'hunger', 'munchies', 'eating'],
+  ['mood', 'depress', 'happy', 'euphori', 'joy'],
+  ['social', 'conversation', 'talkative', 'party'],
+]
+
+function areRelated(tagA, tagB) {
+  const a = tagA.toLowerCase()
+  const b = tagB.toLowerCase()
+  for (const group of RELATED_GROUPS) {
+    const aMatch = group.some(keyword => a.includes(keyword))
+    const bMatch = group.some(keyword => b.includes(keyword))
+    if (aMatch && bMatch) return true
+  }
+  return false
+}
 
 function EffectBar({ label, pct, baseline, variant = 'positive' }) {
   const bgColor = variant === 'positive' ? 'bg-leaf-500' : 'bg-red-500'
@@ -36,6 +62,12 @@ function EffectBar({ label, pct, baseline, variant = 'positive' }) {
 
 export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentScore }) {
   if (!data && !bestFor?.length && sentimentScore == null) return null
+
+  // Filter contradictory notIdealFor entries
+  const filteredNotIdealFor = useMemo(() => {
+    if (!notIdealFor?.length || !bestFor?.length) return notIdealFor || []
+    return notIdealFor.filter(tag => !bestFor.some(bf => areRelated(bf, tag)))
+  }, [bestFor, notIdealFor])
 
   // Backend sends pros/cons with {effect, pct, baseline} — normalize to {name, pct, baseline}
   // Show top 5 positive and top 4 negative in the UI (full data available for matching)
@@ -101,7 +133,7 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
       )}
 
       {/* Best For / Not Ideal For */}
-      {(bestFor?.length > 0 || notIdealFor?.length > 0) && (
+      {(bestFor?.length > 0 || filteredNotIdealFor.length > 0) && (
         <div className="grid grid-cols-2 gap-3 mb-4">
           {bestFor?.length > 0 && (
             <div>
@@ -116,14 +148,14 @@ export default function ForumAnalysis({ data, bestFor, notIdealFor, sentimentSco
               </div>
             </div>
           )}
-          {notIdealFor?.length > 0 && (
+          {filteredNotIdealFor.length > 0 && (
             <div>
               <div className="flex items-center gap-1 mb-1.5">
                 <ThumbsDown size={10} className="text-red-400" />
                 <span className="text-[10px] font-semibold text-red-400">Not Ideal For</span>
               </div>
               <div className="flex flex-wrap gap-1">
-                {notIdealFor.map((tag) => (
+                {filteredNotIdealFor.map((tag) => (
                   <EffectBadge key={tag} effect={tag} variant="negative" />
                 ))}
               </div>
