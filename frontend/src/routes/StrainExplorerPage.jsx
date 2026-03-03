@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search } from 'lucide-react'
+import { SlidersHorizontal, RotateCcw, ChevronDown, ChevronUp, FlaskConical, Leaf, Search, Globe } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
@@ -25,6 +25,16 @@ const CANNABINOID_SLIDERS = [
   { key: 'cbd', label: 'CBD', min: 0, max: 30, step: 0.5, unit: '%', color: '#3b82f6', desc: 'Non-psychoactive, therapeutic' },
 ]
 
+/* ─── Commonness scale (maps to availability 1-10) ───────── */
+const COMMONNESS_MIN = 1
+const COMMONNESS_MAX = 10
+const COMMONNESS_LABELS = [
+  { min: 1, max: 3, label: 'Rare / Boutique', color: '#a855f7' },
+  { min: 4, max: 5, label: 'Moderate', color: '#f59e0b' },
+  { min: 6, max: 7, label: 'Popular', color: '#3b82f6' },
+  { min: 8, max: 10, label: 'Widely Available', color: '#32c864' },
+]
+
 function getInitialFilters() {
   return {
     // Terpenes: [minThreshold, maxThreshold] — default: full range (no filtering)
@@ -33,6 +43,8 @@ function getInitialFilters() {
     ...Object.fromEntries(CANNABINOID_SLIDERS.map(s => [s.key, [s.min, s.max]])),
     // Strain type filter
     type: 'all', // all | indica | sativa | hybrid
+    // Commonness range
+    commonness: [COMMONNESS_MIN, COMMONNESS_MAX],
     // Sort
     sort: 'name',
   }
@@ -122,6 +134,119 @@ function DualRangeSlider({ label, desc, min, max, step, unit, color, value, onCh
   )
 }
 
+/* ─── Commonness slider with tier labels ─────────────────── */
+function CommonnessSlider({ value, onChange }) {
+  const [lo, hi] = value
+  const trackRef = useRef(null)
+  const min = COMMONNESS_MIN
+  const max = COMMONNESS_MAX
+  const step = 1
+  const pct = (v) => ((v - min) / (max - min)) * 100
+  const clamp = (v) => Math.round(Math.min(max, Math.max(min, v)))
+
+  const handlePointerDown = (thumb) => (e) => {
+    e.preventDefault()
+    const move = (ev) => {
+      if (!trackRef.current) return
+      const rect = trackRef.current.getBoundingClientRect()
+      const x = (ev.clientX || ev.touches?.[0]?.clientX || 0) - rect.left
+      const ratio = Math.min(1, Math.max(0, x / rect.width))
+      const raw = min + ratio * (max - min)
+      const snapped = clamp(raw)
+      if (thumb === 'lo') onChange([Math.min(snapped, hi), hi])
+      else onChange([lo, Math.max(snapped, lo)])
+    }
+    const up = () => {
+      document.removeEventListener('pointermove', move)
+      document.removeEventListener('pointerup', up)
+    }
+    document.addEventListener('pointermove', move)
+    document.addEventListener('pointerup', up)
+  }
+
+  const isActive = lo > min || hi < max
+
+  // Get the current tier label for the selected range
+  const currentLabel = useMemo(() => {
+    const matching = COMMONNESS_LABELS.filter(t => t.min <= hi && t.max >= lo)
+    if (matching.length === COMMONNESS_LABELS.length) return 'All strains'
+    return matching.map(t => t.label).join(' – ')
+  }, [lo, hi])
+
+  // Color for the active range — blend from the tier covering the midpoint
+  const midpoint = (lo + hi) / 2
+  const midTier = COMMONNESS_LABELS.find(t => midpoint >= t.min && midpoint <= t.max) || COMMONNESS_LABELS[1]
+
+  return (
+    <div className="space-y-2">
+      {/* Current range + label */}
+      <div className="flex items-center justify-between">
+        <span className={`text-[10px] font-medium ${isActive ? 'text-leaf-400' : 'text-gray-400 dark:text-[#6a7a6e]'}`}>
+          {currentLabel}
+        </span>
+        <span className={`text-[10px] font-mono tabular-nums ${isActive ? 'text-leaf-400 font-semibold' : 'text-gray-400 dark:text-[#6a7a6e]'}`}>
+          {lo} – {hi}
+        </span>
+      </div>
+
+      {/* Track with tier-colored segments */}
+      <div
+        ref={trackRef}
+        className="relative h-2.5 rounded-full bg-gray-200 dark:bg-white/[0.06] cursor-pointer select-none touch-none"
+      >
+        {/* Tier background segments */}
+        {COMMONNESS_LABELS.map((tier) => (
+          <div
+            key={tier.label}
+            className="absolute h-full first:rounded-l-full last:rounded-r-full"
+            style={{
+              left: `${pct(tier.min)}%`,
+              width: `${pct(tier.max + 1) - pct(tier.min)}%`,
+              backgroundColor: `${tier.color}15`,
+            }}
+          />
+        ))}
+
+        {/* Active range fill */}
+        <div
+          className="absolute h-full rounded-full transition-colors z-[1]"
+          style={{
+            left: `${pct(lo)}%`,
+            width: `${Math.max(pct(hi) - pct(lo), 2)}%`,
+            backgroundColor: isActive ? midTier.color : `${midTier.color}40`,
+          }}
+        />
+
+        {/* Low thumb */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4.5 h-4.5 rounded-full border-2 border-white dark:border-[#1a2e1e] shadow-md cursor-grab active:cursor-grabbing transition-transform hover:scale-125 z-10"
+          style={{ left: `${pct(lo)}%`, backgroundColor: midTier.color }}
+          onPointerDown={handlePointerDown('lo')}
+        />
+
+        {/* High thumb */}
+        <div
+          className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-4.5 h-4.5 rounded-full border-2 border-white dark:border-[#1a2e1e] shadow-md cursor-grab active:cursor-grabbing transition-transform hover:scale-125 z-10"
+          style={{ left: `${pct(hi)}%`, backgroundColor: midTier.color }}
+          onPointerDown={handlePointerDown('hi')}
+        />
+      </div>
+
+      {/* Tier legend */}
+      <div className="flex justify-between gap-1">
+        {COMMONNESS_LABELS.map((tier) => (
+          <div key={tier.label} className="flex items-center gap-1">
+            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: tier.color }} />
+            <span className="text-[8px] text-gray-400 dark:text-[#5a6a5e] whitespace-nowrap">
+              {tier.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /* ─── Type toggle pill ───────────────────────────────────── */
 const TYPE_OPTIONS = [
   { id: 'all', label: 'All' },
@@ -157,6 +282,8 @@ const SORT_OPTIONS = [
   { id: 'thc-asc', label: 'THC ↑' },
   { id: 'cbd-desc', label: 'CBD ↓' },
   { id: 'cbd-asc', label: 'CBD ↑' },
+  { id: 'common-desc', label: 'Most Common' },
+  { id: 'common-asc', label: 'Most Rare' },
 ]
 
 /* ─── Main page ──────────────────────────────────────────── */
@@ -230,6 +357,13 @@ export default function StrainExplorerPage() {
         if (val < lo || val > hi) return false
       }
 
+      // Commonness filter (availability field)
+      const [cLo, cHi] = filters.commonness
+      if (cLo > COMMONNESS_MIN || cHi < COMMONNESS_MAX) {
+        const avail = s.availability ?? 5
+        if (avail < cLo || avail > cHi) return false
+      }
+
       return true
     })
 
@@ -241,6 +375,8 @@ export default function StrainExplorerPage() {
       if (sortKey === 'thc-asc') return (getCannVal(a, 'thc') || 0) - (getCannVal(b, 'thc') || 0)
       if (sortKey === 'cbd-desc') return (getCannVal(b, 'cbd') || 0) - (getCannVal(a, 'cbd') || 0)
       if (sortKey === 'cbd-asc') return (getCannVal(a, 'cbd') || 0) - (getCannVal(b, 'cbd') || 0)
+      if (sortKey === 'common-desc') return (b.availability || 5) - (a.availability || 5)
+      if (sortKey === 'common-asc') return (a.availability || 5) - (b.availability || 5)
       return 0
     })
 
@@ -310,6 +446,20 @@ export default function StrainExplorerPage() {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* ── Commonness section ── */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Globe size={14} className="text-leaf-400" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-leaf-400 flex-1">
+                Commonness
+              </span>
+            </div>
+            <CommonnessSlider
+              value={filters.commonness}
+              onChange={(v) => updateFilter('commonness', v)}
+            />
           </div>
 
           {/* ── Cannabinoids section ── */}
