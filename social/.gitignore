@@ -1,0 +1,18 @@
+# Dependencies
+node_modules/
+
+# Generated content
+output/
+screenshots/
+
+# State files
+.post-state.json
+scheduler.log
+scheduler-stdout.log
+scheduler-stderr.log
+
+# Environment
+.env
+
+# OS
+.DS_Store

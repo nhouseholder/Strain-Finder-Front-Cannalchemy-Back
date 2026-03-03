@@ -1,0 +1,22 @@
+{
+  "name": "mystrainai-social",
+  "version": "1.0.0",
+  "description": "Instagram marketing automation for MyStrainAI",
+  "type": "module",
+  "scripts": {
+    "capture": "node scripts/capture-screenshots.js",
+    "generate": "node scripts/generate-posts.js",
+    "post": "node scripts/post-to-instagram.js",
+    "schedule": "node scripts/scheduler.js",
+    "preview": "node scripts/preview-posts.js",
+    "setup": "node scripts/setup-check.js"
+  },
+  "dependencies": {
+    "@canvas/image": "^1.0.0",
+    "canvas": "^3.1.0",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^24.0.0",
+    "sharp": "^0.34.0",
+    "dotenv": "^16.4.0"
+  }
+}
