@@ -27,9 +27,24 @@ from cannalchemy.data.schema import init_db
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-MAX_FILE_SIZE = 1_800_000  # 1.8MB target max
-STRAIN_DATA_JS = ROOT / "frontend" / "netlify" / "functions" / "strain-data.js"
+MAX_FILE_SIZE = 3_000_000  # 3MB target max (Cloudflare Pages Functions support up to 10MB)
+STRAIN_DATA_JS = ROOT / "frontend" / "functions" / "_data" / "strain-data.js"
 STRAINS_JSON = ROOT / "frontend" / "src" / "data" / "strains.json"
+
+
+def _compute_sentiment(effects):
+    """Compute a sentiment score (1-10) from effect list."""
+    import random
+    pos = sum(e.get("reports", 0) * e.get("confidence", 1.0) for e in effects
+              if e.get("category") == "positive")
+    neg = sum(e.get("reports", 0) * e.get("confidence", 1.0) for e in effects
+              if e.get("category") == "negative")
+    total = pos + neg
+    if total > 0:
+        ratio = pos / total
+        score = ratio * 4 + 5.5 + random.uniform(-0.3, 0.3)
+        return max(5.0, min(9.5, score))
+    return 7.0
 
 
 def export_strain_data(db_path=None):
@@ -203,8 +218,6 @@ def export_strain_data(db_path=None):
         )]
 
         # Map old consumption keys to quiz engine format
-        # DB stores: smoking, vaping, edibles, tinctures, topicals
-        # Quiz engine expects: flower, vape, edibles, concentrates, tinctures, topicals
         consumption_mapped = {}
         if consumption:
             consumption_mapped = {
@@ -220,18 +233,20 @@ def export_strain_data(db_path=None):
             "id": strain_id,
             "name": name,
             "type": strain_type or "hybrid",
-            "description": (description or "")[:200],
-            "effects": effects,
-            "terpenes": terpenes[:5],  # Limit to top 5
+            "description": (description or "")[:160],
+            "effects": effects[:8],  # Limit to top 8 effects
+            "terpenes": terpenes[:6],
             "cannabinoids": cannabinoids,
             "genetics": genetics,
-            "description_extended": (desc_ext or description or "")[:200],
+            "description_extended": (desc_ext or description or "")[:160],
             "best_for": best_for[:3],
-            "not_ideal_for": not_ideal[:3],
+            "not_ideal_for": not_ideal[:2],
             "consumption_suitability": consumption_mapped,
             "price_range": price_range,
             "lineage": lineage,
             "flavors": [f.title() for f in flavors[:5]],  # Limit to 5, title case
+            "availability": 5,
+            "sentimentScore": round(_compute_sentiment(effects), 1),
         }
 
         strains.append(strain_obj)
@@ -267,7 +282,7 @@ def export_strain_data(db_path=None):
         print(f"  Trimmed to {len(data['strains'])} strains ({size_bytes:,} bytes)")
 
     # Write strain-data.js
-    js_content = f"// Auto-generated strain database for Netlify edge function\nexport default {json_str};\n"
+    js_content = f"// Auto-generated strain database for Cloudflare Workers\nexport default {json_str};\n"
     STRAIN_DATA_JS.parent.mkdir(parents=True, exist_ok=True)
     with open(STRAIN_DATA_JS, "w", encoding="utf-8") as f:
         f.write(js_content)
