@@ -7,7 +7,7 @@ import {
   FlaskConical, Fingerprint, BookMarked, ArrowRight, Sparkles,
   Search, Zap, BarChart3, ChevronRight, Star, Lock, Check,
   ThumbsUp, ThumbsDown, Users, Wine, Lightbulb, ChevronDown,
-  Brain, Dna, ShieldCheck, Database, Stethoscope,
+  Dna, ShieldCheck, Database,
 } from 'lucide-react'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -72,14 +72,14 @@ function StrainSearchBar() {
 function HeroSection({ onGetStarted }) {
   const pillars = [
     {
-      icon: Brain,
-      title: 'MD-Developed Algorithm',
-      desc: 'Receptor pharmacology & clinical cannabis science — not guesswork.',
-      iconBg: 'bg-leaf-500/10 text-leaf-400',
+      icon: Sparkles,
+      title: 'AI-Driven Engine',
+      desc: 'Advanced machine learning analyzes thousands of data points per strain.',
+      iconBg: 'bg-amber-500/10 text-amber-400',
     },
     {
       icon: Database,
-      title: '24,000+ Strain Database',
+      title: '24,000+ Strains',
       desc: 'One of the most comprehensive cannabis datasets, continuously updated.',
       iconBg: 'bg-blue-500/10 text-blue-400',
     },
@@ -91,9 +91,9 @@ function HeroSection({ onGetStarted }) {
     },
     {
       icon: ShieldCheck,
-      title: 'Evidence-Based Approach',
-      desc: 'Grounded in published research & real community data.',
-      iconBg: 'bg-amber-500/10 text-amber-400',
+      title: 'Physician-Developed',
+      desc: 'Built on clinical cannabis science & evidence-based pharmacology.',
+      iconBg: 'bg-leaf-500/10 text-leaf-400',
     },
   ]
 
@@ -113,13 +113,13 @@ function HeroSection({ onGetStarted }) {
             <Sparkles size={12} className="text-amber-400" />
             <span className="text-[11px] font-semibold text-amber-400">AI-Powered</span>
           </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20">
-            <Stethoscope size={12} className="text-blue-400" />
-            <span className="text-[11px] font-semibold text-blue-400">Physician-Designed</span>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20">
+            <Dna size={12} className="text-purple-400" />
+            <span className="text-[11px] font-semibold text-purple-400">Receptor-Level Science</span>
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-leaf-500/10 border border-leaf-500/20">
-            <Dna size={12} className="text-leaf-400" />
-            <span className="text-[11px] font-semibold text-leaf-400">Receptor-Level Science</span>
+            <FlaskConical size={12} className="text-leaf-400" />
+            <span className="text-[11px] font-semibold text-leaf-400">Evidence-Based</span>
           </div>
         </div>
 
@@ -128,16 +128,14 @@ function HeroSection({ onGetStarted }) {
           className="text-4xl sm:text-5xl lg:text-6xl font-extrabold mb-5 text-gray-900 dark:text-[#e8f0ea] leading-tight"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          The world's smartest cannabis{' '}
-          <br className="hidden sm:block" />
-          recommendation engine —{' '}
+          Cannabis science,{' '}
           <span className="bg-gradient-to-r from-leaf-400 to-leaf-500 bg-clip-text text-transparent">
-            built by doctors, powered by AI.
+            personalized by AI.
           </span>
         </h1>
 
         <p className="text-base sm:text-lg text-gray-500 dark:text-[#8a9a8e] mb-10 max-w-xl mx-auto leading-relaxed">
-          Our physician-developed algorithm analyzes your unique preferences against thousands of molecular profiles to find strains that are truly right for you.
+          Our AI analyzes your unique preferences against thousands of molecular profiles and receptor pathways to find strains that are truly right for you.
         </p>
 
         {/* CTA buttons */}
