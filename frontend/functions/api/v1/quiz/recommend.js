@@ -1,14 +1,21 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * Ports the Python backend's 5-layer matching engine to JavaScript,
- * with all 77 strains + receptor pharmacology embedded.
- * No external database needed — runs entirely on Cloudflare's edge.
+ * 7-layer pharmacological matching engine with receptor-level scoring,
+ * tolerance-aware THC safety, entourage synergy analysis, and
+ * scaffold-driven molecular profile optimization.
  *
  * Includes KV-based result caching (1h TTL) — the engine is deterministic,
  * so identical quiz inputs always produce identical outputs.
  */
 import strainData from '../../../_data/strain-data.js';
+import {
+  EFFECT_SCAFFOLD,
+  EXPANDED_BINDINGS,
+  TOLERANCE_THC_RANGES,
+  TEMPLATE_TERPENE_PROFILES,
+  SYNERGY_MATRIX,
+} from '../../../_data/pharmacology-scaffold.js';
 
 // ============================================================
 // Effect Mapper (from effect_mapper.py)
@@ -133,9 +140,11 @@ function canonicalToDisplay(name) {
   return CANONICAL_TO_DISPLAY[name] || name.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
-// Build binding lookup from data
+// Build binding lookup from data + expanded pharmacology scaffold
 function buildBindingLookup() {
   const lookup = {}; // molecule_name -> [{receptor, ki_nm, action_type, affinity_score}]
+
+  // Base bindings from strain-data.js
   for (const b of strainData.bindings) {
     const molName = strainData.molecules.find(m => m.id === b.molecule_id)?.name?.toLowerCase();
     const recName = strainData.receptors.find(r => r.id === b.receptor_id)?.name;
@@ -150,10 +159,169 @@ function buildBindingLookup() {
       receptor_function: b.receptor_function || '',
     });
   }
+
+  // Merge expanded bindings from pharmacology scaffold
+  // (pinene/AChE, humulene/CB2, terpinolene, ocimene, bisabolol, nerolidol, etc.)
+  for (const eb of EXPANDED_BINDINGS) {
+    const molName = eb.molecule_name.toLowerCase();
+    if (!lookup[molName]) lookup[molName] = [];
+    // Avoid duplicate receptor entries
+    const exists = lookup[molName].some(b => b.receptor === eb.receptor);
+    if (exists) continue;
+    const affinityScore = eb.ki_nm ? Math.min(1.0, 100 / eb.ki_nm) : 0.5;
+    lookup[molName].push({
+      receptor: eb.receptor,
+      ki_nm: eb.ki_nm,
+      action_type: eb.action_type || '',
+      affinity_score: affinityScore,
+      receptor_function: eb.receptor_function || '',
+    });
+  }
+
   return lookup;
 }
 
 const bindingLookup = buildBindingLookup();
+
+// ============================================================
+// Template Terpene Profile Detection (data quality)
+// ============================================================
+const TEMPLATE_SET = new Set(TEMPLATE_TERPENE_PROFILES);
+
+function getTerpProfileKey(strain) {
+  return (strain.terpenes || [])
+    .map(t => `${t.name}:${t.pct}`)
+    .join(',');
+}
+
+function hasTemplateTerpenes(strain) {
+  return TEMPLATE_SET.has(getTerpProfileKey(strain));
+}
+
+// ============================================================
+// Tolerance-Aware THC Safety Scoring
+// ============================================================
+function calcToleranceScore(strain, toleranceId) {
+  const range = TOLERANCE_THC_RANGES[toleranceId] || TOLERANCE_THC_RANGES.intermediate;
+  const thcVal = (strain.cannabinoids || []).find(c => c.name.toLowerCase() === 'thc')?.value || 0;
+
+  // Perfect score if within optimal range
+  if (thcVal >= range.optimal[0] && thcVal <= range.optimal[1]) return 100;
+
+  // Inside safe range but outside optimal: minor penalty
+  if (thcVal >= range.safe[0] && thcVal <= range.safe[1]) {
+    const distFromOptimal = thcVal < range.optimal[0]
+      ? range.optimal[0] - thcVal
+      : thcVal - range.optimal[1];
+    return Math.max(50, 100 - distFromOptimal * range.penalty_per_pct);
+  }
+
+  // Above safe range: harsh penalty (hard cap violation)
+  if (thcVal > range.safe[1]) {
+    const excess = thcVal - range.safe[1];
+    return Math.max(0, 50 - excess * range.penalty_per_pct * 3);
+  }
+
+  return 80; // Below safe range minimum (rare edge case)
+}
+
+// ============================================================
+// Scaffold-Driven Molecular Profile Score
+// ============================================================
+// For each desired effect, the scaffold defines an ideal molecular profile.
+// This scorer measures how well a strain's actual chemistry matches that ideal.
+function calcScaffoldScore(strain, desiredCanonicals) {
+  if (!desiredCanonicals.length) return 50;
+
+  const terpMap = {};
+  for (const t of (strain.terpenes || [])) {
+    terpMap[t.name.toLowerCase()] = parseFloat(t.pct) || 0;
+  }
+  const cannMap = {};
+  for (const c of (strain.cannabinoids || [])) {
+    cannMap[c.name.toLowerCase()] = c.value || 0;
+  }
+  const strainType = (strain.type || 'hybrid').toLowerCase();
+
+  let totalScore = 0;
+  let totalWeight = 0;
+
+  for (let i = 0; i < desiredCanonicals.length; i++) {
+    const priority = Math.max(1.0 - i * 0.15, 0.3);
+    const scaffold = EFFECT_SCAFFOLD[desiredCanonicals[i]];
+    if (!scaffold) continue;
+
+    let effectScore = 0;
+    let effectMaxWeight = 0;
+
+    // Score each optimal molecule
+    for (const [mol, spec] of Object.entries(scaffold.optimalMolecules)) {
+      const actual = terpMap[mol] ?? cannMap[mol] ?? 0;
+      const { min, ideal, weight } = spec;
+      effectMaxWeight += weight;
+
+      if (ideal === 0 && actual > 0) {
+        // Contra-indicated molecule (e.g., humulene for appetite)
+        effectScore -= weight * 0.5;
+        continue;
+      }
+
+      if (actual >= ideal) {
+        effectScore += weight * 1.0; // At or above ideal = full marks
+      } else if (actual >= min) {
+        // Scale linearly between min and ideal
+        effectScore += weight * (0.4 + 0.6 * ((actual - min) / Math.max(ideal - min, 0.01)));
+      } else if (actual > 0) {
+        // Present but below minimum
+        effectScore += weight * 0.2;
+      }
+      // absent = 0
+    }
+
+    // Subtype affinity bonus
+    const subtypeBonus = scaffold.subtypeAffinity?.[strainType] || 1.0;
+
+    const normalized = effectMaxWeight > 0
+      ? (effectScore / effectMaxWeight) * 100 * subtypeBonus
+      : 50;
+
+    totalScore += normalized * priority;
+    totalWeight += priority;
+  }
+
+  return totalWeight > 0 ? Math.max(0, Math.min(100, totalScore / totalWeight)) : 50;
+}
+
+// ============================================================
+// Goal-Aware Synergy Score (uses SYNERGY_MATRIX)
+// ============================================================
+function calcGoalSynergyScore(strain, desiredCanonicals) {
+  const terpNames = (strain.terpenes || []).map(t => t.name?.toLowerCase()).filter(Boolean);
+  const cannNames = (strain.cannabinoids || []).filter(c => c.value > 1).map(c => c.name?.toLowerCase()).filter(Boolean);
+  const allMols = [...terpNames, ...cannNames];
+  if (allMols.length < 2) return 0;
+
+  const desiredSet = new Set(desiredCanonicals);
+  let synergy = 0;
+
+  for (let i = 0; i < allMols.length; i++) {
+    for (let j = i + 1; j < allMols.length; j++) {
+      const key1 = `${allMols[i]}+${allMols[j]}`;
+      const key2 = `${allMols[j]}+${allMols[i]}`;
+      const entry = SYNERGY_MATRIX[key1] || SYNERGY_MATRIX[key2];
+      if (!entry) continue;
+
+      // Extra bonus if the synergy targets a desired effect
+      const goalsMatch = entry.goals.some(g => desiredSet.has(g));
+      synergy += entry.bonus * (goalsMatch ? 1.5 : 0.8);
+    }
+  }
+
+  // Diversity bonus (more terpenes = richer entourage)
+  synergy += Math.min(terpNames.length * 0.03, 0.15);
+
+  return Math.min(synergy * 100, 100);
+}
 
 function getMoleculePathways(molName) {
   return bindingLookup[molName.toLowerCase()] || [];
@@ -254,34 +422,6 @@ function calcAvoidScore(strain, avoidCanonicals) {
   }
   // Harsh penalty — even 1 strong avoided effect significantly drops score
   return Math.max(0, 100 - (penalty / avoidCanonicals.length) * 120);
-}
-
-// Entourage synergy: terpene combinations that amplify each other
-const SYNERGY_PAIRS = {
-  'myrcene+caryophyllene': 0.15,    // anti-inflammatory synergy
-  'limonene+linalool': 0.15,        // anxiolytic synergy
-  'pinene+limonene': 0.12,          // alertness + mood
-  'myrcene+linalool': 0.12,         // deep sedation synergy
-  'caryophyllene+humulene': 0.10,   // anti-inflammatory duo
-  'limonene+caryophyllene': 0.10,   // stress relief synergy
-  'pinene+caryophyllene': 0.08,     // clarity + focus
-  'terpinolene+ocimene': 0.08,      // uplifting synergy
-};
-
-function calcEntourageSynergyScore(strain) {
-  const terpNames = (strain.terpenes || []).map(t => t.name?.toLowerCase()).filter(Boolean);
-  if (terpNames.length < 2) return 0;
-  let synergy = 0;
-  for (let i = 0; i < terpNames.length; i++) {
-    for (let j = i + 1; j < terpNames.length; j++) {
-      const key1 = `${terpNames[i]}+${terpNames[j]}`;
-      const key2 = `${terpNames[j]}+${terpNames[i]}`;
-      synergy += SYNERGY_PAIRS[key1] || SYNERGY_PAIRS[key2] || 0;
-    }
-  }
-  // Also reward terpene diversity (more terpenes = richer entourage)
-  synergy += Math.min(terpNames.length * 0.03, 0.15);
-  return Math.min(synergy * 100, 100);
 }
 
 function calcCannabinoidScore(strain, thcPref, cbdPref) {
@@ -525,7 +665,20 @@ function buildWhyMatch(strain, desiredCanonicals) {
     return `${strain.name} is a great match based on what other users report. Community data shows this strain aligns well with your desired effects.`;
   }
 
-  const desiredReceptors = new Set();
+  // Build a set of receptor targets derived from the scaffold for the user's desired effects
+  const scaffoldTargets = new Map(); // receptor → { weight, goalName }
+  for (const effect of desiredCanonicals) {
+    const scaffold = EFFECT_SCAFFOLD[effect];
+    if (!scaffold) continue;
+    for (const [receptor, spec] of Object.entries(scaffold.receptors || {})) {
+      if (!scaffoldTargets.has(receptor) || scaffoldTargets.get(receptor).weight < spec.weight) {
+        scaffoldTargets.set(receptor, { weight: spec.weight, goalName: effect, action: spec.action, note: spec.note });
+      }
+    }
+  }
+
+  const desiredReceptors = new Set(scaffoldTargets.keys());
+  // Also include the old pathway lookup as fallback
   for (const e of desiredCanonicals) {
     for (const r of (EFFECT_RECEPTOR_PATHWAYS[e] || '').split(', ')) {
       if (r.trim()) desiredReceptors.add(r.trim());
@@ -536,22 +689,21 @@ function buildWhyMatch(strain, desiredCanonicals) {
   for (const mol of topMolecules) {
     const pathways = getMoleculePathways(mol.name);
     if (!pathways.length) continue;
+
+    // Find the binding that targets a user-desired receptor
     const bestP = pathways.find(p => desiredReceptors.has(p.receptor)) || pathways[0];
     const receptor = bestP.receptor;
     const molInfo = FRIENDLY_MOLECULE[mol.name];
     const recInfo = FRIENDLY_RECEPTOR[receptor] || 'receptors in your body';
 
-    let matchedEffect = null;
-    for (const e of desiredCanonicals) {
-      if ((EFFECT_RECEPTOR_PATHWAYS[e] || '').includes(receptor)) {
-        matchedEffect = e.replace(/-/g, ' ');
-        break;
-      }
-    }
+    // Check if scaffold has a specific note for this receptor target
+    const scaffoldTarget = scaffoldTargets.get(receptor);
+    const goalNote = scaffoldTarget
+      ? ` — key for ${scaffoldTarget.goalName.replace(/-/g, ' ')}`
+      : '';
 
     if (molInfo) {
-      const effectStr = matchedEffect ? ` — especially for ${matchedEffect}` : '';
-      parts.push(`${mol.name.charAt(0).toUpperCase() + mol.name.slice(1)} (${mol.pct.toFixed(1)}%) is ${molInfo[0]} that works with your ${recInfo}, promoting ${molInfo[1]}${effectStr}.`);
+      parts.push(`${mol.name.charAt(0).toUpperCase() + mol.name.slice(1)} (${mol.pct.toFixed(1)}%) is ${molInfo[0]} that activates your ${recInfo}${goalNote}, promoting ${molInfo[1]}.`);
     }
   }
 
@@ -719,11 +871,12 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v3: sentiment fix + negative effects + strain eligibility filter
-  const quizCacheKey = `quiz:v4:${md5Simple(JSON.stringify({
+  // v5: pharmacological scaffold + tolerance safety + expanded bindings
+  const quizCacheKey = `quiz:v5:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
+    tolerance: quiz.tolerance || 'intermediate',
     thcPreference: quiz.thcPreference || 'no_preference',
     cbdPreference: quiz.cbdPreference || 'no_preference',
     subtype: quiz.subtype || 'no_preference',
@@ -797,36 +950,54 @@ export async function onRequestPost(context) {
   }
   const eligibleStrains = strainData.strains.filter(isQuizEligible);
 
-  // Score all strains — 6-layer proprietary matching engine
+  // Score all strains — 8-layer pharmacological matching engine
+  const toleranceId = quiz.tolerance || 'intermediate';
   const scored = eligibleStrains.map(strain => {
     const pathway = calcPathwayScore(strain, desiredReceptors, desiredCanonicals);
     const effect = calcEffectReportScore(strain, desiredCanonicals);
     const avoid = calcAvoidScore(strain, avoidCanonicals);
     const cannabinoid = calcCannabinoidScore(strain, quiz.thcPreference || 'no_preference', quiz.cbdPreference || 'no_preference');
     const preference = calcPreferenceScore(strain, quiz);
-    const synergy = calcEntourageSynergyScore(strain);
+    const synergy = calcGoalSynergyScore(strain, desiredCanonicals);
+    const scaffold = calcScaffoldScore(strain, desiredCanonicals);
+    const tolerance = calcToleranceScore(strain, toleranceId);
 
-    // 6-layer weighted composite:
-    //   35% receptor pharmacology (terpene→receptor binding affinity)
-    //   25% community effect alignment (weighted by report strength)
-    //   15% avoidance penalty (harsh penalty for unwanted effects)
-    //   10% cannabinoid profile match (THC/CBD preference ranges)
-    //   10% user preference alignment (type, method, budget)
-    //    5% entourage synergy bonus (terpene combination interactions)
+    // Data quality adjustment: strains with template terpene profiles
+    // get a reduced pathway/scaffold weight since those scores are
+    // less meaningful when the terpene data is synthetic.
+    const isTemplate = hasTemplateTerpenes(strain);
+    const pathwayWeight = isTemplate ? 0.15 : 0.25;
+    const scaffoldWeight = isTemplate ? 0.10 : 0.18;
+    const effectWeight = isTemplate ? 0.25 : 0.20;
+    const toleranceWeight = 0.12;
+    const avoidWeight = 0.10;
+    const cannabinoidWeight = 0.05;
+    const preferenceWeight = 0.05;
+    const synergyWeight = isTemplate ? 0.03 : 0.05;
+
+    // 8-layer weighted composite:
+    //   25% receptor pharmacology (terpene→receptor binding affinity) [15% if template terpenes]
+    //   18% scaffold molecular profile (ideal chemistry for desired effects) [10% if template]
+    //   20% community effect alignment (weighted by report strength) [25% if template — compensates]
+    //   12% tolerance-adjusted THC safety (beginner protection)
+    //   10% avoidance penalty (harsh penalty for unwanted effects)
+    //    5% cannabinoid profile match (THC/CBD preference ranges)
+    //    5% user preference alignment (type, method, budget)
+    //    5% goal-aware entourage synergy (terpene combo interactions) [3% if template]
     const molecularScore = Math.max(0, Math.min(100, Math.round(
-      pathway * 0.35 + effect * 0.25 + avoid * 0.15 + cannabinoid * 0.10 + preference * 0.10 + synergy * 0.05
+      pathway * pathwayWeight +
+      scaffold * scaffoldWeight +
+      effect * effectWeight +
+      tolerance * toleranceWeight +
+      avoid * avoidWeight +
+      cannabinoid * cannabinoidWeight +
+      preference * preferenceWeight +
+      synergy * synergyWeight
     )));
 
     // ── Availability & popularity boost ──────────────────────────────
-    // Strongly favors strains users can actually find in dispensaries
-    // and that are well-known / commonly stocked.
-    // availability is 1-10; produces a ±8 point swing.
-    // A tier-10 strain (Blue Dream, OG Kush) gets +8 points,
-    // a tier-5 (average) gets +0, a tier-2 obscure gets -4.8.
-    // This ensures popular, findable strains surface first among
-    // similarly-scored matches without overriding truly great matches.
     const avail = strain.availability || 5;
-    const availBoost = ((avail - 5) / 5) * 8; // range: -4.8 to +8.0
+    const availBoost = ((avail - 5) / 5) * 8;
     const total = Math.max(0, Math.min(100, Math.round(molecularScore + availBoost)));
 
     return { strain, score: total, molecularScore };
@@ -860,7 +1031,7 @@ export async function onRequestPost(context) {
     aiPicks.push(result);
   }
 
-  // Build ideal profile
+  // Build ideal profile — scaffold-derived molecular targets + actual top-5 averages
   const topTerpTotals = {};
   let thcTotal = 0, cbdTotal = 0;
   for (const s of scored.slice(0, 5)) {
@@ -876,8 +1047,26 @@ export async function onRequestPost(context) {
     .sort((a, b) => parseFloat(b.ratio) - parseFloat(a.ratio))
     .slice(0, 5);
 
+  // Add scaffold-derived ideal rationale
+  const scaffoldIdeal = {};
+  for (const effect of desiredCanonicals.slice(0, 3)) {
+    const scaffold = EFFECT_SCAFFOLD[effect];
+    if (!scaffold) continue;
+    for (const [mol, spec] of Object.entries(scaffold.optimalMolecules)) {
+      if (!scaffoldIdeal[mol] || spec.ideal > scaffoldIdeal[mol].ideal) {
+        scaffoldIdeal[mol] = { ideal: spec.ideal, role: spec.role.split(' — ')[0] };
+      }
+    }
+  }
+  const scaffoldTerps = Object.entries(scaffoldIdeal)
+    .filter(([mol]) => !['thc', 'cbd', 'cbn', 'cbg', 'thcv', 'cbc'].includes(mol))
+    .sort((a, b) => b[1].ideal - a[1].ideal)
+    .slice(0, 5)
+    .map(([name, info]) => ({ name, idealPct: `${info.ideal}%`, role: info.role }));
+
   const idealProfile = {
     terpenes: avgTerps,
+    scaffoldTargets: scaffoldTerps,
     cannabinoids: { thc: `${Math.round(thcTotal / 5)}%`, cbd: `${(cbdTotal / 5).toFixed(1)}%` },
     subtype: quiz.subtype || 'hybrid',
   };
@@ -902,18 +1091,44 @@ export async function onRequestPost(context) {
         return `${s.name} (${s.type}, ${s.matchPct}% match, THC ${s.thc}%, CBD ${s.cbd}%): terpenes [${terps}], effects [${effects}]`;
       }).join('\n');
 
-      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our algorithm matched them with strains. Write a brief, personalized analysis (3-4 sentences max) explaining the scientific reasoning behind the top match.
+      // Build scaffold context for the AI
+      const scaffoldContext = desiredCanonicals.slice(0, 3).map(effect => {
+        const s = EFFECT_SCAFFOLD[effect];
+        if (!s) return null;
+        const topMols = Object.entries(s.optimalMolecules)
+          .sort((a, b) => b[1].weight - a[1].weight)
+          .slice(0, 3)
+          .map(([mol, spec]) => `${mol} (${spec.role.split(' — ')[0]})`)
+          .join(', ');
+        const topRecs = Object.entries(s.receptors)
+          .sort((a, b) => b[1].weight - a[1].weight)
+          .slice(0, 2)
+          .map(([rec, spec]) => `${rec} (${spec.note})`)
+          .join(', ');
+        return `${effect}: needs ${topRecs}; best molecules: ${topMols}`;
+      }).filter(Boolean).join('\n');
+
+      const toleranceLabel = toleranceId === 'beginner' ? 'beginner (THC ≤18% recommended)'
+        : toleranceId === 'intermediate' ? 'intermediate (THC 14-22% optimal)'
+        : toleranceId === 'experienced' ? 'experienced (THC 18-26% suitable)'
+        : 'high tolerance (any THC level appropriate)';
+
+      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our 8-layer pharmacological matching engine scored strains based on receptor binding affinity, entourage synergy, terpene-to-effect pathway mapping, and tolerance-adjusted THC safety. Write a brief, personalized analysis (3-4 sentences max) explaining the scientific reasoning behind the top match.
 
 User's desired effects: ${desiredLabels.join(', ')}
 ${avoidLabels.length ? `Effects to avoid: ${avoidLabels.join(', ')}` : ''}
+Experience level: ${toleranceLabel}
 THC preference: ${quiz.thcPreference || 'no preference'}
 CBD preference: ${quiz.cbdPreference || 'no preference'}
 Type preference: ${quiz.subtype || 'no preference'}
 
+PHARMACOLOGICAL FRAMEWORK (what our engine targeted):
+${scaffoldContext}
+
 Top matches from our algorithm:
 ${topStrainSummaries}
 
-Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for you, referencing specific terpenes and their receptor interactions. Be scientifically grounded but accessible. Do NOT make medical claims. Speak directly to the user using "you" and "your". Start directly with the analysis — no greeting or preamble.`;
+Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for this user, referencing specific terpenes, their receptor targets (use receptor names like CB1, CB2, 5-HT1A, TRPV1, GABA-A), and how the terpene-cannabinoid entourage effect creates the desired experience. Be scientifically grounded but accessible. Do NOT make medical claims. Speak directly to the user using "you" and "your". Start directly with the analysis — no greeting or preamble.`;
 
       const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
