@@ -83,7 +83,7 @@ function DashboardSearchBar() {
         showSearchButton
         onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
-        inputClassName="py-3.5 rounded-2xl pl-11 border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20"
+        inputClassName="py-3.5 rounded-2xl pl-11 border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.05] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20 focus:border-leaf-500/40"
       />
     </div>
   )
@@ -234,7 +234,7 @@ export default function DashboardPage() {
         <DashboardSearchBar />
 
         {/* Quick stats */}
-        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 text-[11px] text-gray-400 dark:text-[#5a6a5e] flex-wrap">
+        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-5 text-[11px] text-gray-400 dark:text-[#5a6a5e] flex-wrap">
           <span className="flex items-center gap-1.5"><Database size={12} /> 1,000+ Strains</span>
           <span className="flex items-center gap-1.5"><Brain size={12} /> 6 Receptor Pathways</span>
           <span className="flex items-center gap-1.5"><FlaskConical size={12} /> 51 Effects Predicted</span>
@@ -245,44 +245,41 @@ export default function DashboardPage() {
       {/*  Quick Actions                                               */}
       {/* ============================================================ */}
       <div className="grid grid-cols-3 gap-3 mb-8">
-        <Card
-          hoverable
+        <button
           onClick={() => navigate('/search')}
-          className="p-4 text-center"
+          className="group relative flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-gradient-to-br from-leaf-500/[0.08] to-leaf-500/[0.02] hover:from-leaf-500/[0.16] hover:to-leaf-500/[0.06] border border-leaf-500/15 hover:border-leaf-500/30 transition-all duration-300 cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-xl bg-leaf-500/10 flex items-center justify-center mx-auto mb-2">
-            <Search size={18} className="text-leaf-500" />
+          <div className="w-11 h-11 rounded-xl bg-leaf-500/15 group-hover:bg-leaf-500/25 flex items-center justify-center transition-colors duration-300 group-hover:scale-105">
+            <Search size={20} className="text-leaf-500" />
           </div>
-          <span className="text-xs font-medium text-gray-700 dark:text-[#b0c4b4]">
+          <span className="text-xs font-semibold text-gray-700 dark:text-[#c0d4c6] group-hover:text-leaf-500 dark:group-hover:text-leaf-400 transition-colors">
             Search Strains
           </span>
-        </Card>
+        </button>
 
-        <Card
-          hoverable
+        <button
           onClick={() => { resultsDispatch({ type: 'RESET' }); navigate('/quiz') }}
-          className="p-4 text-center"
+          className="group relative flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-gradient-to-br from-purple-500/[0.08] to-purple-500/[0.02] hover:from-purple-500/[0.16] hover:to-purple-500/[0.06] border border-purple-500/15 hover:border-purple-500/30 transition-all duration-300 cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center mx-auto mb-2">
-            <ClipboardList size={18} className="text-purple-400" />
+          <div className="w-11 h-11 rounded-xl bg-purple-500/15 group-hover:bg-purple-500/25 flex items-center justify-center transition-colors duration-300 group-hover:scale-105">
+            <ClipboardList size={20} className="text-purple-400" />
           </div>
-          <span className="text-xs font-medium text-gray-700 dark:text-[#b0c4b4]">
+          <span className="text-xs font-semibold text-gray-700 dark:text-[#c0d4c6] group-hover:text-purple-400 transition-colors">
             New Quiz
           </span>
-        </Card>
+        </button>
 
-        <Card
-          hoverable
+        <button
           onClick={() => navigate('/compare')}
-          className="p-4 text-center"
+          className="group relative flex flex-col items-center gap-2.5 py-5 px-3 rounded-2xl bg-gradient-to-br from-blue-500/[0.08] to-blue-500/[0.02] hover:from-blue-500/[0.16] hover:to-blue-500/[0.06] border border-blue-500/15 hover:border-blue-500/30 transition-all duration-300 cursor-pointer"
         >
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center mx-auto mb-2">
-            <GitCompareArrows size={18} className="text-blue-400" />
+          <div className="w-11 h-11 rounded-xl bg-blue-500/15 group-hover:bg-blue-500/25 flex items-center justify-center transition-colors duration-300 group-hover:scale-105">
+            <GitCompareArrows size={20} className="text-blue-400" />
           </div>
-          <span className="text-xs font-medium text-gray-700 dark:text-[#b0c4b4]">
+          <span className="text-xs font-semibold text-gray-700 dark:text-[#c0d4c6] group-hover:text-blue-400 transition-colors">
             Compare
           </span>
-        </Card>
+        </button>
       </div>
 
       {/* View Results banner */}

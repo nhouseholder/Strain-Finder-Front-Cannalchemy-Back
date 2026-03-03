@@ -675,12 +675,7 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const { user, loading } = useAuth()
 
-  // Logged-in users go straight to dashboard (skip marketing page)
-  useEffect(() => {
-    if (!loading && user) {
-      navigate('/dashboard', { replace: true })
-    }
-  }, [user, loading, navigate])
+  // Logged-in users see the landing page too — dashboard is in the nav
 
   // Smart navigation — results if available, otherwise quiz
   const handleGetStarted = useCallback(() => {
