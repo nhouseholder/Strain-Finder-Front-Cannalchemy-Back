@@ -1,0 +1,16 @@
+# Cloudflare Pages configuration for MyStrainAI
+name = "mystrainai"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "dist"
+
+# KV namespace for persistent caching (Anthropic responses, quiz results, dispensary regional data)
+# Create with: npx wrangler kv:namespace create CACHE
+# Then paste the id below
+[[kv_namespaces]]
+binding = "CACHE"
+id = "f7a280ca8f2347c8b5bcdb02b5ed6161"
+
+# Workers AI — free Llama 3.3 70B for strain descriptions and explanations
+[ai]
+binding = "AI"
