@@ -12,6 +12,7 @@ import {
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
+import ChatWidget from '../components/chat/ChatWidget'
 import { APP_VERSION } from '../utils/constants'
 import { TypeBadge, EffectBadge } from '../components/shared/Badge'
 import TerpBadge from '../components/shared/TerpBadge'
@@ -728,6 +729,9 @@ export default function LandingPage() {
           <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
+
+      {/* AI Chat Widget */}
+      <ChatWidget />
     </div>
   )
 }
