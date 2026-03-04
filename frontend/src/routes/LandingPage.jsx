@@ -45,9 +45,11 @@ function useScrollReveal() {
 /* ------------------------------------------------------------------ */
 /*  Inline strain search bar for the hero                             */
 /* ------------------------------------------------------------------ */
-function StrainSearchBar() {
+function StrainSearchBar({ strainCount }) {
   const navigate = useNavigate()
   const { allStrains, dataLoaded } = useStrainSearch()
+
+  const displayCount = strainCount || allStrains.length
 
   return (
     <div className="mt-8 max-w-md mx-auto w-full relative z-50">
@@ -61,7 +63,7 @@ function StrainSearchBar() {
         inputClassName="py-3.5 rounded-2xl pl-11 border border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20"
       />
       <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2 text-center">
-        Or search our database of 1,000+ strains directly
+        {displayCount > 0 ? `Search our database of ${displayCount.toLocaleString()}+ strains` : 'Search our strain database'}
       </p>
     </div>
   )
@@ -70,7 +72,9 @@ function StrainSearchBar() {
 /* ------------------------------------------------------------------ */
 /*  Section 1: Hero — Physician-designed, AI-powered value prop       */
 /* ------------------------------------------------------------------ */
-function HeroSection({ onGetStarted }) {
+function HeroSection({ onGetStarted, strainCount }) {
+  const countLabel = strainCount > 0 ? `${strainCount.toLocaleString()}+ Strains` : 'Strain Database'
+
   const pillars = [
     {
       icon: Sparkles,
@@ -80,7 +84,7 @@ function HeroSection({ onGetStarted }) {
     },
     {
       icon: Database,
-      title: '24,000+ Strains',
+      title: countLabel,
       desc: 'One of the most comprehensive cannabis datasets, continuously updated.',
       iconBg: 'bg-blue-500/10 text-blue-400',
     },
@@ -151,7 +155,7 @@ function HeroSection({ onGetStarted }) {
         </div>
 
         {/* Quick strain search */}
-        <StrainSearchBar />
+        <StrainSearchBar strainCount={strainCount} />
 
         {/* 4-pillar grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-12 max-w-2xl mx-auto">
@@ -650,7 +654,9 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const { user, loading } = useAuth()
 
-  // Logged-in users see the landing page too — dashboard is in the nav
+  // Get dynamic strain count
+  const { allStrains } = useStrainSearch()
+  const strainCount = allStrains.length
 
   // Smart navigation — results if available, otherwise quiz
   const handleGetStarted = useCallback(() => {
@@ -693,7 +699,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      <HeroSection onGetStarted={handleGetStarted} />
+      <HeroSection onGetStarted={handleGetStarted} strainCount={strainCount} />
       <FeaturesSection />
       <DemoSection />
       <HowItWorksSection />

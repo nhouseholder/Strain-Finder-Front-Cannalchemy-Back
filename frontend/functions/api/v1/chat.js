@@ -63,22 +63,82 @@ for (const s of strains) {
 }
 
 /**
+ * Extract likely strain names from a user query.
+ * Handles patterns like "tell me about Blue Dream", "what is Tahoe OG",
+ * "compare OG Kush and Sour Diesel", etc.
+ */
+function extractStrainNames(query) {
+  const q = query.toLowerCase()
+  const names = []
+
+  // Try matching known strain names (longest first for greedy match)
+  const sortedNames = [...strainsByName.keys()].sort((a, b) => b.length - a.length)
+  let remaining = q
+  for (const name of sortedNames) {
+    if (remaining.includes(name)) {
+      names.push(name)
+      remaining = remaining.replace(name, ' ')
+    }
+  }
+  return names
+}
+
+/**
  * Search strains matching the user's query across many fields.
  * Returns the most relevant strains (max 8) for RAG context.
+ *
+ * Prioritization: exact name > extracted names > name-similarity > multi-field scoring
  */
 function searchStrains(query) {
-  const q = query.toLowerCase()
+  const q = query.toLowerCase().trim()
   const tokens = q.split(/[\s,]+/).filter(t => t.length > 2)
 
-  // Direct name match first
+  // 1. Direct exact name match
   const exactMatch = strainsByName.get(q)
   if (exactMatch) return [exactMatch]
 
-  // Partial name matches
-  const nameMatches = strains.filter(s => s.name.toLowerCase().includes(q))
-  if (nameMatches.length > 0 && nameMatches.length <= 5) return nameMatches.slice(0, 5)
+  // 2. Extract known strain names from the query (handles "tell me about Tahoe OG")
+  const extractedNames = extractStrainNames(q)
+  if (extractedNames.length > 0) {
+    const results = extractedNames
+      .map(n => strainsByName.get(n))
+      .filter(Boolean)
+      .slice(0, 5)
+    if (results.length > 0) return results
+  }
 
-  // Multi-field scoring
+  // 3. Name-similarity scoring for partial name queries (e.g., "tahoe")
+  //    Prioritize shorter names (closer match) and exact-word matches
+  const nameScored = strains
+    .filter(s => s.name.toLowerCase().includes(q))
+    .map(s => {
+      const nameLower = s.name.toLowerCase()
+      let nameScore = 100
+      // Exact match bonus
+      if (nameLower === q) nameScore += 500
+      // Starts-with bonus
+      if (nameLower.startsWith(q)) nameScore += 200
+      // Word-boundary match bonus (e.g., "tahoe" in "Tahoe OG" but not "Pax 10G Tahoe Rose")
+      const words = nameLower.split(/\s+/)
+      if (words.some(w => w === q)) nameScore += 150
+      if (words[0] === q) nameScore += 100
+      // Shorter names preferred (closer match to query)
+      nameScore -= nameLower.length * 2
+      // Penalize names where query appears deep inside (e.g., "Pax 10G Tahoe Rose")
+      const pos = nameLower.indexOf(q)
+      nameScore -= pos * 5
+      return { strain: s, nameScore }
+    })
+    .sort((a, b) => b.nameScore - a.nameScore)
+
+  if (nameScored.length > 0 && nameScored.length <= 8) {
+    return nameScored.map(s => s.strain)
+  }
+  if (nameScored.length > 8) {
+    return nameScored.slice(0, 8).map(s => s.strain)
+  }
+
+  // 4. Multi-field scoring for general questions (effects, terpenes, etc.)
   const scored = strains.map(s => {
     let score = 0
     const nameLower = s.name.toLowerCase()
@@ -94,16 +154,18 @@ function searchStrains(query) {
     const flavors = (s.flavors || []).map(f => f.toLowerCase())
 
     for (const tok of tokens) {
-      // Name matches (highest weight)
-      if (nameLower.includes(tok)) score += 10
+      // Name matches (highest weight) — with word-boundary bonus
+      if (nameLower === tok) score += 50
+      else if (nameLower.split(/\s+/).includes(tok)) score += 20
+      else if (nameLower.includes(tok)) score += 10
       // Type match
-      if (typeLower === tok || typeLower.includes(tok)) score += 6
-      // Effect matches
-      for (const e of effectNames) { if (e.includes(tok)) score += 5 }
+      if (typeLower === tok) score += 8
+      // Effect matches (exact word)
+      for (const e of effectNames) { if (e === tok) score += 7; else if (e.includes(tok)) score += 4 }
       // Terpene matches
-      for (const t of terpNames) { if (t.includes(tok)) score += 5 }
+      for (const t of terpNames) { if (t === tok) score += 7; else if (t.includes(tok)) score += 4 }
       // Cannabinoid matches
-      for (const c of cannNames) { if (c.includes(tok)) score += 5 }
+      for (const c of cannNames) { if (c === tok) score += 7; else if (c.includes(tok)) score += 4 }
       // Best-for matches
       for (const b of bestFor) { if (b.includes(tok)) score += 4 }
       // Flavor matches
@@ -171,7 +233,7 @@ function formatStrainContext(s) {
 }
 
 // ── System prompt ────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant for the MyStrainAI cannabis strain database. You help users learn about cannabis strains by consulting the MyStrainAI database of 1,400+ strains.
+const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant for the MyStrainAI cannabis strain database. You help users learn about cannabis strains by consulting the MyStrainAI database of ${strains.length.toLocaleString()}+ strains.
 
 ## CRITICAL RULES
 1. **ONLY use the strain data provided below** to answer questions. NEVER invent or hallucinate strain information.
@@ -184,6 +246,9 @@ const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant fo
 8. **Medical Disclaimer**: Never make medical claims. Cannabis information is for educational purposes only. Always recommend consulting a healthcare professional.
 9. Keep responses focused and under 400 words unless the user asks for detailed breakdowns.
 10. When comparing strains, use a structured format with side-by-side data from the database.
+11. **STRAIN NAME PRECISION**: When multiple strains match a user's query, identify the EXACT strain they're asking about. If a user asks about "Tahoe", respond about "Tahoe OG" (the canonical strain) rather than variants like "Pax 10G Tahoe Rose". Use the EXACT strain names from the database — never abbreviate or alter them.
+12. When multiple strains are in the context, prioritize the one whose name most closely matches what the user asked for. If ambiguous, mention all matching strains and let the user clarify.
+13. Use the **effects confidence scores** to give proportional weight — higher confidence effects should be mentioned first.
 
 ## DATABASE CONTEXT
 Total strains in database: ${strains.length}

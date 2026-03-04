@@ -75,7 +75,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3
-                className="text-lg font-bold text-gray-900 dark:text-white truncate"
+                className="text-lg font-bold text-gray-900 dark:text-white break-words"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {strain.name}
@@ -91,7 +91,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
 
             {/* Genetics line */}
             {strain.genetics && strain.genetics.toLowerCase() !== 'null' && (
-              <p className="text-[11px] italic text-gray-400 dark:text-[#6a7a6e] mt-0.5 truncate">
+              <p className="text-[11px] italic text-gray-400 dark:text-[#6a7a6e] mt-0.5 line-clamp-2">
                 {strain.genetics}
               </p>
             )}

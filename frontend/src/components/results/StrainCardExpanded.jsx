@@ -10,7 +10,7 @@ import TerpeneProfile from '../strain-detail/TerpeneProfile'
 import TerpeneRadar from '../strain-detail/TerpeneRadar'
 import ConsumptionSuitability from '../strain-detail/ConsumptionSuitability'
 import EffectVerification from '../strain-detail/EffectVerification'
-import ForumAnalysis from '../strain-detail/ForumAnalysis'
+// ForumAnalysis removed — duplicate of EffectsBreakdown
 import LineageTree from '../strain-detail/LineageTree'
 import QuickRate from '../ratings/QuickRate'
 import { useRatings } from '../../hooks/useRatings'
@@ -91,15 +91,7 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
         />
       )}
 
-      {/* 10. Community Reviews — sentiment, best for, not ideal for, positive/negative bars */}
-      {(strain.forumAnalysis || strain.bestFor?.length > 0 || strain.sentimentScore != null) && (
-        <ForumAnalysis
-          data={strain.forumAnalysis}
-          bestFor={strain.bestFor}
-          notIdealFor={strain.notIdealFor}
-          sentimentScore={strain.sentimentScore}
-        />
-      )}
+      {/* 10. Community Reviews — REMOVED: duplicate of Full Effects Breakdown (section 3) */}
 
       {/* 11. Lineage Tree */}
       {strain.lineage && (
