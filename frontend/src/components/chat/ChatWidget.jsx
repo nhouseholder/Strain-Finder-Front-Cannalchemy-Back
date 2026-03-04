@@ -274,10 +274,10 @@ export default function ChatWidget() {
         {!isOpen && (
           <div
             onClick={() => setIsOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/90 dark:bg-[#1a2a1e]/90 backdrop-blur-md border border-leaf-500/20 shadow-lg shadow-black/10 cursor-pointer hover:border-leaf-500/40 transition-all animate-fade-in animate-shimmer"
+            className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-full bg-white/90 dark:bg-[#1a2a1e]/90 backdrop-blur-md border border-leaf-500/30 shadow-lg shadow-leaf-500/10 cursor-pointer hover:border-leaf-500/50 hover:shadow-leaf-500/20 transition-all animate-fade-in animate-shimmer"
           >
-            <Sparkles size={12} className="text-leaf-400" />
-            <span className="text-[11px] font-medium text-gray-700 dark:text-[#b0c4b4] whitespace-nowrap">Ask AI about any strain</span>
+            <Sparkles size={14} className="text-leaf-400" />
+            <span className="text-[13px] font-semibold text-gray-800 dark:text-[#c0d4c4] whitespace-nowrap">Ask AI about any strain!</span>
           </div>
         )}
         <button
