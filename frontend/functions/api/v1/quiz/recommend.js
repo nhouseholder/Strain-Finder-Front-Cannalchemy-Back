@@ -965,25 +965,26 @@ export async function onRequestPost(context) {
     // Data quality adjustment: strains with template terpene profiles
     // get a reduced pathway/scaffold weight since those scores are
     // less meaningful when the terpene data is synthetic.
+    // Template weights normalized to 1.00 (was 0.85).
     const isTemplate = hasTemplateTerpenes(strain);
-    const pathwayWeight = isTemplate ? 0.15 : 0.25;
-    const scaffoldWeight = isTemplate ? 0.10 : 0.18;
-    const effectWeight = isTemplate ? 0.25 : 0.20;
-    const toleranceWeight = 0.12;
-    const avoidWeight = 0.10;
-    const cannabinoidWeight = 0.05;
-    const preferenceWeight = 0.05;
-    const synergyWeight = isTemplate ? 0.03 : 0.05;
+    const pathwayWeight    = isTemplate ? 0.15 : 0.25;
+    const scaffoldWeight   = isTemplate ? 0.12 : 0.18;
+    const effectWeight     = isTemplate ? 0.28 : 0.20;
+    const toleranceWeight  = isTemplate ? 0.14 : 0.12;
+    const avoidWeight      = isTemplate ? 0.12 : 0.10;
+    const cannabinoidWeight = isTemplate ? 0.06 : 0.05;
+    const preferenceWeight = isTemplate ? 0.06 : 0.05;
+    const synergyWeight    = isTemplate ? 0.07 : 0.05;
 
-    // 8-layer weighted composite:
-    //   25% receptor pharmacology (terpene→receptor binding affinity) [15% if template terpenes]
-    //   18% scaffold molecular profile (ideal chemistry for desired effects) [10% if template]
-    //   20% community effect alignment (weighted by report strength) [25% if template — compensates]
-    //   12% tolerance-adjusted THC safety (beginner protection)
-    //   10% avoidance penalty (harsh penalty for unwanted effects)
-    //    5% cannabinoid profile match (THC/CBD preference ranges)
-    //    5% user preference alignment (type, method, budget)
-    //    5% goal-aware entourage synergy (terpene combo interactions) [3% if template]
+    // 8-layer weighted composite (sums to 1.00 for both real and template data):
+    //   25% receptor pharmacology (terpene→receptor binding affinity) [15% if template]
+    //   18% scaffold molecular profile (ideal chemistry for desired effects) [12% if template]
+    //   20% community effect alignment (weighted by report strength) [28% if template — compensates]
+    //   12% tolerance-adjusted THC safety (beginner protection) [14% if template]
+    //   10% avoidance penalty (harsh penalty for unwanted effects) [12% if template]
+    //    5% cannabinoid profile match (THC/CBD preference ranges) [6% if template]
+    //    5% user preference alignment (type, method, budget) [6% if template]
+    //    5% goal-aware entourage synergy (terpene combo interactions) [7% if template]
     const molecularScore = Math.max(0, Math.min(100, Math.round(
       pathway * pathwayWeight +
       scaffold * scaffoldWeight +
@@ -995,22 +996,51 @@ export async function onRequestPost(context) {
       synergy * synergyWeight
     )));
 
-    // ── Availability & popularity boost ──────────────────────────────
-    const avail = strain.availability || 5;
-    const availBoost = ((avail - 5) / 5) * 8;
-    const total = Math.max(0, Math.min(100, Math.round(molecularScore + availBoost)));
+    // ── Commonness score ─────────────────────────────────────────────
+    // Strains with more community reports and higher sentiment are
+    // more "common" / well-known / dispensary-available.
+    // totalReports range: ~261-561 (median 416), sentimentScore: 8.4-9.5
+    const totalReports = (strain.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0);
+    const sentiment = strain.sentimentScore || 8.5;
+    // Normalize reports: 0 at 261, 1.0 at 561
+    const reportNorm = Math.min(1, Math.max(0, (totalReports - 260) / 300));
+    // Normalize sentiment: 0 at 8.4, 1.0 at 9.5
+    const sentNorm = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
+    // Commonness: 70% reports (community validation) + 30% sentiment (quality)
+    const commonness = reportNorm * 0.7 + sentNorm * 0.3;
 
-    return { strain, score: total, molecularScore };
+    return { strain, score: molecularScore, molecularScore, commonness };
   });
 
   scored.sort((a, b) => b.score - a.score);
 
+  // ── Commonness re-rank for top 3 ──────────────────────────────────
+  // The top 3 slots blend science score with commonness so users get
+  // high-quality strains they can actually find at dispensaries.
+  // Candidates: top 8 by science score. Re-rank by blended score.
+  const TOP_CANDIDATE_POOL = 8;
+  const TOP_COMMON_SLOTS = 3;
+  const candidates = scored.slice(0, TOP_CANDIDATE_POOL);
+  candidates.sort((a, b) => {
+    // 75% science score + 25% commonness (scaled to 100)
+    const blendA = a.score * 0.75 + a.commonness * 25;
+    const blendB = b.score * 0.75 + b.commonness * 25;
+    return blendB - blendA;
+  });
+  // Place the top 3 blended picks first, then remaining from scored
+  const rerankedTop = candidates.slice(0, TOP_COMMON_SLOTS);
+  const rerankedNames = new Set(rerankedTop.map(s => s.strain.name));
+  const rest = scored.filter(s => !rerankedNames.has(s.strain.name));
+  // Re-sort rest by pure science score
+  rest.sort((a, b) => b.score - a.score);
+  const finalRanked = [...rerankedTop, ...rest];
+
   // Build top 5 results
-  const mainResults = scored.slice(0, 5).map(s => buildStrainResult(s.strain, s.score, desiredCanonicals));
+  const mainResults = finalRanked.slice(0, 5).map(s => buildStrainResult(s.strain, s.score, desiredCanonicals));
 
   // AI picks: 2 from positions 6-15 with type diversity
   const mainTypes = new Set(mainResults.map(r => r.type));
-  const aiPickCandidates = scored.slice(5, 15);
+  const aiPickCandidates = finalRanked.slice(5, 15);
   const aiPicks = [];
 
   const diffType = aiPickCandidates.find(c => !mainTypes.has(c.strain.type));
@@ -1034,7 +1064,7 @@ export async function onRequestPost(context) {
   // Build ideal profile — scaffold-derived molecular targets + actual top-5 averages
   const topTerpTotals = {};
   let thcTotal = 0, cbdTotal = 0;
-  for (const s of scored.slice(0, 5)) {
+  for (const s of finalRanked.slice(0, 5)) {
     for (const t of (s.strain.terpenes || [])) {
       const pct = parseFloat(t.pct) || 0;
       topTerpTotals[t.name] = (topTerpTotals[t.name] || 0) + pct;

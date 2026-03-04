@@ -297,6 +297,218 @@ export const EFFECT_SCAFFOLD = {
     contraindicated: {},
     subtypeAffinity: { indica: 1.1, hybrid: 1.0, sativa: 0.8 },
   },
+
+  // ── Happy / Mood Elevation ──────────────────────────────────
+  happy: {
+    receptors: {
+      '5-HT1A': { weight: 0.30, action: 'agonism', note: 'Serotonergic mood elevation — primary happiness pathway' },
+      dopamine: { weight: 0.25, action: 'release', note: 'Reward circuit activation' },
+      CB1:      { weight: 0.25, action: 'agonism', note: 'Endocannabinoid tone → emotional well-being' },
+      TRPV1:    { weight: 0.10, action: 'agonism', note: 'Sensory enhancement amplifies positive stimuli' },
+      CB2:      { weight: 0.10, action: 'agonism', note: 'Peripheral comfort baseline' },
+    },
+    optimalMolecules: {
+      limonene:    { min: 0.10, ideal: 0.30, weight: 0.30, role: '5-HT1A agonist — direct serotonergic mood boost' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Uplifting complexity — unique mood-brightening profile' },
+      thc:         { min: 12,   ideal: 20,   weight: 0.20, role: 'CB1 → dopamine release → reward/pleasure' },
+      pinene:      { min: 0.05, ideal: 0.15, weight: 0.15, role: 'Mental clarity sustains positive mood' },
+      linalool:    { min: 0.05, ideal: 0.15, weight: 0.15, role: 'Anxiolysis removes mood-dampening rumination' },
+    },
+    synergies: ['limonene+terpinolene', 'limonene+linalool', 'pinene+limonene'],
+    contraindicated: {},
+    subtypeAffinity: { indica: 0.8, hybrid: 1.0, sativa: 1.2 },
+  },
+
+  // ── Uplifted / Elevated Mood ────────────────────────────────
+  uplifted: {
+    receptors: {
+      '5-HT1A': { weight: 0.25, action: 'agonism', note: 'Serotonergic optimism' },
+      dopamine: { weight: 0.25, action: 'release', note: 'Motivational salience' },
+      CB1:      { weight: 0.20, action: 'agonism', note: 'Endocannabinoid mood tone' },
+      TRPV1:    { weight: 0.15, action: 'agonism', note: 'Sensory brightness' },
+      'GABA-A': { weight: 0.15, action: 'potentiation', note: 'Anxiety reduction frees positive affect' },
+    },
+    optimalMolecules: {
+      limonene:    { min: 0.10, ideal: 0.30, weight: 0.30, role: '5-HT1A mood elevation — citrus-bright uplift' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.25, role: 'Signature uplifting terpene in sativa phenotypes' },
+      pinene:      { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Alert, clear-headed positivity' },
+      thc:         { min: 12,   ideal: 18,   weight: 0.15, role: 'Moderate THC avoids anxiety while promoting uplift' },
+      ocimene:     { min: 0,    ideal: 0.10, weight: 0.10, role: 'Sweet terpene — adds euphoric brightness' },
+    },
+    synergies: ['limonene+terpinolene', 'pinene+limonene', 'terpinolene+ocimene'],
+    contraindicated: { myrcene: 'Heavy sedation counters uplift at high doses' },
+    subtypeAffinity: { indica: 0.5, hybrid: 1.0, sativa: 1.3 },
+  },
+
+  // ── Motivated / Drive ───────────────────────────────────────
+  motivated: {
+    receptors: {
+      dopamine: { weight: 0.35, action: 'D1/D2 release', note: 'Motivational salience and goal-directed behavior' },
+      CB1:      { weight: 0.25, action: 'agonism', note: 'Reward anticipation' },
+      '5-HT1A': { weight: 0.20, action: 'agonism', note: 'Mood support prevents amotivation' },
+      TRPV1:    { weight: 0.10, action: 'agonism', note: 'Noradrenergic arousal' },
+      AChE:     { weight: 0.10, action: 'inhibition', note: 'Acetylcholine preservation for task engagement' },
+    },
+    optimalMolecules: {
+      pinene:      { min: 0.10, ideal: 0.25, weight: 0.30, role: 'AChE inhibitor — sustains focus and drive' },
+      limonene:    { min: 0.08, ideal: 0.25, weight: 0.25, role: 'Serotonergic mood + dopaminergic motivation' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Energizing uplift supports action' },
+      thc:         { min: 10,   ideal: 16,   weight: 0.15, role: 'Low-moderate THC — activation without impairment' },
+      ocimene:     { min: 0,    ideal: 0.10, weight: 0.10, role: 'Mild stimulant terpene' },
+    },
+    synergies: ['pinene+limonene', 'limonene+terpinolene'],
+    contraindicated: { myrcene: 'Sedation impairs motivation at high doses', linalool: 'Excessive relaxation reduces drive' },
+    subtypeAffinity: { indica: 0.3, hybrid: 0.9, sativa: 1.4 },
+    thcCaution: true,
+  },
+
+  // ── Talkative / Verbal Fluency ────────────────────────────
+  talkative: {
+    receptors: {
+      dopamine: { weight: 0.30, action: 'release', note: 'Verbal fluency and social reward' },
+      CB1:      { weight: 0.25, action: 'moderate agonism', note: 'Amygdala suppression — social comfort' },
+      '5-HT1A': { weight: 0.20, action: 'agonism', note: 'Serotonergic confidence and openness' },
+      'GABA-A': { weight: 0.15, action: 'potentiation', note: 'Disinhibition — lowered social filter' },
+      TRPV1:    { weight: 0.10, action: 'agonism', note: 'Engagement and sensory stimulation' },
+    },
+    optimalMolecules: {
+      limonene:    { min: 0.10, ideal: 0.30, weight: 0.30, role: 'Mood elevation → social confidence' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.25, role: 'Uplifting verbal energy' },
+      pinene:      { min: 0.05, ideal: 0.15, weight: 0.20, role: 'AChE inhibitor — mental clarity for coherent speech' },
+      thc:         { min: 12,   ideal: 18,   weight: 0.15, role: 'Moderate THC — sociable without paranoia' },
+      caryophyllene:{ min: 0.05, ideal: 0.15, weight: 0.10, role: 'Anti-anxiety baseline via CB2' },
+    },
+    synergies: ['limonene+terpinolene', 'pinene+limonene'],
+    contraindicated: { myrcene: 'Sedation reduces verbal energy at high doses' },
+    subtypeAffinity: { indica: 0.4, hybrid: 1.0, sativa: 1.3 },
+    thcCaution: true,
+  },
+
+  // ── Insomnia / Sleep Aid ──────────────────────────────────
+  insomnia: {
+    receptors: {
+      'GABA-A':   { weight: 0.30, action: 'potentiation', note: 'Primary sleep-inducing neurotransmitter system' },
+      CB1:        { weight: 0.25, action: 'agonism', note: 'Sleep latency reduction via mesolimbic pathway' },
+      adenosine:  { weight: 0.20, action: 'reuptake inhibition', note: 'Sleep pressure accumulation' },
+      '5-HT1A':  { weight: 0.15, action: 'agonism', note: 'Serotonergic calm preceding sleep onset' },
+      'mu-opioid':{ weight: 0.10, action: 'modulation', note: 'Pain-related insomnia relief' },
+    },
+    optimalMolecules: {
+      myrcene:  { min: 0.20, ideal: 0.40, weight: 0.30, role: 'GABAergic sedation — the couch-lock terpene' },
+      linalool: { min: 0.08, ideal: 0.20, weight: 0.25, role: 'Lavender terpene — GABAergic sedation + 5-HT anxiolysis' },
+      thc:      { min: 15,   ideal: 22,   weight: 0.20, role: 'CB1 agonism reduces sleep latency' },
+      cbn:      { min: 0,    ideal: 2.0,  weight: 0.15, role: 'Mildly sedating cannabinoid (may enhance THC sedation)' },
+      bisabolol:{ min: 0,    ideal: 0.10, weight: 0.10, role: 'Chamomile terpene — gentle calming' },
+    },
+    synergies: ['myrcene+linalool', 'myrcene+caryophyllene'],
+    contraindicated: { pinene: 'Alerting terpene counteracts sleep', terpinolene: 'Uplifting at low doses may delay onset' },
+    subtypeAffinity: { indica: 1.4, hybrid: 0.8, sativa: 0.3 },
+  },
+
+  // ── Body High / Somatic ─────────────────────────────────────
+  'body-high': {
+    receptors: {
+      CB1:        { weight: 0.25, action: 'agonism', note: 'Central body awareness modulation' },
+      CB2:        { weight: 0.25, action: 'agonism', note: 'Peripheral somatic sensation' },
+      TRPV1:      { weight: 0.20, action: 'agonism then desensitization', note: 'Warm body sensation followed by numbing' },
+      'mu-opioid':{ weight: 0.15, action: 'modulation', note: 'Endorphin-like body comfort' },
+      'GABA-A':   { weight: 0.15, action: 'potentiation', note: 'Muscle relaxation and physical ease' },
+    },
+    optimalMolecules: {
+      myrcene:       { min: 0.20, ideal: 0.40, weight: 0.30, role: 'BBB permeability + TRPV1 → deep body sensation' },
+      caryophyllene: { min: 0.10, ideal: 0.25, weight: 0.25, role: 'CB2 selective agonist — peripheral body comfort' },
+      thc:           { min: 15,   ideal: 22,   weight: 0.20, role: 'CB1/CB2 dual agonist — somatic awareness' },
+      linalool:      { min: 0.05, ideal: 0.15, weight: 0.15, role: 'GABAergic muscle relaxation' },
+      humulene:      { min: 0.05, ideal: 0.10, weight: 0.10, role: 'Anti-inflammatory synergy with caryophyllene' },
+    },
+    synergies: ['myrcene+caryophyllene', 'caryophyllene+humulene', 'myrcene+linalool'],
+    contraindicated: {},
+    subtypeAffinity: { indica: 1.3, hybrid: 1.0, sativa: 0.6 },
+  },
+
+  // ── Head High / Cerebral ────────────────────────────────────
+  'head-high': {
+    receptors: {
+      CB1:      { weight: 0.30, action: 'agonism', note: 'Prefrontal cortex activation — cerebral effects' },
+      dopamine: { weight: 0.25, action: 'release', note: 'Cognitive stimulation and creativity' },
+      '5-HT1A': { weight: 0.20, action: 'agonism', note: 'Serotonergic ideation' },
+      TRPV1:    { weight: 0.15, action: 'agonism', note: 'Sensory acuity' },
+      AChE:     { weight: 0.10, action: 'inhibition', note: 'Acetylcholine preservation → mental clarity' },
+    },
+    optimalMolecules: {
+      pinene:      { min: 0.10, ideal: 0.25, weight: 0.25, role: 'AChE inhibitor — cerebral clarity and alertness' },
+      limonene:    { min: 0.10, ideal: 0.25, weight: 0.25, role: 'Serotonergic cerebral brightness' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Complex cerebral uplifting' },
+      thc:         { min: 15,   ideal: 22,   weight: 0.20, role: 'CB1 prefrontal activation → heady effects' },
+      ocimene:     { min: 0,    ideal: 0.10, weight: 0.10, role: 'Subtle stimulating terpene' },
+    },
+    synergies: ['pinene+limonene', 'limonene+terpinolene', 'pinene+terpinolene'],
+    contraindicated: { myrcene: 'Sedation shifts high from cerebral to somatic' },
+    subtypeAffinity: { indica: 0.4, hybrid: 0.9, sativa: 1.4 },
+  },
+
+  // ── Anxiety (canonical effect in strain data) ───────────────
+  anxiety: {
+    receptors: {
+      '5-HT1A': { weight: 0.30, action: 'agonism', note: 'Primary anxiolytic serotonin receptor' },
+      'GABA-A': { weight: 0.25, action: 'potentiation', note: 'Inhibitory calm — reduces neural excitability' },
+      CB1:      { weight: 0.20, action: 'agonism', note: 'Amygdala suppression → fear response reduction' },
+      CB2:      { weight: 0.15, action: 'agonism', note: 'Anti-neuroinflammatory → stress resilience' },
+      TRPV1:    { weight: 0.10, action: 'desensitization', note: 'Reduces sensory over-stimulation' },
+    },
+    optimalMolecules: {
+      linalool:      { min: 0.08, ideal: 0.20, weight: 0.30, role: 'Direct GABAergic anxiolytic — lavender pathway' },
+      limonene:      { min: 0.08, ideal: 0.20, weight: 0.25, role: '5-HT1A agonist — mood stabilization' },
+      caryophyllene: { min: 0.10, ideal: 0.25, weight: 0.20, role: 'CB2 agonist — anti-anxiety without psychoactivity' },
+      cbd:           { min: 5,    ideal: 15,   weight: 0.15, role: '5-HT1A agonist (Ki=16nM) — potent anxiolytic' },
+      myrcene:       { min: 0.10, ideal: 0.25, weight: 0.10, role: 'GABAergic sedation reduces rumination' },
+    },
+    synergies: ['linalool+limonene', 'caryophyllene+linalool', 'cbd+linalool'],
+    contraindicated: {},
+    subtypeAffinity: { indica: 1.1, hybrid: 1.0, sativa: 0.7 },
+  },
+
+  // ── Arthritis ────────────────────────────────────────────────
+  arthritis: {
+    receptors: {
+      CB2:       { weight: 0.30, action: 'agonism', note: 'Joint immune cell modulation' },
+      TRPV1:     { weight: 0.25, action: 'desensitization', note: 'Joint pain nerve signal reduction' },
+      PPARgamma: { weight: 0.20, action: 'agonism', note: 'NF-kB suppression in synovial tissue' },
+      CB1:       { weight: 0.15, action: 'agonism', note: 'Central pain perception reduction' },
+      'mu-opioid':{ weight: 0.10, action: 'modulation', note: 'Endogenous pain relief' },
+    },
+    optimalMolecules: {
+      caryophyllene: { min: 0.15, ideal: 0.40, weight: 0.30, role: 'CB2 selective agonist — joint inflammation specificity' },
+      cbd:           { min: 5,    ideal: 15,   weight: 0.25, role: 'TRPV1 + PPARgamma — broad anti-arthritic' },
+      humulene:      { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Synergistic anti-inflammatory with caryophyllene' },
+      myrcene:       { min: 0.10, ideal: 0.25, weight: 0.15, role: 'Analgesic via TRPV1 + opioidergic modulation' },
+      thc:           { min: 10,   ideal: 18,   weight: 0.10, role: 'CB1/CB2 dual agonist — additive pain relief' },
+    },
+    synergies: ['caryophyllene+humulene', 'cbd+caryophyllene', 'myrcene+caryophyllene'],
+    contraindicated: {},
+    subtypeAffinity: { indica: 1.2, hybrid: 1.0, sativa: 0.7 },
+  },
+
+  // ── Fibromyalgia ─────────────────────────────────────────────
+  fibromyalgia: {
+    receptors: {
+      CB1:       { weight: 0.25, action: 'agonism', note: 'Central sensitization reversal' },
+      CB2:       { weight: 0.20, action: 'agonism', note: 'Peripheral pain modulation' },
+      '5-HT1A': { weight: 0.20, action: 'agonism', note: 'Serotonergic pain gate + mood support' },
+      TRPV1:     { weight: 0.20, action: 'desensitization', note: 'Widespread pain fiber desensitization' },
+      'mu-opioid':{ weight: 0.15, action: 'modulation', note: 'Endorphin-like analgesia for diffuse pain' },
+    },
+    optimalMolecules: {
+      myrcene:       { min: 0.15, ideal: 0.35, weight: 0.25, role: 'TRPV1 + BBB permeability — deep analgesic penetration' },
+      caryophyllene: { min: 0.10, ideal: 0.30, weight: 0.25, role: 'CB2 agonist — peripheral anti-inflammatory analgesia' },
+      linalool:      { min: 0.08, ideal: 0.20, weight: 0.20, role: 'GABAergic + 5-HT1A — anxiolytic analgesia' },
+      thc:           { min: 12,   ideal: 20,   weight: 0.15, role: 'CB1 central pain modulation' },
+      cbd:           { min: 5,    ideal: 12,   weight: 0.15, role: '5-HT1A agonist — fibromyalgia-specific serotonin pathway' },
+    },
+    synergies: ['myrcene+caryophyllene', 'linalool+myrcene', 'cbd+caryophyllene'],
+    contraindicated: {},
+    subtypeAffinity: { indica: 1.3, hybrid: 1.0, sativa: 0.6 },
+  },
 };
 
 // ============================================================
