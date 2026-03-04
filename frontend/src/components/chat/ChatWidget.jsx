@@ -109,6 +109,41 @@ export default function ChatWidget() {
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
+  // ── Resize state ──────────────────────────────────────────────────
+  const [size, setSize] = useState({ w: 400, h: 520 })
+  const resizing = useRef(null)
+
+  const onResizeStart = useCallback((e, direction) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const startX = e.clientX
+    const startY = e.clientY
+    const startW = size.w
+    const startH = size.h
+    resizing.current = { startX, startY, startW, startH, direction }
+
+    const onMove = (ev) => {
+      if (!resizing.current) return
+      const { startX, startY, startW, startH, direction: dir } = resizing.current
+      let newW = startW
+      let newH = startH
+      // Left edge/corner: dragging left increases width
+      if (dir.includes('l')) newW = Math.min(700, Math.max(320, startW - (ev.clientX - startX)))
+      // Top edge/corner: dragging up increases height
+      if (dir.includes('t')) newH = Math.min(800, Math.max(360, startH - (ev.clientY - startY)))
+      setSize({ w: newW, h: newH })
+    }
+
+    const onUp = () => {
+      resizing.current = null
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }, [size])
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -194,7 +229,27 @@ export default function ChatWidget() {
     <>
       {/* ── Chat Window ──────────────────────────────────────────── */}
       {isOpen && (
-        <div className="fixed bottom-20 right-4 sm:right-6 z-[9999] w-[calc(100vw-2rem)] sm:w-[400px] max-h-[70vh] flex flex-col rounded-2xl border border-gray-200/60 dark:border-white/[0.08] bg-[#f8faf8] dark:bg-[#0f1a12] shadow-2xl shadow-black/20 animate-slide-up overflow-hidden">
+        <div
+          className="fixed bottom-20 right-4 sm:right-6 z-[9999] flex flex-col rounded-2xl border border-gray-200/60 dark:border-white/[0.08] bg-[#f8faf8] dark:bg-[#0f1a12] shadow-2xl shadow-black/20 animate-slide-up overflow-hidden"
+          style={{ width: `min(${size.w}px, calc(100vw - 2rem))`, height: `min(${size.h}px, 80vh)` }}
+        >
+
+          {/* Resize handles (desktop only) */}
+          {/* Top-left corner */}
+          <div
+            onMouseDown={(e) => onResizeStart(e, 'tl')}
+            className="hidden sm:block absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
+          />
+          {/* Top edge */}
+          <div
+            onMouseDown={(e) => onResizeStart(e, 't')}
+            className="hidden sm:block absolute top-0 left-4 right-0 h-1.5 cursor-n-resize z-10"
+          />
+          {/* Left edge */}
+          <div
+            onMouseDown={(e) => onResizeStart(e, 'l')}
+            className="hidden sm:block absolute top-4 left-0 bottom-0 w-1.5 cursor-w-resize z-10"
+          />
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white">
@@ -217,7 +272,7 @@ export default function ChatWidget() {
           </div>
 
           {/* Messages area */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ maxHeight: 'calc(70vh - 130px)', minHeight: '200px' }}>
+          <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4" style={{ minHeight: '120px' }}>
             {messages.length === 0 ? (
               /* Welcome state */
               <div className="text-center py-4">
