@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * 7-layer pharmacological matching engine with receptor-level scoring,
+ * Tri-pillar scoring engine (50% Science · 20% Community · 30% Commonness) with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -950,90 +950,80 @@ export async function onRequestPost(context) {
   }
   const eligibleStrains = strainData.strains.filter(isQuizEligible);
 
-  // Score all strains — 8-layer pharmacological matching engine
+  // ═══════════════════════════════════════════════════════════════════
+  // Tri-pillar scoring engine — 50% Science · 20% Community · 30% Commonness
+  // ═══════════════════════════════════════════════════════════════════
+  // Pillar 1 – SCIENCE (50%): receptor pharmacology, scaffold molecular
+  //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
+  //   user preference alignment, entourage synergy (7 sub-layers).
+  // Pillar 2 – COMMUNITY (20%): weighted community effect-report alignment
+  //   — how strongly real users report the effects the quiz-taker wants.
+  // Pillar 3 – COMMONNESS (30%): how well-known / dispensary-available
+  //   the strain is, derived from total report volume + sentiment score.
+  // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
   const scored = eligibleStrains.map(strain => {
-    const pathway = calcPathwayScore(strain, desiredReceptors, desiredCanonicals);
-    const effect = calcEffectReportScore(strain, desiredCanonicals);
-    const avoid = calcAvoidScore(strain, avoidCanonicals);
+    // ── Compute individual layer scores (each 0-100) ──────────────
+    const pathway    = calcPathwayScore(strain, desiredReceptors, desiredCanonicals);
+    const effect     = calcEffectReportScore(strain, desiredCanonicals);
+    const avoid      = calcAvoidScore(strain, avoidCanonicals);
     const cannabinoid = calcCannabinoidScore(strain, quiz.thcPreference || 'no_preference', quiz.cbdPreference || 'no_preference');
     const preference = calcPreferenceScore(strain, quiz);
-    const synergy = calcGoalSynergyScore(strain, desiredCanonicals);
-    const scaffold = calcScaffoldScore(strain, desiredCanonicals);
-    const tolerance = calcToleranceScore(strain, toleranceId);
+    const synergy    = calcGoalSynergyScore(strain, desiredCanonicals);
+    const scaffold   = calcScaffoldScore(strain, desiredCanonicals);
+    const tolerance  = calcToleranceScore(strain, toleranceId);
 
-    // Data quality adjustment: strains with template terpene profiles
-    // get a reduced pathway/scaffold weight since those scores are
-    // less meaningful when the terpene data is synthetic.
-    // Template weights normalized to 1.00 (was 0.85).
+    // ── Pillar 1: SCIENCE (7 pharmacology sub-layers) ─────────────
+    // Template strains (synthetic terpene data) shift weight away from
+    // terpene-dependent layers toward safety / avoidance / preferences.
+    // Sub-weights always sum to 1.00 so the science pillar is 0-100.
     const isTemplate = hasTemplateTerpenes(strain);
-    const pathwayWeight    = isTemplate ? 0.15 : 0.25;
-    const scaffoldWeight   = isTemplate ? 0.12 : 0.18;
-    const effectWeight     = isTemplate ? 0.28 : 0.20;
-    const toleranceWeight  = isTemplate ? 0.14 : 0.12;
-    const avoidWeight      = isTemplate ? 0.12 : 0.10;
-    const cannabinoidWeight = isTemplate ? 0.06 : 0.05;
-    const preferenceWeight = isTemplate ? 0.06 : 0.05;
-    const synergyWeight    = isTemplate ? 0.07 : 0.05;
+    //                              Real   Template
+    const pw = isTemplate ? 0.21 : 0.31;  // receptor pharmacology
+    const sw = isTemplate ? 0.17 : 0.23;  // scaffold molecular profile
+    const tw = isTemplate ? 0.19 : 0.15;  // tolerance safety
+    const aw = isTemplate ? 0.17 : 0.13;  // avoidance penalty
+    const cw = isTemplate ? 0.08 : 0.06;  // cannabinoid match
+    const rw = isTemplate ? 0.09 : 0.06;  // user preference alignment
+    const yw = isTemplate ? 0.09 : 0.06;  // entourage synergy
+    const scienceScore = Math.max(0, Math.min(100,
+      pathway   * pw +
+      scaffold  * sw +
+      tolerance * tw +
+      avoid     * aw +
+      cannabinoid * cw +
+      preference * rw +
+      synergy   * yw
+    ));
 
-    // 8-layer weighted composite (sums to 1.00 for both real and template data):
-    //   25% receptor pharmacology (terpene→receptor binding affinity) [15% if template]
-    //   18% scaffold molecular profile (ideal chemistry for desired effects) [12% if template]
-    //   20% community effect alignment (weighted by report strength) [28% if template — compensates]
-    //   12% tolerance-adjusted THC safety (beginner protection) [14% if template]
-    //   10% avoidance penalty (harsh penalty for unwanted effects) [12% if template]
-    //    5% cannabinoid profile match (THC/CBD preference ranges) [6% if template]
-    //    5% user preference alignment (type, method, budget) [6% if template]
-    //    5% goal-aware entourage synergy (terpene combo interactions) [7% if template]
-    const molecularScore = Math.max(0, Math.min(100, Math.round(
-      pathway * pathwayWeight +
-      scaffold * scaffoldWeight +
-      effect * effectWeight +
-      tolerance * toleranceWeight +
-      avoid * avoidWeight +
-      cannabinoid * cannabinoidWeight +
-      preference * preferenceWeight +
-      synergy * synergyWeight
-    )));
+    // ── Pillar 2: COMMUNITY (effect report alignment) ─────────────
+    // Already 0-100 from calcEffectReportScore.
+    const communityScore = effect;
 
-    // ── Commonness score ─────────────────────────────────────────────
-    // Strains with more community reports and higher sentiment are
-    // more "common" / well-known / dispensary-available.
+    // ── Pillar 3: COMMONNESS (popularity + sentiment) ─────────────
     // totalReports range: ~261-561 (median 416), sentimentScore: 8.4-9.5
     const totalReports = (strain.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0);
     const sentiment = strain.sentimentScore || 8.5;
-    // Normalize reports: 0 at 261, 1.0 at 561
     const reportNorm = Math.min(1, Math.max(0, (totalReports - 260) / 300));
-    // Normalize sentiment: 0 at 8.4, 1.0 at 9.5
-    const sentNorm = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
-    // Commonness: 70% reports (community validation) + 30% sentiment (quality)
-    const commonness = reportNorm * 0.7 + sentNorm * 0.3;
+    const sentNorm   = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
+    // Commonness sub-blend: 70% report volume + 30% sentiment quality
+    const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
+    const commonnessScore = commonnessRaw * 100;               // 0-100
 
-    return { strain, score: molecularScore, molecularScore, commonness };
+    // ── Final blended score: 50% science · 20% community · 30% commonness
+    const score = Math.max(0, Math.min(100, Math.round(
+      scienceScore    * 0.50 +
+      communityScore  * 0.20 +
+      commonnessScore * 0.30
+    )));
+
+    return { strain, score, scienceScore, communityScore, commonnessScore };
   });
 
-  scored.sort((a, b) => b.score - a.score);
+  // Sort all results by the unified blended score
+  scored.sort((a, b) => b.score - a.score || b.scienceScore - a.scienceScore);
 
-  // ── Commonness re-rank for top 3 ──────────────────────────────────
-  // The top 3 slots blend science score with commonness so users get
-  // high-quality strains they can actually find at dispensaries.
-  // Candidates: top 8 by science score. Re-rank by blended score.
-  const TOP_CANDIDATE_POOL = 8;
-  const TOP_COMMON_SLOTS = 3;
-  const candidates = scored.slice(0, TOP_CANDIDATE_POOL);
-  candidates.sort((a, b) => {
-    // 75% science score + 25% commonness (scaled to 100)
-    const blendA = a.score * 0.75 + a.commonness * 25;
-    const blendB = b.score * 0.75 + b.commonness * 25;
-    return blendB - blendA;
-  });
-  // Place the top 3 blended picks first, then remaining from scored
-  const rerankedTop = candidates.slice(0, TOP_COMMON_SLOTS);
-  const rerankedNames = new Set(rerankedTop.map(s => s.strain.name));
-  const rest = scored.filter(s => !rerankedNames.has(s.strain.name));
-  // Re-sort rest by pure science score
-  rest.sort((a, b) => b.score - a.score);
-  const finalRanked = [...rerankedTop, ...rest];
+  const finalRanked = scored;
 
   // Build top 5 results
   const mainResults = finalRanked.slice(0, 5).map(s => buildStrainResult(s.strain, s.score, desiredCanonicals));
@@ -1143,7 +1133,7 @@ export async function onRequestPost(context) {
         : toleranceId === 'experienced' ? 'experienced (THC 18-26% suitable)'
         : 'high tolerance (any THC level appropriate)';
 
-      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our 8-layer pharmacological matching engine scored strains based on receptor binding affinity, entourage synergy, terpene-to-effect pathway mapping, and tolerance-adjusted THC safety. Write a brief, personalized analysis (3-4 sentences max) explaining the scientific reasoning behind the top match.
+      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our tri-pillar scoring engine ranked strains using three pillars: 50% Science (receptor binding, entourage synergy, terpene-to-effect pathways, tolerance safety), 20% Community (real user effect reports weighted by strength), and 30% Commonness (popularity and dispensary availability). Write a brief, personalized analysis (3-4 sentences max) explaining why the top match scored highest across all three pillars.
 
 User's desired effects: ${desiredLabels.join(', ')}
 ${avoidLabels.length ? `Effects to avoid: ${avoidLabels.join(', ')}` : ''}
@@ -1158,7 +1148,7 @@ ${scaffoldContext}
 Top matches from our algorithm:
 ${topStrainSummaries}
 
-Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for this user, referencing specific terpenes, their receptor targets (use receptor names like CB1, CB2, 5-HT1A, TRPV1, GABA-A), and how the terpene-cannabinoid entourage effect creates the desired experience. Be scientifically grounded but accessible. Do NOT make medical claims. Speak directly to the user using "you" and "your". Start directly with the analysis — no greeting or preamble.`;
+Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for this user. Reference specific terpenes and their receptor targets (CB1, CB2, 5-HT1A, TRPV1, GABA-A), how the terpene-cannabinoid entourage effect creates the desired experience, and note that community reports and strain popularity reinforce the science. Be scientifically grounded but accessible. Do NOT make medical claims. Speak directly to the user using "you" and "your". Start directly with the analysis — no greeting or preamble.`;
 
       const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
