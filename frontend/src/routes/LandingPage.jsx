@@ -7,7 +7,7 @@ import {
   FlaskConical, Fingerprint, BookMarked, ArrowRight, Sparkles,
   Search, Zap, BarChart3, ChevronRight, Star, Lock, Check,
   ThumbsUp, ThumbsDown, Users, Wine, Lightbulb, ChevronDown,
-  Dna, ShieldCheck, Database,
+  Dna, ShieldCheck, Database, MessageCircle, Bot,
 } from 'lucide-react'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
@@ -65,6 +65,14 @@ function StrainSearchBar({ strainCount }) {
       <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-2 text-center">
         {displayCount > 0 ? `Search our database of ${displayCount.toLocaleString()}+ strains` : 'Search our strain database'}
       </p>
+      <button
+        onClick={() => window.dispatchEvent(new CustomEvent('open-chat'))}
+        className="flex items-center gap-1.5 mx-auto mt-2.5 px-3 py-1 rounded-full text-[11px] text-gray-400 dark:text-[#6a7a6e] hover:text-leaf-500 dark:hover:text-leaf-400 transition-colors group"
+      >
+        <MessageCircle size={12} className="group-hover:text-leaf-400 transition-colors" />
+        or ask our AI anything
+        <ArrowRight size={10} className="opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+      </button>
     </div>
   )
 }
@@ -532,6 +540,94 @@ function HowItWorksSection() {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Section 4b: AI Chat Spotlight                                     */
+/* ------------------------------------------------------------------ */
+function AIChatSection() {
+  const ref = useScrollReveal()
+
+  const sampleConvo = [
+    { role: 'user', text: "What's a good strain for focus and creativity?" },
+    { role: 'ai', text: "Based on our database, **Durban Poison** is a top pick — it's a pure sativa with high THCV and limonene, commonly reported for energizing focus. **Jack Herer** is another great option with a balanced terpene profile for creative flow." },
+  ]
+
+  return (
+    <section className="py-20 px-6 overflow-hidden" ref={ref}>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center gap-10 md:gap-14">
+          {/* Left: copy */}
+          <div className="flex-1 text-center md:text-left">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-leaf-500/10 border border-leaf-500/20 mb-4">
+              <Sparkles size={12} className="text-leaf-400" />
+              <span className="text-[11px] font-semibold text-leaf-400">New Feature</span>
+            </div>
+            <h2
+              className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-4"
+              style={{ fontFamily: "'Playfair Display', serif" }}
+            >
+              Ask our AI about{' '}
+              <span className="bg-gradient-to-r from-leaf-400 to-leaf-500 bg-clip-text text-transparent">
+                any strain
+              </span>
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-[#8a9a8e] leading-relaxed mb-6 max-w-md mx-auto md:mx-0">
+              Get instant, personalized answers grounded in our full strain database. Ask about effects, terpenes, comparisons, or recommendations — our AI searches {'\u{2318}'} 1,400+ strains in real time.
+            </p>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-chat'))}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-leaf-500/10 hover:bg-leaf-500/20 border border-leaf-500/20 hover:border-leaf-500/30 text-leaf-500 dark:text-leaf-400 text-sm font-medium transition-all group"
+            >
+              <MessageCircle size={16} />
+              Try it now
+              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+
+          {/* Right: mini chat mockup */}
+          <div className="flex-1 max-w-sm w-full">
+            <div className="rounded-2xl border border-gray-200/50 dark:border-white/[0.08] bg-white/60 dark:bg-white/[0.03] backdrop-blur-lg shadow-xl shadow-black/5 dark:shadow-black/30 overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200/40 dark:border-white/[0.06] bg-gradient-to-r from-leaf-500/10 to-transparent">
+                <div className="w-7 h-7 rounded-full bg-leaf-500/15 flex items-center justify-center">
+                  <Bot size={14} className="text-leaf-400" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-gray-800 dark:text-[#d0e0d4]">Strain AI</p>
+                  <p className="text-[9px] text-leaf-500">Online · Instant answers</p>
+                </div>
+              </div>
+              {/* Messages */}
+              <div className="p-3 space-y-3">
+                {sampleConvo.map((msg, i) => (
+                  <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                    <div className={`max-w-[85%] rounded-2xl px-3 py-2 text-[12px] leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'bg-leaf-500 text-white rounded-br-md'
+                        : 'bg-gray-100 dark:bg-white/[0.06] text-gray-700 dark:text-[#c0d4c4] rounded-bl-md border border-gray-200/40 dark:border-white/[0.06]'
+                    }`}>
+                      {msg.text.split(/(\*\*[^*]+\*\*)/).map((seg, j) =>
+                        seg.startsWith('**') && seg.endsWith('**')
+                          ? <strong key={j} className="font-semibold">{seg.slice(2, -2)}</strong>
+                          : seg
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Fake input */}
+              <div className="px-3 pb-3">
+                <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200/50 dark:border-white/[0.06] bg-gray-50/80 dark:bg-white/[0.02]">
+                  <span className="text-[11px] text-gray-400 dark:text-[#5a6a5e]">Ask about a strain...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
 /*  Section 5: Pricing                                                */
 /* ------------------------------------------------------------------ */
 function PricingSection({ onGetStarted }) {
@@ -703,6 +799,7 @@ export default function LandingPage() {
       <FeaturesSection />
       <DemoSection />
       <HowItWorksSection />
+      <AIChatSection />
       <PricingSection onGetStarted={handleGetStarted} />
       <CTASection onGetStarted={handleGetStarted} />
 

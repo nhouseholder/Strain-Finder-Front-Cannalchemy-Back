@@ -99,6 +99,13 @@ export default function ChatWidget() {
     }
   }, [isOpen])
 
+  // Allow external components to open the chat via custom event
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true)
+    window.addEventListener('open-chat', handleOpen)
+    return () => window.removeEventListener('open-chat', handleOpen)
+  }, [])
+
   const sendMessage = useCallback(async (text) => {
     const userMessage = (text || input).trim()
     if (!userMessage || loading) return
@@ -267,7 +274,7 @@ export default function ChatWidget() {
         {!isOpen && (
           <div
             onClick={() => setIsOpen(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/90 dark:bg-[#1a2a1e]/90 backdrop-blur-md border border-leaf-500/20 shadow-lg shadow-black/10 cursor-pointer hover:border-leaf-500/40 transition-all animate-fade-in"
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/90 dark:bg-[#1a2a1e]/90 backdrop-blur-md border border-leaf-500/20 shadow-lg shadow-black/10 cursor-pointer hover:border-leaf-500/40 transition-all animate-fade-in animate-shimmer"
           >
             <Sparkles size={12} className="text-leaf-400" />
             <span className="text-[11px] font-medium text-gray-700 dark:text-[#b0c4b4] whitespace-nowrap">Ask AI about any strain</span>
