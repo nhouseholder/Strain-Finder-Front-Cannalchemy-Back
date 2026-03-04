@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -19,6 +20,24 @@ function TypingIndicator() {
 /* ------------------------------------------------------------------ */
 function ChatMessage({ message }) {
   const isUser = message.role === 'user'
+  // Build a set of referenced strain names (lowercase) for link matching
+  const refSet = new Set((message.strains_referenced || []).map(n => n.toLowerCase()))
+
+  // Render a bold segment — if the text matches a referenced strain, render as a link
+  const renderBold = (text, key) => {
+    if (!isUser && refSet.has(text.toLowerCase())) {
+      return (
+        <Link
+          key={key}
+          to={`/search?q=${encodeURIComponent(text)}`}
+          className="font-semibold text-leaf-500 dark:text-leaf-400 underline decoration-leaf-500/30 hover:decoration-leaf-500/60 transition-colors"
+        >
+          {text}
+        </Link>
+      )
+    }
+    return <strong key={key} className={isUser ? 'font-semibold' : 'font-semibold text-gray-900 dark:text-[#e8f0ea]'}>{text}</strong>
+  }
 
   return (
     <div className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'} animate-fade-in`}>
@@ -39,24 +58,27 @@ function ChatMessage({ message }) {
       }`}>
         {message.content.split('\n').map((line, i) => (
           <p key={i} className={i > 0 ? 'mt-1.5' : ''}>
-            {/* Bold formatting */}
             {line.split(/(\*\*[^*]+\*\*)/).map((seg, j) =>
               seg.startsWith('**') && seg.endsWith('**')
-                ? <strong key={j} className={isUser ? 'font-semibold' : 'font-semibold text-gray-900 dark:text-[#e8f0ea]'}>{seg.slice(2, -2)}</strong>
+                ? renderBold(seg.slice(2, -2), j)
                 : seg
             )}
           </p>
         ))}
 
-        {/* Referenced strains badge */}
+        {/* Referenced strains badge links */}
         {message.strains_referenced?.length > 0 && (
           <div className="mt-2 pt-2 border-t border-gray-200/30 dark:border-white/[0.06]">
             <p className="text-[10px] font-semibold text-gray-500 dark:text-[#6a7a6e] uppercase mb-1">Strains Referenced</p>
             <div className="flex flex-wrap gap-1">
               {message.strains_referenced.map(name => (
-                <span key={name} className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-leaf-500/10 text-leaf-500 dark:text-leaf-400 border border-leaf-500/20">
+                <Link
+                  key={name}
+                  to={`/search?q=${encodeURIComponent(name)}`}
+                  className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-leaf-500/10 text-leaf-500 dark:text-leaf-400 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors"
+                >
                   {name}
-                </span>
+                </Link>
               ))}
             </div>
           </div>
