@@ -30,7 +30,7 @@ const SF_TO_CANONICAL = {
   focus: ['focused'],
   euphoria: ['euphoric', 'happy', 'giggly'],
   social: ['talkative', 'giggly', 'uplifted'],
-  appetite: ['hungry', 'appetite-loss'],
+  giggles: ['giggly', 'happy', 'euphoric'],
 };
 
 const SF_AVOID_TO_CANONICAL = {

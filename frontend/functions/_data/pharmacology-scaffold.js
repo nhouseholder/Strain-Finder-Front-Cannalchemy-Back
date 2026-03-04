@@ -214,6 +214,28 @@ export const EFFECT_SCAFFOLD = {
     thcCaution: true, // Too much THC → paranoia in social settings
   },
 
+  // ── Giggles / Laughter ────────────────────────────────────
+  giggly: {
+    receptors: {
+      CB1:      { weight: 0.30, action: 'agonism', note: 'Prefrontal disinhibition + mesolimbic dopamine release → lowered laughter threshold' },
+      dopamine: { weight: 0.25, action: 'D2 release', note: 'Nucleus accumbens reward/pleasure → laughter circuits' },
+      '5-HT1A': { weight: 0.20, action: 'agonism', note: 'Serotonergic mood elevation → reduced self-censorship' },
+      'GABA-A': { weight: 0.15, action: 'potentiation', note: 'Disinhibition — social laughter without overthinking' },
+      TRPV1:    { weight: 0.10, action: 'agonism', note: 'Sensory amplification and engagement' },
+    },
+    optimalMolecules: {
+      limonene:    { min: 0.10, ideal: 0.35, weight: 0.30, role: '5-HT1A mood elevation + dopamine facilitation → giggly lightness' },
+      thc:         { min: 15,   ideal: 20,   weight: 0.25, role: 'CB1 → dopamine pathway → laughter threshold reduction' },
+      terpinolene: { min: 0.05, ideal: 0.15, weight: 0.20, role: 'Uplifting lightheartedness unique to giggly sativas' },
+      pinene:      { min: 0.05, ideal: 0.15, weight: 0.15, role: 'AChE inhibitor — mental clarity keeps humor circuits engaged' },
+      ocimene:     { min: 0,    ideal: 0.10, weight: 0.10, role: 'Sweet uplifting terpene — energized playfulness' },
+    },
+    synergies: ['limonene+terpinolene', 'limonene+pinene', 'terpinolene+ocimene'],
+    contraindicated: { myrcene: 'Heavy sedation at high doses dampens playful mental state' },
+    subtypeAffinity: { indica: 0.5, hybrid: 1.0, sativa: 1.3 },
+    thcCaution: true, // Too much THC → anxiety replaces giggles
+  },
+
   // ── Appetite Stimulation ──────────────────────────────────
   hungry: {
     receptors: {

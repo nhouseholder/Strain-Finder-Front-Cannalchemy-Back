@@ -8,7 +8,7 @@ export const EFFECTS = [
   { id: 'focus', label: 'Focus', icon: 'Target', desc: 'Dial in', emoji: '🎯' },
   { id: 'euphoria', label: 'Euphoria', icon: 'Sparkles', desc: 'Feel amazing', emoji: '✨' },
   { id: 'social', label: 'Social', icon: 'MessageCircle', desc: 'Be the vibe', emoji: '💬' },
-  { id: 'appetite', label: 'Appetite', icon: 'UtensilsCrossed', desc: 'Stimulate hunger', emoji: '🍕' },
+  { id: 'giggles', label: 'Giggles', icon: 'Laugh', desc: 'Get the laughs', emoji: '😂' },
 ];
 
 export const AVOID_EFFECTS = [

@@ -8,7 +8,7 @@
       "sleep": 0.8,
       "pain_relief": 0.7,
       "anxiety_relief": 0.5,
-      "appetite": 0.4,
+      "giggles": 0.1,
       "euphoria": 0.3,
       "energy": 0.0,
       "focus": 0.0,
@@ -35,7 +35,7 @@
       "focus": 0.5,
       "creativity": 0.6,
       "social": 0.7,
-      "appetite": 0.2
+      "giggles": 0.9
     },
     "aroma": ["Citrus", "Lemon", "Orange"],
     "boilingPoint": "176°C / 349°F",
@@ -57,7 +57,7 @@
       "focus": 0.1,
       "creativity": 0.2,
       "social": 0.2,
-      "appetite": 0.1
+      "giggles": 0.3
     },
     "aroma": ["Floral", "Lavender", "Spicy"],
     "boilingPoint": "198°C / 388°F",
@@ -79,7 +79,7 @@
       "focus": 0.2,
       "creativity": 0.1,
       "social": 0.2,
-      "appetite": 0.3
+      "giggles": 0.3
     },
     "aroma": ["Peppery", "Spicy", "Woody"],
     "boilingPoint": "130°C / 266°F",
@@ -101,7 +101,7 @@
       "euphoria": 0.4,
       "creativity": 0.5,
       "social": 0.4,
-      "appetite": 0.1
+      "giggles": 0.5
     },
     "aroma": ["Pine", "Fresh", "Woodsy"],
     "boilingPoint": "155°C / 311°F",
@@ -123,7 +123,7 @@
       "pain_relief": 0.2,
       "focus": 0.5,
       "social": 0.6,
-      "appetite": 0.2
+      "giggles": 0.7
     },
     "aroma": ["Floral", "Herbal", "Piney"],
     "boilingPoint": "186°C / 367°F",
@@ -134,10 +134,10 @@
   "humulene": {
     "name": "Humulene",
     "color": "#e67700",
-    "effects": ["pain_relief", "appetite"],
+    "effects": ["pain_relief", "relaxation"],
     "effectWeight": {
       "pain_relief": 0.7,
-      "appetite": -0.6,
+      "giggles": 0.1,
       "relaxation": 0.5,
       "anxiety_relief": 0.4,
       "energy": 0.2,
@@ -167,7 +167,7 @@
       "sleep": 0.0,
       "pain_relief": 0.3,
       "anxiety_relief": 0.2,
-      "appetite": 0.1
+      "giggles": 0.5
     },
     "aroma": ["Sweet", "Herbal", "Woody"],
     "boilingPoint": "100°C / 212°F",
@@ -189,7 +189,7 @@
       "focus": 0.1,
       "creativity": 0.1,
       "social": 0.1,
-      "appetite": 0.1
+      "giggles": 0.1
     },
     "aroma": ["Floral", "Sweet", "Chamomile"],
     "boilingPoint": "153°C / 307°F",

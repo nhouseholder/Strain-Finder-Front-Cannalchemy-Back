@@ -11,7 +11,7 @@ SF_TO_CANONICAL = {
     "focus": ["focused"],
     "euphoria": ["euphoric", "happy", "giggly"],
     "social": ["talkative", "giggly", "uplifted"],
-    "appetite": ["hungry", "appetite-loss"],
+    "giggles": ["giggly", "happy", "euphoric"],
 }
 
 # SF avoid effects -> canonical negative effect names
