@@ -198,7 +198,10 @@ function formatStrainContext(s) {
   if (s.description_extended) lines.push(`  Details: ${s.description_extended}`)
 
   if (s.effects?.length) {
-    const effs = s.effects.map(e => `${e.name} (${e.category}, ${e.confidence}% confidence)`).join(', ')
+    const effs = s.effects.map(e => {
+      const conf = e.confidence <= 1 ? Math.round(e.confidence * 100) : Math.round(e.confidence)
+      return `${e.name} (${e.category}, ${e.reports} reports, ${conf}% confidence)`
+    }).join(', ')
     lines.push(`  Effects: ${effs}`)
   }
 

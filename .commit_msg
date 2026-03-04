@@ -1,12 +1,6 @@
-v5.12.0 — AI Strain Chat
+v5.12.1 — Fixes: strain count, name truncation, chat AI, duplicate section
 
-- NEW: AI Chat widget on the landing page (floating bubble, expandable window)
-- NEW: /api/v1/chat endpoint — RAG-powered strain Q&A using Workers AI (Llama 3.3 70B)
-- Chat searches 1,477 strains across name, type, effects, terpenes, cannabinoids, genetics, flavors, best_for
-- AI is grounded to ONLY cite factual data from the MyStrainAI database
-- Conversation history support (6-turn context window)
-- Rate limiting (30 req/hr per IP)
-- Suggested starter questions for new users
-- Strain reference badges on AI responses
-- Responsive design with dark mode support
-- Version bump to v5.12.0
+1. Strain count auto-updates from database (was hardcoded 24000+)
+2. Strain names no longer cut off on result cards
+3. Chat AI smarter at strain identification (Tahoe OG vs Pax 10G Tahoe Rose)
+4. Removed duplicate Community Reviews section from strain detail
