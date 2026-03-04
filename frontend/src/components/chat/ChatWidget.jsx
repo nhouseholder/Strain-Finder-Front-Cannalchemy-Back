@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown } from 'lucide-react'
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown, Maximize2, Minimize2 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
 /*  Typing indicator dots                                             */
@@ -106,6 +106,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const messagesEndRef = useRef(null)
   const inputRef = useRef(null)
 
@@ -230,26 +231,34 @@ export default function ChatWidget() {
       {/* ── Chat Window ──────────────────────────────────────────── */}
       {isOpen && (
         <div
-          className="fixed bottom-20 right-4 sm:right-6 z-[9999] flex flex-col rounded-2xl border border-gray-200/60 dark:border-white/[0.08] bg-[#f8faf8] dark:bg-[#0f1a12] shadow-2xl shadow-black/20 animate-slide-up overflow-hidden"
-          style={{ width: `min(${size.w}px, calc(100vw - 2rem))`, height: `min(${size.h}px, 80vh)` }}
+          className={`fixed z-[9999] flex flex-col border bg-[#f8faf8] dark:bg-[#0f1a12] shadow-2xl shadow-black/20 animate-slide-up overflow-hidden ${
+            isFullscreen
+              ? 'inset-0 rounded-none border-transparent'
+              : 'bottom-20 right-4 sm:right-6 rounded-2xl border-gray-200/60 dark:border-white/[0.08]'
+          }`}
+          style={isFullscreen ? undefined : { width: `min(${size.w}px, calc(100vw - 2rem))`, height: `min(${size.h}px, 80vh)` }}
         >
 
-          {/* Resize handles (desktop only) */}
-          {/* Top-left corner */}
-          <div
-            onMouseDown={(e) => onResizeStart(e, 'tl')}
-            className="hidden sm:block absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
-          />
-          {/* Top edge */}
-          <div
-            onMouseDown={(e) => onResizeStart(e, 't')}
-            className="hidden sm:block absolute top-0 left-4 right-0 h-1.5 cursor-n-resize z-10"
-          />
-          {/* Left edge */}
-          <div
-            onMouseDown={(e) => onResizeStart(e, 'l')}
-            className="hidden sm:block absolute top-4 left-0 bottom-0 w-1.5 cursor-w-resize z-10"
-          />
+          {/* Resize handles (desktop only, hidden in fullscreen) */}
+          {!isFullscreen && (
+            <>
+              {/* Top-left corner */}
+              <div
+                onMouseDown={(e) => onResizeStart(e, 'tl')}
+                className="hidden sm:block absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-10"
+              />
+              {/* Top edge */}
+              <div
+                onMouseDown={(e) => onResizeStart(e, 't')}
+                className="hidden sm:block absolute top-0 left-4 right-0 h-1.5 cursor-n-resize z-10"
+              />
+              {/* Left edge */}
+              <div
+                onMouseDown={(e) => onResizeStart(e, 'l')}
+                className="hidden sm:block absolute top-4 left-0 bottom-0 w-1.5 cursor-w-resize z-10"
+              />
+            </>
+          )}
 
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white">
@@ -262,13 +271,23 @@ export default function ChatWidget() {
                 <p className="text-[10px] text-white/70">Ask me anything about strains</p>
               </div>
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
-              aria-label="Close chat"
-            >
-              <X size={16} />
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setIsFullscreen(f => !f)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                aria-label={isFullscreen ? 'Exit full screen' : 'Full screen'}
+                title={isFullscreen ? 'Exit full screen' : 'Full screen'}
+              >
+                {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+              </button>
+              <button
+                onClick={() => { setIsOpen(false); setIsFullscreen(false) }}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                aria-label="Close chat"
+              >
+                <X size={16} />
+              </button>
+            </div>
           </div>
 
           {/* Messages area */}
