@@ -262,18 +262,29 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* ── Floating trigger button ──────────────────────────────── */}
-      <button
-        onClick={() => setIsOpen(prev => !prev)}
-        className={`fixed bottom-4 right-4 sm:right-6 z-[9999] w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
-          isOpen
-            ? 'bg-gray-500 hover:bg-gray-600 shadow-gray-500/25 rotate-0'
-            : 'bg-leaf-500 hover:bg-leaf-600 shadow-leaf-500/40 hover:scale-105 animate-pulse-subtle'
-        }`}
-        aria-label={isOpen ? 'Close chat' : 'Open strain chat'}
-      >
-        {isOpen ? <ChevronDown size={22} className="text-white" /> : <MessageCircle size={22} className="text-white" />}
-      </button>
+      {/* ── Floating trigger button + label ─────────────────────── */}
+      <div className="fixed bottom-4 right-4 sm:right-6 z-[9999] flex items-center gap-2">
+        {!isOpen && (
+          <div
+            onClick={() => setIsOpen(true)}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-full bg-white/90 dark:bg-[#1a2a1e]/90 backdrop-blur-md border border-leaf-500/20 shadow-lg shadow-black/10 cursor-pointer hover:border-leaf-500/40 transition-all animate-fade-in"
+          >
+            <Sparkles size={12} className="text-leaf-400" />
+            <span className="text-[11px] font-medium text-gray-700 dark:text-[#b0c4b4] whitespace-nowrap">Ask AI about any strain</span>
+          </div>
+        )}
+        <button
+          onClick={() => setIsOpen(prev => !prev)}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all duration-300 ${
+            isOpen
+              ? 'bg-gray-500 hover:bg-gray-600 shadow-gray-500/25 rotate-0'
+              : 'bg-leaf-500 hover:bg-leaf-600 shadow-leaf-500/40 hover:scale-105 animate-pulse-subtle'
+          }`}
+          aria-label={isOpen ? 'Close chat' : 'Open strain chat'}
+        >
+          {isOpen ? <ChevronDown size={22} className="text-white" /> : <MessageCircle size={22} className="text-white" />}
+        </button>
+      </div>
     </>
   )
 }
