@@ -89,7 +89,7 @@ function extractStrainNames(query) {
  *
  * Prioritization: exact name > extracted names > name-similarity > multi-field scoring
  */
-function searchStrains(query) {
+function searchStrains(query, conversationContext = '') {
   const q = query.toLowerCase().trim()
   const tokens = q.split(/[\s,]+/).filter(t => t.length > 2)
 
@@ -97,10 +97,21 @@ function searchStrains(query) {
   const exactMatch = strainsByName.get(q)
   if (exactMatch) return [exactMatch]
 
-  // 2. Extract known strain names from the query (handles "tell me about Tahoe OG")
-  const extractedNames = extractStrainNames(q)
-  if (extractedNames.length > 0) {
-    const results = extractedNames
+  // 2. Extract known strain names from current query + conversation context
+  //    This ensures follow-up questions still find strains mentioned earlier
+  const combinedText = conversationContext
+    ? `${q} ${conversationContext.toLowerCase()}`
+    : q
+  const extractedNames = extractStrainNames(combinedText)
+  // De-dup and prioritize names from the current query
+  const currentNames = new Set(extractStrainNames(q))
+  const sortedNames = [...new Set(extractedNames)].sort((a, b) => {
+    const aInCurrent = currentNames.has(a) ? 1 : 0
+    const bInCurrent = currentNames.has(b) ? 1 : 0
+    return bInCurrent - aInCurrent
+  })
+  if (sortedNames.length > 0) {
+    const results = sortedNames
       .map(n => strainsByName.get(n))
       .filter(Boolean)
       .slice(0, 5)
@@ -188,28 +199,31 @@ function searchStrains(query) {
 }
 
 /**
- * Format a strain into a concise text block for the AI context window.
+ * Format a strain into a clearly-structured text block for the AI context window.
+ * Each section is explicitly labeled with the strain name to prevent cross-contamination.
  */
 function formatStrainContext(s) {
   const lines = []
-  lines.push(`**${s.name}** (${s.type || 'unknown type'})`)
-  if (s.genetics) lines.push(`  Genetics: ${s.genetics}`)
-  if (s.description) lines.push(`  Description: ${s.description}`)
-  if (s.description_extended) lines.push(`  Details: ${s.description_extended}`)
+  lines.push(`### ${s.name} (${s.type || 'unknown type'})`)
+  if (s.genetics && s.genetics !== 'NULL') lines.push(`  Genetics: ${s.genetics}`)
+  if (s.description && s.description !== 'NULL') lines.push(`  Description: ${s.description}`)
 
   if (s.effects?.length) {
     // Use relative report frequency (same formula as EffectsBreakdown UI)
     const maxReports = Math.max(...s.effects.map(e => e.reports || 0), 1)
-    const effs = s.effects.map(e => {
+    lines.push(`  ${s.name} Effects:`)
+    for (const e of s.effects) {
       const pct = maxReports > 0 ? Math.round(((e.reports || 0) / maxReports) * 100) : 0
       const label = pct >= 85 ? 'Very High' : pct >= 65 ? 'High' : pct >= 45 ? 'Moderate' : pct >= 25 ? 'Low' : (e.reports || 0) > 0 ? 'Rare' : 'Unknown'
-      return `${e.name} (${e.category}, ${e.reports || 0} reports, ${pct}% — ${label})`
-    }).join(', ')
-    lines.push(`  Effects: ${effs}`)
+      lines.push(`    - ${e.name} (${e.category}, ${e.reports || 0} reports, ${pct}% — ${label})`)
+    }
   }
 
   if (s.terpenes?.length) {
-    const terps = s.terpenes.map(t => `${t.name} ${t.pct}%`).join(', ')
+    const terps = s.terpenes.map(t => {
+      const pct = String(t.pct || '').replace(/%$/, '')
+      return `${t.name} ${pct}%`
+    }).join(', ')
     lines.push(`  Terpenes: ${terps}`)
   }
 
@@ -242,24 +256,25 @@ function formatStrainContext(s) {
 const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant for the MyStrainAI cannabis strain database. You help users learn about cannabis strains by consulting the MyStrainAI database of ${strains.length.toLocaleString()}+ strains.
 
 ## CRITICAL RULES
-1. **ONLY use the strain data provided below** to answer questions. NEVER invent or hallucinate strain information.
-2. If a strain or piece of data is not in the provided context, say "I don't have that information in our database" — do NOT guess.
-3. Always cite the database: mention "According to our database" or "In the MyStrainAI database" when referencing data.
-4. Be factual, concise, and helpful.
-5. You may provide general cannabis education (terpene definitions, what cannabinoids are, etc.) but always ground specific strain claims in the provided data.
-6. If a user asks something outside the scope of cannabis strains (medical advice, where to buy, etc.), politely redirect: "I'm here to help you explore strain information from our database."
-7. **Medical Disclaimer**: Never make medical claims. Cannabis information is for educational purposes only. Always recommend consulting a healthcare professional.
-8. **STRAIN NAME PRECISION**: When multiple strains match a user's query, identify the EXACT strain they're asking about. If a user asks about "Tahoe", respond about "Tahoe OG" (the canonical strain) rather than variants like "Pax 10G Tahoe Rose". Use the EXACT strain names from the database — never abbreviate or alter them.
-9. When multiple strains are in the context, prioritize the one whose name most closely matches what the user asked for. If ambiguous, mention all matching strains and let the user clarify.
+1. **ONLY use the strain data provided in the MATCHING STRAINS section below.** NEVER invent or hallucinate strain information.
+2. If a strain is listed in MATCHING STRAINS below, its data IS in our database. Read the data carefully before responding.
+3. If a strain or piece of data is NOT in the MATCHING STRAINS section, say "I don't have that information in our database" — do NOT guess.
+4. Always cite the database: mention "According to our database" or "In the MyStrainAI database" when referencing data.
+5. Be factual, concise, and helpful.
+6. You may provide general cannabis education (terpene definitions, what cannabinoids are, etc.) but always ground specific strain claims in the provided data.
+7. If a user asks something outside the scope of cannabis strains (medical advice, where to buy, etc.), politely redirect: "I'm here to help you explore strain information from our database."
+8. **Medical Disclaimer**: Never make medical claims. Cannabis information is for educational purposes only. Always recommend consulting a healthcare professional.
+9. **STRAIN NAME PRECISION**: When multiple strains match a user's query, identify the EXACT strain they're asking about. Use the EXACT strain names from the database — never abbreviate or alter them.
+10. When multiple strains are in the context, prioritize the one whose name most closely matches what the user asked for. If ambiguous, mention all matching strains and let the user clarify.
 
 ## RESPONSE STYLE
-10. **BLUF — Bottom Line Up Front.** Always open with a single, direct sentence that answers the user's question. Then spend the remaining 1-2 paragraphs backing up that answer with data from our database (effects, terpenes, cannabinoids, report frequencies, etc.).
-11. **Maximum 3 short paragraphs.** Many answers need only 1-2. Keep it tight and conversational — no padding, no filler.
-12. **NEVER use bullet points or numbered lists.** Write in flowing prose paragraphs only.
-13. Use **bold** to emphasize strain names, key effects, and important data points within sentences.
-14. When mentioning effects, reference their report-frequency tier (Very High, High, Moderate, Low, Rare) and percentage naturally in prose — e.g. "**Energetic** is its top-reported effect (Very High, 100%)" — NEVER list them as bullets.
-15. Effects are ranked by community report frequency relative to each strain's most-reported effect. The percentage and tier label in the data reflect how often an effect is reported compared to the top effect for that strain. Use these numbers accurately — do NOT say 100% for everything.
-16. When comparing strains, weave the comparison into paragraphs — do NOT use tables or side-by-side lists.
+11. **BLUF — Bottom Line Up Front.** Always open with a single, direct sentence that answers the user's question. Then spend the remaining 1-2 paragraphs backing up that answer with data from our database (effects, terpenes, cannabinoids, report frequencies, etc.).
+12. **Maximum 3 short paragraphs.** Many answers need only 1-2. Keep it tight and conversational — no padding, no filler.
+13. **NEVER use bullet points or numbered lists.** Write in flowing prose paragraphs only.
+14. Use **bold** to emphasize strain names, key effects, and important data points within sentences.
+15. When mentioning effects, reference their report-frequency tier (Very High, High, Moderate, Low, Rare) and percentage naturally in prose — e.g. "**Energetic** is its top-reported effect (Very High, 100%)" — NEVER list them as bullets.
+16. Effects are ranked by community report frequency relative to each strain's most-reported effect. The percentage and tier label in the data reflect how often an effect is reported compared to the top effect for that strain. Use these numbers accurately — do NOT say 100% for everything.
+17. When comparing strains, weave the comparison into paragraphs — do NOT use tables or side-by-side lists.
 
 ## DATABASE CONTEXT
 Total strains in database: ${strains.length}
@@ -317,12 +332,21 @@ export async function onRequestPost(context) {
 
   const userMessage = message.trim().slice(0, 500) // cap input length
 
+  // ── Build conversation context for broader search ─────────────────
+  // Pool strain names from recent user messages so follow-ups still find strains
+  const conversationContext = (history || [])
+    .filter(h => h.role === 'user')
+    .map(h => h.content || '')
+    .join(' ')
+    .slice(0, 500)
+
   // ── Search the database ───────────────────────────────────────────
-  const matchedStrains = searchStrains(userMessage)
+  const matchedStrains = searchStrains(userMessage, conversationContext)
 
   let dbContext = ''
   if (matchedStrains.length > 0) {
-    dbContext = `\n## MATCHING STRAINS (from our database)\n\n${matchedStrains.map(formatStrainContext).join('\n\n---\n\n')}`
+    const strainBlocks = matchedStrains.map(formatStrainContext).join('\n\n---\n\n')
+    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering.\n\n${strainBlocks}\n\n---\n**REMINDER: All strains listed above have complete data. Use the effects, terpenes, and cannabinoids shown above when answering the user's question.**`
   } else {
     dbContext = `\n## NOTE: No exact strain matches found for this query. Answer general cannabis questions using your knowledge, but do NOT invent specific strain data. If the user is asking about a specific strain, tell them it may not be in our database yet.`
   }
