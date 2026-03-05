@@ -62,6 +62,83 @@ for (const s of strains) {
   strainsByName.set(s.name.toLowerCase(), s)
 }
 
+// Pre-build array of lowercase names for fuzzy search
+const allNamesLower = [...strainsByName.keys()]
+
+/**
+ * Levenshtein edit-distance between two strings.
+ * Used for fuzzy strain name matching (typo tolerance).
+ */
+function editDistance(a, b) {
+  if (a === b) return 0
+  if (!a.length) return b.length
+  if (!b.length) return a.length
+  // Use two-row DP for memory efficiency
+  let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+  let curr = new Array(b.length + 1)
+  for (let i = 1; i <= a.length; i++) {
+    curr[0] = i
+    for (let j = 1; j <= b.length; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1
+      curr[j] = Math.min(prev[j] + 1, curr[j - 1] + 1, prev[j - 1] + cost)
+    }
+    ;[prev, curr] = [curr, prev]
+  }
+  return prev[b.length]
+}
+
+/**
+ * Find the best fuzzy match for a candidate string among all strain names.
+ * Returns { name, distance } or null if no match is close enough.
+ * Threshold: max 2 edits for short names (≤8 chars), max 3 for longer names.
+ */
+function fuzzyMatchName(candidate) {
+  const c = candidate.toLowerCase().trim()
+  if (c.length < 3) return null
+  const maxDist = c.length <= 8 ? 2 : 3
+  let best = null
+  for (const name of allNamesLower) {
+    // Quick length filter — edit distance can't be smaller than length diff
+    if (Math.abs(name.length - c.length) > maxDist) continue
+    const d = editDistance(c, name)
+    if (d === 0) return { name, distance: 0 } // exact match, stop early
+    if (d <= maxDist && (!best || d < best.distance)) {
+      best = { name, distance: d }
+    }
+  }
+  return best
+}
+
+/**
+ * Fuzzy-match strain names from user query.
+ * Splits query into word n-grams (2-4 words) and single words,
+ * then checks each against the strain name list for close matches.
+ * Returns array of { name, distance } sorted by distance (best first).
+ */
+function fuzzyExtractStrainNames(query) {
+  const words = query.toLowerCase().split(/[\s,]+/).filter(w => w.length > 0)
+  const candidates = new Set()
+  // Generate n-grams (longest first to match multi-word strain names)
+  for (let n = Math.min(words.length, 5); n >= 1; n--) {
+    for (let i = 0; i <= words.length - n; i++) {
+      candidates.add(words.slice(i, i + n).join(' '))
+    }
+  }
+  const matches = new Map() // name → distance (keep best)
+  for (const c of candidates) {
+    const m = fuzzyMatchName(c)
+    if (m && m.distance > 0) { // distance 0 = exact, handled by extractStrainNames
+      const existing = matches.get(m.name)
+      if (!existing || m.distance < existing) {
+        matches.set(m.name, m.distance)
+      }
+    }
+  }
+  return [...matches.entries()]
+    .map(([name, distance]) => ({ name, distance }))
+    .sort((a, b) => a.distance - b.distance)
+}
+
 /**
  * Extract likely strain names from a user query.
  * Handles patterns like "tell me about Blue Dream", "what is Tahoe OG",
@@ -116,6 +193,16 @@ function searchStrains(query, conversationContext = '') {
       .filter(Boolean)
       .slice(0, 5)
     if (results.length > 0) return results
+  }
+
+  // 2b. Fuzzy match — catches misspellings like "Grandaddy Purpel", "Gelatto", "Bleu Dream"
+  const fuzzyMatches = fuzzyExtractStrainNames(q)
+  if (fuzzyMatches.length > 0) {
+    const fuzzyResults = fuzzyMatches
+      .map(m => strainsByName.get(m.name))
+      .filter(Boolean)
+      .slice(0, 5)
+    if (fuzzyResults.length > 0) return fuzzyResults
   }
 
   // 3. Name-similarity scoring for partial name queries (e.g., "tahoe")
