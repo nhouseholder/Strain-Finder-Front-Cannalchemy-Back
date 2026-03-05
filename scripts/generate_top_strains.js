@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generate "Top 20 Strains For…" curated lists using the same
- * tri-pillar scoring engine as the quiz: 35 % Science · 25 % Community · 40 % Commonness.
+ * tri-pillar scoring engine as the quiz: 35 % Science · 20 % Community · 45 % Commonness.
  *
  * Reads  → frontend/src/data/strains.json
  * Writes → frontend/src/data/top-strains-for.json
@@ -291,8 +291,8 @@ for (const cat of CATEGORIES) {
     const community = calcCommunityScore(strain, cat);
     const commonness = calcCommonnessScore(strain);
 
-    // Tri-pillar: 35 % science · 25 % community · 40 % commonness
-    const score = Math.round(science * 0.35 + community * 0.25 + commonness * 0.40);
+    // Tri-pillar: 35 % science · 20 % community · 45 % commonness
+    const score = Math.round(science * 0.35 + community * 0.20 + commonness * 0.45);
 
     return {
       id: strain.id,

@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * Tri-pillar scoring engine (35% Science · 25% Community · 40% Commonness) with receptor-level scoring,
+ * Tri-pillar scoring engine (35% Science · 20% Community · 45% Commonness) with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -954,14 +954,14 @@ export async function onRequestPost(context) {
   const eligibleStrains = strainData.strains.filter(isQuizEligible);
 
   // ═══════════════════════════════════════════════════════════════════
-  // Tri-pillar scoring engine — 35% Science · 25% Community · 40% Commonness
+  // Tri-pillar scoring engine — 35% Science · 20% Community · 45% Commonness
   // ═══════════════════════════════════════════════════════════════════
   // Pillar 1 – SCIENCE (35%): receptor pharmacology, scaffold molecular
   //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
   //   user preference alignment, entourage synergy (7 sub-layers).
-  // Pillar 2 – COMMUNITY (25%): weighted community effect-report alignment
+  // Pillar 2 – COMMUNITY (20%): weighted community effect-report alignment
   //   — how strongly real users report the effects the quiz-taker wants.
-  // Pillar 3 – COMMONNESS (40%): how well-known / dispensary-available
+  // Pillar 3 – COMMONNESS (45%): how well-known / dispensary-available
   //   the strain is, derived from total report volume + sentiment score.
   // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
@@ -1013,11 +1013,11 @@ export async function onRequestPost(context) {
     const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
-    // ── Final blended score: 35% science · 25% community · 40% commonness
+    // ── Final blended score: 35% science · 20% community · 45% commonness
     const score = Math.max(0, Math.min(100, Math.round(
       scienceScore    * 0.35 +
-      communityScore  * 0.25 +
-      commonnessScore * 0.40
+      communityScore  * 0.20 +
+      commonnessScore * 0.45
     )));
 
     return { strain, score, scienceScore, communityScore, commonnessScore };
@@ -1136,7 +1136,7 @@ export async function onRequestPost(context) {
         : toleranceId === 'experienced' ? 'experienced (THC 18-26% suitable)'
         : 'high tolerance (any THC level appropriate)';
 
-      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our tri-pillar scoring engine ranked strains using three pillars: 35% Science (receptor binding, entourage synergy, terpene-to-effect pathways, tolerance safety), 25% Community (real user effect reports weighted by strength), and 40% Commonness (popularity and dispensary availability). Write a brief, personalized analysis (3-4 sentences max) explaining why the top match scored highest across all three pillars.
+      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our tri-pillar scoring engine ranked strains using three pillars: 35% Science (receptor binding, entourage synergy, terpene-to-effect pathways, tolerance safety), 20% Community (real user effect reports weighted by strength), and 45% Commonness (popularity and dispensary availability). Write a brief, personalized analysis (3-4 sentences max) explaining why the top match scored highest across all three pillars.
 
 User's desired effects: ${desiredLabels.join(', ')}
 ${avoidLabels.length ? `Effects to avoid: ${avoidLabels.join(', ')}` : ''}

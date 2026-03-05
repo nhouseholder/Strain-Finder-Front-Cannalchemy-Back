@@ -13,7 +13,7 @@ const coreItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz', guest: true },
   { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', guest: true },
-  { to: '/top-strains', icon: Award, label: 'Top For', guest: true },
+  { to: '/top-strains', icon: Award, label: 'Top\u00A0For', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
@@ -24,7 +24,7 @@ const guestMobileItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz' },
   { to: '/search', icon: Search, label: 'Search' },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer' },
-  { to: '/top-strains', icon: Award, label: 'Top For' },
+  { to: '/top-strains', icon: Award, label: 'Top\u00A0For' },
   { to: '/signup', icon: UserPlus, label: 'Sign Up' },
 ]
 
