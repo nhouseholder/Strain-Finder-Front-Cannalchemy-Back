@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Brain, Sparkles, RotateCcw, SlidersHorizontal } from 'lucide-react'
+import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Brain, Sparkles, RotateCcw, SlidersHorizontal, Award } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -14,6 +14,7 @@ const coreItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
   { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', guest: true },
+  { to: '/top-strains', icon: Award, label: 'Top For', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/preferences', icon: Brain, label: 'Taste Profile', guest: false },
@@ -25,7 +26,7 @@ const guestMobileItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz' },
   { to: '/search', icon: Search, label: 'Search' },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer' },
-  { to: '/learn', icon: BookOpen, label: 'Learn' },
+  { to: '/top-strains', icon: Award, label: 'Top For' },
   { to: '/signup', icon: UserPlus, label: 'Sign Up' },
 ]
 

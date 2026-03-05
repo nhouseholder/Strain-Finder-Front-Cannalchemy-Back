@@ -21,6 +21,7 @@ const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), '
 const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
 const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
 const StrainExplorerPage = lazy(() => lazyRetry(() => import('./routes/StrainExplorerPage'), 'StrainExplorerPage'))
+const TopStrainsPage = lazy(() => lazyRetry(() => import('./routes/TopStrainsPage'), 'TopStrainsPage'))
 const LearnPage = lazy(() => lazyRetry(() => import('./routes/LearnPage'), 'LearnPage'))
 const MyPreferencesPage = lazy(() => lazyRetry(() => import('./routes/MyPreferencesPage'), 'MyPreferencesPage'))
 const LoginPage = lazy(() => lazyRetry(() => import('./routes/LoginPage'), 'LoginPage'))
@@ -74,6 +75,8 @@ export default function App() {
                       <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />
+                      <Route path="top-strains" element={<TopStrainsPage />} />
+                      <Route path="top-strains/:category" element={<TopStrainsPage />} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
                       <Route path="preferences" element={<ProtectedRoute><MyPreferencesPage /></ProtectedRoute>} />
