@@ -19,6 +19,8 @@ data/models/*.onnx
 data/models/*.joblib
 *.db-shm
 *.db-wal
+*.db.pre-*-backup
+scripts/_*.py
 
 # IDE
 .vscode/
