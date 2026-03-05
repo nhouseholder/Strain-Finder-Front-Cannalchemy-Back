@@ -903,6 +903,9 @@ export async function onRequestPost(context) {
   // ── Filter out breeder-specific, auto, product-name, and cross-only strains ──
   // Quiz results should be broadly applicable strains users can find at dispensaries.
   function isQuizEligible(strain) {
+    // Exclude partial-data strains — they lack verified lab data
+    if (strain.dataCompleteness === 'partial') return false
+
     const name = (strain.name || '').trim();
     const lower = name.toLowerCase();
 

@@ -291,7 +291,11 @@ function searchStrains(query, conversationContext = '') {
  */
 function formatStrainContext(s) {
   const lines = []
-  lines.push(`### ${s.name} (${s.type || 'unknown type'})`)
+  const isPartial = s.dataCompleteness === 'partial'
+  lines.push(`### ${s.name} (${s.type || 'unknown type'})${isPartial ? ' ⚠️ PARTIAL DATA' : ''}`)
+  if (isPartial) {
+    lines.push(`  ⚠️ NOTE: This strain has limited community-reported data and has NOT been extensively lab tested. Information shown is based on available community reports.`)
+  }
   if (s.genetics && s.genetics !== 'NULL') lines.push(`  Genetics: ${s.genetics}`)
   if (s.description && s.description !== 'NULL') lines.push(`  Description: ${s.description}`)
 
@@ -365,6 +369,7 @@ const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant fo
 
 ## DATABASE CONTEXT
 Total strains in database: ${strains.length}
+Some strains are marked "⚠️ PARTIAL DATA" — these have limited community-reported data and have NOT been extensively lab tested. When discussing partial-data strains, always include the disclaimer: "Note: This strain has limited data in our database and has not been extensively lab tested. The information shown is based on available community reports."
 `
 
 // ── Main handler ─────────────────────────────────────────────────────
@@ -433,7 +438,7 @@ export async function onRequestPost(context) {
   let dbContext = ''
   if (matchedStrains.length > 0) {
     const strainBlocks = matchedStrains.map(formatStrainContext).join('\n\n---\n\n')
-    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering.\n\n${strainBlocks}\n\n---\n**REMINDER: All strains listed above have complete data. Use the effects, terpenes, and cannabinoids shown above when answering the user's question.**`
+    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering. Strains marked "⚠️ PARTIAL DATA" have limited data — always include the partial data disclaimer when discussing them.\n\n${strainBlocks}\n\n---\n**REMINDER: Use the effects, terpenes, and cannabinoids shown above when answering the user's question. For any strain marked PARTIAL DATA, include the disclaimer about limited data.**`
   } else {
     dbContext = `\n## NOTE: No exact strain matches found for this query. Answer general cannabis questions using your knowledge, but do NOT invent specific strain data. If the user is asking about a specific strain, tell them it may not be in our database yet.`
   }

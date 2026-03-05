@@ -81,6 +81,12 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                 {strain.name}
               </h3>
               <TypeBadge type={strain.type} />
+              {/* Limited Data badge for partial strains */}
+              {strain.dataCompleteness === 'partial' && (
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40">
+                  Limited Data
+                </span>
+              )}
               {/* Why This Match - info icon tooltip */}
               {strain.whyMatch && (
                 <Tooltip content={strain.whyMatch}>

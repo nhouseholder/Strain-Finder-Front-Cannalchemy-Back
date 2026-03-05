@@ -27,7 +27,7 @@ from cannalchemy.data.schema import init_db
 
 # ── Constants ────────────────────────────────────────────────────────────────
 
-MAX_FILE_SIZE = 3_000_000  # 3MB target max (Cloudflare Pages Functions support up to 10MB)
+MAX_FILE_SIZE = 8_000_000  # 8MB target max (Cloudflare Pages Functions support up to 10MB)
 STRAIN_DATA_JS = ROOT / "frontend" / "functions" / "_data" / "strain-data.js"
 STRAINS_JSON = ROOT / "frontend" / "src" / "data" / "strains.json"
 
@@ -129,17 +129,23 @@ def export_strain_data(db_path=None):
 
     # Get all strains with a quality score for prioritization
     # Quality = effect count + (has real cannabinoid data) + (has terpene data)
+    # Full-data strains first, then partials sorted by effect count
     strain_rows = conn.execute("""
         SELECT s.id, s.name, s.strain_type, s.description,
             (SELECT COUNT(*) FROM effect_reports er WHERE er.strain_id = s.id) as effect_count,
-            s.source
+            s.source,
+            COALESCE(s.data_quality, 'full') as data_quality
         FROM strains s
-        ORDER BY effect_count DESC, s.id
+        ORDER BY
+            CASE WHEN COALESCE(s.data_quality, 'full') = 'full' THEN 0 ELSE 1 END,
+            effect_count DESC, s.id
     """).fetchall()
 
     strains = []
+    partial_count = 0
     for row in strain_rows:
-        strain_id, name, strain_type, description, effect_count, source = row
+        strain_id, name, strain_type, description, effect_count, source, data_quality = row
+        is_partial = (data_quality == "partial")
 
         # Effects
         effects = []
@@ -237,21 +243,32 @@ def export_strain_data(db_path=None):
             "effects": effects[:8],  # Limit to top 8 effects
             "terpenes": terpenes[:6],
             "cannabinoids": cannabinoids,
-            "genetics": genetics,
-            "description_extended": (desc_ext or description or "")[:160],
-            "best_for": best_for[:3],
-            "not_ideal_for": not_ideal[:2],
-            "consumption_suitability": consumption_mapped,
-            "price_range": price_range,
-            "lineage": lineage,
-            "flavors": [f.title() for f in flavors[:5]],  # Limit to 5, title case
-            "availability": 5,
-            "sentimentScore": round(_compute_sentiment(effects), 1),
+            "dataCompleteness": "partial" if is_partial else "full",
         }
+
+        if is_partial:
+            # Compact format: fewer fields for partial strains to save space
+            partial_count += 1
+            strain_obj["effects"] = effects[:5]
+            strain_obj["terpenes"] = terpenes[:4]
+            strain_obj["flavors"] = [f.title() for f in flavors[:3]]
+            strain_obj["genetics"] = genetics if genetics else ""
+        else:
+            # Full format: all fields for fully-verified strains
+            strain_obj["genetics"] = genetics
+            strain_obj["description_extended"] = (desc_ext or description or "")[:160]
+            strain_obj["best_for"] = best_for[:3]
+            strain_obj["not_ideal_for"] = not_ideal[:2]
+            strain_obj["consumption_suitability"] = consumption_mapped
+            strain_obj["price_range"] = price_range
+            strain_obj["lineage"] = lineage
+            strain_obj["flavors"] = [f.title() for f in flavors[:5]]
+            strain_obj["availability"] = 5
+            strain_obj["sentimentScore"] = round(_compute_sentiment(effects), 1)
 
         strains.append(strain_obj)
 
-    print(f"  {len(strains)} strains exported")
+    print(f"  {len(strains)} strains exported ({len(strains) - partial_count} full, {partial_count} partial)")
 
     # ── 6. Assemble and write ────────────────────────────────────────────
     print("\n[6/6] Writing output files...")

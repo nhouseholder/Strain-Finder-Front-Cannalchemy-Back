@@ -29,6 +29,20 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
 
   return (
     <div className="space-y-5 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+      {/* Partial Data Disclaimer Banner */}
+      {strain.dataCompleteness === 'partial' && (
+        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-700/30">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">Limited Data Available</p>
+            <p className="text-[10px] text-amber-600 dark:text-amber-500/80 mt-0.5 leading-relaxed">
+              This strain has not been extensively lab tested. The information shown is based on limited community reports and may not reflect the full chemical profile. Data shown should be considered approximate.
+            </p>
+          </div>
+        </div>
+      )}
       {/* 0. Extended description + Price range */}
       {(strain.descriptionExtended && strain.descriptionExtended !== 'NULL') || priceLabel ? (
         <div className="space-y-2">
