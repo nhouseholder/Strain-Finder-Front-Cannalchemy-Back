@@ -184,6 +184,726 @@
         "science": 86,
         "community": 37,
         "commonness": 91
+      },
+      {
+        "id": 1180,
+        "name": "Puna Buddaz",
+        "type": "indica",
+        "score": 78,
+        "science": 86,
+        "community": 43,
+        "commonness": 87
+      },
+      {
+        "id": 1160,
+        "name": "Negra 44",
+        "type": "indica",
+        "score": 78,
+        "science": 86,
+        "community": 34,
+        "commonness": 91
+      },
+      {
+        "id": 1153,
+        "name": "Money Maker",
+        "type": "hybrid",
+        "score": 78,
+        "science": 85,
+        "community": 41,
+        "commonness": 90
+      },
+      {
+        "id": 1154,
+        "name": "Monolith",
+        "type": "indica",
+        "score": 78,
+        "science": 85,
+        "community": 38,
+        "commonness": 91
+      },
+      {
+        "id": 1027,
+        "name": "Blackwater",
+        "type": "indica",
+        "score": 78,
+        "science": 84,
+        "community": 40,
+        "commonness": 91
+      },
+      {
+        "id": 1040,
+        "name": "Brand X",
+        "type": "indica",
+        "score": 78,
+        "science": 83,
+        "community": 37,
+        "commonness": 93
+      },
+      {
+        "id": 1203,
+        "name": "Snow Monster",
+        "type": "indica",
+        "score": 78,
+        "science": 82,
+        "community": 41,
+        "commonness": 92
+      },
+      {
+        "id": 835,
+        "name": "Chocolate Diesel",
+        "type": "hybrid",
+        "score": 77,
+        "science": 100,
+        "community": 22,
+        "commonness": 84
+      },
+      {
+        "id": 329,
+        "name": "True OG",
+        "type": "indica",
+        "score": 77,
+        "science": 98,
+        "community": 36,
+        "commonness": 78
+      },
+      {
+        "id": 1051,
+        "name": "Cherries Jubilee",
+        "type": "indica",
+        "score": 77,
+        "science": 98,
+        "community": 36,
+        "commonness": 78
+      },
+      {
+        "id": 213,
+        "name": "Lavender",
+        "type": "indica",
+        "score": 77,
+        "science": 96,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 1019,
+        "name": "Banana Candy",
+        "type": "indica",
+        "score": 77,
+        "science": 86,
+        "community": 39,
+        "commonness": 86
+      },
+      {
+        "id": 264,
+        "name": "Pure Kush",
+        "type": "indica",
+        "score": 77,
+        "science": 86,
+        "community": 42,
+        "commonness": 85
+      },
+      {
+        "id": 1149,
+        "name": "Mazar Kush",
+        "type": "indica",
+        "score": 77,
+        "science": 86,
+        "community": 57,
+        "commonness": 79
+      },
+      {
+        "id": 1050,
+        "name": "CBD Shark",
+        "type": "indica",
+        "score": 77,
+        "science": 85,
+        "community": 56,
+        "commonness": 80
+      },
+      {
+        "id": 296,
+        "name": "Shishkaberry",
+        "type": "indica",
+        "score": 77,
+        "science": 85,
+        "community": 35,
+        "commonness": 89
+      },
+      {
+        "id": 166,
+        "name": "Grape Crush",
+        "type": "indica",
+        "score": 77,
+        "science": 84,
+        "community": 38,
+        "commonness": 88
+      },
+      {
+        "id": 1157,
+        "name": "Mt. Cook",
+        "type": "indica",
+        "score": 77,
+        "science": 84,
+        "community": 33,
+        "commonness": 92
+      },
+      {
+        "id": 1108,
+        "name": "Grimace",
+        "type": "indica",
+        "score": 77,
+        "science": 83,
+        "community": 38,
+        "commonness": 91
+      },
+      {
+        "id": 1091,
+        "name": "Funky Monkey",
+        "type": "indica",
+        "score": 77,
+        "science": 83,
+        "community": 39,
+        "commonness": 90
+      },
+      {
+        "id": 1060,
+        "name": "Crosswalker",
+        "type": "indica",
+        "score": 77,
+        "science": 83,
+        "community": 57,
+        "commonness": 82
+      },
+      {
+        "id": 1012,
+        "name": "Angel OG",
+        "type": "indica",
+        "score": 77,
+        "science": 83,
+        "community": 36,
+        "commonness": 90
+      },
+      {
+        "id": 1088,
+        "name": "Frida",
+        "type": "indica",
+        "score": 77,
+        "science": 82,
+        "community": 59,
+        "commonness": 81
+      },
+      {
+        "id": 1194,
+        "name": "Rip City Purps",
+        "type": "indica",
+        "score": 77,
+        "science": 82,
+        "community": 32,
+        "commonness": 93
+      },
+      {
+        "id": 619,
+        "name": "Northern Berry",
+        "type": "hybrid",
+        "score": 77,
+        "science": 71,
+        "community": 38,
+        "commonness": 99
+      },
+      {
+        "id": 260,
+        "name": "Pot of Gold",
+        "type": "hybrid",
+        "score": 76,
+        "science": 95,
+        "community": 38,
+        "commonness": 77
+      },
+      {
+        "id": 1136,
+        "name": "Kraken",
+        "type": "indica",
+        "score": 76,
+        "science": 93,
+        "community": 16,
+        "commonness": 89
+      },
+      {
+        "id": 1145,
+        "name": "Mangolicious",
+        "type": "indica",
+        "score": 76,
+        "science": 84,
+        "community": 20,
+        "commonness": 95
+      },
+      {
+        "id": 1118,
+        "name": "Honey Boo Boo",
+        "type": "indica",
+        "score": 76,
+        "science": 83,
+        "community": 40,
+        "commonness": 88
+      },
+      {
+        "id": 1022,
+        "name": "Bedica",
+        "type": "indica",
+        "score": 76,
+        "science": 83,
+        "community": 59,
+        "commonness": 77
+      },
+      {
+        "id": 1182,
+        "name": "Pure Love",
+        "type": "indica",
+        "score": 76,
+        "science": 83,
+        "community": 45,
+        "commonness": 84
+      },
+      {
+        "id": 1001,
+        "name": "303 OG",
+        "type": "indica",
+        "score": 76,
+        "science": 82,
+        "community": 38,
+        "commonness": 88
+      },
+      {
+        "id": 1081,
+        "name": "Everlast",
+        "type": "indica",
+        "score": 75,
+        "science": 86,
+        "community": 37,
+        "commonness": 82
+      },
+      {
+        "id": 1116,
+        "name": "Haoma",
+        "type": "indica",
+        "score": 75,
+        "science": 86,
+        "community": 34,
+        "commonness": 85
+      },
+      {
+        "id": 1195,
+        "name": "Rockbud",
+        "type": "indica",
+        "score": 75,
+        "science": 86,
+        "community": 35,
+        "commonness": 83
+      },
+      {
+        "id": 162,
+        "name": "Godberry",
+        "type": "indica",
+        "score": 75,
+        "science": 85,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 841,
+        "name": "Clementine",
+        "type": "hybrid",
+        "score": 75,
+        "science": 85,
+        "community": 34,
+        "commonness": 86
+      },
+      {
+        "id": 1170,
+        "name": "Pacific Blue",
+        "type": "indica",
+        "score": 75,
+        "science": 85,
+        "community": 36,
+        "commonness": 84
+      },
+      {
+        "id": 1119,
+        "name": "Hulkamania",
+        "type": "indica",
+        "score": 75,
+        "science": 85,
+        "community": 20,
+        "commonness": 92
+      },
+      {
+        "id": 1089,
+        "name": "Frosty",
+        "type": "indica",
+        "score": 75,
+        "science": 84,
+        "community": 35,
+        "commonness": 86
+      },
+      {
+        "id": 221,
+        "name": "Liquid Butter",
+        "type": "indica",
+        "score": 75,
+        "science": 84,
+        "community": 37,
+        "commonness": 86
+      },
+      {
+        "id": 1021,
+        "name": "Beastmode 2.0",
+        "type": "indica",
+        "score": 75,
+        "science": 84,
+        "community": 40,
+        "commonness": 84
+      },
+      {
+        "id": 1201,
+        "name": "Sirius Black",
+        "type": "indica",
+        "score": 75,
+        "science": 84,
+        "community": 38,
+        "commonness": 85
+      },
+      {
+        "id": 1045,
+        "name": "Cactus",
+        "type": "indica",
+        "score": 75,
+        "science": 82,
+        "community": 40,
+        "commonness": 85
+      },
+      {
+        "id": 1166,
+        "name": "Orange Afghani",
+        "type": "indica",
+        "score": 75,
+        "science": 82,
+        "community": 20,
+        "commonness": 94
+      },
+      {
+        "id": 1044,
+        "name": "Buckeye Purple",
+        "type": "hybrid",
+        "score": 75,
+        "science": 72,
+        "community": 35,
+        "commonness": 96
+      },
+      {
+        "id": 1069,
+        "name": "Dorit",
+        "type": "hybrid",
+        "score": 75,
+        "science": 65,
+        "community": 61,
+        "commonness": 90
+      },
+      {
+        "id": 990,
+        "name": "Webster",
+        "type": "hybrid",
+        "score": 75,
+        "science": 62,
+        "community": 59,
+        "commonness": 92
+      },
+      {
+        "id": 1032,
+        "name": "Blue Knight",
+        "type": "indica",
+        "score": 74,
+        "science": 86,
+        "community": 38,
+        "commonness": 80
+      },
+      {
+        "id": 177,
+        "name": "Hash Plant",
+        "type": "indica",
+        "score": 74,
+        "science": 86,
+        "community": 38,
+        "commonness": 81
+      },
+      {
+        "id": 1192,
+        "name": "Reclining Buddha",
+        "type": "indica",
+        "score": 74,
+        "science": 86,
+        "community": 34,
+        "commonness": 82
+      },
+      {
+        "id": 1237,
+        "name": "WSU",
+        "type": "indica",
+        "score": 74,
+        "science": 85,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 1124,
+        "name": "Irish Cream",
+        "type": "indica",
+        "score": 74,
+        "science": 85,
+        "community": 34,
+        "commonness": 84
+      },
+      {
+        "id": 1224,
+        "name": "Tyson",
+        "type": "indica",
+        "score": 74,
+        "science": 83,
+        "community": 16,
+        "commonness": 93
+      },
+      {
+        "id": 236,
+        "name": "Misty Kush",
+        "type": "indica",
+        "score": 74,
+        "science": 82,
+        "community": 37,
+        "commonness": 85
+      },
+      {
+        "id": 287,
+        "name": "Romulan",
+        "type": "hybrid",
+        "score": 74,
+        "science": 77,
+        "community": 38,
+        "commonness": 88
+      },
+      {
+        "id": 1047,
+        "name": "Candy Cane",
+        "type": "hybrid",
+        "score": 73,
+        "science": 100,
+        "community": 16,
+        "commonness": 77
+      },
+      {
+        "id": 1073,
+        "name": "Dutch Kush",
+        "type": "indica",
+        "score": 73,
+        "science": 86,
+        "community": 14,
+        "commonness": 88
+      },
+      {
+        "id": 232,
+        "name": "Mazar I Sharif",
+        "type": "indica",
+        "score": 73,
+        "science": 85,
+        "community": 38,
+        "commonness": 79
+      },
+      {
+        "id": 1064,
+        "name": "Dark Star",
+        "type": "indica",
+        "score": 73,
+        "science": 85,
+        "community": 41,
+        "commonness": 78
+      },
+      {
+        "id": 1006,
+        "name": "Afkansastan",
+        "type": "indica",
+        "score": 73,
+        "science": 85,
+        "community": 34,
+        "commonness": 80
+      },
+      {
+        "id": 1148,
+        "name": "Matsu",
+        "type": "indica",
+        "score": 73,
+        "science": 85,
+        "community": 26,
+        "commonness": 85
+      },
+      {
+        "id": 1039,
+        "name": "Blue Zombie",
+        "type": "indica",
+        "score": 73,
+        "science": 83,
+        "community": 36,
+        "commonness": 83
+      },
+      {
+        "id": 1133,
+        "name": "Katsu Kush",
+        "type": "indica",
+        "score": 73,
+        "science": 83,
+        "community": 41,
+        "commonness": 81
+      },
+      {
+        "id": 278,
+        "name": "PVC OG",
+        "type": "indica",
+        "score": 73,
+        "science": 83,
+        "community": 23,
+        "commonness": 87
+      },
+      {
+        "id": 257,
+        "name": "Pitbull",
+        "type": "indica",
+        "score": 73,
+        "science": 82,
+        "community": 40,
+        "commonness": 82
+      },
+      {
+        "id": 1206,
+        "name": "Somango",
+        "type": "indica",
+        "score": 73,
+        "science": 82,
+        "community": 42,
+        "commonness": 80
+      },
+      {
+        "id": 258,
+        "name": "Pluto Kush",
+        "type": "indica",
+        "score": 73,
+        "science": 82,
+        "community": 34,
+        "commonness": 84
+      },
+      {
+        "id": 1062,
+        "name": "Cuvee",
+        "type": "indica",
+        "score": 73,
+        "science": 82,
+        "community": 37,
+        "commonness": 83
+      },
+      {
+        "id": 900,
+        "name": "Limon",
+        "type": "hybrid",
+        "score": 73,
+        "science": 60,
+        "community": 60,
+        "commonness": 90
+      },
+      {
+        "id": 7917,
+        "name": "Kosher Kush",
+        "type": "hybrid",
+        "score": 72,
+        "science": 99,
+        "community": 37,
+        "commonness": 68
+      },
+      {
+        "id": 1155,
+        "name": "Mossad",
+        "type": "indica",
+        "score": 72,
+        "science": 86,
+        "community": 23,
+        "commonness": 83
+      },
+      {
+        "id": 716,
+        "name": "Blue Buddha",
+        "type": "indica",
+        "score": 72,
+        "science": 86,
+        "community": 15,
+        "commonness": 86
+      },
+      {
+        "id": 384,
+        "name": "Black Mamba",
+        "type": "indica",
+        "score": 72,
+        "science": 85,
+        "community": 35,
+        "commonness": 78
+      },
+      {
+        "id": 1023,
+        "name": "Bell Ringer",
+        "type": "indica",
+        "score": 72,
+        "science": 85,
+        "community": 16,
+        "commonness": 86
+      },
+      {
+        "id": 85,
+        "name": "Afgoo",
+        "type": "indica",
+        "score": 72,
+        "science": 84,
+        "community": 39,
+        "commonness": 78
+      },
+      {
+        "id": 1086,
+        "name": "Fred Flipnâ€™ Stoned",
+        "type": "indica",
+        "score": 72,
+        "science": 84,
+        "community": 32,
+        "commonness": 80
+      },
+      {
+        "id": 1193,
+        "name": "Remedy",
+        "type": "indica",
+        "score": 72,
+        "science": 83,
+        "community": 37,
+        "commonness": 79
+      },
+      {
+        "id": 1018,
+        "name": "Bakerstreet",
+        "type": "indica",
+        "score": 72,
+        "science": 83,
+        "community": 38,
+        "commonness": 80
+      },
+      {
+        "id": 1235,
+        "name": "Wonder Kid",
+        "type": "indica",
+        "score": 72,
+        "science": 83,
+        "community": 14,
+        "commonness": 89
       }
     ]
   },
@@ -372,6 +1092,726 @@
         "science": 100,
         "community": 73,
         "commonness": 83
+      },
+      {
+        "id": 730,
+        "name": "Watermelon",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 70,
+        "commonness": 85
+      },
+      {
+        "id": 258,
+        "name": "Pluto Kush",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 71,
+        "commonness": 84
+      },
+      {
+        "id": 1081,
+        "name": "Everlast",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 75,
+        "commonness": 82
+      },
+      {
+        "id": 1116,
+        "name": "Haoma",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 71,
+        "commonness": 85
+      },
+      {
+        "id": 1223,
+        "name": "Tuna Kush",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 71,
+        "commonness": 83
+      },
+      {
+        "id": 1170,
+        "name": "Pacific Blue",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 69,
+        "commonness": 84
+      },
+      {
+        "id": 1024,
+        "name": "Biochem",
+        "type": "indica",
+        "score": 87,
+        "science": 100,
+        "community": 75,
+        "commonness": 82
+      },
+      {
+        "id": 79,
+        "name": "A-10",
+        "type": "indica",
+        "score": 87,
+        "science": 92,
+        "community": 61,
+        "commonness": 96
+      },
+      {
+        "id": 1027,
+        "name": "Blackwater",
+        "type": "indica",
+        "score": 86,
+        "science": 100,
+        "community": 53,
+        "commonness": 91
+      },
+      {
+        "id": 1133,
+        "name": "Katsu Kush",
+        "type": "indica",
+        "score": 86,
+        "science": 100,
+        "community": 74,
+        "commonness": 81
+      },
+      {
+        "id": 177,
+        "name": "Hash Plant",
+        "type": "indica",
+        "score": 86,
+        "science": 100,
+        "community": 72,
+        "commonness": 81
+      },
+      {
+        "id": 224,
+        "name": "M-39",
+        "type": "indica",
+        "score": 86,
+        "science": 100,
+        "community": 74,
+        "commonness": 81
+      },
+      {
+        "id": 1141,
+        "name": "Lime Sorbet",
+        "type": "indica",
+        "score": 86,
+        "science": 100,
+        "community": 76,
+        "commonness": 80
+      },
+      {
+        "id": 85,
+        "name": "Afgoo",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 76,
+        "commonness": 78
+      },
+      {
+        "id": 232,
+        "name": "Mazar I Sharif",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 72,
+        "commonness": 79
+      },
+      {
+        "id": 273,
+        "name": "Purple Passion",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 72,
+        "commonness": 80
+      },
+      {
+        "id": 708,
+        "name": "Deep Sleep",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 72,
+        "commonness": 79
+      },
+      {
+        "id": 1111,
+        "name": "Guido Kush",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 40,
+        "commonness": 93
+      },
+      {
+        "id": 1118,
+        "name": "Honey Boo Boo",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 52,
+        "commonness": 88
+      },
+      {
+        "id": 1149,
+        "name": "Mazar Kush",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 72,
+        "commonness": 79
+      },
+      {
+        "id": 1195,
+        "name": "Rockbud",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 64,
+        "commonness": 83
+      },
+      {
+        "id": 1022,
+        "name": "Bedica",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 74,
+        "commonness": 77
+      },
+      {
+        "id": 1203,
+        "name": "Snow Monster",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 45,
+        "commonness": 92
+      },
+      {
+        "id": 1194,
+        "name": "Rip City Purps",
+        "type": "indica",
+        "score": 85,
+        "science": 100,
+        "community": 40,
+        "commonness": 93
+      },
+      {
+        "id": 213,
+        "name": "Lavender",
+        "type": "indica",
+        "score": 84,
+        "science": 100,
+        "community": 67,
+        "commonness": 79
+      },
+      {
+        "id": 1064,
+        "name": "Dark Star",
+        "type": "indica",
+        "score": 84,
+        "science": 100,
+        "community": 72,
+        "commonness": 78
+      },
+      {
+        "id": 1171,
+        "name": "Pamelina",
+        "type": "indica",
+        "score": 84,
+        "science": 100,
+        "community": 74,
+        "commonness": 77
+      },
+      {
+        "id": 1123,
+        "name": "Ill OG",
+        "type": "indica",
+        "score": 84,
+        "science": 100,
+        "community": 53,
+        "commonness": 86
+      },
+      {
+        "id": 257,
+        "name": "Pitbull",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 54,
+        "commonness": 82
+      },
+      {
+        "id": 84,
+        "name": "Afghooey",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 68,
+        "commonness": 76
+      },
+      {
+        "id": 1020,
+        "name": "Barbara Bud",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 76,
+        "commonness": 73
+      },
+      {
+        "id": 296,
+        "name": "Shishkaberry",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 43,
+        "commonness": 89
+      },
+      {
+        "id": 1053,
+        "name": "China Yunnan",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 61,
+        "commonness": 80
+      },
+      {
+        "id": 1098,
+        "name": "Gog & Magog",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 57,
+        "commonness": 82
+      },
+      {
+        "id": 1148,
+        "name": "Matsu",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 48,
+        "commonness": 85
+      },
+      {
+        "id": 1046,
+        "name": "Cadillac Purple",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 72,
+        "commonness": 71
+      },
+      {
+        "id": 1226,
+        "name": "UW",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 73,
+        "commonness": 73
+      },
+      {
+        "id": 271,
+        "name": "Purple Mr. Nice",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 76,
+        "commonness": 71
+      },
+      {
+        "id": 1019,
+        "name": "Banana Candy",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 44,
+        "commonness": 86
+      },
+      {
+        "id": 1030,
+        "name": "Blue Bastard",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 51,
+        "commonness": 82
+      },
+      {
+        "id": 270,
+        "name": "Purple Dragon",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 45,
+        "commonness": 85
+      },
+      {
+        "id": 1021,
+        "name": "Beastmode 2.0",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 47,
+        "commonness": 84
+      },
+      {
+        "id": 1087,
+        "name": "Freezeland",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 67,
+        "commonness": 75
+      },
+      {
+        "id": 1201,
+        "name": "Sirius Black",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 45,
+        "commonness": 85
+      },
+      {
+        "id": 165,
+        "name": "Grand Hindu",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 54,
+        "commonness": 82
+      },
+      {
+        "id": 1166,
+        "name": "Orange Afghani",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 22,
+        "commonness": 94
+      },
+      {
+        "id": 1124,
+        "name": "Irish Cream",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 46,
+        "commonness": 84
+      },
+      {
+        "id": 716,
+        "name": "Blue Buddha",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 43,
+        "commonness": 86
+      },
+      {
+        "id": 1074,
+        "name": "Eastern European",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 75,
+        "commonness": 70
+      },
+      {
+        "id": 1065,
+        "name": "Deadwood",
+        "type": "indica",
+        "score": 82,
+        "science": 92,
+        "community": 46,
+        "commonness": 91
+      },
+      {
+        "id": 619,
+        "name": "Northern Berry",
+        "type": "hybrid",
+        "score": 82,
+        "science": 65,
+        "community": 71,
+        "commonness": 99
+      },
+      {
+        "id": 1176,
+        "name": "Pink Bubba",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 70,
+        "commonness": 70
+      },
+      {
+        "id": 94,
+        "name": "Anesthesia",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 51,
+        "commonness": 80
+      },
+      {
+        "id": 344,
+        "name": "Alien Dawg",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 68,
+        "commonness": 72
+      },
+      {
+        "id": 1048,
+        "name": "Capers",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 72,
+        "commonness": 71
+      },
+      {
+        "id": 1192,
+        "name": "Reclining Buddha",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 46,
+        "commonness": 82
+      },
+      {
+        "id": 1238,
+        "name": "XXX 420",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 44,
+        "commonness": 83
+      },
+      {
+        "id": 180,
+        "name": "Hawaiian Delight",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 22,
+        "commonness": 92
+      },
+      {
+        "id": 236,
+        "name": "Misty Kush",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 40,
+        "commonness": 85
+      },
+      {
+        "id": 1086,
+        "name": "Fred Flipnâ€™ Stoned",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 48,
+        "commonness": 80
+      },
+      {
+        "id": 1119,
+        "name": "Hulkamania",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 21,
+        "commonness": 92
+      },
+      {
+        "id": 1231,
+        "name": "White Bastard",
+        "type": "indica",
+        "score": 81,
+        "science": 92,
+        "community": 45,
+        "commonness": 88
+      },
+      {
+        "id": 640,
+        "name": "Incredible Bulk",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 70,
+        "commonness": 69
+      },
+      {
+        "id": 1032,
+        "name": "Blue Knight",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 47,
+        "commonness": 80
+      },
+      {
+        "id": 1060,
+        "name": "Crosswalker",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 42,
+        "commonness": 82
+      },
+      {
+        "id": 1180,
+        "name": "Puna Buddaz",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 28,
+        "commonness": 87
+      },
+      {
+        "id": 1229,
+        "name": "West OG",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 66,
+        "commonness": 72
+      },
+      {
+        "id": 1205,
+        "name": "Snow Ryder",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 74,
+        "commonness": 67
+      },
+      {
+        "id": 1206,
+        "name": "Somango",
+        "type": "indica",
+        "score": 80,
+        "science": 92,
+        "community": 61,
+        "commonness": 80
+      },
+      {
+        "id": 304,
+        "name": "Skydog",
+        "type": "indica",
+        "score": 80,
+        "science": 91,
+        "community": 41,
+        "commonness": 89
+      },
+      {
+        "id": 1047,
+        "name": "Candy Cane",
+        "type": "hybrid",
+        "score": 80,
+        "science": 86,
+        "community": 74,
+        "commonness": 77
+      },
+      {
+        "id": 1068,
+        "name": "Digweed",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 47,
+        "commonness": 76
+      },
+      {
+        "id": 166,
+        "name": "Grape Crush",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 23,
+        "commonness": 88
+      },
+      {
+        "id": 384,
+        "name": "Black Mamba",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 41,
+        "commonness": 78
+      },
+      {
+        "id": 1237,
+        "name": "WSU",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 41,
+        "commonness": 80
+      },
+      {
+        "id": 1018,
+        "name": "Bakerstreet",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 41,
+        "commonness": 80
+      },
+      {
+        "id": 1096,
+        "name": "Godâ€™s Treat",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 23,
+        "commonness": 87
+      },
+      {
+        "id": 1235,
+        "name": "Wonder Kid",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 20,
+        "commonness": 89
+      },
+      {
+        "id": 1016,
+        "name": "Athabasca",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 18,
+        "commonness": 90
+      },
+      {
+        "id": 1071,
+        "name": "Double Tap",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 60,
+        "commonness": 71
       }
     ]
   },
@@ -560,6 +2000,726 @@
         "science": 69,
         "community": 37,
         "commonness": 99
+      },
+      {
+        "id": 166,
+        "name": "Grape Crush",
+        "type": "indica",
+        "score": 75,
+        "science": 79,
+        "community": 37,
+        "commonness": 88
+      },
+      {
+        "id": 296,
+        "name": "Shishkaberry",
+        "type": "indica",
+        "score": 75,
+        "science": 79,
+        "community": 35,
+        "commonness": 89
+      },
+      {
+        "id": 304,
+        "name": "Skydog",
+        "type": "indica",
+        "score": 75,
+        "science": 79,
+        "community": 37,
+        "commonness": 89
+      },
+      {
+        "id": 1016,
+        "name": "Athabasca",
+        "type": "indica",
+        "score": 75,
+        "science": 79,
+        "community": 31,
+        "commonness": 90
+      },
+      {
+        "id": 1012,
+        "name": "Angel OG",
+        "type": "indica",
+        "score": 75,
+        "science": 79,
+        "community": 32,
+        "commonness": 90
+      },
+      {
+        "id": 1187,
+        "name": "Purple Swish",
+        "type": "hybrid",
+        "score": 75,
+        "science": 72,
+        "community": 40,
+        "commonness": 93
+      },
+      {
+        "id": 285,
+        "name": "Rocklock",
+        "type": "hybrid",
+        "score": 75,
+        "science": 71,
+        "community": 37,
+        "commonness": 94
+      },
+      {
+        "id": 1019,
+        "name": "Banana Candy",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 38,
+        "commonness": 86
+      },
+      {
+        "id": 221,
+        "name": "Liquid Butter",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 36,
+        "commonness": 86
+      },
+      {
+        "id": 1001,
+        "name": "303 OG",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 36,
+        "commonness": 88
+      },
+      {
+        "id": 1118,
+        "name": "Honey Boo Boo",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 36,
+        "commonness": 88
+      },
+      {
+        "id": 1139,
+        "name": "Lashkar Gah",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 18,
+        "commonness": 95
+      },
+      {
+        "id": 1073,
+        "name": "Dutch Kush",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 32,
+        "commonness": 88
+      },
+      {
+        "id": 1114,
+        "name": "Hades Haze",
+        "type": "indica",
+        "score": 74,
+        "science": 79,
+        "community": 18,
+        "commonness": 94
+      },
+      {
+        "id": 973,
+        "name": "Swiss Gold",
+        "type": "hybrid",
+        "score": 74,
+        "science": 72,
+        "community": 37,
+        "commonness": 91
+      },
+      {
+        "id": 1061,
+        "name": "Crown OG",
+        "type": "hybrid",
+        "score": 74,
+        "science": 70,
+        "community": 33,
+        "commonness": 94
+      },
+      {
+        "id": 9845,
+        "name": "Sativa   Mix",
+        "type": "hybrid",
+        "score": 74,
+        "science": 66,
+        "community": 47,
+        "commonness": 92
+      },
+      {
+        "id": 1089,
+        "name": "Frosty",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 34,
+        "commonness": 86
+      },
+      {
+        "id": 162,
+        "name": "Godberry",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 35,
+        "commonness": 84
+      },
+      {
+        "id": 264,
+        "name": "Pure Kush",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 35,
+        "commonness": 85
+      },
+      {
+        "id": 1021,
+        "name": "Beastmode 2.0",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 35,
+        "commonness": 84
+      },
+      {
+        "id": 1116,
+        "name": "Haoma",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 37,
+        "commonness": 85
+      },
+      {
+        "id": 1223,
+        "name": "Tuna Kush",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 38,
+        "commonness": 83
+      },
+      {
+        "id": 1238,
+        "name": "XXX 420",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 36,
+        "commonness": 83
+      },
+      {
+        "id": 1045,
+        "name": "Cactus",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 35,
+        "commonness": 85
+      },
+      {
+        "id": 1131,
+        "name": "Kali China",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 17,
+        "commonness": 93
+      },
+      {
+        "id": 1170,
+        "name": "Pacific Blue",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 37,
+        "commonness": 84
+      },
+      {
+        "id": 1201,
+        "name": "Sirius Black",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 37,
+        "commonness": 85
+      },
+      {
+        "id": 1117,
+        "name": "Harmonia",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 35,
+        "commonness": 84
+      },
+      {
+        "id": 1194,
+        "name": "Rip City Purps",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 16,
+        "commonness": 93
+      },
+      {
+        "id": 1125,
+        "name": "Jack Burton",
+        "type": "indica",
+        "score": 73,
+        "science": 79,
+        "community": 16,
+        "commonness": 93
+      },
+      {
+        "id": 1213,
+        "name": "Star Killer",
+        "type": "hybrid",
+        "score": 73,
+        "science": 78,
+        "community": 36,
+        "commonness": 86
+      },
+      {
+        "id": 1037,
+        "name": "Blue Power",
+        "type": "hybrid",
+        "score": 73,
+        "science": 72,
+        "community": 37,
+        "commonness": 89
+      },
+      {
+        "id": 937,
+        "name": "Schrom",
+        "type": "hybrid",
+        "score": 73,
+        "science": 72,
+        "community": 37,
+        "commonness": 89
+      },
+      {
+        "id": 929,
+        "name": "Purple Power",
+        "type": "hybrid",
+        "score": 73,
+        "science": 72,
+        "community": 35,
+        "commonness": 89
+      },
+      {
+        "id": 1069,
+        "name": "Dorit",
+        "type": "hybrid",
+        "score": 73,
+        "science": 72,
+        "community": 35,
+        "commonness": 90
+      },
+      {
+        "id": 229,
+        "name": "Mars OG",
+        "type": "hybrid",
+        "score": 73,
+        "science": 70,
+        "community": 38,
+        "commonness": 91
+      },
+      {
+        "id": 1035,
+        "name": "Blue Monster",
+        "type": "hybrid",
+        "score": 73,
+        "science": 70,
+        "community": 35,
+        "commonness": 92
+      },
+      {
+        "id": 569,
+        "name": "Leda Uno",
+        "type": "hybrid",
+        "score": 73,
+        "science": 70,
+        "community": 39,
+        "commonness": 91
+      },
+      {
+        "id": 1181,
+        "name": "Punky Lion",
+        "type": "hybrid",
+        "score": 73,
+        "science": 69,
+        "community": 37,
+        "commonness": 93
+      },
+      {
+        "id": 7917,
+        "name": "Kosher Kush",
+        "type": "hybrid",
+        "score": 72,
+        "science": 95,
+        "community": 44,
+        "commonness": 68
+      },
+      {
+        "id": 257,
+        "name": "Pitbull",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 36,
+        "commonness": 82
+      },
+      {
+        "id": 1039,
+        "name": "Blue Zombie",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 35,
+        "commonness": 83
+      },
+      {
+        "id": 177,
+        "name": "Hash Plant",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 37,
+        "commonness": 81
+      },
+      {
+        "id": 258,
+        "name": "Pluto Kush",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 30,
+        "commonness": 84
+      },
+      {
+        "id": 1081,
+        "name": "Everlast",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 36,
+        "commonness": 82
+      },
+      {
+        "id": 1192,
+        "name": "Reclining Buddha",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 35,
+        "commonness": 82
+      },
+      {
+        "id": 1083,
+        "name": "Faygo Red Pop",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 37,
+        "commonness": 82
+      },
+      {
+        "id": 1154,
+        "name": "Monolith",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 18,
+        "commonness": 91
+      },
+      {
+        "id": 165,
+        "name": "Grand Hindu",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 35,
+        "commonness": 82
+      },
+      {
+        "id": 1024,
+        "name": "Biochem",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 34,
+        "commonness": 82
+      },
+      {
+        "id": 1157,
+        "name": "Mt. Cook",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 14,
+        "commonness": 92
+      },
+      {
+        "id": 1160,
+        "name": "Negra 44",
+        "type": "indica",
+        "score": 72,
+        "science": 79,
+        "community": 16,
+        "commonness": 91
+      },
+      {
+        "id": 99,
+        "name": "BC Sweet Tooth",
+        "type": "hybrid",
+        "score": 72,
+        "science": 72,
+        "community": 35,
+        "commonness": 88
+      },
+      {
+        "id": 320,
+        "name": "Thai-Tanic",
+        "type": "hybrid",
+        "score": 72,
+        "science": 72,
+        "community": 20,
+        "commonness": 95
+      },
+      {
+        "id": 1059,
+        "name": "Critical Hog",
+        "type": "hybrid",
+        "score": 72,
+        "science": 72,
+        "community": 36,
+        "commonness": 88
+      },
+      {
+        "id": 1225,
+        "name": "U2 Kush",
+        "type": "hybrid",
+        "score": 72,
+        "science": 72,
+        "community": 34,
+        "commonness": 89
+      },
+      {
+        "id": 911,
+        "name": "Moose and Lobsta",
+        "type": "hybrid",
+        "score": 72,
+        "science": 71,
+        "community": 32,
+        "commonness": 91
+      },
+      {
+        "id": 845,
+        "name": "Dance World",
+        "type": "hybrid",
+        "score": 72,
+        "science": 70,
+        "community": 37,
+        "commonness": 89
+      },
+      {
+        "id": 935,
+        "name": "Royal Haze",
+        "type": "hybrid",
+        "score": 72,
+        "science": 70,
+        "community": 33,
+        "commonness": 92
+      },
+      {
+        "id": 80,
+        "name": "Afghani Bullrider",
+        "type": "hybrid",
+        "score": 72,
+        "science": 69,
+        "community": 35,
+        "commonness": 90
+      },
+      {
+        "id": 1077,
+        "name": "Eran Almog",
+        "type": "hybrid",
+        "score": 72,
+        "science": 68,
+        "community": 37,
+        "commonness": 92
+      },
+      {
+        "id": 1002,
+        "name": "5th Element",
+        "type": "hybrid",
+        "score": 72,
+        "science": 68,
+        "community": 37,
+        "commonness": 91
+      },
+      {
+        "id": 990,
+        "name": "Webster",
+        "type": "hybrid",
+        "score": 72,
+        "science": 68,
+        "community": 37,
+        "commonness": 92
+      },
+      {
+        "id": 1063,
+        "name": "Dank Schrader",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 36,
+        "commonness": 80
+      },
+      {
+        "id": 273,
+        "name": "Purple Passion",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 36,
+        "commonness": 80
+      },
+      {
+        "id": 1032,
+        "name": "Blue Knight",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 37,
+        "commonness": 80
+      },
+      {
+        "id": 1050,
+        "name": "CBD Shark",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 35,
+        "commonness": 80
+      },
+      {
+        "id": 1133,
+        "name": "Katsu Kush",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 36,
+        "commonness": 81
+      },
+      {
+        "id": 1206,
+        "name": "Somango",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 36,
+        "commonness": 80
+      },
+      {
+        "id": 1017,
+        "name": "Ayahuasca Purple",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 35,
+        "commonness": 81
+      },
+      {
+        "id": 1034,
+        "name": "Blue Lights",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 35,
+        "commonness": 82
+      },
+      {
+        "id": 1121,
+        "name": "Iced Widow",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 37,
+        "commonness": 79
+      },
+      {
+        "id": 1193,
+        "name": "Remedy",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 37,
+        "commonness": 79
+      },
+      {
+        "id": 1237,
+        "name": "WSU",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 35,
+        "commonness": 80
+      },
+      {
+        "id": 224,
+        "name": "M-39",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 36,
+        "commonness": 81
+      },
+      {
+        "id": 1096,
+        "name": "Godâ€™s Treat",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 18,
+        "commonness": 87
+      },
+      {
+        "id": 1235,
+        "name": "Wonder Kid",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 16,
+        "commonness": 89
+      },
+      {
+        "id": 1086,
+        "name": "Fred Flipnâ€™ Stoned",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 34,
+        "commonness": 80
+      },
+      {
+        "id": 1145,
+        "name": "Mangolicious",
+        "type": "indica",
+        "score": 71,
+        "science": 79,
+        "community": 0,
+        "commonness": 95
       }
     ]
   },
@@ -748,6 +2908,726 @@
         "science": 92,
         "community": 60,
         "commonness": 82
+      },
+      {
+        "id": 308,
+        "name": "Sour Chocolate",
+        "type": "sativa",
+        "score": 81,
+        "science": 92,
+        "community": 39,
+        "commonness": 91
+      },
+      {
+        "id": 822,
+        "name": "Bediol",
+        "type": "sativa",
+        "score": 81,
+        "science": 92,
+        "community": 39,
+        "commonness": 92
+      },
+      {
+        "id": 981,
+        "name": "Thunderstruck",
+        "type": "sativa",
+        "score": 81,
+        "science": 92,
+        "community": 42,
+        "commonness": 91
+      },
+      {
+        "id": 828,
+        "name": "Cambodian Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 92,
+        "community": 47,
+        "commonness": 89
+      },
+      {
+        "id": 864,
+        "name": "Hawaiâ€™i â€˜78",
+        "type": "sativa",
+        "score": 81,
+        "science": 92,
+        "community": 62,
+        "commonness": 82
+      },
+      {
+        "id": 892,
+        "name": "Lemon Bubble",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 46,
+        "commonness": 86
+      },
+      {
+        "id": 916,
+        "name": "NYPD",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 59,
+        "commonness": 81
+      },
+      {
+        "id": 958,
+        "name": "Stella Blue",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 40,
+        "commonness": 88
+      },
+      {
+        "id": 820,
+        "name": "Atomical Haze",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 41,
+        "commonness": 89
+      },
+      {
+        "id": 848,
+        "name": "Doox",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 42,
+        "commonness": 87
+      },
+      {
+        "id": 849,
+        "name": "Dr. Grinspoon",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 55,
+        "commonness": 82
+      },
+      {
+        "id": 943,
+        "name": "Slazerbeam",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 37,
+        "commonness": 89
+      },
+      {
+        "id": 831,
+        "name": "Catfish",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 56,
+        "commonness": 79
+      },
+      {
+        "id": 906,
+        "name": "Megalodon",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 60,
+        "commonness": 77
+      },
+      {
+        "id": 179,
+        "name": "Hashplant Haze",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 62,
+        "commonness": 76
+      },
+      {
+        "id": 961,
+        "name": "Sublime",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 62,
+        "commonness": 75
+      },
+      {
+        "id": 374,
+        "name": "Astroboy",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 26,
+        "commonness": 92
+      },
+      {
+        "id": 823,
+        "name": "Bertberry Cheesecake",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 55,
+        "commonness": 80
+      },
+      {
+        "id": 863,
+        "name": "Harley Storm",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 35,
+        "commonness": 88
+      },
+      {
+        "id": 991,
+        "name": "White Buffalo",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 65,
+        "commonness": 75
+      },
+      {
+        "id": 876,
+        "name": "Jack Smack",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 38,
+        "commonness": 87
+      },
+      {
+        "id": 886,
+        "name": "Johnnyâ€™s Tonic",
+        "type": "sativa",
+        "score": 79,
+        "science": 92,
+        "community": 62,
+        "commonness": 78
+      },
+      {
+        "id": 217,
+        "name": "Lemon Sativa",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 49,
+        "commonness": 80
+      },
+      {
+        "id": 194,
+        "name": "J-27",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 32,
+        "commonness": 87
+      },
+      {
+        "id": 259,
+        "name": "Poison Haze",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 38,
+        "commonness": 84
+      },
+      {
+        "id": 827,
+        "name": "Buffalo Bill",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 57,
+        "commonness": 77
+      },
+      {
+        "id": 235,
+        "name": "Mexican",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 41,
+        "commonness": 83
+      },
+      {
+        "id": 997,
+        "name": "Xanadu",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 25,
+        "commonness": 91
+      },
+      {
+        "id": 839,
+        "name": "Cirrus",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 62,
+        "commonness": 75
+      },
+      {
+        "id": 977,
+        "name": "Tesla Tower",
+        "type": "sativa",
+        "score": 78,
+        "science": 92,
+        "community": 15,
+        "commonness": 96
+      },
+      {
+        "id": 841,
+        "name": "Clementine",
+        "type": "hybrid",
+        "score": 78,
+        "science": 77,
+        "community": 59,
+        "commonness": 86
+      },
+      {
+        "id": 861,
+        "name": "Green Haze",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 44,
+        "commonness": 79
+      },
+      {
+        "id": 138,
+        "name": "Chocolope",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 60,
+        "commonness": 74
+      },
+      {
+        "id": 912,
+        "name": "Mother Tongue",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 48,
+        "commonness": 78
+      },
+      {
+        "id": 910,
+        "name": "Moonshine Haze",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 63,
+        "commonness": 73
+      },
+      {
+        "id": 955,
+        "name": "South American",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 35,
+        "commonness": 84
+      },
+      {
+        "id": 837,
+        "name": "Chocolate Thunder",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 40,
+        "commonness": 82
+      },
+      {
+        "id": 949,
+        "name": "Sour Breath",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 43,
+        "commonness": 81
+      },
+      {
+        "id": 941,
+        "name": "Sinai",
+        "type": "sativa",
+        "score": 77,
+        "science": 92,
+        "community": 58,
+        "commonness": 74
+      },
+      {
+        "id": 905,
+        "name": "MediHaze",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 42,
+        "commonness": 78
+      },
+      {
+        "id": 185,
+        "name": "Hempstar",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 45,
+        "commonness": 79
+      },
+      {
+        "id": 970,
+        "name": "Swazi Gold",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 59,
+        "commonness": 71
+      },
+      {
+        "id": 158,
+        "name": "Frostbite",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 871,
+        "name": "Higher Power",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 16,
+        "commonness": 89
+      },
+      {
+        "id": 985,
+        "name": "Twista",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 23,
+        "commonness": 87
+      },
+      {
+        "id": 992,
+        "name": "White Durban",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 29,
+        "commonness": 84
+      },
+      {
+        "id": 972,
+        "name": "Sweet Jane",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 27,
+        "commonness": 86
+      },
+      {
+        "id": 902,
+        "name": "Magnum PI",
+        "type": "sativa",
+        "score": 76,
+        "science": 92,
+        "community": 35,
+        "commonness": 81
+      },
+      {
+        "id": 7024,
+        "name": "Genetix Frosted Acai",
+        "type": "sativa",
+        "score": 76,
+        "science": 80,
+        "community": 74,
+        "commonness": 74
+      },
+      {
+        "id": 984,
+        "name": "Tutankhamon",
+        "type": "sativa",
+        "score": 75,
+        "science": 92,
+        "community": 40,
+        "commonness": 77
+      },
+      {
+        "id": 866,
+        "name": "Hawaiian Dream",
+        "type": "sativa",
+        "score": 75,
+        "science": 92,
+        "community": 46,
+        "commonness": 76
+      },
+      {
+        "id": 889,
+        "name": "Kilimanjaro",
+        "type": "sativa",
+        "score": 75,
+        "science": 92,
+        "community": 37,
+        "commonness": 78
+      },
+      {
+        "id": 891,
+        "name": "Laughing Buddha",
+        "type": "sativa",
+        "score": 75,
+        "science": 92,
+        "community": 63,
+        "commonness": 67
+      },
+      {
+        "id": 833,
+        "name": "Central American",
+        "type": "sativa",
+        "score": 75,
+        "science": 92,
+        "community": 43,
+        "commonness": 76
+      },
+      {
+        "id": 292,
+        "name": "Shaman",
+        "type": "hybrid",
+        "score": 75,
+        "science": 61,
+        "community": 57,
+        "commonness": 93
+      },
+      {
+        "id": 812,
+        "name": "African",
+        "type": "sativa",
+        "score": 74,
+        "science": 92,
+        "community": 48,
+        "commonness": 72
+      },
+      {
+        "id": 988,
+        "name": "Velvet Bud",
+        "type": "sativa",
+        "score": 74,
+        "science": 92,
+        "community": 37,
+        "commonness": 77
+      },
+      {
+        "id": 967,
+        "name": "Supa Don",
+        "type": "sativa",
+        "score": 74,
+        "science": 92,
+        "community": 37,
+        "commonness": 76
+      },
+      {
+        "id": 878,
+        "name": "Jackalope",
+        "type": "sativa",
+        "score": 74,
+        "science": 92,
+        "community": 27,
+        "commonness": 80
+      },
+      {
+        "id": 968,
+        "name": "Super Snow Dog",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 18,
+        "commonness": 82
+      },
+      {
+        "id": 986,
+        "name": "Twisted Citrus",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 37,
+        "commonness": 74
+      },
+      {
+        "id": 897,
+        "name": "Leonidas",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 16,
+        "commonness": 84
+      },
+      {
+        "id": 946,
+        "name": "Sojay Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 42,
+        "commonness": 73
+      },
+      {
+        "id": 919,
+        "name": "Orange Durban",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 15,
+        "commonness": 84
+      },
+      {
+        "id": 978,
+        "name": "The Blood",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 18,
+        "commonness": 84
+      },
+      {
+        "id": 842,
+        "name": "Congo",
+        "type": "sativa",
+        "score": 73,
+        "science": 92,
+        "community": 33,
+        "commonness": 76
+      },
+      {
+        "id": 893,
+        "name": "Lemon Jack",
+        "type": "hybrid",
+        "score": 73,
+        "science": 89,
+        "community": 45,
+        "commonness": 72
+      },
+      {
+        "id": 1044,
+        "name": "Buckeye Purple",
+        "type": "hybrid",
+        "score": 73,
+        "science": 65,
+        "community": 38,
+        "commonness": 96
+      },
+      {
+        "id": 37,
+        "name": "Maui Wowie",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 59,
+        "commonness": 55
+      },
+      {
+        "id": 810,
+        "name": "Aceh",
+        "type": "sativa",
+        "score": 72,
+        "science": 92,
+        "community": 23,
+        "commonness": 79
+      },
+      {
+        "id": 874,
+        "name": "Hurricane",
+        "type": "sativa",
+        "score": 72,
+        "science": 92,
+        "community": 48,
+        "commonness": 68
+      },
+      {
+        "id": 953,
+        "name": "Sour Willie",
+        "type": "sativa",
+        "score": 72,
+        "science": 92,
+        "community": 62,
+        "commonness": 62
+      },
+      {
+        "id": 962,
+        "name": "Summertime Squeeze",
+        "type": "sativa",
+        "score": 72,
+        "science": 92,
+        "community": 53,
+        "commonness": 64
+      },
+      {
+        "id": 860,
+        "name": "Gorkle",
+        "type": "sativa",
+        "score": 72,
+        "science": 92,
+        "community": 26,
+        "commonness": 77
+      },
+      {
+        "id": 9368,
+        "name": "Privileged Baddie",
+        "type": "sativa",
+        "score": 72,
+        "science": 80,
+        "community": 64,
+        "commonness": 70
+      },
+      {
+        "id": 16275,
+        "name": "4 Amigas 1G",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 71,
+        "commonness": 48
+      },
+      {
+        "id": 63946,
+        "name": "Strawberry Cloud 1G",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 70,
+        "commonness": 48
+      },
+      {
+        "id": 23,
+        "name": "Lemon Haze",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 60,
+        "commonness": 53
+      },
+      {
+        "id": 917,
+        "name": "OCD",
+        "type": "sativa",
+        "score": 71,
+        "science": 92,
+        "community": 34,
+        "commonness": 72
+      },
+      {
+        "id": 903,
+        "name": "Malakoff",
+        "type": "sativa",
+        "score": 71,
+        "science": 92,
+        "community": 19,
+        "commonness": 77
       }
     ]
   },
@@ -936,6 +3816,726 @@
         "science": 100,
         "community": 51,
         "commonness": 87
+      },
+      {
+        "id": 943,
+        "name": "Slazerbeam",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 43,
+        "commonness": 89
+      },
+      {
+        "id": 978,
+        "name": "The Blood",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 59,
+        "commonness": 84
+      },
+      {
+        "id": 902,
+        "name": "Magnum PI",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 62,
+        "commonness": 81
+      },
+      {
+        "id": 870,
+        "name": "Haze Wreck",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 43,
+        "commonness": 88
+      },
+      {
+        "id": 985,
+        "name": "Twista",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 43,
+        "commonness": 87
+      },
+      {
+        "id": 837,
+        "name": "Chocolate Thunder",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 54,
+        "commonness": 82
+      },
+      {
+        "id": 919,
+        "name": "Orange Durban",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 48,
+        "commonness": 84
+      },
+      {
+        "id": 198,
+        "name": "Jamaican Pearl",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 46,
+        "commonness": 84
+      },
+      {
+        "id": 820,
+        "name": "Atomical Haze",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 32,
+        "commonness": 89
+      },
+      {
+        "id": 883,
+        "name": "Jenni",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 23,
+        "commonness": 94
+      },
+      {
+        "id": 828,
+        "name": "Cambodian Haze",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 35,
+        "commonness": 89
+      },
+      {
+        "id": 308,
+        "name": "Sour Chocolate",
+        "type": "sativa",
+        "score": 82,
+        "science": 98,
+        "community": 31,
+        "commonness": 91
+      },
+      {
+        "id": 831,
+        "name": "Catfish",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 53,
+        "commonness": 79
+      },
+      {
+        "id": 853,
+        "name": "Dutch Hawaiian",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 22,
+        "commonness": 92
+      },
+      {
+        "id": 958,
+        "name": "Stella Blue",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 31,
+        "commonness": 88
+      },
+      {
+        "id": 966,
+        "name": "Sunshine",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 45,
+        "commonness": 82
+      },
+      {
+        "id": 848,
+        "name": "Doox",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 31,
+        "commonness": 87
+      },
+      {
+        "id": 849,
+        "name": "Dr. Grinspoon",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 43,
+        "commonness": 82
+      },
+      {
+        "id": 967,
+        "name": "Supa Don",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 58,
+        "commonness": 76
+      },
+      {
+        "id": 930,
+        "name": "Q3",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 13,
+        "commonness": 97
+      },
+      {
+        "id": 217,
+        "name": "Lemon Sativa",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 48,
+        "commonness": 80
+      },
+      {
+        "id": 997,
+        "name": "Xanadu",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 20,
+        "commonness": 91
+      },
+      {
+        "id": 5924,
+        "name": "Columbian Gold",
+        "type": "sativa",
+        "score": 80,
+        "science": 92,
+        "community": 82,
+        "commonness": 69
+      },
+      {
+        "id": 906,
+        "name": "Megalodon",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 49,
+        "commonness": 77
+      },
+      {
+        "id": 914,
+        "name": "Narnia",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 56,
+        "commonness": 73
+      },
+      {
+        "id": 988,
+        "name": "Velvet Bud",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 46,
+        "commonness": 77
+      },
+      {
+        "id": 235,
+        "name": "Mexican",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 34,
+        "commonness": 83
+      },
+      {
+        "id": 903,
+        "name": "Malakoff",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 44,
+        "commonness": 77
+      },
+      {
+        "id": 981,
+        "name": "Thunderstruck",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 13,
+        "commonness": 91
+      },
+      {
+        "id": 818,
+        "name": "Alpha Express",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 54,
+        "commonness": 74
+      },
+      {
+        "id": 842,
+        "name": "Congo",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 49,
+        "commonness": 76
+      },
+      {
+        "id": 7024,
+        "name": "Genetix Frosted Acai",
+        "type": "sativa",
+        "score": 79,
+        "science": 95,
+        "community": 63,
+        "commonness": 74
+      },
+      {
+        "id": 89,
+        "name": "Alaskan Thunder Fuck",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 25,
+        "commonness": 85
+      },
+      {
+        "id": 968,
+        "name": "Super Snow Dog",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 32,
+        "commonness": 82
+      },
+      {
+        "id": 810,
+        "name": "Aceh",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 37,
+        "commonness": 79
+      },
+      {
+        "id": 917,
+        "name": "OCD",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 51,
+        "commonness": 72
+      },
+      {
+        "id": 699,
+        "name": "Candyland",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 24,
+        "commonness": 85
+      },
+      {
+        "id": 957,
+        "name": "Sputnik",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 8,
+        "commonness": 92
+      },
+      {
+        "id": 861,
+        "name": "Green Haze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 33,
+        "commonness": 79
+      },
+      {
+        "id": 905,
+        "name": "MediHaze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 31,
+        "commonness": 78
+      },
+      {
+        "id": 138,
+        "name": "Chocolope",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 42,
+        "commonness": 74
+      },
+      {
+        "id": 889,
+        "name": "Kilimanjaro",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 32,
+        "commonness": 78
+      },
+      {
+        "id": 847,
+        "name": "Django",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 22,
+        "commonness": 84
+      },
+      {
+        "id": 910,
+        "name": "Moonshine Haze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 47,
+        "commonness": 73
+      },
+      {
+        "id": 961,
+        "name": "Sublime",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 42,
+        "commonness": 75
+      },
+      {
+        "id": 949,
+        "name": "Sour Breath",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 30,
+        "commonness": 81
+      },
+      {
+        "id": 886,
+        "name": "Johnnyâ€™s Tonic",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 38,
+        "commonness": 78
+      },
+      {
+        "id": 956,
+        "name": "Space Needle",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 27,
+        "commonness": 82
+      },
+      {
+        "id": 963,
+        "name": "Sumo Grande",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 43,
+        "commonness": 75
+      },
+      {
+        "id": 860,
+        "name": "Gorkle",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 38,
+        "commonness": 77
+      },
+      {
+        "id": 9368,
+        "name": "Privileged Baddie",
+        "type": "sativa",
+        "score": 77,
+        "science": 95,
+        "community": 61,
+        "commonness": 70
+      },
+      {
+        "id": 984,
+        "name": "Tutankhamon",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 33,
+        "commonness": 77
+      },
+      {
+        "id": 185,
+        "name": "Hempstar",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 26,
+        "commonness": 79
+      },
+      {
+        "id": 892,
+        "name": "Lemon Bubble",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 9,
+        "commonness": 86
+      },
+      {
+        "id": 916,
+        "name": "NYPD",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 24,
+        "commonness": 81
+      },
+      {
+        "id": 986,
+        "name": "Twisted Citrus",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 38,
+        "commonness": 74
+      },
+      {
+        "id": 962,
+        "name": "Summertime Squeeze",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 61,
+        "commonness": 64
+      },
+      {
+        "id": 972,
+        "name": "Sweet Jane",
+        "type": "sativa",
+        "score": 76,
+        "science": 99,
+        "community": 12,
+        "commonness": 86
+      },
+      {
+        "id": 812,
+        "name": "African",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 38,
+        "commonness": 72
+      },
+      {
+        "id": 259,
+        "name": "Poison Haze",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 12,
+        "commonness": 84
+      },
+      {
+        "id": 827,
+        "name": "Buffalo Bill",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 25,
+        "commonness": 77
+      },
+      {
+        "id": 955,
+        "name": "South American",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 13,
+        "commonness": 84
+      },
+      {
+        "id": 946,
+        "name": "Sojay Haze",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 37,
+        "commonness": 73
+      },
+      {
+        "id": 873,
+        "name": "Hoodwreck",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 52,
+        "commonness": 65
+      },
+      {
+        "id": 7464,
+        "name": "High Yield   Mix",
+        "type": "sativa",
+        "score": 75,
+        "science": 97,
+        "community": 63,
+        "commonness": 64
+      },
+      {
+        "id": 8019,
+        "name": "Lebron Haze",
+        "type": "sativa",
+        "score": 75,
+        "science": 97,
+        "community": 63,
+        "commonness": 63
+      },
+      {
+        "id": 866,
+        "name": "Hawaiian Dream",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 27,
+        "commonness": 76
+      },
+      {
+        "id": 991,
+        "name": "White Buffalo",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 25,
+        "commonness": 75
+      },
+      {
+        "id": 839,
+        "name": "Cirrus",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 25,
+        "commonness": 75
+      },
+      {
+        "id": 912,
+        "name": "Mother Tongue",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 11,
+        "commonness": 78
+      },
+      {
+        "id": 179,
+        "name": "Hashplant Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 20,
+        "commonness": 76
+      },
+      {
+        "id": 926,
+        "name": "Pineapple Purps",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 41,
+        "commonness": 67
+      },
+      {
+        "id": 941,
+        "name": "Sinai",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 26,
+        "commonness": 74
+      },
+      {
+        "id": 10516,
+        "name": "Super Pineapple Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 95,
+        "community": 56,
+        "commonness": 63
+      },
+      {
+        "id": 970,
+        "name": "Swazi Gold",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 25,
+        "commonness": 71
+      },
+      {
+        "id": 4315,
+        "name": "3 Kings",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 58,
+        "commonness": 56
+      },
+      {
+        "id": 880,
+        "name": "Jahwaiian",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 39,
+        "commonness": 66
+      },
+      {
+        "id": 9010,
+        "name": "Orange Mooncake",
+        "type": "sativa",
+        "score": 72,
+        "science": 95,
+        "community": 62,
+        "commonness": 57
+      },
+      {
+        "id": 158,
+        "name": "Frostbite",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 1,
+        "commonness": 79
+      },
+      {
+        "id": 878,
+        "name": "Jackalope",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 0,
+        "commonness": 80
       }
     ]
   },
@@ -1124,6 +4724,726 @@
         "science": 100,
         "community": 35,
         "commonness": 97
+      },
+      {
+        "id": 902,
+        "name": "Magnum PI",
+        "type": "sativa",
+        "score": 86,
+        "science": 100,
+        "community": 70,
+        "commonness": 81
+      },
+      {
+        "id": 173,
+        "name": "Green Goblin",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 48,
+        "commonness": 89
+      },
+      {
+        "id": 985,
+        "name": "Twista",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 55,
+        "commonness": 87
+      },
+      {
+        "id": 822,
+        "name": "Bediol",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 42,
+        "commonness": 92
+      },
+      {
+        "id": 837,
+        "name": "Chocolate Thunder",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 65,
+        "commonness": 82
+      },
+      {
+        "id": 943,
+        "name": "Slazerbeam",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 50,
+        "commonness": 89
+      },
+      {
+        "id": 980,
+        "name": "Thunderbird Rose",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 45,
+        "commonness": 90
+      },
+      {
+        "id": 968,
+        "name": "Super Snow Dog",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 60,
+        "commonness": 82
+      },
+      {
+        "id": 853,
+        "name": "Dutch Hawaiian",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 39,
+        "commonness": 92
+      },
+      {
+        "id": 820,
+        "name": "Atomical Haze",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 44,
+        "commonness": 89
+      },
+      {
+        "id": 967,
+        "name": "Supa Don",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 71,
+        "commonness": 76
+      },
+      {
+        "id": 984,
+        "name": "Tutankhamon",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 59,
+        "commonness": 77
+      },
+      {
+        "id": 870,
+        "name": "Haze Wreck",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 88
+      },
+      {
+        "id": 966,
+        "name": "Sunshine",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 51,
+        "commonness": 82
+      },
+      {
+        "id": 849,
+        "name": "Dr. Grinspoon",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 50,
+        "commonness": 82
+      },
+      {
+        "id": 949,
+        "name": "Sour Breath",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 53,
+        "commonness": 81
+      },
+      {
+        "id": 818,
+        "name": "Alpha Express",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 70,
+        "commonness": 74
+      },
+      {
+        "id": 831,
+        "name": "Catfish",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 52,
+        "commonness": 79
+      },
+      {
+        "id": 905,
+        "name": "MediHaze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 56,
+        "commonness": 78
+      },
+      {
+        "id": 89,
+        "name": "Alaskan Thunder Fuck",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 36,
+        "commonness": 85
+      },
+      {
+        "id": 217,
+        "name": "Lemon Sativa",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 51,
+        "commonness": 80
+      },
+      {
+        "id": 914,
+        "name": "Narnia",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 69,
+        "commonness": 73
+      },
+      {
+        "id": 198,
+        "name": "Jamaican Pearl",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 41,
+        "commonness": 84
+      },
+      {
+        "id": 259,
+        "name": "Poison Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 40,
+        "commonness": 84
+      },
+      {
+        "id": 847,
+        "name": "Django",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 43,
+        "commonness": 84
+      },
+      {
+        "id": 955,
+        "name": "South American",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 699,
+        "name": "Candyland",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 37,
+        "commonness": 85
+      },
+      {
+        "id": 903,
+        "name": "Malakoff",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 57,
+        "commonness": 77
+      },
+      {
+        "id": 957,
+        "name": "Sputnik",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 25,
+        "commonness": 92
+      },
+      {
+        "id": 7024,
+        "name": "Genetix Frosted Acai",
+        "type": "sativa",
+        "score": 81,
+        "science": 94,
+        "community": 73,
+        "commonness": 74
+      },
+      {
+        "id": 164,
+        "name": "Goldwing",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 25,
+        "commonness": 88
+      },
+      {
+        "id": 889,
+        "name": "Kilimanjaro",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 48,
+        "commonness": 78
+      },
+      {
+        "id": 988,
+        "name": "Velvet Bud",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 50,
+        "commonness": 77
+      },
+      {
+        "id": 235,
+        "name": "Mexican",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 38,
+        "commonness": 83
+      },
+      {
+        "id": 823,
+        "name": "Bertberry Cheesecake",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 45,
+        "commonness": 80
+      },
+      {
+        "id": 5924,
+        "name": "Columbian Gold",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 68,
+        "commonness": 69
+      },
+      {
+        "id": 892,
+        "name": "Lemon Bubble",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 27,
+        "commonness": 86
+      },
+      {
+        "id": 906,
+        "name": "Megalodon",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 49,
+        "commonness": 77
+      },
+      {
+        "id": 916,
+        "name": "NYPD",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 38,
+        "commonness": 81
+      },
+      {
+        "id": 986,
+        "name": "Twisted Citrus",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 53,
+        "commonness": 74
+      },
+      {
+        "id": 863,
+        "name": "Harley Storm",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 25,
+        "commonness": 88
+      },
+      {
+        "id": 883,
+        "name": "Jenni",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 11,
+        "commonness": 94
+      },
+      {
+        "id": 981,
+        "name": "Thunderstruck",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 13,
+        "commonness": 91
+      },
+      {
+        "id": 842,
+        "name": "Congo",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 47,
+        "commonness": 76
+      },
+      {
+        "id": 308,
+        "name": "Sour Chocolate",
+        "type": "sativa",
+        "score": 79,
+        "science": 99,
+        "community": 17,
+        "commonness": 91
+      },
+      {
+        "id": 138,
+        "name": "Chocolope",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 48,
+        "commonness": 74
+      },
+      {
+        "id": 917,
+        "name": "OCD",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 53,
+        "commonness": 72
+      },
+      {
+        "id": 9368,
+        "name": "Privileged Baddie",
+        "type": "sativa",
+        "score": 78,
+        "science": 97,
+        "community": 64,
+        "commonness": 70
+      },
+      {
+        "id": 866,
+        "name": "Hawaiian Dream",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 42,
+        "commonness": 76
+      },
+      {
+        "id": 810,
+        "name": "Aceh",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 32,
+        "commonness": 79
+      },
+      {
+        "id": 828,
+        "name": "Cambodian Haze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 9,
+        "commonness": 89
+      },
+      {
+        "id": 962,
+        "name": "Summertime Squeeze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 67,
+        "commonness": 64
+      },
+      {
+        "id": 972,
+        "name": "Sweet Jane",
+        "type": "sativa",
+        "score": 77,
+        "science": 98,
+        "community": 16,
+        "commonness": 86
+      },
+      {
+        "id": 961,
+        "name": "Sublime",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 36,
+        "commonness": 75
+      },
+      {
+        "id": 991,
+        "name": "White Buffalo",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 36,
+        "commonness": 75
+      },
+      {
+        "id": 886,
+        "name": "Johnnyâ€™s Tonic",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 32,
+        "commonness": 78
+      },
+      {
+        "id": 185,
+        "name": "Hempstar",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 21,
+        "commonness": 79
+      },
+      {
+        "id": 970,
+        "name": "Swazi Gold",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 38,
+        "commonness": 71
+      },
+      {
+        "id": 946,
+        "name": "Sojay Haze",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 34,
+        "commonness": 73
+      },
+      {
+        "id": 956,
+        "name": "Space Needle",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 16,
+        "commonness": 82
+      },
+      {
+        "id": 963,
+        "name": "Sumo Grande",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 34,
+        "commonness": 75
+      },
+      {
+        "id": 860,
+        "name": "Gorkle",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 27,
+        "commonness": 77
+      },
+      {
+        "id": 7464,
+        "name": "High Yield   Mix",
+        "type": "sativa",
+        "score": 75,
+        "science": 96,
+        "community": 65,
+        "commonness": 64
+      },
+      {
+        "id": 8019,
+        "name": "Lebron Haze",
+        "type": "sativa",
+        "score": 75,
+        "science": 96,
+        "community": 66,
+        "commonness": 63
+      },
+      {
+        "id": 812,
+        "name": "African",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 33,
+        "commonness": 72
+      },
+      {
+        "id": 4315,
+        "name": "3 Kings",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 70,
+        "commonness": 56
+      },
+      {
+        "id": 873,
+        "name": "Hoodwreck",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 52,
+        "commonness": 65
+      },
+      {
+        "id": 9383,
+        "name": "Pucker Punch",
+        "type": "sativa",
+        "score": 74,
+        "science": 93,
+        "community": 78,
+        "commonness": 57
+      },
+      {
+        "id": 861,
+        "name": "Green Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 10,
+        "commonness": 79
+      },
+      {
+        "id": 891,
+        "name": "Laughing Buddha",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 36,
+        "commonness": 67
+      },
+      {
+        "id": 910,
+        "name": "Moonshine Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 24,
+        "commonness": 73
+      },
+      {
+        "id": 840,
+        "name": "Citrus Punch",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 62,
+        "commonness": 56
+      },
+      {
+        "id": 1000,
+        "name": "Zellyâ€™s Gift",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 36,
+        "commonness": 68
+      },
+      {
+        "id": 9010,
+        "name": "Orange Mooncake",
+        "type": "sativa",
+        "score": 73,
+        "science": 99,
+        "community": 66,
+        "commonness": 57
+      },
+      {
+        "id": 10516,
+        "name": "Super Pineapple Haze",
+        "type": "sativa",
+        "score": 73,
+        "science": 93,
+        "community": 64,
+        "commonness": 63
+      },
+      {
+        "id": 827,
+        "name": "Buffalo Bill",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 14,
+        "commonness": 77
+      },
+      {
+        "id": 839,
+        "name": "Cirrus",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 16,
+        "commonness": 75
+      },
+      {
+        "id": 880,
+        "name": "Jahwaiian",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 39,
+        "commonness": 66
+      },
+      {
+        "id": 158,
+        "name": "Frostbite",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 1,
+        "commonness": 79
+      },
+      {
+        "id": 179,
+        "name": "Hashplant Haze",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 10,
+        "commonness": 76
       }
     ]
   },
@@ -1312,6 +5632,726 @@
         "science": 73,
         "community": 81,
         "commonness": 86
+      },
+      {
+        "id": 1061,
+        "name": "Crown OG",
+        "type": "hybrid",
+        "score": 80,
+        "science": 73,
+        "community": 59,
+        "commonness": 94
+      },
+      {
+        "id": 1035,
+        "name": "Blue Monster",
+        "type": "hybrid",
+        "score": 80,
+        "science": 73,
+        "community": 65,
+        "commonness": 92
+      },
+      {
+        "id": 1160,
+        "name": "Negra 44",
+        "type": "indica",
+        "score": 80,
+        "science": 73,
+        "community": 69,
+        "commonness": 91
+      },
+      {
+        "id": 1166,
+        "name": "Orange Afghani",
+        "type": "indica",
+        "score": 80,
+        "science": 73,
+        "community": 60,
+        "commonness": 94
+      },
+      {
+        "id": 1073,
+        "name": "Dutch Kush",
+        "type": "indica",
+        "score": 80,
+        "science": 73,
+        "community": 75,
+        "commonness": 88
+      },
+      {
+        "id": 1187,
+        "name": "Purple Swish",
+        "type": "hybrid",
+        "score": 80,
+        "science": 73,
+        "community": 64,
+        "commonness": 93
+      },
+      {
+        "id": 1108,
+        "name": "Grimace",
+        "type": "indica",
+        "score": 79,
+        "science": 73,
+        "community": 61,
+        "commonness": 91
+      },
+      {
+        "id": 973,
+        "name": "Swiss Gold",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 63,
+        "commonness": 91
+      },
+      {
+        "id": 1027,
+        "name": "Blackwater",
+        "type": "indica",
+        "score": 79,
+        "science": 73,
+        "community": 61,
+        "commonness": 91
+      },
+      {
+        "id": 1037,
+        "name": "Blue Power",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 65,
+        "commonness": 89
+      },
+      {
+        "id": 885,
+        "name": "Jock Horror",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 79,
+        "commonness": 84
+      },
+      {
+        "id": 1028,
+        "name": "Blue Afghani",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 87,
+        "commonness": 80
+      },
+      {
+        "id": 1121,
+        "name": "Iced Widow",
+        "type": "indica",
+        "score": 79,
+        "science": 73,
+        "community": 91,
+        "commonness": 79
+      },
+      {
+        "id": 1147,
+        "name": "Mataro Blue",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 66,
+        "commonness": 89
+      },
+      {
+        "id": 226,
+        "name": "Madagascar",
+        "type": "indica",
+        "score": 79,
+        "science": 73,
+        "community": 63,
+        "commonness": 91
+      },
+      {
+        "id": 920,
+        "name": "Oregon Pinot Noir",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 60,
+        "commonness": 92
+      },
+      {
+        "id": 1002,
+        "name": "5th Element",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 60,
+        "commonness": 91
+      },
+      {
+        "id": 1194,
+        "name": "Rip City Purps",
+        "type": "indica",
+        "score": 79,
+        "science": 73,
+        "community": 56,
+        "commonness": 93
+      },
+      {
+        "id": 569,
+        "name": "Leda Uno",
+        "type": "hybrid",
+        "score": 79,
+        "science": 73,
+        "community": 62,
+        "commonness": 91
+      },
+      {
+        "id": 213,
+        "name": "Lavender",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 287,
+        "name": "Romulan",
+        "type": "hybrid",
+        "score": 78,
+        "science": 89,
+        "community": 36,
+        "commonness": 88
+      },
+      {
+        "id": 1091,
+        "name": "Funky Monkey",
+        "type": "indica",
+        "score": 78,
+        "science": 73,
+        "community": 58,
+        "commonness": 90
+      },
+      {
+        "id": 911,
+        "name": "Moose and Lobsta",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 58,
+        "commonness": 91
+      },
+      {
+        "id": 1001,
+        "name": "303 OG",
+        "type": "indica",
+        "score": 78,
+        "science": 73,
+        "community": 63,
+        "commonness": 88
+      },
+      {
+        "id": 1181,
+        "name": "Punky Lion",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 52,
+        "commonness": 93
+      },
+      {
+        "id": 1225,
+        "name": "U2 Kush",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 61,
+        "commonness": 89
+      },
+      {
+        "id": 937,
+        "name": "Schrom",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 60,
+        "commonness": 89
+      },
+      {
+        "id": 1162,
+        "name": "Nice Cherry",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 78,
+        "commonness": 81
+      },
+      {
+        "id": 929,
+        "name": "Purple Power",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 63,
+        "commonness": 89
+      },
+      {
+        "id": 1157,
+        "name": "Mt. Cook",
+        "type": "indica",
+        "score": 78,
+        "science": 73,
+        "community": 54,
+        "commonness": 92
+      },
+      {
+        "id": 1047,
+        "name": "Candy Cane",
+        "type": "hybrid",
+        "score": 77,
+        "science": 100,
+        "community": 35,
+        "commonness": 77
+      },
+      {
+        "id": 329,
+        "name": "True OG",
+        "type": "indica",
+        "score": 77,
+        "science": 100,
+        "community": 36,
+        "commonness": 78
+      },
+      {
+        "id": 1051,
+        "name": "Cherries Jubilee",
+        "type": "indica",
+        "score": 77,
+        "science": 100,
+        "community": 34,
+        "commonness": 78
+      },
+      {
+        "id": 314,
+        "name": "Super Skunk",
+        "type": "hybrid",
+        "score": 77,
+        "science": 77,
+        "community": 67,
+        "commonness": 82
+      },
+      {
+        "id": 79,
+        "name": "A-10",
+        "type": "indica",
+        "score": 77,
+        "science": 73,
+        "community": 39,
+        "commonness": 96
+      },
+      {
+        "id": 273,
+        "name": "Purple Passion",
+        "type": "indica",
+        "score": 77,
+        "science": 73,
+        "community": 78,
+        "commonness": 80
+      },
+      {
+        "id": 1116,
+        "name": "Haoma",
+        "type": "indica",
+        "score": 77,
+        "science": 73,
+        "community": 64,
+        "commonness": 85
+      },
+      {
+        "id": 1199,
+        "name": "Sexxpot",
+        "type": "hybrid",
+        "score": 77,
+        "science": 73,
+        "community": 80,
+        "commonness": 78
+      },
+      {
+        "id": 825,
+        "name": "Blucifer",
+        "type": "hybrid",
+        "score": 77,
+        "science": 73,
+        "community": 58,
+        "commonness": 88
+      },
+      {
+        "id": 1235,
+        "name": "Wonder Kid",
+        "type": "indica",
+        "score": 77,
+        "science": 73,
+        "community": 58,
+        "commonness": 89
+      },
+      {
+        "id": 1024,
+        "name": "Biochem",
+        "type": "indica",
+        "score": 77,
+        "science": 73,
+        "community": 71,
+        "commonness": 82
+      },
+      {
+        "id": 915,
+        "name": "NL5 Haze Mist",
+        "type": "hybrid",
+        "score": 77,
+        "science": 73,
+        "community": 64,
+        "commonness": 86
+      },
+      {
+        "id": 835,
+        "name": "Chocolate Diesel",
+        "type": "hybrid",
+        "score": 76,
+        "science": 100,
+        "community": 17,
+        "commonness": 84
+      },
+      {
+        "id": 7917,
+        "name": "Kosher Kush",
+        "type": "hybrid",
+        "score": 76,
+        "science": 100,
+        "community": 54,
+        "commonness": 68
+      },
+      {
+        "id": 292,
+        "name": "Shaman",
+        "type": "hybrid",
+        "score": 76,
+        "science": 89,
+        "community": 15,
+        "commonness": 93
+      },
+      {
+        "id": 299,
+        "name": "Silver Haze",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 54,
+        "commonness": 87
+      },
+      {
+        "id": 1026,
+        "name": "Black Diamond",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 63,
+        "commonness": 84
+      },
+      {
+        "id": 1217,
+        "name": "Super Kush",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 82,
+        "commonness": 75
+      },
+      {
+        "id": 192,
+        "name": "Ingrid",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 62,
+        "commonness": 84
+      },
+      {
+        "id": 1075,
+        "name": "Edelweiss",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 66,
+        "commonness": 83
+      },
+      {
+        "id": 285,
+        "name": "Rocklock",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 38,
+        "commonness": 94
+      },
+      {
+        "id": 297,
+        "name": "Shiva Skunk",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 56,
+        "commonness": 87
+      },
+      {
+        "id": 1189,
+        "name": "Rainbow Jones",
+        "type": "indica",
+        "score": 76,
+        "science": 73,
+        "community": 41,
+        "commonness": 93
+      },
+      {
+        "id": 830,
+        "name": "Carnival",
+        "type": "hybrid",
+        "score": 76,
+        "science": 73,
+        "community": 51,
+        "commonness": 90
+      },
+      {
+        "id": 1114,
+        "name": "Hades Haze",
+        "type": "indica",
+        "score": 76,
+        "science": 73,
+        "community": 42,
+        "commonness": 94
+      },
+      {
+        "id": 716,
+        "name": "Blue Buddha",
+        "type": "indica",
+        "score": 76,
+        "science": 73,
+        "community": 59,
+        "commonness": 86
+      },
+      {
+        "id": 893,
+        "name": "Lemon Jack",
+        "type": "hybrid",
+        "score": 75,
+        "science": 100,
+        "community": 37,
+        "commonness": 72
+      },
+      {
+        "id": 20299,
+        "name": "Black Ice",
+        "type": "hybrid",
+        "score": 75,
+        "science": 91,
+        "community": 61,
+        "commonness": 70
+      },
+      {
+        "id": 1103,
+        "name": "Grape Inferno",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 49,
+        "commonness": 88
+      },
+      {
+        "id": 705,
+        "name": "Training Day",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 60,
+        "commonness": 83
+      },
+      {
+        "id": 1008,
+        "name": "Alien Rift",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 64,
+        "commonness": 82
+      },
+      {
+        "id": 1190,
+        "name": "Rare Darkness",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 59,
+        "commonness": 83
+      },
+      {
+        "id": 1224,
+        "name": "Tyson",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 38,
+        "commonness": 93
+      },
+      {
+        "id": 1234,
+        "name": "White Kush",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 65,
+        "commonness": 80
+      },
+      {
+        "id": 177,
+        "name": "Hash Plant",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 62,
+        "commonness": 81
+      },
+      {
+        "id": 1238,
+        "name": "XXX 420",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 57,
+        "commonness": 83
+      },
+      {
+        "id": 180,
+        "name": "Hawaiian Delight",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 40,
+        "commonness": 92
+      },
+      {
+        "id": 1083,
+        "name": "Faygo Red Pop",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 61,
+        "commonness": 82
+      },
+      {
+        "id": 1154,
+        "name": "Monolith",
+        "type": "indica",
+        "score": 75,
+        "science": 73,
+        "community": 45,
+        "commonness": 91
+      },
+      {
+        "id": 964,
+        "name": "Sun Ra",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 39,
+        "commonness": 92
+      },
+      {
+        "id": 2,
+        "name": "OG Kush",
+        "type": "hybrid",
+        "score": 74,
+        "science": 100,
+        "community": 60,
+        "commonness": 59
+      },
+      {
+        "id": 862,
+        "name": "Green Lantern",
+        "type": "hybrid",
+        "score": 74,
+        "science": 90,
+        "community": 41,
+        "commonness": 77
+      },
+      {
+        "id": 9436,
+        "name": "Purple Kush x Mazar",
+        "type": "hybrid",
+        "score": 74,
+        "science": 87,
+        "community": 67,
+        "commonness": 67
+      },
+      {
+        "id": 747,
+        "name": "Ace of Spades",
+        "type": "hybrid",
+        "score": 74,
+        "science": 73,
+        "community": 63,
+        "commonness": 78
+      },
+      {
+        "id": 1063,
+        "name": "Dank Schrader",
+        "type": "indica",
+        "score": 74,
+        "science": 73,
+        "community": 61,
+        "commonness": 80
+      },
+      {
+        "id": 290,
+        "name": "Seattle Blue",
+        "type": "indica",
+        "score": 74,
+        "science": 73,
+        "community": 80,
+        "commonness": 73
+      },
+      {
+        "id": 302,
+        "name": "Silverback Gorilla",
+        "type": "indica",
+        "score": 74,
+        "science": 73,
+        "community": 37,
+        "commonness": 91
+      },
+      {
+        "id": 654,
+        "name": "Skywalker",
+        "type": "hybrid",
+        "score": 74,
+        "science": 73,
+        "community": 62,
+        "commonness": 80
+      },
+      {
+        "id": 900,
+        "name": "Limon",
+        "type": "hybrid",
+        "score": 74,
+        "science": 73,
+        "community": 40,
+        "commonness": 90
+      },
+      {
+        "id": 1029,
+        "name": "Blue Alien",
+        "type": "hybrid",
+        "score": 74,
+        "science": 73,
+        "community": 60,
+        "commonness": 82
       }
     ]
   },
@@ -1500,6 +6540,726 @@
         "science": 100,
         "community": 81,
         "commonness": 72
+      },
+      {
+        "id": 1091,
+        "name": "Funky Monkey",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 39,
+        "commonness": 90
+      },
+      {
+        "id": 296,
+        "name": "Shishkaberry",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 39,
+        "commonness": 89
+      },
+      {
+        "id": 304,
+        "name": "Skydog",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 39,
+        "commonness": 89
+      },
+      {
+        "id": 226,
+        "name": "Madagascar",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 37,
+        "commonness": 91
+      },
+      {
+        "id": 1160,
+        "name": "Negra 44",
+        "type": "indica",
+        "score": 83,
+        "science": 100,
+        "community": 36,
+        "commonness": 91
+      },
+      {
+        "id": 1019,
+        "name": "Banana Candy",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 86
+      },
+      {
+        "id": 1111,
+        "name": "Guido Kush",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 29,
+        "commonness": 93
+      },
+      {
+        "id": 166,
+        "name": "Grape Crush",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 88
+      },
+      {
+        "id": 1001,
+        "name": "303 OG",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 88
+      },
+      {
+        "id": 1118,
+        "name": "Honey Boo Boo",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 88
+      },
+      {
+        "id": 1096,
+        "name": "Godâ€™s Treat",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 87
+      },
+      {
+        "id": 1235,
+        "name": "Wonder Kid",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 35,
+        "commonness": 89
+      },
+      {
+        "id": 1016,
+        "name": "Athabasca",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 30,
+        "commonness": 90
+      },
+      {
+        "id": 1157,
+        "name": "Mt. Cook",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 31,
+        "commonness": 92
+      },
+      {
+        "id": 1012,
+        "name": "Angel OG",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 32,
+        "commonness": 90
+      },
+      {
+        "id": 1071,
+        "name": "Double Tap",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 77,
+        "commonness": 71
+      },
+      {
+        "id": 1073,
+        "name": "Dutch Kush",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 36,
+        "commonness": 88
+      },
+      {
+        "id": 1231,
+        "name": "White Bastard",
+        "type": "indica",
+        "score": 82,
+        "science": 100,
+        "community": 39,
+        "commonness": 88
+      },
+      {
+        "id": 7917,
+        "name": "Kosher Kush",
+        "type": "hybrid",
+        "score": 82,
+        "science": 100,
+        "community": 82,
+        "commonness": 68
+      },
+      {
+        "id": 7168,
+        "name": "Gorilla Banana",
+        "type": "indica",
+        "score": 82,
+        "science": 92,
+        "community": 86,
+        "commonness": 72
+      },
+      {
+        "id": 9258,
+        "name": "Pink Mist",
+        "type": "indica",
+        "score": 82,
+        "science": 92,
+        "community": 71,
+        "commonness": 80
+      },
+      {
+        "id": 1089,
+        "name": "Frosty",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 35,
+        "commonness": 86
+      },
+      {
+        "id": 730,
+        "name": "Watermelon",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 162,
+        "name": "Godberry",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 221,
+        "name": "Liquid Butter",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 86
+      },
+      {
+        "id": 264,
+        "name": "Pure Kush",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 270,
+        "name": "Purple Dragon",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 1021,
+        "name": "Beastmode 2.0",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 1023,
+        "name": "Bell Ringer",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 86
+      },
+      {
+        "id": 1116,
+        "name": "Haoma",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 1045,
+        "name": "Cactus",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 1201,
+        "name": "Sirius Black",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 85
+      },
+      {
+        "id": 1117,
+        "name": "Harmonia",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 716,
+        "name": "Blue Buddha",
+        "type": "indica",
+        "score": 81,
+        "science": 100,
+        "community": 36,
+        "commonness": 86
+      },
+      {
+        "id": 257,
+        "name": "Pitbull",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1039,
+        "name": "Blue Zombie",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 83
+      },
+      {
+        "id": 177,
+        "name": "Hash Plant",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 81
+      },
+      {
+        "id": 841,
+        "name": "Clementine",
+        "type": "hybrid",
+        "score": 80,
+        "science": 100,
+        "community": 30,
+        "commonness": 86
+      },
+      {
+        "id": 1081,
+        "name": "Everlast",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1192,
+        "name": "Reclining Buddha",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1223,
+        "name": "Tuna Kush",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 83
+      },
+      {
+        "id": 1238,
+        "name": "XXX 420",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 83
+      },
+      {
+        "id": 236,
+        "name": "Misty Kush",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 35,
+        "commonness": 85
+      },
+      {
+        "id": 1060,
+        "name": "Crosswalker",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1083,
+        "name": "Faygo Red Pop",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1170,
+        "name": "Pacific Blue",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 36,
+        "commonness": 84
+      },
+      {
+        "id": 165,
+        "name": "Grand Hindu",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1024,
+        "name": "Biochem",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 1124,
+        "name": "Irish Cream",
+        "type": "indica",
+        "score": 80,
+        "science": 100,
+        "community": 35,
+        "commonness": 84
+      },
+      {
+        "id": 11113,
+        "name": "Vision Cookies",
+        "type": "indica",
+        "score": 80,
+        "science": 92,
+        "community": 84,
+        "commonness": 69
+      },
+      {
+        "id": 11194,
+        "name": "White Noise",
+        "type": "indica",
+        "score": 80,
+        "science": 92,
+        "community": 84,
+        "commonness": 68
+      },
+      {
+        "id": 1063,
+        "name": "Dank Schrader",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 273,
+        "name": "Purple Passion",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 1032,
+        "name": "Blue Knight",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 1050,
+        "name": "CBD Shark",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 1133,
+        "name": "Katsu Kush",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 81
+      },
+      {
+        "id": 1206,
+        "name": "Somango",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 1017,
+        "name": "Ayahuasca Purple",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 81
+      },
+      {
+        "id": 1034,
+        "name": "Blue Lights",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 35,
+        "commonness": 82
+      },
+      {
+        "id": 1195,
+        "name": "Rockbud",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 33,
+        "commonness": 83
+      },
+      {
+        "id": 1237,
+        "name": "WSU",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 80
+      },
+      {
+        "id": 224,
+        "name": "M-39",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 81
+      },
+      {
+        "id": 1062,
+        "name": "Cuvee",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 36,
+        "commonness": 83
+      },
+      {
+        "id": 1088,
+        "name": "Frida",
+        "type": "indica",
+        "score": 79,
+        "science": 100,
+        "community": 39,
+        "commonness": 81
+      },
+      {
+        "id": 5742,
+        "name": "Cherry Moon Pie",
+        "type": "indica",
+        "score": 79,
+        "science": 92,
+        "community": 87,
+        "commonness": 65
+      },
+      {
+        "id": 8485,
+        "name": "Mighty Mango Bud",
+        "type": "indica",
+        "score": 79,
+        "science": 92,
+        "community": 69,
+        "commonness": 73
+      },
+      {
+        "id": 619,
+        "name": "Northern Berry",
+        "type": "hybrid",
+        "score": 79,
+        "science": 76,
+        "community": 39,
+        "commonness": 99
+      },
+      {
+        "id": 85,
+        "name": "Afgoo",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 78
+      },
+      {
+        "id": 213,
+        "name": "Lavender",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 232,
+        "name": "Mazar I Sharif",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 708,
+        "name": "Deep Sleep",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 1064,
+        "name": "Dark Star",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 78
+      },
+      {
+        "id": 258,
+        "name": "Pluto Kush",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 28,
+        "commonness": 84
+      },
+      {
+        "id": 384,
+        "name": "Black Mamba",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 37,
+        "commonness": 78
+      },
+      {
+        "id": 1121,
+        "name": "Iced Widow",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 1149,
+        "name": "Mazar Kush",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 1193,
+        "name": "Remedy",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 79
+      },
+      {
+        "id": 1018,
+        "name": "Bakerstreet",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 35,
+        "commonness": 80
+      },
+      {
+        "id": 1022,
+        "name": "Bedica",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 39,
+        "commonness": 77
+      },
+      {
+        "id": 1053,
+        "name": "China Yunnan",
+        "type": "indica",
+        "score": 78,
+        "science": 100,
+        "community": 33,
+        "commonness": 80
       }
     ]
   },
@@ -1688,6 +7448,726 @@
         "science": 100,
         "community": 44,
         "commonness": 85
+      },
+      {
+        "id": 173,
+        "name": "Green Goblin",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 34,
+        "commonness": 89
+      },
+      {
+        "id": 961,
+        "name": "Sublime",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 65,
+        "commonness": 75
+      },
+      {
+        "id": 699,
+        "name": "Candyland",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 44,
+        "commonness": 85
+      },
+      {
+        "id": 949,
+        "name": "Sour Breath",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 55,
+        "commonness": 81
+      },
+      {
+        "id": 839,
+        "name": "Cirrus",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 68,
+        "commonness": 75
+      },
+      {
+        "id": 977,
+        "name": "Tesla Tower",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 17,
+        "commonness": 96
+      },
+      {
+        "id": 861,
+        "name": "Green Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 50,
+        "commonness": 79
+      },
+      {
+        "id": 198,
+        "name": "Jamaican Pearl",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 42,
+        "commonness": 84
+      },
+      {
+        "id": 910,
+        "name": "Moonshine Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 67,
+        "commonness": 73
+      },
+      {
+        "id": 958,
+        "name": "Stella Blue",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 32,
+        "commonness": 88
+      },
+      {
+        "id": 985,
+        "name": "Twista",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 35,
+        "commonness": 87
+      },
+      {
+        "id": 820,
+        "name": "Atomical Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 31,
+        "commonness": 89
+      },
+      {
+        "id": 848,
+        "name": "Doox",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 34,
+        "commonness": 87
+      },
+      {
+        "id": 957,
+        "name": "Sputnik",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 24,
+        "commonness": 92
+      },
+      {
+        "id": 956,
+        "name": "Space Needle",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 46,
+        "commonness": 82
+      },
+      {
+        "id": 919,
+        "name": "Orange Durban",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 42,
+        "commonness": 84
+      },
+      {
+        "id": 941,
+        "name": "Sinai",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 62,
+        "commonness": 74
+      },
+      {
+        "id": 308,
+        "name": "Sour Chocolate",
+        "type": "sativa",
+        "score": 81,
+        "science": 90,
+        "community": 44,
+        "commonness": 91
+      },
+      {
+        "id": 889,
+        "name": "Kilimanjaro",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 52,
+        "commonness": 78
+      },
+      {
+        "id": 916,
+        "name": "NYPD",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 42,
+        "commonness": 81
+      },
+      {
+        "id": 966,
+        "name": "Sunshine",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 43,
+        "commonness": 82
+      },
+      {
+        "id": 988,
+        "name": "Velvet Bud",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 52,
+        "commonness": 77
+      },
+      {
+        "id": 849,
+        "name": "Dr. Grinspoon",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 82
+      },
+      {
+        "id": 863,
+        "name": "Harley Storm",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 28,
+        "commonness": 88
+      },
+      {
+        "id": 876,
+        "name": "Jack Smack",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 31,
+        "commonness": 87
+      },
+      {
+        "id": 828,
+        "name": "Cambodian Haze",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 25,
+        "commonness": 89
+      },
+      {
+        "id": 864,
+        "name": "Hawaiâ€™i â€˜78",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 42,
+        "commonness": 82
+      },
+      {
+        "id": 842,
+        "name": "Congo",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 56,
+        "commonness": 76
+      },
+      {
+        "id": 831,
+        "name": "Catfish",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 40,
+        "commonness": 79
+      },
+      {
+        "id": 194,
+        "name": "J-27",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 26,
+        "commonness": 87
+      },
+      {
+        "id": 259,
+        "name": "Poison Haze",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 29,
+        "commonness": 84
+      },
+      {
+        "id": 871,
+        "name": "Higher Power",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 19,
+        "commonness": 89
+      },
+      {
+        "id": 986,
+        "name": "Twisted Citrus",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 55,
+        "commonness": 74
+      },
+      {
+        "id": 235,
+        "name": "Mexican",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 33,
+        "commonness": 83
+      },
+      {
+        "id": 823,
+        "name": "Bertberry Cheesecake",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 40,
+        "commonness": 80
+      },
+      {
+        "id": 906,
+        "name": "Megalodon",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 43,
+        "commonness": 77
+      },
+      {
+        "id": 810,
+        "name": "Aceh",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 37,
+        "commonness": 79
+      },
+      {
+        "id": 955,
+        "name": "South American",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 29,
+        "commonness": 84
+      },
+      {
+        "id": 992,
+        "name": "White Durban",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 23,
+        "commonness": 84
+      },
+      {
+        "id": 837,
+        "name": "Chocolate Thunder",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 33,
+        "commonness": 82
+      },
+      {
+        "id": 991,
+        "name": "White Buffalo",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 45,
+        "commonness": 75
+      },
+      {
+        "id": 886,
+        "name": "Johnnyâ€™s Tonic",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 43,
+        "commonness": 78
+      },
+      {
+        "id": 1000,
+        "name": "Zellyâ€™s Gift",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 60,
+        "commonness": 68
+      },
+      {
+        "id": 905,
+        "name": "MediHaze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 33,
+        "commonness": 78
+      },
+      {
+        "id": 138,
+        "name": "Chocolope",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 41,
+        "commonness": 74
+      },
+      {
+        "id": 827,
+        "name": "Buffalo Bill",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 40,
+        "commonness": 77
+      },
+      {
+        "id": 903,
+        "name": "Malakoff",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 38,
+        "commonness": 77
+      },
+      {
+        "id": 962,
+        "name": "Summertime Squeeze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 63,
+        "commonness": 64
+      },
+      {
+        "id": 978,
+        "name": "The Blood",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 20,
+        "commonness": 84
+      },
+      {
+        "id": 902,
+        "name": "Magnum PI",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 29,
+        "commonness": 81
+      },
+      {
+        "id": 984,
+        "name": "Tutankhamon",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 33,
+        "commonness": 77
+      },
+      {
+        "id": 217,
+        "name": "Lemon Sativa",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 27,
+        "commonness": 80
+      },
+      {
+        "id": 968,
+        "name": "Super Snow Dog",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 20,
+        "commonness": 82
+      },
+      {
+        "id": 897,
+        "name": "Leonidas",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 18,
+        "commonness": 84
+      },
+      {
+        "id": 818,
+        "name": "Alpha Express",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 40,
+        "commonness": 74
+      },
+      {
+        "id": 7024,
+        "name": "Genetix Frosted Acai",
+        "type": "sativa",
+        "score": 76,
+        "science": 91,
+        "community": 54,
+        "commonness": 74
+      },
+      {
+        "id": 185,
+        "name": "Hempstar",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 25,
+        "commonness": 79
+      },
+      {
+        "id": 912,
+        "name": "Mother Tongue",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 26,
+        "commonness": 78
+      },
+      {
+        "id": 970,
+        "name": "Swazi Gold",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 41,
+        "commonness": 71
+      },
+      {
+        "id": 967,
+        "name": "Supa Don",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 31,
+        "commonness": 76
+      },
+      {
+        "id": 926,
+        "name": "Pineapple Purps",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 51,
+        "commonness": 67
+      },
+      {
+        "id": 841,
+        "name": "Clementine",
+        "type": "hybrid",
+        "score": 75,
+        "science": 81,
+        "community": 40,
+        "commonness": 86
+      },
+      {
+        "id": 866,
+        "name": "Hawaiian Dream",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 25,
+        "commonness": 76
+      },
+      {
+        "id": 891,
+        "name": "Laughing Buddha",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 43,
+        "commonness": 67
+      },
+      {
+        "id": 833,
+        "name": "Central American",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 23,
+        "commonness": 76
+      },
+      {
+        "id": 179,
+        "name": "Hashplant Haze",
+        "type": "sativa",
+        "score": 74,
+        "science": 92,
+        "community": 39,
+        "commonness": 76
+      },
+      {
+        "id": 878,
+        "name": "Jackalope",
+        "type": "sativa",
+        "score": 74,
+        "science": 91,
+        "community": 31,
+        "commonness": 80
+      },
+      {
+        "id": 812,
+        "name": "African",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 26,
+        "commonness": 72
+      },
+      {
+        "id": 917,
+        "name": "OCD",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 26,
+        "commonness": 72
+      },
+      {
+        "id": 963,
+        "name": "Sumo Grande",
+        "type": "sativa",
+        "score": 73,
+        "science": 100,
+        "community": 22,
+        "commonness": 75
+      },
+      {
+        "id": 946,
+        "name": "Sojay Haze",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 23,
+        "commonness": 73
+      },
+      {
+        "id": 860,
+        "name": "Gorkle",
+        "type": "sativa",
+        "score": 72,
+        "science": 100,
+        "community": 15,
+        "commonness": 77
+      },
+      {
+        "id": 9368,
+        "name": "Privileged Baddie",
+        "type": "sativa",
+        "score": 72,
+        "science": 91,
+        "community": 43,
+        "commonness": 70
+      },
+      {
+        "id": 972,
+        "name": "Sweet Jane",
+        "type": "sativa",
+        "score": 72,
+        "science": 90,
+        "community": 7,
+        "commonness": 86
+      },
+      {
+        "id": 292,
+        "name": "Shaman",
+        "type": "hybrid",
+        "score": 72,
+        "science": 63,
+        "community": 41,
+        "commonness": 93
+      },
+      {
+        "id": 914,
+        "name": "Narnia",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 15,
+        "commonness": 73
+      },
+      {
+        "id": 874,
+        "name": "Hurricane",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 26,
+        "commonness": 68
+      },
+      {
+        "id": 953,
+        "name": "Sour Willie",
+        "type": "sativa",
+        "score": 71,
+        "science": 100,
+        "community": 42,
+        "commonness": 62
+      },
+      {
+        "id": 893,
+        "name": "Lemon Jack",
+        "type": "hybrid",
+        "score": 71,
+        "science": 95,
+        "community": 25,
+        "commonness": 72
+      },
+      {
+        "id": 158,
+        "name": "Frostbite",
+        "type": "sativa",
+        "score": 71,
+        "science": 89,
+        "community": 19,
+        "commonness": 79
       }
     ]
   },
@@ -1876,6 +8356,726 @@
         "science": 100,
         "community": 50,
         "commonness": 92
+      },
+      {
+        "id": 828,
+        "name": "Cambodian Haze",
+        "type": "sativa",
+        "score": 86,
+        "science": 100,
+        "community": 56,
+        "commonness": 89
+      },
+      {
+        "id": 916,
+        "name": "NYPD",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 70,
+        "commonness": 81
+      },
+      {
+        "id": 308,
+        "name": "Sour Chocolate",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 44,
+        "commonness": 91
+      },
+      {
+        "id": 822,
+        "name": "Bediol",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 44,
+        "commonness": 92
+      },
+      {
+        "id": 849,
+        "name": "Dr. Grinspoon",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 68,
+        "commonness": 82
+      },
+      {
+        "id": 886,
+        "name": "Johnnyâ€™s Tonic",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 74,
+        "commonness": 78
+      },
+      {
+        "id": 981,
+        "name": "Thunderstruck",
+        "type": "sativa",
+        "score": 85,
+        "science": 100,
+        "community": 45,
+        "commonness": 91
+      },
+      {
+        "id": 831,
+        "name": "Catfish",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 68,
+        "commonness": 79
+      },
+      {
+        "id": 173,
+        "name": "Green Goblin",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 47,
+        "commonness": 89
+      },
+      {
+        "id": 892,
+        "name": "Lemon Bubble",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 54,
+        "commonness": 86
+      },
+      {
+        "id": 906,
+        "name": "Megalodon",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 72,
+        "commonness": 77
+      },
+      {
+        "id": 179,
+        "name": "Hashplant Haze",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 74,
+        "commonness": 76
+      },
+      {
+        "id": 827,
+        "name": "Buffalo Bill",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 71,
+        "commonness": 77
+      },
+      {
+        "id": 961,
+        "name": "Sublime",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 75,
+        "commonness": 75
+      },
+      {
+        "id": 820,
+        "name": "Atomical Haze",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 44,
+        "commonness": 89
+      },
+      {
+        "id": 823,
+        "name": "Bertberry Cheesecake",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 67,
+        "commonness": 80
+      },
+      {
+        "id": 848,
+        "name": "Doox",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 47,
+        "commonness": 87
+      },
+      {
+        "id": 863,
+        "name": "Harley Storm",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 48,
+        "commonness": 88
+      },
+      {
+        "id": 991,
+        "name": "White Buffalo",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 78,
+        "commonness": 75
+      },
+      {
+        "id": 839,
+        "name": "Cirrus",
+        "type": "sativa",
+        "score": 84,
+        "science": 100,
+        "community": 75,
+        "commonness": 75
+      },
+      {
+        "id": 841,
+        "name": "Clementine",
+        "type": "hybrid",
+        "score": 84,
+        "science": 87,
+        "community": 71,
+        "commonness": 86
+      },
+      {
+        "id": 138,
+        "name": "Chocolope",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 71,
+        "commonness": 74
+      },
+      {
+        "id": 194,
+        "name": "J-27",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 44,
+        "commonness": 87
+      },
+      {
+        "id": 910,
+        "name": "Moonshine Haze",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 76,
+        "commonness": 73
+      },
+      {
+        "id": 958,
+        "name": "Stella Blue",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 45,
+        "commonness": 88
+      },
+      {
+        "id": 943,
+        "name": "Slazerbeam",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 41,
+        "commonness": 89
+      },
+      {
+        "id": 941,
+        "name": "Sinai",
+        "type": "sativa",
+        "score": 83,
+        "science": 100,
+        "community": 72,
+        "commonness": 74
+      },
+      {
+        "id": 217,
+        "name": "Lemon Sativa",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 58,
+        "commonness": 80
+      },
+      {
+        "id": 912,
+        "name": "Mother Tongue",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 57,
+        "commonness": 78
+      },
+      {
+        "id": 970,
+        "name": "Swazi Gold",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 73,
+        "commonness": 71
+      },
+      {
+        "id": 876,
+        "name": "Jack Smack",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 42,
+        "commonness": 87
+      },
+      {
+        "id": 977,
+        "name": "Tesla Tower",
+        "type": "sativa",
+        "score": 82,
+        "science": 100,
+        "community": 20,
+        "commonness": 96
+      },
+      {
+        "id": 861,
+        "name": "Green Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 51,
+        "commonness": 79
+      },
+      {
+        "id": 185,
+        "name": "Hempstar",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 53,
+        "commonness": 79
+      },
+      {
+        "id": 259,
+        "name": "Poison Haze",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 42,
+        "commonness": 84
+      },
+      {
+        "id": 992,
+        "name": "White Durban",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 40,
+        "commonness": 84
+      },
+      {
+        "id": 235,
+        "name": "Mexican",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 46,
+        "commonness": 83
+      },
+      {
+        "id": 374,
+        "name": "Astroboy",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 26,
+        "commonness": 92
+      },
+      {
+        "id": 837,
+        "name": "Chocolate Thunder",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 45,
+        "commonness": 82
+      },
+      {
+        "id": 949,
+        "name": "Sour Breath",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 47,
+        "commonness": 81
+      },
+      {
+        "id": 997,
+        "name": "Xanadu",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 25,
+        "commonness": 91
+      },
+      {
+        "id": 902,
+        "name": "Magnum PI",
+        "type": "sativa",
+        "score": 81,
+        "science": 100,
+        "community": 47,
+        "commonness": 81
+      },
+      {
+        "id": 866,
+        "name": "Hawaiian Dream",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 54,
+        "commonness": 76
+      },
+      {
+        "id": 891,
+        "name": "Laughing Buddha",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 76,
+        "commonness": 67
+      },
+      {
+        "id": 955,
+        "name": "South American",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 39,
+        "commonness": 84
+      },
+      {
+        "id": 988,
+        "name": "Velvet Bud",
+        "type": "sativa",
+        "score": 80,
+        "science": 100,
+        "community": 50,
+        "commonness": 77
+      },
+      {
+        "id": 812,
+        "name": "African",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 56,
+        "commonness": 72
+      },
+      {
+        "id": 905,
+        "name": "MediHaze",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 46,
+        "commonness": 78
+      },
+      {
+        "id": 984,
+        "name": "Tutankhamon",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 45,
+        "commonness": 77
+      },
+      {
+        "id": 158,
+        "name": "Frostbite",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 43,
+        "commonness": 79
+      },
+      {
+        "id": 871,
+        "name": "Higher Power",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 21,
+        "commonness": 89
+      },
+      {
+        "id": 972,
+        "name": "Sweet Jane",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 27,
+        "commonness": 86
+      },
+      {
+        "id": 833,
+        "name": "Central American",
+        "type": "sativa",
+        "score": 79,
+        "science": 100,
+        "community": 52,
+        "commonness": 76
+      },
+      {
+        "id": 7024,
+        "name": "Genetix Frosted Acai",
+        "type": "sativa",
+        "score": 79,
+        "science": 87,
+        "community": 77,
+        "commonness": 74
+      },
+      {
+        "id": 889,
+        "name": "Kilimanjaro",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 41,
+        "commonness": 78
+      },
+      {
+        "id": 953,
+        "name": "Sour Willie",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 75,
+        "commonness": 62
+      },
+      {
+        "id": 985,
+        "name": "Twista",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 23,
+        "commonness": 87
+      },
+      {
+        "id": 946,
+        "name": "Sojay Haze",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 49,
+        "commonness": 73
+      },
+      {
+        "id": 842,
+        "name": "Congo",
+        "type": "sativa",
+        "score": 78,
+        "science": 100,
+        "community": 45,
+        "commonness": 76
+      },
+      {
+        "id": 9368,
+        "name": "Privileged Baddie",
+        "type": "sativa",
+        "score": 78,
+        "science": 87,
+        "community": 77,
+        "commonness": 70
+      },
+      {
+        "id": 1044,
+        "name": "Buckeye Purple",
+        "type": "hybrid",
+        "score": 78,
+        "science": 73,
+        "community": 45,
+        "commonness": 96
+      },
+      {
+        "id": 810,
+        "name": "Aceh",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 32,
+        "commonness": 79
+      },
+      {
+        "id": 874,
+        "name": "Hurricane",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 57,
+        "commonness": 68
+      },
+      {
+        "id": 897,
+        "name": "Leonidas",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 21,
+        "commonness": 84
+      },
+      {
+        "id": 967,
+        "name": "Supa Don",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 41,
+        "commonness": 76
+      },
+      {
+        "id": 919,
+        "name": "Orange Durban",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 19,
+        "commonness": 84
+      },
+      {
+        "id": 962,
+        "name": "Summertime Squeeze",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 63,
+        "commonness": 64
+      },
+      {
+        "id": 978,
+        "name": "The Blood",
+        "type": "sativa",
+        "score": 77,
+        "science": 100,
+        "community": 23,
+        "commonness": 84
+      },
+      {
+        "id": 968,
+        "name": "Super Snow Dog",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 23,
+        "commonness": 82
+      },
+      {
+        "id": 917,
+        "name": "OCD",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 46,
+        "commonness": 72
+      },
+      {
+        "id": 986,
+        "name": "Twisted Citrus",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 42,
+        "commonness": 74
+      },
+      {
+        "id": 878,
+        "name": "Jackalope",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 27,
+        "commonness": 80
+      },
+      {
+        "id": 873,
+        "name": "Hoodwreck",
+        "type": "sativa",
+        "score": 76,
+        "science": 100,
+        "community": 59,
+        "commonness": 65
+      },
+      {
+        "id": 880,
+        "name": "Jahwaiian",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 52,
+        "commonness": 66
+      },
+      {
+        "id": 1000,
+        "name": "Zellyâ€™s Gift",
+        "type": "sativa",
+        "score": 75,
+        "science": 100,
+        "community": 47,
+        "commonness": 68
+      },
+      {
+        "id": 7464,
+        "name": "High Yield   Mix",
+        "type": "sativa",
+        "score": 75,
+        "science": 87,
+        "community": 78,
+        "commonness": 64
+      },
+      {
+        "id": 287,
+        "name": "Romulan",
+        "type": "hybrid",
+        "score": 75,
+        "science": 73,
+        "community": 49,
+        "commonness": 88
+      },
+      {
+        "id": 292,
+        "name": "Shaman",
+        "type": "hybrid",
+        "score": 75,
+        "science": 56,
+        "community": 69,
+        "commonness": 93
+      },
+      {
+        "id": 37,
+        "name": "Maui Wowie",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 71,
+        "commonness": 55
+      },
+      {
+        "id": 860,
+        "name": "Gorkle",
+        "type": "sativa",
+        "score": 74,
+        "science": 100,
+        "community": 26,
+        "commonness": 77
       }
     ]
   }

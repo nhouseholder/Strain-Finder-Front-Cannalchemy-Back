@@ -9,6 +9,40 @@ import StrainCard from '../components/results/StrainCard'
 import LegalConsent from '../components/shared/LegalConsent'
 import topStrainsData from '../data/top-strains-for.json'
 
+/* ─── Deterministic weekly rotation helper ─────────────────── */
+// Simple seeded PRNG (mulberry32)
+function mulberry32(seed) {
+  return function() {
+    let t = (seed += 0x6D2B79F5) | 0;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// ISO week number for the current date
+function isoWeek(d = new Date()) {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  return Math.ceil(((date - yearStart) / 86400000 + 1) / 7);
+}
+
+// Pick `count` items from arr[startIdx..endIdx) using weekly-rotating seed
+function weeklyPick(arr, startIdx, endIdx, count, categorySeed = 0) {
+  const pool = arr.slice(startIdx, endIdx);
+  if (pool.length <= count) return pool;
+  const week = isoWeek();
+  const seed = week * 1000 + categorySeed;
+  const rng = mulberry32(seed);
+  // Fisher-Yates shuffle then take first `count`
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
 /* ─── Category metadata (order matches generate script) ───── */
 const CATEGORIES = [
   { id: 'pain-relief',   emoji: '🩹', color: 'text-red-400',    bg: 'bg-red-500/10' },
@@ -71,7 +105,7 @@ export default function TopStrainsPage() {
   const catData = activeCategory ? topStrainsData[activeCategory] : null
   const catMeta = activeCategory ? categoryMeta[activeCategory] : null
 
-  usePageTitle(catData ? `Top Strains for ${catData.label}` : 'Top Strains For...')
+  usePageTitle(catData ? `Featured Strains for ${catData.label}` : 'Top Strains For...')
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -93,17 +127,21 @@ export default function TopStrainsPage() {
     return map
   }, [allStrains])
 
-  // Resolve ranked strains for the active category
+  // Resolve ranked strains — pick 10 weekly-rotating from ranks 50-100
+  const catIndex = activeCategory ? CATEGORIES.findIndex(c => c.id === activeCategory) : 0
   const rankedStrains = useMemo(() => {
     if (!catData || !dataLoaded) return []
-    return catData.strains
+    const picked = weeklyPick(catData.strains, 49, 100, 10, catIndex)
+    // Sort picks by score descending for display
+    picked.sort((a, b) => b.score - a.score || b.science - a.science)
+    return picked
       .map((entry, i) => {
         const strain = strainById[entry.id]
         if (!strain) return null
         return { ...entry, strain, rank: i + 1 }
       })
       .filter(Boolean)
-  }, [catData, strainById, dataLoaded])
+  }, [catData, strainById, dataLoaded, catIndex])
 
   const handleToggle = useCallback((name) => {
     setExpandedStrain(prev => prev === name ? null : name)
@@ -121,7 +159,7 @@ export default function TopStrainsPage() {
               <h1 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea]">Top Strains For...</h1>
             </div>
             <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
-              Curated top-20 lists scored by our tri-pillar engine: 40% pharmacological science, 30% community reports, 30% popularity.
+              Featured strains scored by our tri-pillar engine — refreshed weekly. 35% pharmacological science, 20% community reports, 45% popularity.
             </p>
           </div>
 
@@ -148,7 +186,7 @@ export default function TopStrainsPage() {
                         {data.description}
                       </p>
                       <div className="flex items-center gap-1 mt-2 text-[10px] text-leaf-400 font-medium">
-                        <span>View Top 20</span>
+                        <span>View Featured</span>
                         <span className="group-hover:translate-x-0.5 transition-transform">→</span>
                       </div>
                     </div>
@@ -165,7 +203,7 @@ export default function TopStrainsPage() {
               Scoring Methodology
             </h3>
             <p className="text-[11px] text-gray-400 dark:text-[#6a7a6e] leading-relaxed">
-              Each strain is scored using the same tri-pillar engine that powers our quiz recommendations. <strong className="text-gray-500 dark:text-[#8a9a8e]">Science (40%)</strong> evaluates terpene-to-receptor pathway alignment with the pharmacological scaffold for each goal. <strong className="text-gray-500 dark:text-[#8a9a8e]">Community (30%)</strong> measures how strongly real users report the desired effects. <strong className="text-gray-500 dark:text-[#8a9a8e]">Commonness (30%)</strong> factors in dispensary availability and review sentiment. This is not medical advice.
+              Each strain is scored using the same tri-pillar engine that powers our quiz recommendations. <strong className="text-gray-500 dark:text-[#8a9a8e]">Science (35%)</strong> evaluates terpene-to-receptor pathway alignment with the pharmacological scaffold for each goal. <strong className="text-gray-500 dark:text-[#8a9a8e]">Community (20%)</strong> measures how strongly real users report the desired effects. <strong className="text-gray-500 dark:text-[#8a9a8e]">Commonness (45%)</strong> factors in dispensary availability and review sentiment. Featured strains rotate weekly from our top-ranked pool. This is not medical advice.
             </p>
           </div>
         </div>
@@ -192,7 +230,7 @@ export default function TopStrainsPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">
-              Top 20 Strains for {catData.label}
+              Featured Strains for {catData.label}
             </h1>
             <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
               {catData.description}
@@ -220,7 +258,7 @@ export default function TopStrainsPage() {
             onClick={() => setDropdownOpen(v => !v)}
             className="flex items-center gap-2 px-3 py-2 rounded-xl border border-gray-200/60 dark:border-white/[0.08] bg-white/50 dark:bg-[#0e1a10]/50 hover:border-leaf-500/30 transition-colors text-sm w-full sm:w-auto"
           >
-            <span className="text-gray-400 dark:text-[#6a7a6e]">Top strains for:</span>
+            <span className="text-gray-400 dark:text-[#6a7a6e]">Featured for:</span>
             <span className="font-semibold text-gray-900 dark:text-[#e8f0ea]">{catData.emoji} {catData.label}</span>
             <ChevronDown size={14} className={clsx('text-gray-400 transition-transform ml-auto', dropdownOpen && 'rotate-180')} />
           </button>
@@ -291,7 +329,7 @@ export default function TopStrainsPage() {
 
         {/* Disclaimer */}
         <div className="mt-6 text-center text-[10px] text-gray-400 dark:text-[#5a6a5e] leading-relaxed">
-          Rankings generated by the MyStrainAI tri-pillar scoring engine (40% science / 30% community / 30% commonness).
+          Featured strains selected weekly from top-ranked pool by the MyStrainAI tri-pillar engine (35% science / 20% community / 45% commonness).
           <br />This is informational only — not medical advice. Individual experiences may vary.
         </div>
       </div>

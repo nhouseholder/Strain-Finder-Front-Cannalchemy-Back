@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
- * Generate "Top 20 Strains For…" curated lists using the same
+ * Generate "Top Featured Strains For…" curated lists using the same
  * tri-pillar scoring engine as the quiz: 35 % Science · 20 % Community · 45 % Commonness.
+ * Outputs top 100 per category; the frontend shows 10 weekly-rotating picks from ranks 50-100.
  *
  * Reads  → frontend/src/data/strains.json
  * Writes → frontend/src/data/top-strains-for.json
@@ -306,17 +307,17 @@ for (const cat of CATEGORIES) {
   });
 
   scored.sort((a, b) => b.score - a.score || b.science - a.science);
-  const top20 = scored.slice(0, 20);
+  const top100 = scored.slice(0, 100);
 
   output[cat.id] = {
     label: cat.label,
     emoji: cat.emoji,
     description: cat.description,
     science: cat.science,
-    strains: top20,
+    strains: top100,
   };
 
-  console.log(`  ${cat.emoji} ${cat.label}: top=${top20[0]?.name} (${top20[0]?.score}), #20=${top20[19]?.name} (${top20[19]?.score})`);
+  console.log(`  ${cat.emoji} ${cat.label}: #1=${top100[0]?.name} (${top100[0]?.score}), #50=${top100[49]?.name} (${top100[49]?.score}), #100=${top100[99]?.name} (${top100[99]?.score})`);
 }
 
 const outPath = join(ROOT, 'frontend/src/data/top-strains-for.json');
