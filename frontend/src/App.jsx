@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
 import { QuizProvider } from './context/QuizContext'
 import { ResultsProvider } from './context/ResultsContext'
@@ -16,14 +16,12 @@ const LandingPage = lazy(() => lazyRetry(() => import('./routes/LandingPage'), '
 const QuizPage = lazy(() => lazyRetry(() => import('./routes/QuizPage'), 'QuizPage'))
 const ResultsPage = lazy(() => lazyRetry(() => import('./routes/ResultsPage'), 'ResultsPage'))
 const DispensaryPage = lazy(() => lazyRetry(() => import('./routes/DispensaryPage'), 'DispensaryPage'))
-const DashboardPage = lazy(() => lazyRetry(() => import('./routes/DashboardPage'), 'DashboardPage'))
 const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), 'JournalPage'))
 const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
 const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
 const StrainExplorerPage = lazy(() => lazyRetry(() => import('./routes/StrainExplorerPage'), 'StrainExplorerPage'))
 const TopStrainsPage = lazy(() => lazyRetry(() => import('./routes/TopStrainsPage'), 'TopStrainsPage'))
 const LearnPage = lazy(() => lazyRetry(() => import('./routes/LearnPage'), 'LearnPage'))
-const MyPreferencesPage = lazy(() => lazyRetry(() => import('./routes/MyPreferencesPage'), 'MyPreferencesPage'))
 const LoginPage = lazy(() => lazyRetry(() => import('./routes/LoginPage'), 'LoginPage'))
 const SignupPage = lazy(() => lazyRetry(() => import('./routes/SignupPage'), 'SignupPage'))
 const AdminPage = lazy(() => lazyRetry(() => import('./routes/AdminPage'), 'AdminPage'))
@@ -72,14 +70,14 @@ export default function App() {
                       <Route path="dispensaries" element={<DispensaryPage />} />
 
                       {/* Protected routes — require login */}
-                      <Route path="dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                      <Route path="dashboard" element={<Navigate to="/journal" replace />} />
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />
                       <Route path="top-strains" element={<TopStrainsPage />} />
                       <Route path="top-strains/:category" element={<TopStrainsPage />} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
-                      <Route path="preferences" element={<ProtectedRoute><MyPreferencesPage /></ProtectedRoute>} />
+                      <Route path="preferences" element={<Navigate to="/journal" replace />} />
 
                       {/* Public — SEO funnel, accessible without login */}
                       <Route path="learn" element={<LearnPage />} />

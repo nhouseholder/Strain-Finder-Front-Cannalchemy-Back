@@ -772,7 +772,7 @@ export default function LandingPage() {
         </NavLink>
         <div className="flex items-center gap-2">
           {user ? (
-            <Button size="sm" onClick={() => navigate('/dashboard')}>
+            <Button size="sm" onClick={() => navigate('/journal')}>
               Go to App
               <ArrowRight size={14} />
             </Button>

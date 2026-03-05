@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Search, BookOpen, LayoutDashboard, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Brain, Sparkles, RotateCcw, SlidersHorizontal, Award } from 'lucide-react'
+import { Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Award } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -11,13 +11,11 @@ import { APP_VERSION } from '../../utils/constants'
 /* Nav items adapt based on auth state */
 const coreItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz', guest: true },
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard', guest: false },
   { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', guest: true },
   { to: '/top-strains', icon: Award, label: 'Top For', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
-  { to: '/preferences', icon: Brain, label: 'Taste Profile', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
 ]
 

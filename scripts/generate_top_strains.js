@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generate "Top 20 Strains For…" curated lists using the same
- * tri-pillar scoring engine as the quiz: 40 % Science · 30 % Community · 30 % Commonness.
+ * tri-pillar scoring engine as the quiz: 35 % Science · 25 % Community · 40 % Commonness.
  *
  * Reads  → frontend/src/data/strains.json
  * Writes → frontend/src/data/top-strains-for.json
@@ -76,25 +76,14 @@ const CATEGORIES = [
     subtypeBoost: { indica: 0.6, hybrid: 1.0, sativa: 1.3 },
   },
   {
-    id: 'energy',
-    label: 'Energy & Motivation',
+    id: 'energy-focus',
+    label: 'Energy & Focus',
     emoji: '⚡',
-    description: 'Stimulating strains rich in pinene and limonene, targeting norepinephrine and TRPV1.',
-    science: 'Pinene promotes alertness through AChE inhibition. Limonene modulates norepinephrine release. THCV provides short-acting stimulation without sedative tail. (Russo 2011)',
-    canonicalEffects: ['energetic', 'motivated', 'uplifted', 'focused'],
-    avoidEffects: ['sleepy', 'couch-lock'],
-    idealTerpenes: { limonene: 0.40, pinene: 0.30, terpinolene: 0.20 },
-    subtypeBoost: { indica: 0.5, hybrid: 0.9, sativa: 1.3 },
-  },
-  {
-    id: 'focus',
-    label: 'Focus & Productivity',
-    emoji: '🎯',
-    description: 'Pinene-dominant strains for dopamine D1 and acetylcholinesterase activity.',
-    science: 'Pinene is a potent AChE inhibitor, preserving acetylcholine for sustained attention. Combined with moderate THC for D1 receptor activation without cognitive overload. (Perry et al. 2000)',
-    canonicalEffects: ['focused', 'energetic', 'motivated', 'creative'],
-    avoidEffects: ['sleepy', 'spacey', 'disoriented'],
-    idealTerpenes: { pinene: 0.30, limonene: 0.25, terpinolene: 0.15, caryophyllene: 0.10 },
+    description: 'Stimulating strains rich in pinene and limonene for alertness, motivation, and sustained focus via norepinephrine, TRPV1, and AChE pathways.',
+    science: 'Pinene inhibits acetylcholinesterase, preserving acetylcholine for sustained attention and working memory. Limonene modulates norepinephrine release for motivation. THCV provides short-acting stimulation without sedative tail. Combined D1 receptor activation supports cognitive performance. (Russo 2011, Perry et al. 2000)',
+    canonicalEffects: ['energetic', 'focused', 'motivated', 'uplifted', 'creative'],
+    avoidEffects: ['sleepy', 'couch-lock', 'spacey', 'disoriented'],
+    idealTerpenes: { pinene: 0.30, limonene: 0.35, terpinolene: 0.20, caryophyllene: 0.10 },
     subtypeBoost: { indica: 0.5, hybrid: 0.9, sativa: 1.3 },
   },
   {
@@ -148,7 +137,7 @@ const CATEGORIES = [
    ═══════════════════════════════════════════════════════════════ */
 
 /**
- * Pillar 1 — SCIENCE (40 %)
+ * Pillar 1 — SCIENCE (35 %)
  *
  * Sub-scores:
  *  A. Terpene profile alignment (how close to the ideal terpene blend)
@@ -302,8 +291,8 @@ for (const cat of CATEGORIES) {
     const community = calcCommunityScore(strain, cat);
     const commonness = calcCommonnessScore(strain);
 
-    // Tri-pillar: 40 % science · 30 % community · 30 % commonness
-    const score = Math.round(science * 0.40 + community * 0.30 + commonness * 0.30);
+    // Tri-pillar: 35 % science · 25 % community · 40 % commonness
+    const score = Math.round(science * 0.35 + community * 0.25 + commonness * 0.40);
 
     return {
       id: strain.id,

@@ -26,7 +26,7 @@ export default function AdminPage() {
   /* ---- Redirect non-admin ---- */
   useEffect(() => {
     if (!authLoading && !isAdmin) {
-      navigate('/dashboard', { replace: true })
+      navigate('/journal', { replace: true })
     }
   }, [isAdmin, authLoading, navigate])
 

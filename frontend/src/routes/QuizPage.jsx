@@ -348,10 +348,10 @@ export default function QuizPage() {
         <div className="flex items-center gap-4 mt-8 text-xs text-gray-400 dark:text-[#6a7a6e]">
           {user ? (
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/journal')}
               className="hover:text-leaf-500 transition-colors underline decoration-dotted underline-offset-4"
             >
-              My Dashboard
+              My Journal
             </button>
           ) : (
             <button

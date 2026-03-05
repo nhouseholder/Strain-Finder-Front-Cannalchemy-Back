@@ -11,17 +11,16 @@ import topStrainsData from '../data/top-strains-for.json'
 
 /* ─── Category metadata (order matches generate script) ───── */
 const CATEGORIES = [
-  { id: 'pain-relief',  emoji: '🩹', color: 'text-red-400',    bg: 'bg-red-500/10' },
-  { id: 'sleep',        emoji: '🌙', color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
-  { id: 'anxiety-safe', emoji: '🫧', color: 'text-sky-400',    bg: 'bg-sky-500/10' },
-  { id: 'giggles',      emoji: '😂', color: 'text-amber-400',  bg: 'bg-amber-500/10' },
-  { id: 'creativity',   emoji: '🎨', color: 'text-purple-400', bg: 'bg-purple-500/10' },
-  { id: 'energy',       emoji: '⚡', color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
-  { id: 'focus',        emoji: '🎯', color: 'text-teal-400',   bg: 'bg-teal-500/10' },
-  { id: 'appetite',     emoji: '🍽️', color: 'text-orange-400', bg: 'bg-orange-500/10' },
-  { id: 'relaxation',   emoji: '🧘', color: 'text-emerald-400',bg: 'bg-emerald-500/10' },
-  { id: 'social',       emoji: '💬', color: 'text-pink-400',   bg: 'bg-pink-500/10' },
-  { id: 'euphoria',     emoji: '✨', color: 'text-leaf-400',   bg: 'bg-leaf-500/10' },
+  { id: 'pain-relief',   emoji: '🩹', color: 'text-red-400',    bg: 'bg-red-500/10' },
+  { id: 'sleep',         emoji: '🌙', color: 'text-indigo-400', bg: 'bg-indigo-500/10' },
+  { id: 'anxiety-safe',  emoji: '🫧', color: 'text-sky-400',    bg: 'bg-sky-500/10' },
+  { id: 'giggles',       emoji: '😂', color: 'text-amber-400',  bg: 'bg-amber-500/10' },
+  { id: 'creativity',    emoji: '🎨', color: 'text-purple-400', bg: 'bg-purple-500/10' },
+  { id: 'energy-focus',  emoji: '⚡', color: 'text-yellow-400', bg: 'bg-yellow-500/10' },
+  { id: 'appetite',      emoji: '🍽️', color: 'text-orange-400', bg: 'bg-orange-500/10' },
+  { id: 'relaxation',    emoji: '🧘', color: 'text-emerald-400',bg: 'bg-emerald-500/10' },
+  { id: 'social',        emoji: '💬', color: 'text-pink-400',   bg: 'bg-pink-500/10' },
+  { id: 'euphoria',      emoji: '✨', color: 'text-leaf-400',   bg: 'bg-leaf-500/10' },
 ]
 
 const categoryMeta = Object.fromEntries(CATEGORIES.map(c => [c.id, c]))
