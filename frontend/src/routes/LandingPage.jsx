@@ -111,7 +111,7 @@ function HeroSection({ onGetStarted, strainCount }) {
   ]
 
   return (
-    <section className="relative flex flex-col items-center justify-center text-center px-6 pt-16 pb-10" style={{ minHeight: 'min(100vh, 100dvh)' }}>
+    <section className="relative flex flex-col items-center justify-center text-center px-6 pt-16 pb-10" style={{ minHeight: '100dvh' }}>
       {/* Animated BG orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute w-[700px] h-[700px] rounded-full animate-float-a opacity-60" style={{ background: 'radial-gradient(circle, rgba(50,200,100,0.12) 0%, transparent 70%)', top: '-15%', left: '-15%' }} />
@@ -293,7 +293,7 @@ function DemoSection() {
         {/* Panel tabs */}
         <div className="flex items-center justify-center gap-1.5 mb-6 flex-wrap">
           {DEMO_PANELS.map((p, i) => (
-            <button key={p.id} onClick={() => handleTab(i)} className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all ${active === i ? 'bg-leaf-500 text-white shadow-md shadow-leaf-500/30' : 'bg-gray-100 dark:bg-white/[0.04] text-gray-500 dark:text-[#6a7a6e] hover:bg-gray-200 dark:hover:bg-white/[0.08]'}`}>
+            <button key={p.id} onClick={() => handleTab(i)} className={`px-3 py-2 rounded-full text-[11px] font-medium transition-all min-h-[44px] ${active === i ? 'bg-leaf-500 text-white shadow-md shadow-leaf-500/30' : 'bg-gray-100 dark:bg-white/[0.04] text-gray-500 dark:text-[#6a7a6e] hover:bg-gray-200 dark:hover:bg-white/[0.08]'}`}>
               {p.label}
             </button>
           ))}
@@ -747,7 +747,7 @@ export default function LandingPage() {
             <>
               <button
                 onClick={() => navigate('/quiz')}
-                className="text-xs font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#b0c4b4] transition-colors px-2 py-1.5"
+                className="text-sm font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#b0c4b4] transition-colors px-3 py-2.5 min-h-[44px] flex items-center"
               >
                 Try Free
               </button>
@@ -792,9 +792,9 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="text-center py-8 border-t border-gray-200/60 dark:border-white/[0.05]">
         <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#6a7a6e]">
-          <NavLink to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Terms</NavLink>
+          <NavLink to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors py-2 px-1">Terms</NavLink>
           <span>&middot;</span>
-          <NavLink to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors">Privacy</NavLink>
+          <NavLink to="/privacy" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors py-2 px-1">Privacy</NavLink>
           <span>&middot;</span>
           <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>

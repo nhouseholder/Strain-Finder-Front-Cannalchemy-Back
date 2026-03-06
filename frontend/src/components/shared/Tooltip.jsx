@@ -19,7 +19,7 @@ export default function Tooltip({ content, children, className }) {
     <span ref={ref} className={clsx('relative inline-flex items-center', className)}>
       <button
         type="button"
-        className="inline-flex items-center justify-center w-4 h-4 rounded-full text-gray-400 dark:text-[#6a7a6e] hover:text-gray-600 dark:hover:text-[#8a9a8e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
+        className="inline-flex items-center justify-center w-6 h-6 rounded-full text-gray-400 dark:text-[#6a7a6e] hover:text-gray-600 dark:hover:text-[#8a9a8e] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
         onClick={() => setOpen(!open)}
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}

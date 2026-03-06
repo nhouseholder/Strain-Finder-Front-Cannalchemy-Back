@@ -144,7 +144,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
             <button
               type="button"
               className={clsx(
-                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200',
+                'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
                 'text-gray-400 dark:text-[#6a7a6e] hover:text-purple-400 hover:bg-purple-500/10'
               )}
@@ -162,7 +162,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
             <button
               type="button"
               className={clsx(
-                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200',
+                'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
                 isFavorite
                   ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'

@@ -10,6 +10,13 @@ export default function Modal({ open, onClose, title, children, className }) {
     if (!open) return
     const prev = document.activeElement
     contentRef.current?.focus()
+
+    // Pin body to prevent iOS Safari scroll-through behind modal
+    const scrollY = window.scrollY
+    document.body.style.position = 'fixed'
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.left = '0'
+    document.body.style.right = '0'
     document.body.style.overflow = 'hidden'
 
     const handleEsc = (e) => { if (e.key === 'Escape') onClose() }
@@ -17,7 +24,13 @@ export default function Modal({ open, onClose, title, children, className }) {
 
     return () => {
       document.removeEventListener('keydown', handleEsc)
+      const top = document.body.style.top
+      document.body.style.position = ''
+      document.body.style.top = ''
+      document.body.style.left = ''
+      document.body.style.right = ''
       document.body.style.overflow = ''
+      window.scrollTo(0, parseInt(top || '0', 10) * -1)
       prev?.focus()
     }
   }, [open, onClose])
@@ -48,7 +61,7 @@ export default function Modal({ open, onClose, title, children, className }) {
           <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">{title}</h2>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 dark:text-[#6a7a6e] hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
+            className="p-2.5 rounded-lg text-gray-400 dark:text-[#6a7a6e] hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500"
             aria-label="Close"
           >
             <X size={18} />

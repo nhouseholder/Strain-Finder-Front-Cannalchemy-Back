@@ -252,7 +252,7 @@ export default function NavBar() {
                 </div>
                 <button
                   onClick={handleSignOut}
-                  className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="flex items-center gap-1 px-3 py-2.5 rounded-lg text-xs font-medium text-gray-500 dark:text-[#6a7a6e] hover:text-red-400 hover:bg-red-500/10 transition-colors"
                   title="Sign out"
                 >
                   <LogOut size={14} />
@@ -290,7 +290,7 @@ export default function NavBar() {
                 end={isQuiz}
                 onClick={isQuiz ? handleQuizClick : isLearn ? handleLearnClick : undefined}
                 className={({ isActive }) => clsx(
-                  'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-colors min-w-[56px]',
+                  'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-[10px] font-medium transition-colors min-w-[56px] min-h-[44px] justify-center',
                   isActive || (isLearn && learnOverlay)
                     ? 'text-leaf-400'
                     : 'text-gray-400 dark:text-[#8a9a8e]'

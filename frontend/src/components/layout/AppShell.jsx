@@ -10,7 +10,7 @@ export default function AppShell() {
       </a>
       <BGGlow />
       <NavBar />
-      <main id="main-content" className="relative z-10 flex-1 pb-20 sm:pb-8">
+      <main id="main-content" className="relative z-10 flex-1 sm:pb-8" style={{ paddingBottom: 'max(5rem, calc(5rem + env(safe-area-inset-bottom, 0px)))' }}>
         <Outlet />
       </main>
       <footer className="relative z-20 text-center py-6 pb-20 sm:pb-6 bg-[#f4f7f5] dark:bg-leaf-900">
@@ -21,9 +21,9 @@ export default function AppShell() {
           For adults 21+ in legal jurisdictions only. For educational and informational purposes only &mdash; not medical, legal, or professional advice. Cannabis remains a Schedule I substance under federal law. Individual experiences vary. Always consult a healthcare professional before using cannabis. Do not use cannabis if pregnant or nursing.
         </p>
         <div className="flex items-center justify-center gap-3 text-[10px] text-gray-500 dark:text-[#6a7a6e]">
-          <Link to="/terms" className="hover:text-gray-600 dark:hover:text-[#5a6a5e] transition-colors">Terms</Link>
+          <Link to="/terms" className="hover:text-gray-600 dark:hover:text-[#5a6a5e] transition-colors py-2 px-1">Terms</Link>
           <span>&middot;</span>
-          <Link to="/privacy" className="hover:text-gray-600 dark:hover:text-[#5a6a5e] transition-colors">Privacy</Link>
+          <Link to="/privacy" className="hover:text-gray-600 dark:hover:text-[#5a6a5e] transition-colors py-2 px-1">Privacy</Link>
           <span>&middot;</span>
           <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>

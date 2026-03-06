@@ -60,7 +60,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                 type="button"
                 onClick={() => setSubtype(st.id)}
                 className={[
-                  'px-4 py-2 rounded-full text-sm font-medium transition-all duration-200',
+                  'px-4 py-2.5 rounded-full text-sm font-medium transition-all duration-200 min-h-[44px]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'text-white shadow-md'
@@ -98,7 +98,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                   type="button"
                   onClick={() => setThcPreference(pref.id)}
                   className={[
-                    'px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200',
+                    'px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 min-h-[44px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isSelected
                       ? 'bg-sativa-500/15 border border-sativa-500/40 text-sativa-400'
@@ -130,7 +130,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                   type="button"
                   onClick={() => setCbdPreference(pref.id)}
                   className={[
-                    'px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200',
+                    'px-3.5 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 min-h-[44px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isSelected
                       ? 'bg-indica-500/15 border border-indica-500/40 text-indica-400'
@@ -167,7 +167,7 @@ export default function OptionalPrefsStep({ onComplete }) {
                 type="button"
                 onClick={() => toggleFlavor(flavor.id)}
                 className={[
-                  'inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-sm font-medium transition-all duration-200',
+                  'inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 min-h-[44px]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'border shadow-sm'

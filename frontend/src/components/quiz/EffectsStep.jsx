@@ -130,7 +130,7 @@ export default function EffectsStep() {
                   type="button"
                   onClick={() => handleRankTap(effect.id)}
                   className={[
-                    'relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200',
+                    'relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 min-h-[44px]',
                     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                     isRanked
                       ? 'bg-leaf-500/15 border border-leaf-500/40 text-leaf-400'

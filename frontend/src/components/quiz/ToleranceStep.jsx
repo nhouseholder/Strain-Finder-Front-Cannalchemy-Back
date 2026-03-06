@@ -83,7 +83,7 @@ export default function ToleranceStep() {
                 type="button"
                 onClick={() => toggleAvoid(effect.id)}
                 className={[
-                  'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all duration-200',
+                  'flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-left transition-all duration-200 min-h-[44px]',
                   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-leaf-900',
                   isSelected
                     ? 'bg-red-500/10 dark:bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400'

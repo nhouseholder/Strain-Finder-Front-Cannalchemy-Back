@@ -87,8 +87,8 @@ export default function PaywallOverlay() {
               <UserPlus size={16} />
               Sign Up Free
             </Button>
-            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-              or <button onClick={() => navigate('/login', { state: { from: { pathname: '/results' } } })} className="text-leaf-500 hover:text-leaf-400 underline underline-offset-2 transition-colors">sign in</button> if you have an account
+            <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
+              or <button onClick={() => navigate('/login', { state: { from: { pathname: '/results' } } })} className="text-leaf-500 hover:text-leaf-400 underline underline-offset-2 transition-colors py-1 px-0.5">sign in</button> if you have an account
             </p>
           </div>
         )}

@@ -38,7 +38,7 @@ export default function BudgetStep() {
           }}
           placeholder="e.g. 90210"
           aria-label="Your zip code for finding local deals"
-          className="w-full mt-1 px-4 py-2.5 text-sm rounded-xl bg-gray-50 dark:bg-gray-50/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
+          className="w-full mt-1 px-4 py-2.5 text-base rounded-xl bg-gray-50 dark:bg-gray-50/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
         />
         {zipCode.length > 0 && zipCode.length < 5 && (
           <p className="text-[10px] text-amber-500 mt-1 ml-1">Enter a 5-digit zip code</p>

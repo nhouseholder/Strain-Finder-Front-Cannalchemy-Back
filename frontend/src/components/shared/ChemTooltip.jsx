@@ -45,6 +45,9 @@ export default function ChemTooltip({ name, children }) {
       className="inline-flex cursor-help"
       onMouseEnter={onEnter}
       onMouseLeave={onLeave}
+      onClick={(e) => { e.stopPropagation(); setShow(prev => !prev) }}
+      role="button"
+      tabIndex={0}
     >
       {children}
       {show && createPortal(
