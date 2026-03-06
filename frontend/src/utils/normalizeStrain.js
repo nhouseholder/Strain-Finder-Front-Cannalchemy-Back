@@ -215,6 +215,10 @@ export function normalizeStrain(raw) {
   if (!s.dataCompleteness) {
     s.dataCompleteness = s.dataCompleteness || raw.dataCompleteness || 'full'
   }
+  // Propagate source for archetype detection in UI
+  if (!s.source && raw.source) {
+    s.source = raw.source
+  }
 
   // ── Normalize cannabinoids: always show full 6-cannabinoid profile ──
   const FULL_CANNABINOID_SET = ['thc', 'cbd', 'cbn', 'cbg', 'thcv', 'cbc']

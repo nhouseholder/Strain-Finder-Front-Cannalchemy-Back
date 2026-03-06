@@ -20,12 +20,11 @@ const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), '
 const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
 const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
 const StrainExplorerPage = lazy(() => lazyRetry(() => import('./routes/StrainExplorerPage'), 'StrainExplorerPage'))
-const TopStrainsPage = lazy(() => lazyRetry(() => import('./routes/TopStrainsPage'), 'TopStrainsPage'))
+const ExploreStrainsPage = lazy(() => lazyRetry(() => import('./routes/ExploreStrainsPage'), 'ExploreStrainsPage'))
 const LearnPage = lazy(() => lazyRetry(() => import('./routes/LearnPage'), 'LearnPage'))
 const LoginPage = lazy(() => lazyRetry(() => import('./routes/LoginPage'), 'LoginPage'))
 const SignupPage = lazy(() => lazyRetry(() => import('./routes/SignupPage'), 'SignupPage'))
 const AdminPage = lazy(() => lazyRetry(() => import('./routes/AdminPage'), 'AdminPage'))
-const CheckoutSuccessPage = lazy(() => lazyRetry(() => import('./routes/CheckoutSuccessPage'), 'CheckoutSuccessPage'))
 const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPasswordPage'), 'ForgotPasswordPage'))
 const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
@@ -56,7 +55,7 @@ export default function App() {
                     <Route path="login" element={<LoginPage />} />
                     <Route path="signup" element={<SignupPage />} />
                     <Route path="forgot-password" element={<ForgotPasswordPage />} />
-                    <Route path="checkout-success" element={<ProtectedRoute><CheckoutSuccessPage /></ProtectedRoute>} />
+                    <Route path="checkout-success" element={<Navigate to="/quiz" replace />} />
 
                     {/* Legal pages — public, own layout */}
                     <Route path="terms" element={<TermsPage />} />
@@ -73,8 +72,10 @@ export default function App() {
                       <Route path="dashboard" element={<Navigate to="/journal" replace />} />
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />
-                      <Route path="top-strains" element={<TopStrainsPage />} />
-                      <Route path="top-strains/:category" element={<TopStrainsPage />} />
+                      <Route path="explore-strains" element={<ExploreStrainsPage />} />
+                      <Route path="explore-strains/:category" element={<ExploreStrainsPage />} />
+                      <Route path="top-strains" element={<Navigate to="/explore-strains" replace />} />
+                      <Route path="top-strains/:category" element={<Navigate to="/explore-strains" replace />} />
                       <Route path="journal" element={<ProtectedRoute><JournalPage /></ProtectedRoute>} />
                       <Route path="compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
                       <Route path="preferences" element={<Navigate to="/journal" replace />} />

@@ -145,7 +145,8 @@ def export_strain_data(db_path=None):
     partial_count = 0
     for row in strain_rows:
         strain_id, name, strain_type, description, effect_count, source, data_quality = row
-        is_partial = (data_quality == "partial")
+        # Enrichment strains are always treated as partial (archetype-estimated)
+        is_partial = (data_quality == "partial") or (source == "enrichment-v5.17")
 
         # Effects
         effects = []
@@ -253,6 +254,8 @@ def export_strain_data(db_path=None):
             strain_obj["terpenes"] = terpenes[:4]
             strain_obj["flavors"] = [f.title() for f in flavors[:3]]
             strain_obj["genetics"] = genetics if genetics else ""
+            if source == "enrichment-v5.17":
+                strain_obj["source"] = "archetype"
         else:
             # Full format: all fields for fully-verified strains
             strain_obj["genetics"] = genetics

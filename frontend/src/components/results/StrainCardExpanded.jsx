@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { normalizeStrain } from '../../utils/normalizeStrain'
+import { Link } from 'react-router-dom'
 import ExperienceDescription from '../strain-detail/ExperienceDescription'
 import ScienceExplanation from '../strain-detail/ScienceExplanation'
 import EffectsBreakdown from '../strain-detail/EffectsBreakdown'
@@ -36,9 +37,17 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
             <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.168 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
           </svg>
           <div>
-            <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">Limited Data Available</p>
+            <p className="text-[11px] font-semibold text-amber-700 dark:text-amber-400">
+              {strain.source === 'archetype' ? 'Estimated Profile — Not Lab Tested' : 'Limited Data Available'}
+            </p>
             <p className="text-[10px] text-amber-600 dark:text-amber-500/80 mt-0.5 leading-relaxed">
-              This strain has not been extensively lab tested. The information shown is based on limited community reports and may not reflect the full chemical profile. Data shown should be considered approximate.
+              {strain.source === 'archetype'
+                ? 'This strain has not been lab tested yet. The chemical profile shown is estimated based on its genetic lineage and archetype classification. We are still compiling verified data for this strain.'
+                : 'This strain has not been extensively lab tested. The information shown is based on limited community reports and may not reflect the full chemical profile. Data shown should be considered approximate.'}
+              {' '}
+              <Link to="/learn/archetypes" className="text-amber-600 dark:text-amber-400 underline underline-offset-2 hover:text-amber-500 transition-colors">
+                Learn about our archetype system →
+              </Link>
             </p>
           </div>
         </div>

@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react'
 import { Heart, Info, ChevronDown, ChevronUp, Star, GitCompareArrows } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import clsx from 'clsx'
 import Card from '../shared/Card'
 import { TypeBadge, EffectBadge } from '../shared/Badge'
@@ -81,11 +81,15 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                 {strain.name}
               </h3>
               <TypeBadge type={strain.type} />
-              {/* Limited Data badge for partial strains */}
+              {/* Estimated Profile badge for archetype/partial strains */}
               {strain.dataCompleteness === 'partial' && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40">
-                  Limited Data
-                </span>
+                <Link
+                  to="/learn/archetypes"
+                  onClick={(e) => e.stopPropagation()}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+                >
+                  {strain.source === 'archetype' ? 'Estimated Profile' : 'Limited Data'}
+                </Link>
               )}
               {/* Why This Match - info icon tooltip */}
               {strain.whyMatch && (

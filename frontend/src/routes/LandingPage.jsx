@@ -628,33 +628,19 @@ function AIChatSection() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Section 5: Pricing                                                */
+/*  Section 5: Pricing — 100% Free                                    */
 /* ------------------------------------------------------------------ */
 function PricingSection({ onGetStarted }) {
   const ref = useScrollReveal()
-  const navigate = useNavigate()
-  const { user, isPremium } = useAuth()
-  const [upgradeLoading, setUpgradeLoading] = useState(false)
 
-  const free = ['Top strain suggestion per quiz', 'Basic cannabinoid info', 'Community-reported reviews']
-  const premium = ['Unlimited informational suggestions', 'Full data profiles & pathways', 'Terpene & cannabinoid details', 'Personal journal & compare tool', 'AI-generated analysis (may contain errors)', 'Priority support']
-
-  const handlePremiumClick = async () => {
-    if (isPremium) { navigate('/quiz'); return }
-    if (!user) { navigate('/signup'); return }
-    // Logged-in free user → Stripe Checkout
-    setUpgradeLoading(true)
-    try {
-      const res = await fetch('/api/stripe-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: user.email, userId: user.id, returnUrl: window.location.origin + '/checkout-success' }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      window.location.href = data.url
-    } catch { setUpgradeLoading(false) }
-  }
+  const features = [
+    'Unlimited strain recommendations',
+    'Full data profiles & receptor pathways',
+    'Terpene & cannabinoid details',
+    'Personal journal & compare tool',
+    'AI-generated analysis',
+    'Cannabis education hub',
+  ]
 
   return (
     <section id="pricing" className="py-24 px-6" ref={ref}>
@@ -663,50 +649,31 @@ function PricingSection({ onGetStarted }) {
           className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-[#e8f0ea] mb-4"
           style={{ fontFamily: "'Playfair Display', serif" }}
         >
-          Simple pricing
+          100% Free
         </h2>
         <p className="text-center text-gray-500 dark:text-[#6a7a6e] mb-12">
-          Start free, upgrade when you're ready.
+          Every feature. No paywalls. No credit card required.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
-          {/* Free tier */}
-          <Card className="p-6">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">Free</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$0<span className="text-sm font-normal text-gray-400">/mo</span></p>
-            <p className="text-xs text-gray-400 dark:text-[#6a7a6e] mb-6">Get started, no credit card needed</p>
+        <div className="max-w-md mx-auto">
+          <Card active className="p-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-leaf-500 text-leaf-900 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
+              All Access
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">Full Access</h3>
+            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$0<span className="text-sm font-normal text-gray-400">/forever</span></p>
+            <p className="text-xs text-gray-400 dark:text-[#6a7a6e] mb-6">Science-powered recommendations for everyone</p>
             <ul className="space-y-3 mb-8">
-              {free.map(f => (
+              {features.map(f => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600 dark:text-[#8a9a8e]">
-                  <Check size={16} className="text-gray-400 flex-shrink-0 mt-0.5" />
+                  <Check size={16} className="text-leaf-400 flex-shrink-0 mt-0.5" />
                   {f}
                 </li>
               ))}
             </ul>
-            <Button variant="secondary" size="full" onClick={onGetStarted}>
+            <Button size="full" className="shadow-lg shadow-leaf-500/25" onClick={onGetStarted}>
               Get Started Free
-            </Button>
-          </Card>
-
-          {/* Premium tier */}
-          <Card active className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-leaf-500 text-leaf-900 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-              Popular
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">Premium</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$0.99<span className="text-sm font-normal text-gray-400">/mo</span></p>
-            <p className="text-xs text-gray-400 dark:text-[#6a7a6e] mb-6">Full software access &mdash; not a purchase of cannabis products</p>
-            <ul className="space-y-3 mb-8">
-              {premium.map(p => (
-                <li key={p} className="flex items-start gap-2 text-sm text-gray-600 dark:text-[#8a9a8e]">
-                  <Check size={16} className="text-leaf-400 flex-shrink-0 mt-0.5" />
-                  {p}
-                </li>
-              ))}
-            </ul>
-            <Button size="full" className="shadow-lg shadow-leaf-500/25" onClick={handlePremiumClick} disabled={upgradeLoading}>
-              {upgradeLoading ? 'Loading...' : isPremium ? 'Go to App' : user ? 'Upgrade Now' : 'Start Premium'}
-              {!upgradeLoading && (isPremium ? <ArrowRight size={16} /> : <Sparkles size={16} />)}
+              <ArrowRight size={16} />
             </Button>
           </Card>
         </div>

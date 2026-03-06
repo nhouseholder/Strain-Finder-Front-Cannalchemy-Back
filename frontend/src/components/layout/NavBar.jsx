@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Award } from 'lucide-react'
+import { Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Compass, Leaf, Beaker, Dna, Info } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -8,15 +8,24 @@ import { useToast } from '../../context/ToastContext'
 import { ResultsContext } from '../../context/ResultsContext'
 import { APP_VERSION } from '../../utils/constants'
 
+/* Learn sub-pages for the dropdown */
+const LEARN_PAGES = [
+  { to: '/learn/terpenes', icon: Leaf, label: 'Terpenes', color: 'text-purple-400', desc: 'Aromatic compounds that shape effects' },
+  { to: '/learn/cannabinoids', icon: Beaker, label: 'Cannabinoids', color: 'text-green-400', desc: 'Active compounds in cannabis' },
+  { to: '/learn/entourage', icon: Sparkles, label: 'Entourage Effect', color: 'text-amber-400', desc: 'How compounds work together' },
+  { to: '/learn/archetypes', icon: Dna, label: 'Strain Archetypes', color: 'text-indigo-400', desc: 'Terpene profile estimation system' },
+  { to: '/learn/about', icon: Info, label: 'About MyStrainAI', color: 'text-leaf-400', desc: 'Our mission and methodology' },
+]
+
 /* Nav items adapt based on auth state */
 const coreItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz', guest: true },
   { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', guest: true },
-  { to: '/top-strains', icon: Award, label: 'Top\u00A0For', guest: true },
+  { to: '/explore-strains', icon: Compass, label: 'Explore', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
-  { to: '/learn', icon: BookOpen, label: 'Learn', guest: true },
+  { to: '/learn', icon: BookOpen, label: 'Learn', guest: true, hasDropdown: true },
 ]
 
 /* Guest-only items (replace protected nav items on mobile) */
@@ -24,8 +33,8 @@ const guestMobileItems = [
   { to: '/quiz', icon: ClipboardList, label: 'Quiz' },
   { to: '/search', icon: Search, label: 'Search' },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer' },
-  { to: '/top-strains', icon: Award, label: 'Top\u00A0For' },
-  { to: '/signup', icon: UserPlus, label: 'Sign Up' },
+  { to: '/explore-strains', icon: Compass, label: 'Explore' },
+  { to: '/learn', icon: BookOpen, label: 'Learn', hasDropdown: true },
 ]
 
 export default function NavBar() {
@@ -37,33 +46,52 @@ export default function NavBar() {
 
   /* Quiz overlay state */
   const [quizOverlay, setQuizOverlay] = useState(false)
+  const [learnOverlay, setLearnOverlay] = useState(false)
   const desktopOverlayRef = useRef(null)
   const mobileOverlayRef = useRef(null)
+  const desktopLearnRef = useRef(null)
+  const mobileLearnRef = useRef(null)
 
-  /* Close quiz overlay on outside click */
+  /* Close overlays on outside click */
   useEffect(() => {
-    if (!quizOverlay) return
+    if (!quizOverlay && !learnOverlay) return
     const handleClick = (e) => {
-      if (
-        (desktopOverlayRef.current && desktopOverlayRef.current.contains(e.target)) ||
-        (mobileOverlayRef.current && mobileOverlayRef.current.contains(e.target))
-      ) return
-      setQuizOverlay(false)
+      if (quizOverlay) {
+        if (
+          (desktopOverlayRef.current && desktopOverlayRef.current.contains(e.target)) ||
+          (mobileOverlayRef.current && mobileOverlayRef.current.contains(e.target))
+        ) return
+        setQuizOverlay(false)
+      }
+      if (learnOverlay) {
+        if (
+          (desktopLearnRef.current && desktopLearnRef.current.contains(e.target)) ||
+          (mobileLearnRef.current && mobileLearnRef.current.contains(e.target))
+        ) return
+        setLearnOverlay(false)
+      }
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
-  }, [quizOverlay])
+  }, [quizOverlay, learnOverlay])
 
-  /* Close overlay on route change */
-  useEffect(() => { setQuizOverlay(false) }, [location.pathname])
+  /* Close overlays on route change */
+  useEffect(() => { setQuizOverlay(false); setLearnOverlay(false) }, [location.pathname])
 
   const handleQuizClick = useCallback((e) => {
     if (hasResults) {
       e.preventDefault()
       setQuizOverlay((v) => !v)
+      setLearnOverlay(false)
     }
     // else: default NavLink navigation to /quiz
   }, [hasResults])
+
+  const handleLearnClick = useCallback((e) => {
+    e.preventDefault()
+    setLearnOverlay((v) => !v)
+    setQuizOverlay(false)
+  }, [])
 
   const handleSignOut = async () => {
     await signOut()
@@ -90,17 +118,18 @@ export default function NavBar() {
           </div>
         </NavLink>
         <div className="flex items-center gap-1">
-          {desktopItems.map(({ to, icon: Icon, label }) => {
+          {desktopItems.map(({ to, icon: Icon, label, hasDropdown }) => {
             const isQuiz = to === '/quiz'
+            const isLearn = hasDropdown
             return (
-              <div key={to} className={isQuiz ? 'relative' : undefined}>
+              <div key={to} className={(isQuiz || isLearn) ? 'relative' : undefined}>
                 <NavLink
                   to={to}
                   end={isQuiz}
-                  onClick={isQuiz ? handleQuizClick : undefined}
+                  onClick={isQuiz ? handleQuizClick : isLearn ? handleLearnClick : undefined}
                   className={({ isActive }) => clsx(
                     'flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors',
-                    isActive
+                    isActive || (isLearn && learnOverlay)
                       ? 'bg-leaf-500/15 text-leaf-500 dark:text-leaf-400'
                       : 'text-gray-500 dark:text-[#8a9a8e] hover:text-gray-800 dark:hover:text-[#c8dccb] hover:bg-gray-100/80 dark:hover:bg-white/[0.06]'
                   )}
@@ -154,6 +183,41 @@ export default function NavBar() {
                           <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">Take a new quiz from scratch</span>
                         </div>
                       </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Learn overlay dropdown */}
+                {isLearn && learnOverlay && (
+                  <div
+                    ref={desktopLearnRef}
+                    className="absolute top-full right-0 mt-2 w-72 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in"
+                  >
+                    <div className="px-4 pt-4 pb-2">
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen size={16} className="text-leaf-400" />
+                        <span className="text-sm font-bold text-gray-800 dark:text-[#e0f0e4]">Cannabis Education</span>
+                      </div>
+                      <p className="text-[11px] text-gray-400 dark:text-[#6a7a6e]">
+                        Explore the science behind cannabis.
+                      </p>
+                    </div>
+                    <div className="px-3 pb-3 space-y-1">
+                      {LEARN_PAGES.map(({ to: pageTo, icon: PageIcon, label: pageLabel, color, desc }) => (
+                        <button
+                          key={pageTo}
+                          onClick={() => { setLearnOverlay(false); navigate(pageTo) }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left hover:bg-leaf-500/[0.06] transition-colors group"
+                        >
+                          <div className="w-8 h-8 rounded-lg bg-white/[0.06] dark:bg-white/[0.04] flex items-center justify-center flex-shrink-0 group-hover:bg-leaf-500/10 transition-colors">
+                            <PageIcon size={16} className={color} />
+                          </div>
+                          <div>
+                            <span className="text-sm font-semibold text-gray-800 dark:text-[#d0e4d4] block">{pageLabel}</span>
+                            <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">{desc}</span>
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -216,17 +280,18 @@ export default function NavBar() {
 
       {/* Mobile bottom bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom" style={{ paddingBottom: 'max(0.375rem, env(safe-area-inset-bottom, 0.375rem))' }} role="navigation" aria-label="Main navigation">
-        {mobileItems.map(({ to, icon: Icon, label }) => {
+        {mobileItems.map(({ to, icon: Icon, label, hasDropdown }) => {
           const isQuiz = to === '/quiz'
+          const isLearn = hasDropdown
           return (
-            <div key={to} className={isQuiz ? 'relative' : undefined}>
+            <div key={to} className={(isQuiz || isLearn) ? 'relative' : undefined}>
               <NavLink
                 to={to}
                 end={isQuiz}
-                onClick={isQuiz ? handleQuizClick : undefined}
+                onClick={isQuiz ? handleQuizClick : isLearn ? handleLearnClick : undefined}
                 className={({ isActive }) => clsx(
                   'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[10px] font-medium transition-colors min-w-[56px]',
-                  isActive
+                  isActive || (isLearn && learnOverlay)
                     ? 'text-leaf-400'
                     : 'text-gray-400 dark:text-[#8a9a8e]'
                 )}
@@ -275,6 +340,41 @@ export default function NavBar() {
                         <span className="text-[9px] text-gray-400 dark:text-[#6a7a6e]">Take a new quiz</span>
                       </div>
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile learn overlay – appears above the bottom bar */}
+              {isLearn && learnOverlay && (
+                <div
+                  ref={mobileLearnRef}
+                  className="absolute bottom-full right-0 mb-2 w-64 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in"
+                >
+                  <div className="px-3 pt-3 pb-1.5">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <BookOpen size={14} className="text-leaf-400" />
+                      <span className="text-xs font-bold text-gray-800 dark:text-[#e0f0e4]">Cannabis Education</span>
+                    </div>
+                    <p className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
+                      Explore the science behind cannabis.
+                    </p>
+                  </div>
+                  <div className="px-2.5 pb-2.5 space-y-0.5">
+                    {LEARN_PAGES.map(({ to: pageTo, icon: PageIcon, label: pageLabel, color, desc }) => (
+                      <button
+                        key={pageTo}
+                        onClick={() => { setLearnOverlay(false); navigate(pageTo) }}
+                        className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-white/[0.06] dark:bg-white/[0.04] flex items-center justify-center flex-shrink-0 group-hover:bg-leaf-500/10 transition-colors">
+                          <PageIcon size={14} className={color} />
+                        </div>
+                        <div>
+                          <span className="text-xs font-semibold text-gray-800 dark:text-[#d0e4d4] block">{pageLabel}</span>
+                          <span className="text-[9px] text-gray-400 dark:text-[#6a7a6e]">{desc}</span>
+                        </div>
+                      </button>
+                    ))}
                   </div>
                 </div>
               )}

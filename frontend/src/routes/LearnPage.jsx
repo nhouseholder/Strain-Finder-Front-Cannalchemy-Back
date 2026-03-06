@@ -4,7 +4,7 @@
 import { useParams, Link } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import Card from '../components/shared/Card'
-import { BookOpen, Leaf, Beaker, ArrowRight, Sparkles, Info, Database, Shield, Brain, FlaskConical, Users, Zap } from 'lucide-react'
+import { BookOpen, Leaf, Beaker, ArrowRight, Sparkles, Info, Database, Shield, Brain, FlaskConical, Users, Zap, Dna } from 'lucide-react'
 
 const TOPICS = [
   {
@@ -63,6 +63,15 @@ const TOPICS = [
     bg: 'bg-leaf-500/10',
     description: 'Our mission, our science, and why you can trust our recommendations.',
     custom: 'about',
+  },
+  {
+    id: 'archetypes',
+    title: 'Strain Archetypes',
+    icon: Dna,
+    color: 'text-indigo-400',
+    bg: 'bg-indigo-500/10',
+    description: 'How we use terpene profile archetypes to estimate data for strains missing lab results.',
+    custom: 'archetypes',
   },
 ]
 
@@ -131,7 +140,8 @@ function TopicIndex() {
 /* ================================================================ */
 
 const DATA_STATS = [
-  { label: 'Strains', value: '1,094', icon: Leaf },
+  { label: 'Strains', value: '2,097', icon: Leaf },
+  { label: 'Lab-Verified', value: '1,833', icon: Shield },
   { label: 'Cannabinoids / Strain', value: '6', icon: Beaker },
   { label: 'Terpenes / Strain', value: '6', icon: FlaskConical },
   { label: 'Molecular Bindings', value: '19', icon: Zap },
@@ -338,6 +348,163 @@ function AboutSection() {
   )
 }
 
+/* ================================================================ */
+/*  Archetypes Section                                               */
+/* ================================================================ */
+
+const ARCHETYPE_GROUPS = [
+  {
+    category: 'Indica-Dominant',
+    archetypes: [
+      { name: 'Classic Indica', terps: 'Myrcene, Linalool, Humulene', thc: '18–24%', character: 'Heavy body relaxation, sedative, couch-lock' },
+      { name: 'Gas / Kush', terps: 'Caryophyllene, Limonene, Myrcene', thc: '22–28%', character: 'Fuel/diesel aroma, potent physical sedation' },
+      { name: 'Dessert / Sweet', terps: 'Limonene, Caryophyllene, Linalool', thc: '20–26%', character: 'Sweet, euphoric relaxation with mood lift' },
+      { name: 'Earthy OG', terps: 'Myrcene, Caryophyllene, Limonene', thc: '20–26%', character: 'Earthy, piney, classic OG body-and-mind calm' },
+      { name: 'Purple / Berry', terps: 'Myrcene, Linalool, Caryophyllene', thc: '18–24%', character: 'Berry-sweet, deeply relaxing, sleepy' },
+      { name: 'CBD Indica', terps: 'Myrcene, Caryophyllene, Pinene', thc: '1–8%', character: 'Minimal psychoactivity, anti-inflammatory calm' },
+    ],
+  },
+  {
+    category: 'Hybrid',
+    archetypes: [
+      { name: 'Balanced Hybrid', terps: 'Caryophyllene, Limonene, Myrcene', thc: '18–24%', character: 'Even head/body, versatile, sociable' },
+      { name: 'Cookies / Dough', terps: 'Caryophyllene, Limonene, Linalool', thc: '22–28%', character: 'Sweet dough, euphoric yet relaxed, creative' },
+      { name: 'Fruity Hybrid', terps: 'Limonene, Myrcene, Caryophyllene', thc: '18–24%', character: 'Tropical/citrus, mood boost with gentle body' },
+      { name: 'Haze Hybrid', terps: 'Terpinolene, Myrcene, Caryophyllene', thc: '20–26%', character: 'Cerebral, creative, gentle energy' },
+      { name: 'Spicy Hybrid', terps: 'Caryophyllene, Humulene, Myrcene', thc: '18–24%', character: 'Pepper/herbal, anti-inflammatory, mellowing' },
+      { name: 'Gelato / Cream', terps: 'Limonene, Caryophyllene, Myrcene', thc: '22–28%', character: 'Creamy, euphoric, potent relaxation with uplift' },
+      { name: 'CBD Hybrid', terps: 'Myrcene, Caryophyllene, Pinene', thc: '3–10%', character: 'Balanced THC:CBD, gentle, therapeutic' },
+    ],
+  },
+  {
+    category: 'Sativa-Dominant',
+    archetypes: [
+      { name: 'Classic Sativa', terps: 'Terpinolene, Pinene, Myrcene', thc: '18–24%', character: 'Uplifting, cerebral, energizing, focused' },
+      { name: 'Citrus Sativa', terps: 'Limonene, Pinene, Caryophyllene', thc: '18–24%', character: 'Bright citrus, mood-elevating, anti-anxiety' },
+      { name: 'Tropical Sativa', terps: 'Myrcene, Limonene, Ocimene', thc: '16–22%', character: 'Mango/pineapple, relaxed energy, creative' },
+      { name: 'Piney Sativa', terps: 'Pinene, Terpinolene, Caryophyllene', thc: '16–22%', character: 'Forest pine, alert, memory-boosting' },
+      { name: 'Jack / Spicy Sativa', terps: 'Terpinolene, Caryophyllene, Pinene', thc: '20–26%', character: 'Peppery-pine, energetic, focused euphoria' },
+      { name: 'Floral Sativa', terps: 'Linalool, Terpinolene, Limonene', thc: '16–22%', character: 'Lavender-floral, calm creativity, anti-stress' },
+    ],
+  },
+  {
+    category: 'Specialty',
+    archetypes: [
+      { name: 'Landrace / Heritage', terps: 'Varies by origin', thc: '12–20%', character: 'Pure genetics, historically significant, region-specific profiles' },
+      { name: 'High-Potency Modern', terps: 'Caryophyllene, Limonene, Myrcene', thc: '28–35%', character: 'Extreme potency, intense effects, low tolerance not advised' },
+      { name: 'THC-Dominant Narrow', terps: 'Myrcene, Caryophyllene', thc: '20–28%', character: 'Minimal terpene diversity, THC-forward effects' },
+      { name: 'Rare Terpene', terps: 'Ocimene, Terpinolene, Linalool', thc: '16–24%', character: 'Uncommon profiles, unique flavors and effects' },
+      { name: 'CBD-Dominant', terps: 'Myrcene, Caryophyllene, Pinene', thc: '<1%', character: 'Non-psychoactive, therapeutic focus, anti-inflammatory' },
+      { name: 'Exotic / Novel', terps: 'Complex blend', thc: '22–30%', character: 'Designer genetics, unusual terpene combinations' },
+    ],
+  },
+]
+
+function ArchetypeSection() {
+  return (
+    <div className="space-y-6 animate-fade-in">
+      {/* Intro */}
+      <Card className="p-5 border-indigo-500/20">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center">
+            <Dna size={20} className="text-indigo-400" />
+          </div>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]" style={{ fontFamily: "'Playfair Display', serif" }}>
+            What Are Strain Archetypes?
+          </h2>
+        </div>
+        <div className="space-y-3 text-xs text-gray-600 dark:text-[#b0c4b4] leading-relaxed">
+          <p className="text-sm font-medium text-gray-800 dark:text-[#d0e4d6]">
+            Archetypes are our system for estimating terpene and cannabinoid profiles when lab data isn't available.
+          </p>
+          <p>
+            Not every cannabis strain has been comprehensively lab-tested. When a well-known strain lacks published
+            COA (Certificate of Analysis) data, we assign it to one of <strong>25 terpene profile archetypes</strong> based
+            on its genetics, reported effects, and aroma descriptions from community data.
+          </p>
+          <p>
+            This means you can still search for and learn about these strains in our database — but their chemical
+            profiles are <strong>estimates, not lab-verified data</strong>. We clearly mark these strains with an
+            "Estimated Profile" badge so you always know the difference.
+          </p>
+          <p>
+            As lab data becomes available, we replace archetype estimates with real results. Our goal is always
+            to provide the most accurate data possible.
+          </p>
+        </div>
+      </Card>
+
+      {/* Science basis */}
+      <Card className="p-5">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-4 flex items-center gap-2">
+          <Brain size={16} className="text-purple-400" />
+          Scientific Foundation
+        </h3>
+        <div className="space-y-2">
+          {[
+            { title: 'Russo (2011)', desc: 'Taming THC — foundational research on how specific terpenes modulate cannabinoid effects through the entourage effect, establishing the pharmacological basis for our archetype classifications.' },
+            { title: 'Pertwee (2008)', desc: 'The Diverse CB1 and CB2 Receptor Pharmacology — the receptor binding framework we use to predict how terpene-cannabinoid combinations produce specific therapeutic and psychoactive effects.' },
+            { title: 'Booth & Bohlmann (2019)', desc: 'Terpene biosynthesis in cannabis — how genetics determine terpene production, supporting our archetype assignments based on strain lineage and genetics.' },
+            { title: 'Hazekamp et al. (2016)', desc: 'Cannabis chemotype classification — the clustering approach that informed our 25-archetype system for grouping strains by chemical similarity.' },
+          ].map(item => (
+            <div key={item.title} className="p-2.5 rounded-xl bg-gray-50 dark:bg-white/[0.03]">
+              <span className="text-xs font-semibold text-indigo-500 dark:text-indigo-400">{item.title}</span>
+              <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] mt-0.5">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Archetype groups */}
+      {ARCHETYPE_GROUPS.map(group => (
+        <Card key={group.category} className="p-5">
+          <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-3">
+            {group.category}
+          </h3>
+          <div className="space-y-2">
+            {group.archetypes.map(a => (
+              <div key={a.name} className="p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03]">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xs font-semibold text-gray-800 dark:text-[#d0e4d6]">{a.name}</span>
+                  <span className="text-[8px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                    THC {a.thc}
+                  </span>
+                </div>
+                <p className="text-[10px] text-gray-400 dark:text-[#6a7a6e] mb-1">
+                  <span className="font-semibold text-gray-500 dark:text-[#8a9a8e]">Key terpenes:</span> {a.terps}
+                </p>
+                <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">{a.character}</p>
+              </div>
+            ))}
+          </div>
+        </Card>
+      ))}
+
+      {/* Disclaimer */}
+      <Card className="p-5 border-amber-500/20">
+        <h3 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-3 flex items-center gap-2">
+          <Shield size={16} className="text-amber-400" />
+          Important: Archetypes Are Estimates
+        </h3>
+        <div className="space-y-2 text-[11px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
+          <p>
+            Archetype profiles are <strong>educated estimates</strong> based on genetic lineage, community-reported effects,
+            and peer-reviewed terpene research. They are <strong>not</strong> the same as lab-tested data.
+          </p>
+          <p>
+            Strains tagged as "Estimated Profile" are excluded from quiz recommendations and educational spotlights.
+            They appear only in search and explorer to help you discover strains that may interest you.
+          </p>
+          <p>
+            Actual terpene and cannabinoid levels can vary significantly between grows, harvests, and testing labs.
+            Always check dispensary COAs for the most accurate data on the specific product in front of you.
+          </p>
+        </div>
+      </Card>
+    </div>
+  )
+}
+
 export default function LearnPage() {
   const { topic } = useParams()
   const activeTopic = TOPICS.find((t) => t.id === topic)
@@ -368,6 +535,8 @@ export default function LearnPage() {
 
       {activeTopic?.custom === 'about' ? (
         <AboutSection />
+      ) : activeTopic?.custom === 'archetypes' ? (
+        <ArchetypeSection />
       ) : activeTopic ? (
         <TopicCard topic={activeTopic} />
       ) : (
