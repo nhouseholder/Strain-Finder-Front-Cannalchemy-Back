@@ -78,7 +78,7 @@ export default function ExploreStrainsPage() {
   const catData = activeCategory ? topStrainsData[activeCategory] : null
   const catMeta = activeCategory ? categoryMeta[activeCategory] : null
 
-  usePageTitle(catData ? `Explore: ${catData.label}` : 'Explore Strains')
+  usePageTitle(catData ? `Discover: ${catData.label}` : 'Discover Strains')
 
   useEffect(() => {
     if (!dropdownOpen) return
@@ -123,7 +123,7 @@ export default function ExploreStrainsPage() {
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-1">
               <Compass size={20} className="text-leaf-400" />
-              <h1 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea]">Explore Strains</h1>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea]">Discover Strains</h1>
             </div>
             <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
               Discover strains associated with specific effects. Browse by desired experience — no rankings, just options to explore and learn about.
@@ -201,7 +201,7 @@ export default function ExploreStrainsPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea]">
-              Explore: {catData.label}
+              Discover: {catData.label}
             </h1>
             <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
               {catData.description}
