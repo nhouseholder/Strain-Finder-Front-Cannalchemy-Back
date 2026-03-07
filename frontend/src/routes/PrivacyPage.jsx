@@ -61,7 +61,6 @@ export default function PrivacyPage() {
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Supabase</strong> — Authentication and user profile storage (email and account status only)</li>
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Plausible Analytics</strong> — Privacy-friendly, cookieless website analytics. No personal data collected. GDPR and CCPA compliant. No data shared with advertisers.</li>
               <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Cloudflare</strong> — Website hosting, serverless functions, and AI inference (Workers AI). Dispensary discovery and strain analysis features run on Cloudflare's edge AI infrastructure using Meta's Llama model. Location queries are processed on Cloudflare's edge network with no data sent to third-party AI providers.</li>
-              <li><strong className="text-gray-800 dark:text-[#b0c4b4]">Stripe</strong> — Payment processing for optional premium subscriptions. Stripe handles all credit card data directly and is PCI-DSS Level 1 certified. We never see, store, or process your full credit card number.</li>
             </ul>
             <p className="mt-2">We do not use Google Analytics, Facebook Pixel, or any tracking-based analytics service.</p>
           </div>

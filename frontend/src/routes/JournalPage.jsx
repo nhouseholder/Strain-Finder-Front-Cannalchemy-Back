@@ -31,7 +31,7 @@ import {
   Plus, BookMarked, Star, Trash2, Calendar, ChevronDown, ChevronUp,
   ChevronLeft, ChevronRight, Search, Filter, Edit3, Brain, BarChart3,
   List, CalendarDays, Loader2, Clock, Flame, ThumbsUp, ThumbsDown,
-  X, RefreshCw, Sparkles, Award, Fingerprint, CreditCard, Crown, ExternalLink,
+  X, RefreshCw, Sparkles, Award, Fingerprint,
 } from 'lucide-react'
 
 /* ================================================================== */
@@ -1536,48 +1536,6 @@ function EmptyState({ onAdd }) {
   )
 }
 
-/* ================================================================== */
-/*  SubscriptionCard — Premium subscription management                */
-/* ================================================================== */
-function SubscriptionCard({ customerId }) {
-  const [loading, setLoading] = useState(false)
-
-  const openPortal = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/stripe-portal', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customerId, returnUrl: window.location.href }),
-      })
-      const data = await res.json()
-      if (data.url) window.location.href = data.url
-    } catch (err) {
-      console.error('Portal error:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return (
-    <Card className="p-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Crown size={16} className="text-amber-400" />
-          <div>
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4]">Premium Member</h2>
-            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">Full access to all strain results</p>
-          </div>
-        </div>
-        <Button variant="ghost" size="sm" disabled={loading} onClick={openPortal}>
-          <CreditCard size={12} />
-          {loading ? 'Loading...' : 'Manage Subscription'}
-          {!loading && <ExternalLink size={10} />}
-        </Button>
-      </div>
-    </Card>
-  )
-}
 
 /* ================================================================== */
 /*  JournalPage (main)                                                */
@@ -1586,7 +1544,7 @@ export default function JournalPage() {
   usePageTitle('Journal & Profile')
   const { entries, addEntry, updateEntry, deleteEntry } = useJournal()
   const { ratings, preferenceProfile, removeRating, syncing, totalRatings } = useRatings()
-  const { isPremium, profile } = useAuth()
+  useAuth()
 
   const [activeTab, setActiveTab]     = useState('list')
   const [modalOpen, setModalOpen]     = useState(false)
@@ -1754,10 +1712,6 @@ export default function JournalPage() {
             <AiSuggestions ratings={ratings} preferenceProfile={preferenceProfile} />
           )}
 
-          {/* Subscription Management */}
-          {isPremium && profile?.stripe_customer_id && (
-            <SubscriptionCard customerId={profile.stripe_customer_id} />
-          )}
         </div>
       )}
 

@@ -21,9 +21,6 @@ import {
   ArrowRight,
   BookOpen,
   RotateCcw,
-  CreditCard,
-  Crown,
-  ExternalLink,
   Brain,
   Sparkles,
   Dna,
@@ -169,11 +166,10 @@ export default function DashboardPage() {
   const { state: userState, dispatch: userDispatch, getJournalStats } = useContext(UserContext)
   const { dispatch: resultsDispatch, hasResults } = useContext(ResultsContext)
   const { dispatch: quizDispatch } = useContext(QuizContext)
-  const { isPremium, profile, user } = useAuth()
+  const { user } = useAuth()
   const { ratings, preferenceProfile, removeRating, syncing, totalRatings } = useRatings()
   const { quizHistory, deleteEntry: deleteQuiz, clearAll: clearQuizHistory } = useQuizHistory()
   const { searchHistory, deleteEntry: deleteSearch, clearAll: clearSearchHistory } = useSearchHistory()
-  const [portalLoading, setPortalLoading] = useState(false)
   const [showAllRatings, setShowAllRatings] = useState(false)
   const [showQuizHistory, setShowQuizHistory] = useState(false)
   const [showSearchHistory, setShowSearchHistory] = useState(false)
@@ -583,52 +579,6 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
-
-      {/* ============================================================ */}
-      {/*  Subscription Management                                     */}
-      {/* ============================================================ */}
-      {isPremium && profile?.stripe_customer_id && (
-        <Card className="p-4 mb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Crown size={16} className="text-amber-400" />
-              <div>
-                <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4]">Premium Member</h2>
-                <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">Full access to all strain results</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={portalLoading}
-              onClick={async () => {
-                setPortalLoading(true)
-                try {
-                  const res = await fetch('/api/stripe-portal', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                      customerId: profile.stripe_customer_id,
-                      returnUrl: window.location.href,
-                    }),
-                  })
-                  const data = await res.json()
-                  if (data.url) { window.location.href = data.url }
-                  else { console.error('Portal error:', data.error) }
-                } catch (err) {
-                  console.error('Portal error:', err)
-                } finally {
-                  setPortalLoading(false)
-                }
-              }}
-            >
-              <CreditCard size={12} />
-              {portalLoading ? 'Loading...' : 'Manage Subscription'}
-              {!portalLoading && <ExternalLink size={10} />}
-            </Button>
-          </div>
-        </Card>
-      )}
 
       {/* ============================================================ */}
       {/*  Footer links                                                */}

@@ -5,7 +5,7 @@ import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import {
   FlaskConical, Fingerprint, BookMarked, ArrowRight, Sparkles,
-  Search, Zap, BarChart3, ChevronRight, Star, Lock, Check,
+  Search, Zap, BarChart3, ChevronRight, Star, Lock,
   ThumbsUp, ThumbsDown, Users, Wine, Lightbulb, ChevronDown,
   Dna, ShieldCheck, Database, MessageCircle, Bot,
 } from 'lucide-react'
@@ -628,61 +628,6 @@ function AIChatSection() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Section 5: Pricing — 100% Free                                    */
-/* ------------------------------------------------------------------ */
-function PricingSection({ onGetStarted }) {
-  const ref = useScrollReveal()
-
-  const features = [
-    'Unlimited strain recommendations',
-    'Full data profiles & receptor pathways',
-    'Terpene & cannabinoid details',
-    'Personal journal & compare tool',
-    'AI-generated analysis',
-    'Cannabis education hub',
-  ]
-
-  return (
-    <section id="pricing" className="py-24 px-6" ref={ref}>
-      <div className="max-w-4xl mx-auto">
-        <h2
-          className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-[#e8f0ea] mb-4"
-          style={{ fontFamily: "'Playfair Display', serif" }}
-        >
-          100% Free
-        </h2>
-        <p className="text-center text-gray-500 dark:text-[#6a7a6e] mb-12">
-          Every feature. No paywalls. No credit card required.
-        </p>
-
-        <div className="max-w-md mx-auto">
-          <Card active className="p-6 relative overflow-hidden">
-            <div className="absolute top-0 right-0 bg-leaf-500 text-leaf-900 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase tracking-wider">
-              All Access
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">Full Access</h3>
-            <p className="text-3xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-1">$0<span className="text-sm font-normal text-gray-400">/forever</span></p>
-            <p className="text-xs text-gray-400 dark:text-[#6a7a6e] mb-6">Science-powered recommendations for everyone</p>
-            <ul className="space-y-3 mb-8">
-              {features.map(f => (
-                <li key={f} className="flex items-start gap-2 text-sm text-gray-600 dark:text-[#8a9a8e]">
-                  <Check size={16} className="text-leaf-400 flex-shrink-0 mt-0.5" />
-                  {f}
-                </li>
-              ))}
-            </ul>
-            <Button size="full" className="shadow-lg shadow-leaf-500/25" onClick={onGetStarted}>
-              Get Started Free
-              <ArrowRight size={16} />
-            </Button>
-          </Card>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
 /*  Section 6: Final CTA                                              */
 /* ------------------------------------------------------------------ */
 function CTASection({ onGetStarted }) {
@@ -767,7 +712,6 @@ export default function LandingPage() {
       <DemoSection />
       <HowItWorksSection />
       <AIChatSection />
-      <PricingSection onGetStarted={handleGetStarted} />
       <CTASection onGetStarted={handleGetStarted} />
 
       {/* Platform Identity & Disclaimer */}
@@ -775,7 +719,7 @@ export default function LandingPage() {
         <div className="rounded-xl border border-gray-200 dark:border-white/[0.06] bg-gray-50 dark:bg-white/[0.02] p-4 mb-4">
           <p className="text-[11px] font-bold text-gray-500 dark:text-[#6a7a6e] uppercase tracking-wider mb-2">Important Notice</p>
           <p className="text-[11px] text-gray-500 dark:text-[#5a6a5e] leading-relaxed">
-            <strong className="text-gray-600 dark:text-[#8a9a8e]">MyStrainAI is an informational and educational software platform only.</strong> We are <strong className="text-gray-600 dark:text-[#8a9a8e]">not</strong> a cannabis retailer, dispensary, distributor, or medical provider. We do not sell, deliver, prescribe, or facilitate the sale of any cannabis products. All recommendations are AI-generated based on community-sourced data and may contain inaccuracies. Premium subscriptions provide access to our recommendation software only &mdash; not to cannabis products.
+            <strong className="text-gray-600 dark:text-[#8a9a8e]">MyStrainAI is an informational and educational software platform only.</strong> We are <strong className="text-gray-600 dark:text-[#8a9a8e]">not</strong> a cannabis retailer, dispensary, distributor, or medical provider. We do not sell, deliver, prescribe, or facilitate the sale of any cannabis products. All recommendations are AI-generated based on community-sourced data and may contain inaccuracies.
           </p>
         </div>
         <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] leading-relaxed mb-3">

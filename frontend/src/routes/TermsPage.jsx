@@ -180,17 +180,7 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">18. Subscription &amp; Payment Terms</h2>
-            <p>
-              MyStrainAI may offer optional premium subscriptions for enhanced software features. <strong className="text-gray-900 dark:text-[#e8f0ea]">All subscription payments are for access to our recommendation software and informational technology only.</strong> You are not purchasing cannabis, cannabis products, medical advice, or any guarantee of outcomes. Subscription fees are processed by Stripe, Inc. and are subject to Stripe's terms of service.
-            </p>
-            <p className="mt-2">
-              Subscriptions automatically renew unless cancelled. You may cancel at any time through your account settings or by contacting us. No refunds are issued for partial billing periods. Our total liability for subscription-related claims shall not exceed the total amount you paid us in the twelve (12) months preceding the claim.
-            </p>
-          </div>
-
-          <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">19. Health Warnings</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">18. Health Warnings</h2>
             <p>
               Cannabis use carries inherent health risks. By using the Service, you acknowledge and accept the following warnings:
             </p>
@@ -205,14 +195,14 @@ export default function TermsPage() {
           </div>
 
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">20. Changes to Terms</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">19. Changes to Terms</h2>
             <p>
               We reserve the right to update these Terms at any time. Continued use of the Service after changes constitutes acceptance of the updated Terms. We will make reasonable efforts to notify you of material changes via email or in-app notification, but it is your responsibility to review these Terms periodically.
             </p>
           </div>
 
           <div>
-            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">21. Contact</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">20. Contact</h2>
             <p>
               Questions about these Terms? Contact us at <a href="mailto:mystrainplus@gmail.com" className="text-leaf-500 hover:text-leaf-400">mystrainplus@gmail.com</a>.
             </p>
