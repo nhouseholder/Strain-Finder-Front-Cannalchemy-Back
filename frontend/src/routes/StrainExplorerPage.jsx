@@ -398,7 +398,7 @@ export default function StrainExplorerPage() {
               Strain Explorer
             </h1>
             <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
-              Filter {allStrains.length.toLocaleString()} strains by terpene &amp; cannabinoid levels
+              Filter {fullStrains.length.toLocaleString()} strains by terpene &amp; cannabinoid levels
             </p>
           </div>
           {hasActiveFilters && (
