@@ -300,11 +300,12 @@ export default function NavBar() {
                 {label}
               </NavLink>
 
-              {/* Mobile quiz overlay – appears above the bottom bar */}
+              {/* Mobile quiz overlay – fixed above bottom bar to avoid iOS clipping */}
               {isQuiz && quizOverlay && (
                 <div
                   ref={mobileOverlayRef}
-                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-60 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in"
+                  className="fixed left-4 right-4 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in"
+                  style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 68px)' }}
                 >
                   <div className="px-3 pt-3 pb-1.5">
                     <div className="flex items-center gap-2 mb-0.5">
@@ -344,11 +345,12 @@ export default function NavBar() {
                 </div>
               )}
 
-              {/* Mobile learn overlay – appears above the bottom bar */}
+              {/* Mobile learn overlay – fixed above bottom bar to avoid iOS clipping */}
               {isLearn && learnOverlay && (
                 <div
                   ref={mobileLearnRef}
-                  className="absolute bottom-full right-0 mb-2 w-64 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in"
+                  className="fixed left-4 right-4 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[60vh] overflow-y-auto"
+                  style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 68px)' }}
                 >
                   <div className="px-3 pt-3 pb-1.5">
                     <div className="flex items-center gap-2 mb-0.5">

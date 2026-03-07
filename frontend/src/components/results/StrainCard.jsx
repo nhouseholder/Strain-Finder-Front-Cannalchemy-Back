@@ -11,7 +11,7 @@ import { getTypeColor } from '../../utils/colors'
 import { normalizeStrain } from '../../utils/normalizeStrain'
 import sig2 from '../../utils/fmt'
 import StrainCardExpanded from './StrainCardExpanded'
-import AvailabilityBadge from './AvailabilityBadge'
+// import AvailabilityBadge from './AvailabilityBadge' // Silenced — dispensary feature not ready
 import QuickRate from '../ratings/QuickRate'
 import { useRatings } from '../../hooks/useRatings'
 
@@ -70,12 +70,12 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
         }}
         aria-expanded={expanded}
       >
-        {/* Row 1: Name, Type Badge, Match %, Favorite */}
-        <div className="flex items-start justify-between gap-3 mb-2">
+        {/* Row 1: Name + Match % */}
+        <div className="flex items-start justify-between gap-2 mb-1">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h3
-                className="text-lg font-bold text-gray-900 dark:text-white break-words"
+                className="text-lg font-bold text-gray-900 dark:text-white truncate max-w-full"
                 style={{ fontFamily: "'Playfair Display', serif" }}
               >
                 {strain.name}
@@ -116,69 +116,59 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
             )}
           </div>
 
-          {/* Match % + Favorite */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Match percentage box */}
-            {strain.matchPct != null && (
-              <div
-                className="flex items-center justify-center min-w-[48px] h-10 rounded-xl text-sm font-bold border"
-                style={{
-                  backgroundColor: `${tc.hex}18`,
-                  borderColor: `${tc.hex}44`,
-                  color: tc.hex,
-                }}
-              >
-                {Math.round(strain.matchPct)}%
-              </div>
-            )}
-
-            {/* Availability badge */}
-            <div onClick={(e) => e.stopPropagation()}>
-              <AvailabilityBadge
-                strainName={strain.name}
-                availability={availability}
-                loading={availabilityLoading}
-                onViewDispensary={onViewDispensary}
-              />
+          {/* Match percentage — stays on the name row */}
+          {strain.matchPct != null && (
+            <div
+              className="flex items-center justify-center min-w-[48px] h-10 rounded-xl text-sm font-bold border flex-shrink-0"
+              style={{
+                backgroundColor: `${tc.hex}18`,
+                borderColor: `${tc.hex}44`,
+                color: tc.hex,
+              }}
+            >
+              {Math.round(strain.matchPct)}%
             </div>
+          )}
+        </div>
 
-            {/* Compare button */}
-            <button
-              type="button"
-              className={clsx(
-                'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
-                'text-gray-400 dark:text-[#6a7a6e] hover:text-purple-400 hover:bg-purple-500/10'
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                navigate(`/compare?add=${encodeURIComponent(strain.name)}`)
-              }}
-              aria-label={`Compare ${strain.name}`}
-              title="Compare strain"
-            >
-              <GitCompareArrows size={16} />
-            </button>
+        {/* Row 1b: Action buttons — separate row to prevent overlap on mobile */}
+        <div className="flex items-center gap-1.5 mb-2">
+          {/* Compare button */}
+          <button
+            type="button"
+            className={clsx(
+              'flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
+              'text-gray-400 dark:text-[#6a7a6e] hover:text-purple-400 hover:bg-purple-500/10'
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/compare?add=${encodeURIComponent(strain.name)}`)
+            }}
+            aria-label={`Compare ${strain.name}`}
+            title="Compare strain"
+          >
+            <GitCompareArrows size={14} />
+          </button>
 
-            {/* Favorite button */}
-            <button
-              type="button"
-              className={clsx(
-                'flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
-                isFavorite
-                  ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
-                  : 'text-gray-400 dark:text-[#6a7a6e] hover:text-red-400 hover:bg-red-500/10'
-              )}
-              onClick={(e) => {
-                e.stopPropagation()
-                onFavorite?.(strain.name)
-              }}
-              aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-            >
-              <Heart size={16} fill={isFavorite ? 'currentColor' : 'none'} />
-            </button>
-          </div>
+          {/* Favorite button */}
+          <button
+            type="button"
+            className={clsx(
+              'flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-leaf-500',
+              isFavorite
+                ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
+                : 'text-gray-400 dark:text-[#6a7a6e] hover:text-red-400 hover:bg-red-500/10'
+            )}
+            onClick={(e) => {
+              e.stopPropagation()
+              onFavorite?.(strain.name)
+            }}
+            aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <Heart size={14} fill={isFavorite ? 'currentColor' : 'none'} />
+          </button>
         </div>
 
         {/* Row 2: Best For tags + Effect tags */}
