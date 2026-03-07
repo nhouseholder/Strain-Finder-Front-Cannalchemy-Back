@@ -13,6 +13,7 @@ import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
 import ChatWidget from '../components/chat/ChatWidget'
+import NavBar from '../components/layout/NavBar'
 import { APP_VERSION } from '../utils/constants'
 import { TypeBadge, EffectBadge } from '../components/shared/Badge'
 import TerpBadge from '../components/shared/TerpBadge'
@@ -734,7 +735,7 @@ export default function LandingPage() {
       </div>
 
       {/* Footer */}
-      <footer className="text-center py-8 border-t border-gray-200/60 dark:border-white/[0.05]">
+      <footer className="text-center py-8 pb-24 sm:pb-8 border-t border-gray-200/60 dark:border-white/[0.05]">
         <div className="flex items-center justify-center gap-4 text-[11px] text-gray-400 dark:text-[#6a7a6e]">
           <NavLink to="/terms" className="hover:text-gray-600 dark:hover:text-[#6a7a6e] transition-colors py-2 px-1">Terms</NavLink>
           <span>&middot;</span>
@@ -743,6 +744,11 @@ export default function LandingPage() {
           <span>MyStrainAI &copy; {new Date().getFullYear()}</span>
         </div>
       </footer>
+
+      {/* Mobile bottom tab bar (same as AppShell) */}
+      <div className="sm:hidden">
+        <NavBar />
+      </div>
 
       {/* AI Chat Widget */}
       <ChatWidget />
