@@ -252,6 +252,7 @@ def export_strain_data(db_path=None):
                 "dataCompleteness": "search-only",
                 "terpenes": terpenes[:3],
                 "cannabinoids": cannabinoids[:2],
+                "availability": 1,  # lowest commonness — safety net
             }
             # Only add description if it exists
             if description and description.strip():
@@ -270,6 +271,7 @@ def export_strain_data(db_path=None):
                 "dataCompleteness": "partial",
                 "flavors": [f.title() for f in flavors[:3]],
                 "genetics": genetics if genetics else "",
+                "availability": 2,  # low commonness — safety net
             }
             if source == "enrichment-v5.17":
                 strain_obj["source"] = "archetype"

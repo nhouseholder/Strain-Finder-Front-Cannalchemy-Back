@@ -158,7 +158,11 @@ def _build_receptor_profile(ranked_effects: list[str]) -> dict[str, float]:
 
 
 def _load_scoreable_strains(conn: sqlite3.Connection) -> list[dict]:
-    """Load all strains that have composition data."""
+    """Load full-data strains that have composition data.
+
+    Excludes search-only and partial strains so quiz results only contain
+    strains with verified, complete profiles.
+    """
     strains = {}
 
     rows = conn.execute(
@@ -166,6 +170,7 @@ def _load_scoreable_strains(conn: sqlite3.Connection) -> list[dict]:
         "FROM strain_compositions sc "
         "JOIN strains s ON sc.strain_id = s.id "
         "JOIN molecules m ON sc.molecule_id = m.id "
+        "WHERE COALESCE(s.data_quality, 'full') = 'full' "
         "ORDER BY s.id, sc.percentage DESC"
     ).fetchall()
 

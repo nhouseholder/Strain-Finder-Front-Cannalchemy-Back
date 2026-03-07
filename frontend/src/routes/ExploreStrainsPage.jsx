@@ -67,7 +67,7 @@ const categoryMeta = Object.fromEntries(CATEGORIES.map(c => [c.id, c]))
 export default function ExploreStrainsPage() {
   const { category: categorySlug } = useParams()
   const navigate = useNavigate()
-  const { allStrains, dataLoaded } = useStrainSearch()
+  const { fullStrains, dataLoaded } = useStrainSearch()
   const { isFavorite, toggleFavorite } = useFavorites()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
@@ -93,9 +93,9 @@ export default function ExploreStrainsPage() {
 
   const strainById = useMemo(() => {
     const map = {}
-    for (const s of allStrains) map[s.id] = s
+    for (const s of fullStrains) map[s.id] = s
     return map
-  }, [allStrains])
+  }, [fullStrains])
 
   /* Pick ~50 strains, shuffled weekly, no order */
   const catIndex = activeCategory ? CATEGORIES.findIndex(c => c.id === activeCategory) : 0

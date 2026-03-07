@@ -34,15 +34,18 @@ function isSearchEligible(name) {
 // Lazy-loaded strain data — loaded on first use, not at bundle time.
 // This keeps strains.json (~1.4MB) out of the initial chunk.
 let _strainsCache = null
+let _fullStrainsCache = null
 let _strainsPromise = null
 
 function loadStrains() {
-  if (_strainsCache) return Promise.resolve(_strainsCache)
+  if (_strainsCache) return Promise.resolve({ all: _strainsCache, full: _fullStrainsCache })
   if (!_strainsPromise) {
     _strainsPromise = import('../data/strains.json').then((mod) => {
       const raw = mod.default || mod
       _strainsCache = raw.filter(s => isSearchEligible(s.name)).map(normalizeStrain)
-      return _strainsCache
+      // Full strains = only those with complete data (quiz, discover, explore use these)
+      _fullStrainsCache = _strainsCache.filter(s => s.dataCompleteness === 'full')
+      return { all: _strainsCache, full: _fullStrainsCache }
     })
   }
   return _strainsPromise
@@ -51,12 +54,14 @@ function loadStrains() {
 export function useStrainSearch() {
   const [query, setQuery] = useState('')
   const [strainsData, setStrainsData] = useState(_strainsCache || [])
+  const [fullStrainsData, setFullStrainsData] = useState(_fullStrainsCache || [])
   const loaded = useRef(!!_strainsCache)
 
   useEffect(() => {
     if (loaded.current) return
-    loadStrains().then((data) => {
-      setStrainsData(data)
+    loadStrains().then(({ all, full }) => {
+      setStrainsData(all)
+      setFullStrainsData(full)
       loaded.current = true
     })
   }, [])
@@ -91,5 +96,5 @@ export function useStrainSearch() {
 
   const dataLoaded = strainsData.length > 0
 
-  return { query, setQuery, results, getStrainByName, getStrainById, allStrains: strainsData, dataLoaded }
+  return { query, setQuery, results, getStrainByName, getStrainById, allStrains: strainsData, fullStrains: fullStrainsData, dataLoaded }
 }

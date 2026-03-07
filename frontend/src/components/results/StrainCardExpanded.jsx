@@ -15,18 +15,33 @@ import EffectVerification from '../strain-detail/EffectVerification'
 import LineageTree from '../strain-detail/LineageTree'
 import QuickRate from '../ratings/QuickRate'
 import { useRatings } from '../../hooks/useRatings'
+import { useStrainSearch } from '../../hooks/useStrainSearch'
 import Card from '../shared/Card'
 
 export default function StrainCardExpanded({ strain: rawStrain }) {
   // Normalize snake_case → camelCase and derive computed fields
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
+  const { fullStrains } = useStrainSearch()
   const existingRating = getRating(strain.name)
 
   const cannabinoids = strain.cannabinoids || []
 
   // Price badge
   const priceLabel = { low: '$', mid: '$$', high: '$$$' }[strain.priceRange] || null
+
+  // Find a similar full-data strain (same type) to suggest for incomplete profiles
+  const suggestedStrain = useMemo(() => {
+    if (strain.dataCompleteness === 'full') return null
+    const sameType = fullStrains.filter(s =>
+      s.name !== strain.name &&
+      (s.type || '').toLowerCase() === (strain.type || '').toLowerCase()
+    )
+    if (sameType.length === 0) return fullStrains.length > 0 ? fullStrains[0] : null
+    // Deterministic pick based on strain name hash
+    const hash = strain.name.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+    return sameType[hash % sameType.length]
+  }, [strain.name, strain.type, strain.dataCompleteness, fullStrains])
 
   return (
     <div className="space-y-5 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
@@ -41,9 +56,19 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
               Incomplete Profile — Data Not Yet Available
             </p>
             <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
-              We don't have detailed terpene, cannabinoid, or effect data for this strain yet. We're actively working on expanding our database.
-              Try asking our <button onClick={() => window.dispatchEvent(new Event('open-chat'))} className="text-leaf-500 dark:text-leaf-400 underline underline-offset-2 hover:text-leaf-400 transition-colors">AI chat</button> about this strain, or search for a similar strain with a full profile.
+              We don't have detailed terpene, cannabinoid, or effect data for this strain yet. This strain is recognized in our database but hasn't been lab-tested or community-reviewed in our system.
+              Try asking our <button onClick={() => window.dispatchEvent(new Event('open-chat'))} className="text-leaf-500 dark:text-leaf-400 underline underline-offset-2 hover:text-leaf-400 transition-colors">AI chat</button> about this strain for more info.
             </p>
+            {suggestedStrain && (
+              <Link
+                to={`/search?q=${encodeURIComponent(suggestedStrain.name)}`}
+                className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1.5 rounded-lg bg-leaf-500/10 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors group"
+              >
+                <span className="text-[10px] text-gray-500 dark:text-gray-400">Try instead:</span>
+                <span className="text-[11px] font-bold text-leaf-500 dark:text-leaf-400 group-hover:text-leaf-400">{suggestedStrain.name}</span>
+                <span className="text-[9px] text-gray-400 dark:text-gray-500">— a {strain.type || 'hybrid'} with a full profile →</span>
+              </Link>
+            )}
           </div>
         </div>
       )}
@@ -67,6 +92,16 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
                 Learn about our archetype system →
               </Link>
             </p>
+            {suggestedStrain && (
+              <Link
+                to={`/search?q=${encodeURIComponent(suggestedStrain.name)}`}
+                className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors group"
+              >
+                <span className="text-[10px] text-amber-600 dark:text-amber-500">Try instead:</span>
+                <span className="text-[11px] font-bold text-amber-700 dark:text-amber-400 group-hover:text-amber-300">{suggestedStrain.name}</span>
+                <span className="text-[9px] text-amber-500 dark:text-amber-600">— a {strain.type || 'hybrid'} with a full profile →</span>
+              </Link>
+            )}
           </div>
         </div>
       )}

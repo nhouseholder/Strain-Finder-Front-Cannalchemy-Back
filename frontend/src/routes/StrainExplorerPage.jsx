@@ -282,7 +282,7 @@ function TypeToggle({ value, onChange }) {
 /* ─── Main page ──────────────────────────────────────────── */
 export default function StrainExplorerPage() {
   usePageTitle('Strain Explorer')
-  const { allStrains, dataLoaded } = useStrainSearch()
+  const { fullStrains, dataLoaded } = useStrainSearch()
   const { toggleFavorite, isFavorite } = useFavorites()
   const [filters, setFilters] = useState(getInitialFilters)
   const [expandedStrain, setExpandedStrain] = useState(null)
@@ -316,7 +316,7 @@ export default function StrainExplorerPage() {
 
   // ── Filter + sort strains ──
   const filteredStrains = useMemo(() => {
-    if (!dataLoaded || allStrains.length === 0) return []
+    if (!dataLoaded || fullStrains.length === 0) return []
 
     const parseTerpPct = (strain, terpName) => {
       const t = (strain.terpenes || []).find(t => (t.name || '').toLowerCase() === terpName)
@@ -328,7 +328,7 @@ export default function StrainExplorerPage() {
       return c?.value ?? null
     }
 
-    let result = allStrains.filter(s => {
+    let result = fullStrains.filter(s => {
       // Type filter
       if (filters.type !== 'all' && (s.type || '').toLowerCase() !== filters.type) return false
 
@@ -364,7 +364,7 @@ export default function StrainExplorerPage() {
     result.sort(applySortComparator(filters.sort))
 
     return result
-  }, [allStrains, dataLoaded, filters])
+  }, [fullStrains, dataLoaded, filters])
 
   // Infinite scroll
   const loaderRef = useRef(null)
