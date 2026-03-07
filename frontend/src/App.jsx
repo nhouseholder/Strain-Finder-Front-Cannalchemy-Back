@@ -28,6 +28,8 @@ const AdminPage = lazy(() => lazyRetry(() => import('./routes/AdminPage'), 'Admi
 const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPasswordPage'), 'ForgotPasswordPage'))
 const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
+const StrainPage = lazy(() => lazyRetry(() => import('./routes/StrainPage'), 'StrainPage'))
+const StrainsDirectoryPage = lazy(() => lazyRetry(() => import('./routes/StrainsDirectoryPage'), 'StrainsDirectoryPage'))
 const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
 
 function LoadingFallback() {
@@ -83,6 +85,11 @@ export default function App() {
                       {/* Public — SEO funnel, accessible without login */}
                       <Route path="learn" element={<LearnPage />} />
                       <Route path="learn/:topic" element={<LearnPage />} />
+
+                      {/* Strain pages — public, SEO-indexed */}
+                      <Route path="strains" element={<StrainsDirectoryPage />} />
+                      <Route path="strains/type/:type" element={<StrainsDirectoryPage />} />
+                      <Route path="strains/:slug" element={<StrainPage />} />
 
                       {/* Admin — protected + requires admin role */}
                       <Route path="admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
