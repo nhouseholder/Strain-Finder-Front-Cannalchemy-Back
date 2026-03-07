@@ -137,7 +137,12 @@ def export_strain_data(db_path=None):
             COALESCE(s.data_quality, 'full') as data_quality
         FROM strains s
         ORDER BY
-            CASE WHEN COALESCE(s.data_quality, 'full') = 'full' THEN 0 ELSE 1 END,
+            CASE COALESCE(s.data_quality, 'full')
+                WHEN 'full' THEN 0
+                WHEN 'partial' THEN 1
+                WHEN 'search-only' THEN 2
+                ELSE 3
+            END,
             effect_count DESC, s.id
     """).fetchall()
 
@@ -146,7 +151,8 @@ def export_strain_data(db_path=None):
     for row in strain_rows:
         strain_id, name, strain_type, description, effect_count, source, data_quality = row
         # Enrichment strains are always treated as partial (archetype-estimated)
-        is_partial = (data_quality == "partial") or (source == "enrichment-v5.17")
+        is_partial = (data_quality in ("partial", "search-only")) or (source == "enrichment-v5.17")
+        is_search_only = (data_quality == "search-only")
 
         # Effects
         effects = []
@@ -236,42 +242,66 @@ def export_strain_data(db_path=None):
                 "topicals": consumption.get("topicals", 2),
             }
 
-        strain_obj = {
-            "id": strain_id,
-            "name": name,
-            "type": strain_type or "hybrid",
-            "description": (description or "")[:160],
-            "effects": effects[:8],  # Limit to top 8 effects
-            "terpenes": terpenes[:6],
-            "cannabinoids": cannabinoids,
-            "dataCompleteness": "partial" if is_partial else "full",
-        }
-
-        if is_partial:
+        if is_search_only:
+            # Ultra-compact format for search-only strains (name + type + minimal data)
+            partial_count += 1
+            strain_obj = {
+                "id": strain_id,
+                "name": name,
+                "type": strain_type or "hybrid",
+                "dataCompleteness": "search-only",
+                "terpenes": terpenes[:3],
+                "cannabinoids": cannabinoids[:2],
+            }
+            # Only add description if it exists
+            if description and description.strip():
+                strain_obj["description"] = description[:100]
+        elif is_partial:
             # Compact format: fewer fields for partial strains to save space
             partial_count += 1
-            strain_obj["effects"] = effects[:5]
-            strain_obj["terpenes"] = terpenes[:4]
-            strain_obj["flavors"] = [f.title() for f in flavors[:3]]
-            strain_obj["genetics"] = genetics if genetics else ""
+            strain_obj = {
+                "id": strain_id,
+                "name": name,
+                "type": strain_type or "hybrid",
+                "description": (description or "")[:160],
+                "effects": effects[:5],
+                "terpenes": terpenes[:4],
+                "cannabinoids": cannabinoids,
+                "dataCompleteness": "partial",
+                "flavors": [f.title() for f in flavors[:3]],
+                "genetics": genetics if genetics else "",
+            }
             if source == "enrichment-v5.17":
                 strain_obj["source"] = "archetype"
         else:
             # Full format: all fields for fully-verified strains
-            strain_obj["genetics"] = genetics
-            strain_obj["description_extended"] = (desc_ext or description or "")[:160]
-            strain_obj["best_for"] = best_for[:3]
-            strain_obj["not_ideal_for"] = not_ideal[:2]
-            strain_obj["consumption_suitability"] = consumption_mapped
-            strain_obj["price_range"] = price_range
-            strain_obj["lineage"] = lineage
-            strain_obj["flavors"] = [f.title() for f in flavors[:5]]
-            strain_obj["availability"] = 5
-            strain_obj["sentimentScore"] = round(_compute_sentiment(effects), 1)
+            strain_obj = {
+                "id": strain_id,
+                "name": name,
+                "type": strain_type or "hybrid",
+                "description": (description or "")[:160],
+                "effects": effects[:8],
+                "terpenes": terpenes[:6],
+                "cannabinoids": cannabinoids,
+                "dataCompleteness": "full",
+                "genetics": genetics,
+                "description_extended": (desc_ext or description or "")[:160],
+                "best_for": best_for[:3],
+                "not_ideal_for": not_ideal[:2],
+                "consumption_suitability": consumption_mapped,
+                "price_range": price_range,
+                "lineage": lineage,
+                "flavors": [f.title() for f in flavors[:5]],
+                "availability": 5,
+                "sentimentScore": round(_compute_sentiment(effects), 1),
+            }
 
         strains.append(strain_obj)
 
-    print(f"  {len(strains)} strains exported ({len(strains) - partial_count} full, {partial_count} partial)")
+    search_only_count = sum(1 for s in strains if s.get("dataCompleteness") == "search-only")
+    partial_only_count = partial_count - search_only_count
+    full_count = len(strains) - partial_count
+    print(f"  {len(strains)} strains exported ({full_count} full, {partial_only_count} partial, {search_only_count} search-only)")
 
     # ── 6. Assemble and write ────────────────────────────────────────────
     print("\n[6/6] Writing output files...")

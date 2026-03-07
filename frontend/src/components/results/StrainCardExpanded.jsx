@@ -30,6 +30,24 @@ export default function StrainCardExpanded({ strain: rawStrain }) {
 
   return (
     <div className="space-y-5 pt-4 border-t border-gray-200 dark:border-white/[0.06]">
+      {/* Search-Only Data Disclaimer Banner */}
+      {strain.dataCompleteness === 'search-only' && (
+        <div className="flex items-start gap-2.5 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/20 border border-gray-200 dark:border-gray-700/30">
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
+          </svg>
+          <div>
+            <p className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">
+              Incomplete Profile — Data Not Yet Available
+            </p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+              We don't have detailed terpene, cannabinoid, or effect data for this strain yet. We're actively working on expanding our database.
+              Try asking our <button onClick={() => window.dispatchEvent(new Event('open-chat'))} className="text-leaf-500 dark:text-leaf-400 underline underline-offset-2 hover:text-leaf-400 transition-colors">AI chat</button> about this strain, or search for a similar strain with a full profile.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Partial Data Disclaimer Banner */}
       {strain.dataCompleteness === 'partial' && (
         <div className="flex items-start gap-2.5 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-700/30">

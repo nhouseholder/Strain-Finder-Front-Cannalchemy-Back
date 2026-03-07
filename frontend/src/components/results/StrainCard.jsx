@@ -81,15 +81,17 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                 {strain.name}
               </h3>
               <TypeBadge type={strain.type} />
-              {/* Estimated Profile badge for archetype/partial strains */}
-              {strain.dataCompleteness === 'partial' && (
-                <Link
-                  to="/learn/archetypes"
-                  onClick={(e) => e.stopPropagation()}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border border-amber-200 dark:border-amber-700/40 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors"
+              {/* Estimated Profile badge for archetype/partial/search-only strains */}
+              {(strain.dataCompleteness === 'partial' || strain.dataCompleteness === 'search-only') && (
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wider border ${
+                    strain.dataCompleteness === 'search-only'
+                      ? 'bg-gray-100 text-gray-500 dark:bg-gray-800/40 dark:text-gray-400 border-gray-200 dark:border-gray-700/40'
+                      : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-700/40'
+                  }`}
                 >
-                  {strain.source === 'archetype' ? 'Estimated Profile' : 'Limited Data'}
-                </Link>
+                  {strain.dataCompleteness === 'search-only' ? 'Name Only' : strain.source === 'archetype' ? 'Estimated Profile' : 'Limited Data'}
+                </span>
               )}
               {/* Why This Match - info icon tooltip */}
               {strain.whyMatch && (
