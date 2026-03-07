@@ -7,6 +7,7 @@ import { useSearchHistory } from '../hooks/useSearchHistory'
 import StrainCard from '../components/results/StrainCard'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
 import SortDropdown, { applySortComparator } from '../components/shared/SortDropdown'
+import ChatWidget from '../components/chat/ChatWidget'
 import LegalConsent from '../components/shared/LegalConsent'
 
 export default function StrainSearchPage() {
@@ -145,6 +146,11 @@ export default function StrainSearchPage() {
               hideExpandButton={displayStrains.length === 1}
             />
           ))}
+        </div>
+
+        {/* AI Chat — inline, always visible */}
+        <div className="pb-6">
+          <ChatWidget inline />
         </div>
       </div>
     </LegalConsent>
