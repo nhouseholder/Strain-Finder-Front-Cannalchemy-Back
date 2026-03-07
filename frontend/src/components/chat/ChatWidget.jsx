@@ -253,7 +253,7 @@ export default function ChatWidget({ inline = false }) {
                 Ask AI About Any Strain
               </h4>
               <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] mb-4 max-w-[300px] mx-auto">
-                Effects, terpenes, cannabinoids, genetics, comparisons — I know all {'\u{2728}'}2,251 strains in our database.
+                Effects, terpenes, cannabinoids, genetics, comparisons — I know all {'\u{2728}'}20,684 strains in our database.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                 {SUGGESTIONS.map(q => (

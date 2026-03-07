@@ -151,7 +151,7 @@ def export_strain_data(db_path=None):
     for row in strain_rows:
         strain_id, name, strain_type, description, effect_count, source, data_quality = row
         # Enrichment strains are always treated as partial (archetype-estimated)
-        is_partial = (data_quality in ("partial", "search-only")) or (source == "enrichment-v5.17")
+        is_partial = (data_quality in ("partial", "search-only")) or (source == "archetype")
         is_search_only = (data_quality == "search-only")
 
         # Effects
@@ -243,37 +243,49 @@ def export_strain_data(db_path=None):
             }
 
         if is_search_only:
-            # Ultra-compact format for search-only strains (name + type + minimal data)
+            # Ultra-compact format for search-only strains (name + type only)
+            # No fake terpene/cannabinoid data — only include if real data exists
             partial_count += 1
             strain_obj = {
                 "id": strain_id,
                 "name": name,
                 "type": strain_type or "hybrid",
                 "dataCompleteness": "search-only",
-                "terpenes": terpenes[:3],
-                "cannabinoids": cannabinoids[:2],
                 "availability": 1,  # lowest commonness — safety net
             }
-            # Only add description if it exists
-            if description and description.strip():
+            # Only add fields if real data exists
+            if terpenes:
+                strain_obj["terpenes"] = terpenes[:3]
+            if cannabinoids:
+                strain_obj["cannabinoids"] = cannabinoids[:2]
+            if description and description.strip() and description.strip().upper() != "NULL":
                 strain_obj["description"] = description[:100]
         elif is_partial:
             # Compact format: fewer fields for partial strains to save space
+            # Only include terpenes/cannabinoids if real data exists
             partial_count += 1
+            desc = (description or "").strip()
+            if desc.upper() == "NULL":
+                desc = ""
             strain_obj = {
                 "id": strain_id,
                 "name": name,
                 "type": strain_type or "hybrid",
-                "description": (description or "")[:160],
                 "effects": effects[:5],
-                "terpenes": terpenes[:4],
-                "cannabinoids": cannabinoids,
                 "dataCompleteness": "partial",
-                "flavors": [f.title() for f in flavors[:3]],
-                "genetics": genetics if genetics else "",
                 "availability": 2,  # low commonness — safety net
             }
-            if source == "enrichment-v5.17":
+            if desc:
+                strain_obj["description"] = desc[:160]
+            if terpenes:
+                strain_obj["terpenes"] = terpenes[:4]
+            if cannabinoids:
+                strain_obj["cannabinoids"] = cannabinoids
+            if flavors:
+                strain_obj["flavors"] = [f.title() for f in flavors[:3]]
+            if genetics:
+                strain_obj["genetics"] = genetics
+            if source == "archetype":
                 strain_obj["source"] = "archetype"
         else:
             # Full format: all fields for fully-verified strains
