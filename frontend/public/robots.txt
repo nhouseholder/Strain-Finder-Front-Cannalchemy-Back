@@ -1,11 +1,11 @@
 User-agent: *
 Allow: /
+Allow: /strains
 Allow: /learn
+Allow: /explore-strains
 Allow: /terms
 Allow: /privacy
 Disallow: /dashboard
-Disallow: /quiz
-Disallow: /results
 Disallow: /journal
 Disallow: /compare
 Disallow: /dispensaries
