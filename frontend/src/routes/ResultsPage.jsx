@@ -113,6 +113,7 @@ export default function ResultsPage() {
             onToggle={() => handleToggle(strain.name)}
             isFavorite={isFavorite(strain.name)}
             onFavorite={toggleFavorite}
+            isQuizResult
           />
         ))}
       </div>

@@ -95,6 +95,7 @@ export default function AiPicksSection() {
                   }
                   isFavorite={isFavorite(pick.name)}
                   onFavorite={toggleFavorite}
+                  isQuizResult
                 />
               ))}
             </div>

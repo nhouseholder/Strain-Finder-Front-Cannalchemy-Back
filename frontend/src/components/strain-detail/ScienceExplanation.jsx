@@ -34,9 +34,9 @@ function setCache(strainName, text) {
   }
 }
 
-export default function ScienceExplanation({ strain }) {
+export default function ScienceExplanation({ strain, isQuizResult }) {
   const quiz = useContext(QuizContext)
-  const hasQuizData = quiz?.state?.effects?.length > 0
+  const hasQuizData = isQuizResult && quiz?.state?.effects?.length > 0
   const [explanation, setExplanation] = useState(() => hasQuizData ? getCached(strain?.name) : null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
