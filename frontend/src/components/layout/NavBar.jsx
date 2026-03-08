@@ -23,7 +23,7 @@ const coreItems = [
   { to: '/search', icon: Search, label: 'Search', guest: true },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', guest: true },
   { to: '/explore-strains', icon: Compass, label: 'Discover', guest: true },
-  { action: 'chat', icon: MessageCircle, label: 'AI Chat', guest: true, mobileOnly: true },
+  { to: '/chat', icon: MessageCircle, label: 'AI Chat', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true, hasDropdown: true },
@@ -35,7 +35,7 @@ const guestMobileItems = [
   { to: '/search', icon: Search, label: 'Search' },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer' },
   { to: '/explore-strains', icon: Compass, label: 'Discover' },
-  { action: 'chat', icon: MessageCircle, label: 'AI Chat' },
+  { to: '/chat', icon: MessageCircle, label: 'AI Chat' },
   { to: '/learn', icon: BookOpen, label: 'Learn', hasDropdown: true },
 ]
 
@@ -104,7 +104,7 @@ export default function NavBar() {
   const initial = user?.email?.[0]?.toUpperCase() || '?'
 
   // Desktop nav shows all items regardless (protected routes redirect themselves)
-  const desktopItems = (user ? coreItems : coreItems.filter(i => i.guest)).filter(i => !i.mobileOnly)
+  const desktopItems = user ? coreItems : coreItems.filter(i => i.guest)
   // Mobile nav is simplified for guests
   const mobileItems = user ? coreItems : guestMobileItems
 
@@ -282,23 +282,9 @@ export default function NavBar() {
 
       {/* Mobile bottom bar */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom" style={{ paddingBottom: 'max(0.375rem, env(safe-area-inset-bottom, 0.375rem))' }} role="navigation" aria-label="Main navigation">
-        {mobileItems.map(({ to, icon: Icon, label, hasDropdown, action }) => {
+        {mobileItems.map(({ to, icon: Icon, label, hasDropdown }) => {
           const isQuiz = to === '/quiz'
           const isLearn = hasDropdown
-          const isChat = action === 'chat'
-
-          if (isChat) {
-            return (
-              <button
-                key="ai-chat"
-                onClick={() => window.dispatchEvent(new Event('open-chat'))}
-                className="flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-[10px] font-medium transition-colors min-w-[56px] min-h-[44px] justify-center text-gray-400 dark:text-[#8a9a8e] active:text-leaf-400"
-              >
-                <Icon size={20} />
-                {label}
-              </button>
-            )
-          }
 
           return (
             <div key={to} className={(isQuiz || isLearn) ? 'relative' : undefined}>
