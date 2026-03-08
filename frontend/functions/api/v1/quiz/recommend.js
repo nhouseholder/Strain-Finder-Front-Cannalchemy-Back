@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * Tri-pillar scoring engine (35% Science · 20% Community · 45% Commonness) with receptor-level scoring,
+ * 4-pillar scoring engine (30% Science · 20% Community · 20% Commonness · 30% Location) with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -964,15 +964,17 @@ export async function onRequestPost(context) {
   const userRegionIndex = userRegion ? regionOrder.indexOf(userRegion) : -1;
 
   // ═══════════════════════════════════════════════════════════════════
-  // Tri-pillar scoring engine — 35% Science · 20% Community · 45% Commonness
+  // 4-pillar scoring: 30% Science · 20% Community · 20% Commonness · 30% Location
   // ═══════════════════════════════════════════════════════════════════
-  // Pillar 1 – SCIENCE (35%): receptor pharmacology, scaffold molecular
+  // Pillar 1 – SCIENCE (30%): receptor pharmacology, scaffold molecular
   //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
   //   user preference alignment, entourage synergy (7 sub-layers).
   // Pillar 2 – COMMUNITY (20%): weighted community effect-report alignment
   //   — how strongly real users report the effects the quiz-taker wants.
-  // Pillar 3 – COMMONNESS (45%): how well-known / dispensary-available
-  //   the strain is, derived from total report volume + sentiment score.
+  // Pillar 3 – COMMONNESS (20%): how well-known the strain is,
+  //   derived from total report volume + sentiment score.
+  // Pillar 4 – LOCATION (30%): regional availability score based on
+  //   user's zip code → 7-region heuristic availability data.
   // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
   const scored = eligibleStrains.map(strain => {
@@ -1013,7 +1015,7 @@ export async function onRequestPost(context) {
     // Already 0-100 from calcEffectReportScore.
     const communityScore = effect;
 
-    // ── Pillar 3: COMMONNESS (popularity + sentiment + regional) ──
+    // ── Pillar 3: COMMONNESS (popularity + sentiment) ─────────────
     // totalReports range: ~261-561 (median 416), sentimentScore: 8.4-9.5
     const totalReports = (strain.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0);
     const sentiment = strain.sentimentScore || 8.5;
@@ -1021,23 +1023,25 @@ export async function onRequestPost(context) {
     const sentNorm   = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
     // Commonness sub-blend: 70% report volume + 30% sentiment quality
     const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
-    // Regional availability factor: 0.6-1.2 multiplier based on strain's score in user's region
-    // If no zip provided, regionalFactor = 1.0 (neutral)
-    let regionalFactor = 1.0;
-    if (userRegionIndex >= 0 && strain.reg) {
-      const regionScore = (strain.reg[userRegionIndex] || 40) / 100;  // 0-1
-      regionalFactor = 0.6 + regionScore * 0.6;  // range: 0.6 (score=0) to 1.2 (score=100)
-    }
-    const commonnessScore = Math.min(100, commonnessRaw * 100 * regionalFactor);
+    const commonnessScore = commonnessRaw * 100;               // 0-100
 
-    // ── Final blended score: 35% science · 20% community · 45% commonness
+    // ── Pillar 4: LOCATION (regional availability) ──────────────
+    // 0-100 based on strain's availability score in the user's region.
+    // If no zip provided, locationScore = 50 (neutral midpoint).
+    let locationScore = 50;
+    if (userRegionIndex >= 0 && strain.reg) {
+      locationScore = strain.reg[userRegionIndex] || 40;
+    }
+
+    // ── Final blended score: 30% science · 20% community · 20% commonness · 30% location
     const score = Math.max(0, Math.min(100, Math.round(
-      scienceScore    * 0.35 +
+      scienceScore    * 0.30 +
       communityScore  * 0.20 +
-      commonnessScore * 0.45
+      commonnessScore * 0.20 +
+      locationScore   * 0.30
     )));
 
-    return { strain, score, scienceScore, communityScore, commonnessScore };
+    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore };
   });
 
   // Sort all results by the unified blended score
