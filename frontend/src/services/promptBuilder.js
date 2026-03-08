@@ -295,6 +295,7 @@ RECEPTOR PATHWAYS: ${pathwayStr || 'No data'}
 RULES:
 - Mention the onset and peak experience in 3 concise sentences maximum
 - Reference at least one terpene or cannabinoid by name
+- Briefly mention the aroma/fragrance in 1-2 words (e.g. "piney nose", "citrus funk", "gassy sweetness") — weave it naturally into a sentence, don't add extra length
 - Write in second person ("you'll notice...", "expect to feel...")
 - Keep it poetic but factually grounded — no hype, no medical claims
 - Write ONLY the sentences. No headers, no JSON, no formatting.`
