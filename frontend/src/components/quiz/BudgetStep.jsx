@@ -19,10 +19,10 @@ export default function BudgetStep() {
           </div>
           <div>
             <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea]">
-              Find cannabis deals near you <span className="text-xs font-normal text-gray-400 dark:text-[#6a7a6e]">(Optional)</span>
+              Your location <span className="text-xs font-normal text-gray-400 dark:text-[#6a7a6e]">(Optional)</span>
             </p>
             <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] leading-snug">
-              Enter your zip code so we can find real prices and nearby dispensaries
+              Enter your zip code to find strains available in your area and nearby dispensaries
             </p>
           </div>
         </div>

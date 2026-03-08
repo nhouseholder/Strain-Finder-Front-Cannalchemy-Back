@@ -842,6 +842,7 @@ function buildStrainResult(strain, matchPct, desiredCanonicals) {
     notIdealFor: strain.not_ideal_for || [],
     description: strain.description || '',
     availability: strain.availability || 5,
+    reg: strain.reg || null,
     effectPredictions,
     pathways,
   };
@@ -882,6 +883,7 @@ export async function onRequestPost(context) {
     subtype: quiz.subtype || 'no_preference',
     consumptionMethod: quiz.consumptionMethod || 'no_preference',
     budget: quiz.budget || 'no_preference',
+    zipCode: quiz.zipCode || '',
   }))}`
 
   if (env?.CACHE) {
@@ -953,6 +955,14 @@ export async function onRequestPost(context) {
   }
   const eligibleStrains = strainData.strains.filter(isQuizEligible);
 
+  // ── Resolve user's region from zip code ──
+  const regionOrder = strainData.regionOrder || ['PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT'];
+  const regionMap = strainData.regionMap || {};
+  const userZip = (quiz.zipCode || '').replace(/\D/g, '').slice(0, 5);
+  const userZipPrefix = userZip.length >= 3 ? userZip.slice(0, 3) : '';
+  const userRegion = userZipPrefix ? regionMap[userZipPrefix] || '' : '';
+  const userRegionIndex = userRegion ? regionOrder.indexOf(userRegion) : -1;
+
   // ═══════════════════════════════════════════════════════════════════
   // Tri-pillar scoring engine — 35% Science · 20% Community · 45% Commonness
   // ═══════════════════════════════════════════════════════════════════
@@ -1003,7 +1013,7 @@ export async function onRequestPost(context) {
     // Already 0-100 from calcEffectReportScore.
     const communityScore = effect;
 
-    // ── Pillar 3: COMMONNESS (popularity + sentiment) ─────────────
+    // ── Pillar 3: COMMONNESS (popularity + sentiment + regional) ──
     // totalReports range: ~261-561 (median 416), sentimentScore: 8.4-9.5
     const totalReports = (strain.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0);
     const sentiment = strain.sentimentScore || 8.5;
@@ -1011,7 +1021,14 @@ export async function onRequestPost(context) {
     const sentNorm   = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
     // Commonness sub-blend: 70% report volume + 30% sentiment quality
     const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
-    const commonnessScore = commonnessRaw * 100;               // 0-100
+    // Regional availability factor: 0.6-1.2 multiplier based on strain's score in user's region
+    // If no zip provided, regionalFactor = 1.0 (neutral)
+    let regionalFactor = 1.0;
+    if (userRegionIndex >= 0 && strain.reg) {
+      const regionScore = (strain.reg[userRegionIndex] || 40) / 100;  // 0-1
+      regionalFactor = 0.6 + regionScore * 0.6;  // range: 0.6 (score=0) to 1.2 (score=100)
+    }
+    const commonnessScore = Math.min(100, commonnessRaw * 100 * regionalFactor);
 
     // ── Final blended score: 35% science · 20% community · 45% commonness
     const score = Math.max(0, Math.min(100, Math.round(
@@ -1098,6 +1115,8 @@ export async function onRequestPost(context) {
     strains: mainResults,
     aiPicks: aiPicks.slice(0, 2),
     idealProfile,
+    userRegion: userRegion || null,
+    userRegionIndex: userRegionIndex >= 0 ? userRegionIndex : null,
   }
 
   // ── Workers AI Analysis (free Llama 3.3 70B) ─────────────────────

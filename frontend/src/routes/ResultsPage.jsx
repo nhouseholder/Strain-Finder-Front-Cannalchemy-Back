@@ -114,6 +114,7 @@ export default function ResultsPage() {
             isFavorite={isFavorite(strain.name)}
             onFavorite={toggleFavorite}
             isQuizResult
+            userRegionIndex={state.userRegionIndex}
           />
         ))}
       </div>

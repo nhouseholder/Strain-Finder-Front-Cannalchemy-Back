@@ -41,7 +41,7 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult }) {
+function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult, userRegionIndex }) {
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
   const existingRating = getRating(strain.name)
@@ -93,6 +93,25 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                   {strain.dataCompleteness === 'search-only' ? 'Name Only' : strain.source === 'archetype' ? 'Estimated Profile' : 'Limited Data'}
                 </span>
               )}
+              {/* Regional availability badge — quiz results only */}
+              {isQuizResult && userRegionIndex != null && strain.reg && (() => {
+                const score = strain.reg[userRegionIndex] || 0
+                if (score >= 70) return (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/40">
+                    Common in your area
+                  </span>
+                )
+                if (score >= 40) return (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-gray-50 text-gray-500 dark:bg-gray-800/30 dark:text-gray-400 border-gray-200 dark:border-gray-700/40">
+                    Available nearby
+                  </span>
+                )
+                return (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-amber-50 text-amber-600 dark:bg-amber-900/20 dark:text-amber-400 border-amber-200 dark:border-amber-700/40">
+                    Less common nearby
+                  </span>
+                )
+              })()}
               {/* Why This Match - info icon tooltip */}
               {strain.whyMatch && (
                 <Tooltip content={strain.whyMatch}>
