@@ -15,6 +15,7 @@ import clsx from 'clsx'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
+import { useUserRegion } from '../hooks/useUserRegion'
 import StrainCard from '../components/results/StrainCard'
 import LegalConsent from '../components/shared/LegalConsent'
 import topStrainsData from '../data/top-strains-for.json'
@@ -69,6 +70,7 @@ export default function ExploreStrainsPage() {
   const navigate = useNavigate()
   const { fullStrains, dataLoaded } = useStrainSearch()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { userRegionIndex } = useUserRegion()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [showScience, setShowScience] = useState(false)
@@ -285,6 +287,7 @@ export default function ExploreStrainsPage() {
                 availability={[]}
                 availabilityLoading={false}
                 onViewDispensary={null}
+                userRegionIndex={userRegionIndex}
               />
             ))}
           </div>

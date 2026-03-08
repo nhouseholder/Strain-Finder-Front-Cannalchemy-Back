@@ -93,8 +93,8 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                   {strain.dataCompleteness === 'search-only' ? 'Name Only' : strain.source === 'archetype' ? 'Estimated Profile' : 'Limited Data'}
                 </span>
               )}
-              {/* Regional availability badge — quiz results only */}
-              {isQuizResult && userRegionIndex != null && strain.reg && (() => {
+              {/* Regional availability badge — shown when user has entered a zip code */}
+              {userRegionIndex != null && strain.reg && (() => {
                 const score = strain.reg[userRegionIndex] || 0
                 if (score >= 70) return (
                   <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/40">
