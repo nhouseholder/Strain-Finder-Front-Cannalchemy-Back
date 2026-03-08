@@ -7,6 +7,8 @@ const emptyState = {
   aiPicks: [],
   idealProfile: null,
   aiAnalysis: null,
+  userRegion: null,
+  userRegionIndex: null,
   isLoading: false,
   error: null,
 }
@@ -24,6 +26,8 @@ function getInitialState() {
           aiPicks: parsed.aiPicks || [],
           idealProfile: parsed.idealProfile || null,
           aiAnalysis: parsed.aiAnalysis || null,
+          userRegion: parsed.userRegion || null,
+          userRegionIndex: parsed.userRegionIndex ?? null,
         }
       }
     }
@@ -42,6 +46,8 @@ function resultsReducer(state, action) {
         aiPicks: action.payload.aiPicks || [],
         idealProfile: action.payload.idealProfile || null,
         aiAnalysis: action.payload.aiAnalysis || null,
+        userRegion: action.payload.userRegion || null,
+        userRegionIndex: action.payload.userRegionIndex ?? null,
         isLoading: false,
         error: null,
       }
@@ -70,6 +76,8 @@ export function ResultsProvider({ children }) {
           aiPicks: state.aiPicks,
           idealProfile: state.idealProfile,
           aiAnalysis: state.aiAnalysis,
+          userRegion: state.userRegion,
+          userRegionIndex: state.userRegionIndex,
         }))
       } catch { /* storage full or unavailable */ }
     } else {

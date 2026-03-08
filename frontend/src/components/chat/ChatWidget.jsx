@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { QuizContext } from '../../context/QuizContext'
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown, Maximize2, Minimize2 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -102,7 +103,10 @@ const SUGGESTIONS = [
 /*  ChatWidget — floating chat bubble + expandable window             */
 /*  inline mode: embedded panel (always visible, no bubble trigger)   */
 /* ================================================================== */
-export default function ChatWidget({ inline = false }) {
+export default function ChatWidget({ inline = false, className = '' }) {
+  const quizCtx = useContext(QuizContext)
+  const userZipCode = quizCtx?.state?.zipCode || ''
+
   const [isOpen, setIsOpen] = useState(inline)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -188,6 +192,7 @@ export default function ChatWidget({ inline = false }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
+          zipCode: userZipCode || undefined,
           history: history.slice(0, -1), // exclude the current message (sent separately)
         }),
       })
@@ -230,7 +235,7 @@ export default function ChatWidget({ inline = false }) {
   // ── Inline mode: embedded panel ──────────────────────────────────
   if (inline) {
     return (
-      <div className="flex flex-col rounded-2xl border border-gray-200/60 dark:border-white/[0.08] bg-[#f8faf8] dark:bg-[#0f1a12] overflow-hidden" style={{ minHeight: '420px', maxHeight: '70vh' }}>
+      <div className={`flex flex-col rounded-2xl border border-gray-200/60 dark:border-white/[0.08] bg-[#f8faf8] dark:bg-[#0f1a12] overflow-hidden ${className}`} style={{ minHeight: '420px', maxHeight: className ? undefined : '70vh' }}>
         {/* Header */}
         <div className="flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-leaf-500 to-leaf-600 text-white">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">

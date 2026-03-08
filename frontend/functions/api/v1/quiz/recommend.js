@@ -1,7 +1,7 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * Tri-pillar scoring engine (35% Science · 20% Community · 45% Commonness) with receptor-level scoring,
+ * 4-pillar scoring engine (30% Science · 20% Community · 20% Commonness · 30% Location) with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -842,6 +842,7 @@ function buildStrainResult(strain, matchPct, desiredCanonicals) {
     notIdealFor: strain.not_ideal_for || [],
     description: strain.description || '',
     availability: strain.availability || 5,
+    reg: strain.reg || null,
     effectPredictions,
     pathways,
   };
@@ -882,6 +883,7 @@ export async function onRequestPost(context) {
     subtype: quiz.subtype || 'no_preference',
     consumptionMethod: quiz.consumptionMethod || 'no_preference',
     budget: quiz.budget || 'no_preference',
+    zipCode: quiz.zipCode || '',
   }))}`
 
   if (env?.CACHE) {
@@ -953,16 +955,26 @@ export async function onRequestPost(context) {
   }
   const eligibleStrains = strainData.strains.filter(isQuizEligible);
 
+  // ── Resolve user's region from zip code ──
+  const regionOrder = strainData.regionOrder || ['PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT'];
+  const regionMap = strainData.regionMap || {};
+  const userZip = (quiz.zipCode || '').replace(/\D/g, '').slice(0, 5);
+  const userZipPrefix = userZip.length >= 3 ? userZip.slice(0, 3) : '';
+  const userRegion = userZipPrefix ? regionMap[userZipPrefix] || '' : '';
+  const userRegionIndex = userRegion ? regionOrder.indexOf(userRegion) : -1;
+
   // ═══════════════════════════════════════════════════════════════════
-  // Tri-pillar scoring engine — 35% Science · 20% Community · 45% Commonness
+  // 4-pillar scoring: 30% Science · 20% Community · 20% Commonness · 30% Location
   // ═══════════════════════════════════════════════════════════════════
-  // Pillar 1 – SCIENCE (35%): receptor pharmacology, scaffold molecular
+  // Pillar 1 – SCIENCE (30%): receptor pharmacology, scaffold molecular
   //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
   //   user preference alignment, entourage synergy (7 sub-layers).
   // Pillar 2 – COMMUNITY (20%): weighted community effect-report alignment
   //   — how strongly real users report the effects the quiz-taker wants.
-  // Pillar 3 – COMMONNESS (45%): how well-known / dispensary-available
-  //   the strain is, derived from total report volume + sentiment score.
+  // Pillar 3 – COMMONNESS (20%): how well-known the strain is,
+  //   derived from total report volume + sentiment score.
+  // Pillar 4 – LOCATION (30%): regional availability score based on
+  //   user's zip code → 7-region heuristic availability data.
   // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
   const scored = eligibleStrains.map(strain => {
@@ -1013,14 +1025,23 @@ export async function onRequestPost(context) {
     const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
-    // ── Final blended score: 35% science · 20% community · 45% commonness
+    // ── Pillar 4: LOCATION (regional availability) ──────────────
+    // 0-100 based on strain's availability score in the user's region.
+    // If no zip provided, locationScore = 50 (neutral midpoint).
+    let locationScore = 50;
+    if (userRegionIndex >= 0 && strain.reg) {
+      locationScore = strain.reg[userRegionIndex] || 40;
+    }
+
+    // ── Final blended score: 30% science · 20% community · 20% commonness · 30% location
     const score = Math.max(0, Math.min(100, Math.round(
-      scienceScore    * 0.35 +
+      scienceScore    * 0.30 +
       communityScore  * 0.20 +
-      commonnessScore * 0.45
+      commonnessScore * 0.20 +
+      locationScore   * 0.30
     )));
 
-    return { strain, score, scienceScore, communityScore, commonnessScore };
+    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore };
   });
 
   // Sort all results by the unified blended score
@@ -1098,6 +1119,8 @@ export async function onRequestPost(context) {
     strains: mainResults,
     aiPicks: aiPicks.slice(0, 2),
     idealProfile,
+    userRegion: userRegion || null,
+    userRegionIndex: userRegionIndex >= 0 ? userRegionIndex : null,
   }
 
   // ── Workers AI Analysis (free Llama 3.3 70B) ─────────────────────

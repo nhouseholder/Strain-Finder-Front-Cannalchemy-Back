@@ -15,6 +15,7 @@ DB_TABLES = [
     "canonical_effects",
     "effect_mappings",
     "strain_aliases",
+    "strain_regions",
 ]
 
 SCHEMA_SQL = """
@@ -177,6 +178,17 @@ CREATE TABLE IF NOT EXISTS strain_flavors (
     UNIQUE(strain_id, flavor)
 );
 
+-- Regional availability scores (heuristic-estimated per region)
+CREATE TABLE IF NOT EXISTS strain_regions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    strain_id INTEGER NOT NULL REFERENCES strains(id),
+    region_code TEXT NOT NULL CHECK(region_code IN ('PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT')),
+    availability_score INTEGER NOT NULL DEFAULT 50 CHECK(availability_score BETWEEN 0 AND 100),
+    source TEXT DEFAULT 'heuristic' CHECK(source IN ('heuristic', 'lab', 'dispensary')),
+    confidence REAL DEFAULT 0.5,
+    UNIQUE(strain_id, region_code)
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_strain_compositions_strain ON strain_compositions(strain_id);
 CREATE INDEX IF NOT EXISTS idx_strain_compositions_molecule ON strain_compositions(molecule_id);
@@ -188,6 +200,8 @@ CREATE INDEX IF NOT EXISTS idx_lab_results_strain ON lab_results(normalized_stra
 CREATE INDEX IF NOT EXISTS idx_strains_normalized ON strains(normalized_name);
 CREATE INDEX IF NOT EXISTS idx_effect_mappings_canonical ON effect_mappings(canonical_id);
 CREATE INDEX IF NOT EXISTS idx_strain_aliases_canonical ON strain_aliases(canonical_strain_id);
+CREATE INDEX IF NOT EXISTS idx_strain_regions_strain ON strain_regions(strain_id);
+CREATE INDEX IF NOT EXISTS idx_strain_regions_region ON strain_regions(region_code);
 """
 
 
