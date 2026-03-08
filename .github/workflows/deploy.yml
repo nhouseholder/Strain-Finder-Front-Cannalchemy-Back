@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - dev
   workflow_dispatch:
 
 jobs:
@@ -44,5 +45,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: e246c909cd0c462975902369c8aa7512
-          command: pages deploy dist --project-name mystrainai --commit-dirty=true
+          command: pages deploy dist --project-name mystrainai --branch ${{ github.ref_name }} --commit-dirty=true
           workingDirectory: frontend
