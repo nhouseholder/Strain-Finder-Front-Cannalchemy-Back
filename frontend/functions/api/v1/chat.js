@@ -285,6 +285,227 @@ function searchStrains(query, conversationContext = '') {
   return top.map(s => s.strain)
 }
 
+// ── Effect-based recommendation engine ──────────────────────────────
+//
+// When a user asks "I want a sativa that's energizing and focusing but
+// won't give me anxiety", the name-based search fails. This engine
+// detects recommendation intent, parses desired/avoided effects from
+// natural language, and analytically scores every strain.
+
+/**
+ * Maps user-facing effect categories to:
+ *  nl  – natural-language phrases the user might type
+ *  db  – canonical effect names stored in strain.effects[].name
+ */
+const DESIRED_EFFECTS = {
+  energetic:     { nl: ['energizing', 'energetic', 'energy', 'stimulating', 'alert', 'awake', 'invigorating', 'lively', 'active', 'boost energy'], db: ['energetic', 'motivated', 'uplifted'] },
+  focused:       { nl: ['focusing', 'focused', 'focus', 'concentration', 'mental clarity', 'clarity', 'attentive', 'productive', 'clear-headed', 'clear headed', 'study', 'studying'], db: ['focused'] },
+  relaxed:       { nl: ['relaxing', 'relaxed', 'relaxation', 'calm', 'calming', 'chill', 'mellow', 'unwind', 'wind down', 'destress', 'de-stress', 'soothing', 'tranquil'], db: ['relaxed', 'calm', 'body-high'] },
+  creative:      { nl: ['creative', 'creativity', 'artistic', 'inspired', 'imaginative', 'inventive'], db: ['creative', 'head-high'] },
+  happy:         { nl: ['happy', 'happiness', 'joyful', 'cheerful', 'mood boost', 'mood-boosting', 'mood lifting', 'feel good', 'feel-good'], db: ['happy', 'euphoric', 'giggly'] },
+  euphoric:      { nl: ['euphoric', 'euphoria', 'blissful', 'elated', 'ecstatic'], db: ['euphoric', 'happy'] },
+  sleepy:        { nl: ['sleepy', 'sleep', 'drowsy', 'sedating', 'sedative', 'knockout', 'bedtime', 'nighttime'], db: ['sleepy'] },
+  uplifted:      { nl: ['uplifting', 'uplifted', 'uplift', 'elevated', 'mood elevation', 'bright'], db: ['uplifted', 'happy', 'energetic'] },
+  social:        { nl: ['social', 'sociable', 'chatty', 'outgoing', 'talkative', 'conversation', 'party', 'hanging out'], db: ['talkative', 'giggly', 'uplifted'] },
+  hungry:        { nl: ['appetite', 'appetite boost', 'appetite stimulant', 'hunger'], db: ['hungry'] },
+  tingly:        { nl: ['tingly', 'tingling', 'body buzz', 'buzzy'], db: ['tingly'] },
+  aroused:       { nl: ['aroused', 'arousal', 'sensual', 'aphrodisiac', 'intimate'], db: ['aroused'] },
+  motivated:     { nl: ['motivated', 'motivation', 'driven', 'ambitious', 'get things done'], db: ['motivated', 'energetic'] },
+  pain:          { nl: ['pain relief', 'pain', 'analgesic', 'body pain', 'chronic pain', 'sore', 'aches', 'body comfort'], db: ['pain', 'inflammation', 'body-high'] },
+  stress:        { nl: ['stress relief', 'stress', 'tension relief', 'tension', 'pressure'], db: ['stress', 'anxiety', 'relaxed'] },
+  anxietyRelief: { nl: ['anxiety relief', 'for anxiety', 'help with anxiety', 'manage anxiety', 'anti-anxiety', 'anxiolytic', 'ease anxiety'], db: ['anxiety', 'stress', 'calm'] },
+  depression:    { nl: ['for depression', 'antidepressant', 'depression', 'seasonal depression', 'lift mood'], db: ['depression', 'happy', 'uplifted'] },
+  insomnia:      { nl: ['insomnia', 'sleep aid', 'sleep disorder', "can't sleep", 'trouble sleeping'], db: ['insomnia', 'sleepy'] },
+  inflammation:  { nl: ['anti-inflammatory', 'inflammation', 'swelling', 'joint pain'], db: ['inflammation', 'pain'] },
+}
+
+/**
+ * Maps natural-language "avoid" terms to canonical DB negative-effect names.
+ */
+const AVOID_EFFECTS = {
+  anxious:      { nl: ['anxiety', 'anxious', 'paranoia', 'paranoid', 'nervous', 'worried', 'panic', 'panicky', 'racing thoughts', 'overthinking', 'uneasy', 'on edge'], db: ['anxious', 'paranoid'] },
+  dizzy:        { nl: ['dizzy', 'dizziness', 'lightheaded', 'vertigo', 'head rush'], db: ['dizzy'] },
+  dryMouth:     { nl: ['dry mouth', 'cottonmouth', 'cotton mouth'], db: ['dry-mouth'] },
+  dryEyes:      { nl: ['dry eyes'], db: ['dry-eyes'] },
+  headache:     { nl: ['headache', 'head pain', 'migraine'], db: ['headache'] },
+  couchLock:    { nl: ['couch lock', 'couch-lock', 'too sedating', 'too heavy', 'body lock', 'glued to couch', 'immobilized', 'too sleepy', 'too tired'], db: ['couch-lock'] },
+  racingHeart:  { nl: ['racing heart', 'rapid heartbeat', 'heart racing', 'fast heartbeat', 'heart pounding', 'tachycardia'], db: ['rapid-heartbeat'] },
+  munchies:     { nl: ['munchies', 'too hungry', 'overeating', 'binge eating'], db: ['hungry'] },
+  nauseous:     { nl: ['nauseous', 'nausea', 'queasy', 'sick to stomach'], db: ['nauseous'] },
+  spacey:       { nl: ['spacey', 'spaced out', 'brain fog', 'foggy', 'disoriented', 'confused', 'zoned out', 'out of it'], db: ['spacey', 'disoriented'] },
+}
+
+/**
+ * Detect whether the user is asking for a strain recommendation
+ * (vs. asking about a specific named strain).
+ */
+function isRecommendationQuery(query) {
+  const q = query.toLowerCase()
+  const patterns = [
+    /\b(i want|i need|i'm looking for|looking for|find me|suggest|recommend)\b/,
+    /\b(what.{0,15}(?:good|best|great|top|strongest|right))\b/,
+    /\b(what|which)\s+(?:strain|sativa|indica|hybrid)\b/,
+    /\b(best|good|great|top|strongest|ideal|perfect)\b.{0,25}\b(strain|sativa|indica|hybrid|weed|cannabis|bud)\b/,
+    /\b(strain|sativa|indica|hybrid)\b.{0,25}\b(for|that|to help|that helps)\b/,
+    /\b(something (?:for|that|to|with))\b/,
+    /\b(help me (?:find|choose|pick|select))\b/,
+    /\b(any (?:strains?|recommendations?|suggestions?))\b/,
+    /\b(strains? (?:for|to|that))\b/,
+  ]
+  return patterns.some(p => p.test(q))
+}
+
+/**
+ * Parse a natural-language recommendation query into structured intent.
+ * Returns { desiredEffects: string[], avoidEffects: string[], typePreference: string|null }
+ */
+function parseEffectQuery(query) {
+  const q = query.toLowerCase()
+
+  // ── Type preference ──
+  let typePreference = null
+  if (/\bsativa\b/.test(q)) typePreference = 'sativa'
+  else if (/\bindica\b/.test(q)) typePreference = 'indica'
+  else if (/\bhybrid\b/.test(q)) typePreference = 'hybrid'
+
+  // ── Split into "want" vs "avoid" sections ──
+  // Look for negation signals: "but not", "without", "won't", "avoid", etc.
+  const splitIdx = q.search(
+    /\b(but (?:not|won't|won't|don't|no)|without|won't give|won't cause|don't want|doesn't cause|not cause|avoid(?:ing)?|no\b(?=.*\b(?:anxiety|paranoi|dizz|headache|couch|racing|dry|nause|brain fog|spacey)))/
+  )
+  const wantSection = splitIdx >= 0 ? q.slice(0, splitIdx) : q
+  const avoidSection = splitIdx >= 0 ? q.slice(splitIdx) : ''
+
+  // ── Match desired effects (from want section only) ──
+  const desiredEffects = []
+  for (const [key, { nl }] of Object.entries(DESIRED_EFFECTS)) {
+    // Sort synonyms longest-first for greedy matching
+    const sorted = [...nl].sort((a, b) => b.length - a.length)
+    for (const phrase of sorted) {
+      if (wantSection.includes(phrase)) {
+        desiredEffects.push(key)
+        break
+      }
+    }
+  }
+
+  // ── Match avoided effects (from avoid section) ──
+  const avoidEffects = []
+  for (const [key, { nl }] of Object.entries(AVOID_EFFECTS)) {
+    const sorted = [...nl].sort((a, b) => b.length - a.length)
+    for (const phrase of sorted) {
+      if (avoidSection.includes(phrase)) {
+        avoidEffects.push(key)
+        break
+      }
+    }
+  }
+
+  return { desiredEffects, avoidEffects, typePreference }
+}
+
+/**
+ * Score and rank all strains by how well they match parsed intent.
+ * Returns array of { strain, score, matchNotes } sorted best-first.
+ */
+function recommendationSearch(parsed, userRegionIndex = -1) {
+  const { desiredEffects, avoidEffects, typePreference } = parsed
+  if (desiredEffects.length === 0 && !typePreference) return []
+
+  const results = []
+
+  for (const s of strains) {
+    let score = 0
+    const matchNotes = []
+
+    // Build effect lookup: name → { ...effect, pct }
+    const effectMap = new Map()
+    const maxReports = Math.max(...(s.effects || []).map(e => e.reports || 0), 1)
+    for (const e of (s.effects || [])) {
+      effectMap.set(e.name.toLowerCase(), {
+        ...e,
+        pct: Math.round(((e.reports || 0) / maxReports) * 100),
+      })
+    }
+
+    // ── Type match (strong signal) ──
+    if (typePreference) {
+      const t = (s.type || '').toLowerCase()
+      if (t === typePreference)     { score += 25; matchNotes.push(`✓ ${typePreference}`) }
+      else if (t === 'hybrid')      { score += 8  }
+      else                          { score -= 20 }
+    }
+
+    // ── Desired effects ──
+    for (const key of desiredEffects) {
+      const { db } = DESIRED_EFFECTS[key]
+      // Pick the DB effect with the highest report pct
+      let bestMatch = null
+      for (const dbName of db) {
+        const eff = effectMap.get(dbName)
+        if (eff && (!bestMatch || eff.pct > bestMatch.pct)) bestMatch = eff
+      }
+      if (bestMatch) {
+        const weight = bestMatch.pct >= 75 ? 30 : bestMatch.pct >= 50 ? 22 : bestMatch.pct >= 25 ? 14 : 6
+        score += weight
+        matchNotes.push(`${bestMatch.name}: ${bestMatch.pct}%`)
+      } else {
+        // Check best_for for broader matches
+        let foundBestFor = false
+        for (const bf of (s.best_for || [])) {
+          const bfLow = bf.toLowerCase()
+          if (DESIRED_EFFECTS[key].nl.some(syn => bfLow.includes(syn))) {
+            score += 10
+            matchNotes.push(`best for: ${bf}`)
+            foundBestFor = true
+            break
+          }
+        }
+        if (!foundBestFor) score -= 5 // missing a desired effect
+      }
+    }
+
+    // ── Avoid effects (strong penalty) ──
+    for (const key of avoidEffects) {
+      const { db } = AVOID_EFFECTS[key]
+      for (const dbName of db) {
+        const eff = effectMap.get(dbName)
+        if (eff) {
+          const penalty = eff.pct >= 50 ? 35 : eff.pct >= 25 ? 20 : eff.pct >= 10 ? 10 : 3
+          score -= penalty
+          if (eff.pct >= 15) matchNotes.push(`⚠ ${eff.name}: ${eff.pct}%`)
+          break
+        }
+      }
+      // Also check not_ideal_for text
+      for (const nif of (s.not_ideal_for || [])) {
+        const nifLow = nif.toLowerCase()
+        if (AVOID_EFFECTS[key].nl.some(syn => nifLow.includes(syn))) {
+          score -= 12
+          matchNotes.push(`⚠ not ideal: ${nif}`)
+          break
+        }
+      }
+    }
+
+    // ── Bonus: data quality & report volume ──
+    if (s.dataCompleteness === 'full') score += 4
+    const totalReports = (s.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0)
+    score += Math.min(totalReports / 80, 5) // cap +5 for well-reported strains
+
+    // ── Regional boost (if user provided zip) ──
+    if (userRegionIndex >= 0 && s.reg) {
+      const regScore = s.reg[userRegionIndex] || 0
+      score += regScore >= 70 ? 5 : regScore >= 40 ? 2 : 0
+    }
+
+    if (score > 10) results.push({ strain: s, score: Math.round(score), matchNotes })
+  }
+
+  results.sort((a, b) => b.score - a.score)
+  return results.slice(0, 6)
+}
+
 // ── Region data for location-aware responses ────────────────────────
 const regionOrder = strainData.regionOrder || ['PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT']
 const regionMap = strainData.regionMap || {}
@@ -388,6 +609,10 @@ const SYSTEM_PROMPT = `You are **MyStrainAI Chat**, the official AI assistant fo
 16. Effects are ranked by community report frequency relative to each strain's most-reported effect. The percentage and tier label in the data reflect how often an effect is reported compared to the top effect for that strain. Use these numbers accurately — do NOT say 100% for everything.
 17. When comparing strains, weave the comparison into paragraphs — do NOT use tables or side-by-side lists.
 
+## STRAIN RECOMMENDATIONS
+18. When a **RECOMMENDATION ANALYSIS** section is provided, you are acting as a personalized strain advisor. The strains were pre-selected and ranked by our matching algorithm. Lead with your top 2-3 picks and explain WHY each fits using their effect data (report percentages, terpene profiles). If the user wants to avoid certain effects, proactively address how your picks minimize those. Be analytical and specific — cite the data, not vague claims. Think "knowledgeable budtender."
+19. For recommendations, you may use up to 4 short paragraphs to cover multiple picks. Still BLUF — open with your #1 pick and why.
+
 ## DATABASE CONTEXT
 Total strains in database: ${strains.length}
 Some strains are marked "⚠️ PARTIAL DATA" — these have limited community-reported data and have NOT been extensively lab tested. When discussing partial-data strains, always include the disclaimer: "Note: This strain has limited data in our database and has not been extensively lab tested. The information shown is based on available community reports."
@@ -459,8 +684,36 @@ export async function onRequestPost(context) {
     .join(' ')
     .slice(0, 500)
 
-  // ── Search the database ───────────────────────────────────────────
-  const matchedStrains = searchStrains(userMessage, conversationContext)
+  // ── Search the database (recommendation-aware) ─────────────────────
+  let matchedStrains = []
+  let recommendationAnalysis = ''
+
+  // Try effect-based recommendation search first
+  if (isRecommendationQuery(userMessage)) {
+    const parsed = parseEffectQuery(userMessage)
+    if (parsed.desiredEffects.length > 0 || parsed.typePreference) {
+      const scored = recommendationSearch(parsed, userRegionIndex)
+      if (scored.length > 0) {
+        matchedStrains = scored.map(r => r.strain)
+        // Build analysis block so the AI knows WHY these strains were chosen
+        const lines = [`\n## RECOMMENDATION ANALYSIS`]
+        lines.push(`User is seeking: ${parsed.desiredEffects.length ? parsed.desiredEffects.join(', ') : 'general recommendation'}`)
+        if (parsed.avoidEffects.length) lines.push(`User wants to AVOID: ${parsed.avoidEffects.join(', ')}`)
+        if (parsed.typePreference) lines.push(`Type preference: ${parsed.typePreference}`)
+        lines.push(`\nThese ${scored.length} strains were selected and ranked by our matching algorithm:`)
+        for (const r of scored) {
+          lines.push(`  ${r.strain.name} (score: ${r.score}) — ${r.matchNotes.join(', ')}`)
+        }
+        lines.push(`\nPresent the top 2-3 strains as recommendations. Explain WHY each fits using the effect data above. If any strain has a ⚠ warning, acknowledge it honestly.`)
+        recommendationAnalysis = lines.join('\n')
+      }
+    }
+  }
+
+  // Fall back to name-based search if recommendation search didn't find results
+  if (matchedStrains.length === 0) {
+    matchedStrains = searchStrains(userMessage, conversationContext)
+  }
 
   let dbContext = ''
   if (matchedStrains.length > 0) {
@@ -468,7 +721,7 @@ export async function onRequestPost(context) {
     const regionNote = userRegion
       ? `\n\n## USER LOCATION\nThe user is in the **${REGION_LABELS[userRegion] || userRegion}** region (zip: ${zipCode}). Each strain's "Regional Availability" score indicates how commonly it's found in their area. When relevant, briefly mention availability — e.g., "This strain is common in your area" or "This one may be harder to find near you." Don't force it into every answer — only mention when the user is asking about finding or choosing strains.`
       : ''
-    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering. Strains marked "⚠️ PARTIAL DATA" have limited data — always include the partial data disclaimer when discussing them.\n\n${strainBlocks}\n\n---\n**REMINDER: Use the effects, terpenes, and cannabinoids shown above when answering the user's question. For any strain marked PARTIAL DATA, include the disclaimer about limited data.**${regionNote}`
+    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering. Strains marked "⚠️ PARTIAL DATA" have limited data — always include the partial data disclaimer when discussing them.\n\n${strainBlocks}\n\n---\n**REMINDER: Use the effects, terpenes, and cannabinoids shown above when answering the user's question. For any strain marked PARTIAL DATA, include the disclaimer about limited data.**${regionNote}${recommendationAnalysis}`
   } else {
     dbContext = `\n## NOTE: No exact strain matches found for this query. Answer general cannabis questions using your knowledge, but do NOT invent specific strain data. If the user is asking about a specific strain, tell them it may not be in our database yet.`
   }
