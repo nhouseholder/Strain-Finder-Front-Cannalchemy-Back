@@ -27,7 +27,6 @@ function SearchAutocomplete({
   className = '',
   inputClassName = '',
   showSearchButton = false,
-  userRegionIndex = null,
 }) {
   const [query, setQuery] = useState(initialQuery)
   const [open, setOpen] = useState(false)
@@ -51,12 +50,12 @@ function SearchAutocomplete({
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Filter strains — boost locally-available strains when region is known
+  // Filter strains
   const matches = useMemo(() => {
     if (!query || query.trim().length < 1 || strains.length === 0) return []
     const lower = query.toLowerCase().trim()
     const str = (v) => typeof v === 'string' ? v : String(v || '')
-    const filtered = strains
+    return strains
       .filter(s => {
         try {
           return (
@@ -67,23 +66,8 @@ function SearchAutocomplete({
           )
         } catch { return false }
       })
-
-    // When user has location, sort by: exact name match first, then regional availability
-    if (userRegionIndex != null && filtered.length > 1) {
-      filtered.sort((a, b) => {
-        // Exact name starts-with match gets priority
-        const aExact = str(a.name).toLowerCase().startsWith(lower) ? 1 : 0
-        const bExact = str(b.name).toLowerCase().startsWith(lower) ? 1 : 0
-        if (aExact !== bExact) return bExact - aExact
-        // Then sort by regional availability
-        const regA = a.reg ? (a.reg[userRegionIndex] || 0) : 0
-        const regB = b.reg ? (b.reg[userRegionIndex] || 0) : 0
-        return regB - regA
-      })
-    }
-
-    return filtered.slice(0, 8)
-  }, [query, strains, userRegionIndex])
+      .slice(0, 8)
+  }, [query, strains])
 
   const handleChange = (e) => {
     setQuery(e.target.value)

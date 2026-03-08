@@ -4,7 +4,6 @@ import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
 import { useSearchHistory } from '../hooks/useSearchHistory'
-import { useUserRegion } from '../hooks/useUserRegion'
 import StrainCard from '../components/results/StrainCard'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
 import SortDropdown, { applySortComparator } from '../components/shared/SortDropdown'
@@ -17,7 +16,6 @@ export default function StrainSearchPage() {
   const { allStrains, dataLoaded } = useStrainSearch()
   const { toggleFavorite, isFavorite } = useFavorites()
   const { recordSearch } = useSearchHistory()
-  const { userRegionIndex, hasLocation } = useUserRegion()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [selectedStrain, setSelectedStrain] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
@@ -68,9 +66,9 @@ export default function StrainSearchPage() {
       .slice(0, 50)
 
     // Apply sort
-    matched.sort(applySortComparator(sortBy, userRegionIndex))
+    matched.sort(applySortComparator(sortBy))
     return matched
-  }, [searchQuery, selectedStrain, allStrains, sortBy, userRegionIndex])
+  }, [searchQuery, selectedStrain, allStrains, sortBy])
 
   const hasQuery = searchQuery.trim().length >= 2
 
@@ -108,7 +106,6 @@ export default function StrainSearchPage() {
           initialQuery={urlQ.trim()}
           onSelect={handleSelect}
           onSearch={handleSearch}
-          userRegionIndex={userRegionIndex}
           className="mb-4"
         />
 
@@ -118,7 +115,7 @@ export default function StrainSearchPage() {
             <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e]">
               <span className="font-semibold text-leaf-400">{displayStrains.length}</span> result{displayStrains.length !== 1 ? 's' : ''}
             </p>
-            <SortDropdown value={sortBy} onChange={setSortBy} hasLocation={hasLocation} />
+            <SortDropdown value={sortBy} onChange={setSortBy} />
           </div>
         )}
 
@@ -147,7 +144,6 @@ export default function StrainSearchPage() {
               availabilityLoading={false}
               onViewDispensary={null}
               hideExpandButton={displayStrains.length === 1}
-              userRegionIndex={userRegionIndex}
             />
           ))}
         </div>

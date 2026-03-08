@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
-import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronDown, Check, FlaskConical, Leaf, MapPin } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { ArrowUpDown, ArrowDownWideNarrow, ArrowUpNarrowWide, ChevronDown, Check, FlaskConical, Leaf } from 'lucide-react'
 
 /* ─────────────────────────────────────────────────────────────
    Sort field options — each listed ONCE, direction is separate
@@ -77,11 +77,8 @@ export function buildSortId(field, dir) {
 /**
  * Returns a comparator function for Array.sort based on a sort ID.
  * Exported so both Explorer and Search pages can use the same logic.
- *
- * @param {string} sortId - Combined "field-direction" sort key
- * @param {number|null} userRegionIndex - Optional region index for availability sort
  */
-export function applySortComparator(sortId, userRegionIndex = null) {
+export function applySortComparator(sortId) {
   const { field, dir } = parseSortId(sortId)
 
   return (a, b) => {
@@ -101,13 +98,6 @@ export function applySortComparator(sortId, userRegionIndex = null) {
     if (field === 'common') {
       const diff = (b.availability || 5) - (a.availability || 5)
       return dir === 'asc' ? -diff : diff
-    }
-
-    // Regional availability sort — uses reg array + user's region
-    if (field === 'regional') {
-      const regA = (userRegionIndex != null && a.reg) ? (a.reg[userRegionIndex] || 0) : 0
-      const regB = (userRegionIndex != null && b.reg) ? (b.reg[userRegionIndex] || 0) : 0
-      return dir === 'desc' ? regB - regA : regA - regB
     }
 
     // Cannabinoid sort
@@ -133,24 +123,8 @@ export function applySortComparator(sortId, userRegionIndex = null) {
    1. Direction toggle (Increasing ↑ / Decreasing ↓)
    2. Sort-field dropdown (grouped: General, Cannabinoids, Terpenes)
    ────────────────────────────────────────────────────────────── */
-export default function SortDropdown({ value, onChange, className = '', hasLocation = false }) {
+export default function SortDropdown({ value, onChange, className = '' }) {
   const { field: currentField, dir: currentDir } = parseSortId(value)
-
-  // Build sort groups dynamically — include "Availability in Your Area" when user has location
-  const sortGroups = useMemo(() => {
-    const generalItems = hasLocation
-      ? [...GENERAL_FIELDS, { field: 'regional', label: 'Availability in Your Area' }]
-      : GENERAL_FIELDS
-    return [
-      { label: 'General', icon: hasLocation ? MapPin : ArrowUpDown, items: generalItems },
-      { label: 'Cannabinoids', icon: FlaskConical, items: CANNABINOID_FIELDS },
-      { label: 'Terpenes', icon: Leaf, items: TERPENE_FIELDS },
-    ]
-  }, [hasLocation])
-
-  const allFieldsList = useMemo(() => {
-    return sortGroups.flatMap(g => g.items)
-  }, [sortGroups])
   const [open, setOpen] = useState(false)
   const [expandedGroup, setExpandedGroup] = useState(null)
   const ref = useRef(null)
@@ -176,7 +150,7 @@ export default function SortDropdown({ value, onChange, className = '', hasLocat
   // Auto-expand group containing current selection
   useEffect(() => {
     if (open) {
-      const group = sortGroups.find(g => g.items.some(i => i.field === currentField))
+      const group = SORT_GROUPS.find(g => g.items.some(i => i.field === currentField))
       if (group) setExpandedGroup(group.label)
     }
   }, [open, currentField])
@@ -195,7 +169,7 @@ export default function SortDropdown({ value, onChange, className = '', hasLocat
     setExpandedGroup(prev => prev === label ? null : label)
   }
 
-  const fieldLabel = allFieldsList.find(f => f.field === currentField)?.label || 'Name'
+  const fieldLabel = ALL_FIELDS.find(f => f.field === currentField)?.label || 'Name'
   const isDesc = currentDir === 'desc'
 
   return (
@@ -243,7 +217,7 @@ export default function SortDropdown({ value, onChange, className = '', hasLocat
                           bg-white dark:bg-[#1a2e1e]
                           shadow-xl shadow-black/10 dark:shadow-black/40
                           animate-fade-in">
-            {sortGroups.map((group) => {
+            {SORT_GROUPS.map((group) => {
               const GroupIcon = group.icon
               const isExpanded = expandedGroup === group.label
 

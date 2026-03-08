@@ -578,7 +578,7 @@ function formatStrainContext(s, userRegionIndex = -1, userRegion = '') {
   // Regional availability (when user provided zip code)
   if (userRegionIndex >= 0 && s.reg) {
     const score = s.reg[userRegionIndex] || 0
-    const label = score >= 70 ? 'Popular in your area' : 'Availability data limited'
+    const label = score >= 70 ? 'Common in your area' : score >= 40 ? 'Available nearby' : 'Less common nearby'
     lines.push(`  Regional Availability (${userRegion}): ${score}/100 — ${label}`)
   }
 
