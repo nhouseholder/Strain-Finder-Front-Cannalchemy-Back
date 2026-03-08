@@ -1,5 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { QuizContext } from '../../context/QuizContext'
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, ChevronDown, Maximize2, Minimize2 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -103,6 +104,9 @@ const SUGGESTIONS = [
 /*  inline mode: embedded panel (always visible, no bubble trigger)   */
 /* ================================================================== */
 export default function ChatWidget({ inline = false, className = '' }) {
+  const quizCtx = useContext(QuizContext)
+  const userZipCode = quizCtx?.state?.zipCode || ''
+
   const [isOpen, setIsOpen] = useState(inline)
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
@@ -188,6 +192,7 @@ export default function ChatWidget({ inline = false, className = '' }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: userMessage,
+          zipCode: userZipCode || undefined,
           history: history.slice(0, -1), // exclude the current message (sent separately)
         }),
       })

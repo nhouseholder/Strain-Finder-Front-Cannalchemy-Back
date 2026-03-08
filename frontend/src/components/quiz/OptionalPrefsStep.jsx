@@ -2,7 +2,7 @@ import { useQuizState } from '../../hooks/useQuizState'
 import { SUBTYPES, SUBTYPE_TOOLTIP } from '../../data/subtypes'
 import { THC_PREFERENCES, CBD_PREFERENCES } from '../../data/cannabinoids'
 import { FLAVORS } from '../../data/flavors'
-import { Info } from 'lucide-react'
+import { Info, MapPin } from 'lucide-react'
 import Button from '../shared/Button'
 
 export default function OptionalPrefsStep({ onComplete }) {
@@ -11,10 +11,12 @@ export default function OptionalPrefsStep({ onComplete }) {
     thcPreference,
     cbdPreference,
     flavors,
+    zipCode,
     setSubtype,
     setThcPreference,
     setCbdPreference,
     toggleFlavor,
+    setZipCode,
     setStep,
   } = useQuizState()
 
@@ -191,6 +193,40 @@ export default function OptionalPrefsStep({ onComplete }) {
             )
           })}
         </div>
+      </div>
+
+      {/* Section 4: Your Location (zip code) */}
+      <div className="rounded-2xl border border-leaf-500/20 bg-leaf-500/[0.04] p-4">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-7 h-7 rounded-lg bg-leaf-500/15 flex items-center justify-center flex-shrink-0">
+            <MapPin size={15} className="text-leaf-400" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea]">
+              Your Location <span className="text-xs font-normal text-gray-400 dark:text-[#6a7a6e]">(Optional)</span>
+            </p>
+            <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] leading-snug">
+              Enter your zip code so we can prioritize strains available in your area
+            </p>
+          </div>
+        </div>
+        <input
+          type="text"
+          inputMode="numeric"
+          pattern="[0-9]*"
+          maxLength={5}
+          value={zipCode}
+          onChange={(e) => {
+            const val = e.target.value.replace(/\D/g, '').slice(0, 5)
+            setZipCode(val)
+          }}
+          placeholder="e.g. 90210"
+          aria-label="Your zip code for finding local strains"
+          className="w-full mt-1 px-4 py-2.5 text-base rounded-xl bg-gray-50 dark:bg-gray-50/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
+        />
+        {zipCode.length > 0 && zipCode.length < 5 && (
+          <p className="text-[10px] text-amber-500 mt-1 ml-1">Enter a 5-digit zip code</p>
+        )}
       </div>
 
       {/* Navigation */}

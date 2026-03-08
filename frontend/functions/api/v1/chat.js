@@ -285,11 +285,25 @@ function searchStrains(query, conversationContext = '') {
   return top.map(s => s.strain)
 }
 
+// ── Region data for location-aware responses ────────────────────────
+const regionOrder = strainData.regionOrder || ['PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT']
+const regionMap = strainData.regionMap || {}
+const REGION_LABELS = {
+  PAC: 'Pacific (CA, OR, WA)',
+  MTN: 'Mountain (CO, NV, AZ)',
+  MWE: 'Midwest (IL, MI, MO, OH)',
+  GLK: 'Great Lakes (NY-upstate, PA)',
+  SOU: 'South (FL, GA, TX, NC)',
+  NEN: 'New England (MA, CT, ME)',
+  MAT: 'Mid-Atlantic (NY-metro, NJ, DE)',
+}
+
 /**
  * Format a strain into a clearly-structured text block for the AI context window.
  * Each section is explicitly labeled with the strain name to prevent cross-contamination.
+ * If userRegionIndex >= 0, includes regional availability info.
  */
-function formatStrainContext(s) {
+function formatStrainContext(s, userRegionIndex = -1, userRegion = '') {
   const lines = []
   const isPartial = s.dataCompleteness === 'partial'
   lines.push(`### ${s.name} (${s.type || 'unknown type'})${isPartial ? ' ⚠️ PARTIAL DATA' : ''}`)
@@ -339,6 +353,13 @@ function formatStrainContext(s) {
 
   if (s.price_range) lines.push(`  Price Range: ${s.price_range}`)
   if (s.sentimentScore) lines.push(`  Community Sentiment: ${s.sentimentScore}/10`)
+
+  // Regional availability (when user provided zip code)
+  if (userRegionIndex >= 0 && s.reg) {
+    const score = s.reg[userRegionIndex] || 0
+    const label = score >= 70 ? 'Common in your area' : score >= 40 ? 'Available nearby' : 'Less common nearby'
+    lines.push(`  Regional Availability (${userRegion}): ${score}/100 — ${label}`)
+  }
 
   return lines.join('\n')
 }
@@ -414,6 +435,7 @@ export async function onRequestPost(context) {
 
   const message = body.message
   const history = body.history || [] // optional conversation history
+  const zipCode = (body.zipCode || '').replace(/\D/g, '').slice(0, 5)
 
   if (!message || typeof message !== 'string' || message.trim().length === 0) {
     return new Response(JSON.stringify({ error: 'Missing required field: message' }), {
@@ -423,6 +445,11 @@ export async function onRequestPost(context) {
   }
 
   const userMessage = message.trim().slice(0, 500) // cap input length
+
+  // ── Resolve user's region from zip code ────────────────────────────
+  const userZipPrefix = zipCode.length >= 3 ? zipCode.slice(0, 3) : ''
+  const userRegion = userZipPrefix ? regionMap[userZipPrefix] || '' : ''
+  const userRegionIndex = userRegion ? regionOrder.indexOf(userRegion) : -1
 
   // ── Build conversation context for broader search ─────────────────
   // Pool strain names from recent user messages so follow-ups still find strains
@@ -437,8 +464,11 @@ export async function onRequestPost(context) {
 
   let dbContext = ''
   if (matchedStrains.length > 0) {
-    const strainBlocks = matchedStrains.map(formatStrainContext).join('\n\n---\n\n')
-    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering. Strains marked "⚠️ PARTIAL DATA" have limited data — always include the partial data disclaimer when discussing them.\n\n${strainBlocks}\n\n---\n**REMINDER: Use the effects, terpenes, and cannabinoids shown above when answering the user's question. For any strain marked PARTIAL DATA, include the disclaimer about limited data.**`
+    const strainBlocks = matchedStrains.map(s => formatStrainContext(s, userRegionIndex, userRegion)).join('\n\n---\n\n')
+    const regionNote = userRegion
+      ? `\n\n## USER LOCATION\nThe user is in the **${REGION_LABELS[userRegion] || userRegion}** region (zip: ${zipCode}). Each strain's "Regional Availability" score indicates how commonly it's found in their area. When relevant, briefly mention availability — e.g., "This strain is common in your area" or "This one may be harder to find near you." Don't force it into every answer — only mention when the user is asking about finding or choosing strains.`
+      : ''
+    dbContext = `\n## MATCHING STRAINS (from our database)\nThe following ${matchedStrains.length} strain(s) were found in the MyStrainAI database. All data below is verified and must be used when answering. Strains marked "⚠️ PARTIAL DATA" have limited data — always include the partial data disclaimer when discussing them.\n\n${strainBlocks}\n\n---\n**REMINDER: Use the effects, terpenes, and cannabinoids shown above when answering the user's question. For any strain marked PARTIAL DATA, include the disclaimer about limited data.**${regionNote}`
   } else {
     dbContext = `\n## NOTE: No exact strain matches found for this query. Answer general cannabis questions using your knowledge, but do NOT invent specific strain data. If the user is asking about a specific strain, tell them it may not be in our database yet.`
   }
