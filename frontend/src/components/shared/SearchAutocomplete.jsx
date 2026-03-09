@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useMemo, memo } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Search, X, Loader2, Cannabis } from 'lucide-react'
+import { strainSlug } from '../../utils/strainSlug'
 
 const effectLabel = (e) => typeof e === 'string' ? e : (e?.name || e?.label || '')
 
@@ -29,6 +31,7 @@ function SearchAutocomplete({
   showSearchButton = false,
   userRegionIndex = null,
 }) {
+  const navigate = useNavigate()
   const [query, setQuery] = useState(initialQuery)
   const [open, setOpen] = useState(false)
   const [focusIdx, setFocusIdx] = useState(-1)
@@ -96,6 +99,8 @@ function SearchAutocomplete({
     setOpen(false)
     setFocusIdx(-1)
     onSelect?.(strain)
+    // Navigate to the dedicated strain detail page
+    navigate(`/strain/${strainSlug(strain.name)}`)
   }
 
   const handleSubmit = (e) => {

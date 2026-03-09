@@ -29,6 +29,7 @@ const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPas
 const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
 const ChatPage = lazy(() => lazyRetry(() => import('./routes/ChatPage'), 'ChatPage'))
+const StrainDetailPage = lazy(() => lazyRetry(() => import('./routes/StrainDetailPage'), 'StrainDetailPage'))
 const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
 
 function LoadingFallback() {
@@ -71,6 +72,7 @@ export default function App() {
 
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<Navigate to="/journal" replace />} />
+                      <Route path="strain/:slug" element={<StrainDetailPage />} />
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="chat" element={<ChatPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />
