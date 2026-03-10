@@ -11,7 +11,7 @@ jobs:
   harvest:
     runs-on: ubuntu-latest
     name: Harvest Weedmaps → KV
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
@@ -21,6 +21,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Install Playwright
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
 
       - name: Run harvest script
         run: node scripts/harvest-dispensary-menus.mjs
