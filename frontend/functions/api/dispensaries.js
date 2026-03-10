@@ -3,9 +3,12 @@
  *
  * Endpoints:
  *   GET /api/dispensaries                                → list of available cities
- *   GET /api/dispensaries?city=san-diego                 → city index (dispensary list)
+ *   GET /api/dispensaries?city=san-diego                 → city index (full dispensary list)
  *   GET /api/dispensaries?city=san-diego&batch=0         → batch with full matched menus
  *   GET /api/dispensaries?city=san-diego&dispensary=slug  → single dispensary's menu
+ *
+ * The city index may be paginated across multiple KV keys (100 dispensaries per page).
+ * This function transparently concatenates all pages for the frontend.
  *
  * Data is populated by the daily harvest cron (scripts/harvest-dispensary-menus.mjs).
  */
@@ -38,7 +41,7 @@ export async function onRequest(context) {
       return await handleBatch(env, city, batch)
     }
 
-    // City only → return city index (dispensary list with summaries)
+    // City only → return city index (full dispensary list with summaries)
     return await handleCityIndex(env, city)
   } catch (err) {
     console.error('Dispensary API error:', err)
@@ -78,9 +81,32 @@ async function handleCityIndex(env, city) {
     })
   }
 
+  // If the index is paginated, fetch additional pages and concatenate
+  let allDispensaries = data.dispensaries || []
+
+  if (data.indexPages && data.indexPages > 1) {
+    const pagePromises = []
+    for (let p = 1; p < data.indexPages; p++) {
+      pagePromises.push(env.CACHE.get(`city:${city}:index:${p}`, 'json'))
+    }
+    const pages = await Promise.all(pagePromises)
+    for (const page of pages) {
+      if (page?.dispensaries) {
+        allDispensaries = allDispensaries.concat(page.dispensaries)
+      }
+    }
+  }
+
   return json({
     available: true,
-    ...data,
+    city: data.city,
+    label: data.label,
+    lat: data.lat,
+    lng: data.lng,
+    updatedAt: data.updatedAt,
+    dispensaryCount: data.dispensaryCount,
+    matchedStrainCount: data.matchedStrainCount,
+    dispensaries: allDispensaries,
   })
 }
 
@@ -101,14 +127,27 @@ async function handleBatch(env, city, batchIndex) {
 
 async function handleDispensaryDetail(env, city, dispensaryId) {
   // First, get the city index to find which batch this dispensary is in
-  const indexKey = `city:${city}:index`
-  const index = await env.CACHE.get(indexKey, 'json')
+  // Check base index first, then additional pages if needed
+  const index = await env.CACHE.get(`city:${city}:index`, 'json')
 
   if (!index) {
     return json({ available: false, message: `No data for "${city}".` })
   }
 
-  const dispensary = index.dispensaries?.find(d => d.id === dispensaryId)
+  // Search base index page
+  let dispensary = index.dispensaries?.find(d => d.id === dispensaryId)
+
+  // If not found and there are more pages, search them
+  if (!dispensary && index.indexPages > 1) {
+    for (let p = 1; p < index.indexPages; p++) {
+      const page = await env.CACHE.get(`city:${city}:index:${p}`, 'json')
+      if (page?.dispensaries) {
+        dispensary = page.dispensaries.find(d => d.id === dispensaryId)
+        if (dispensary) break
+      }
+    }
+  }
+
   if (!dispensary) {
     return json({ available: false, message: `Dispensary "${dispensaryId}" not found in ${city}.` })
   }

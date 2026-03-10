@@ -11,7 +11,7 @@ jobs:
   harvest:
     runs-on: ubuntu-latest
     name: Harvest Weedmaps → KV
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
