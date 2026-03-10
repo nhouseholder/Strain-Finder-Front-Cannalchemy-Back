@@ -15,6 +15,7 @@ import clsx from 'clsx'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
+import { useUserRegion } from '../hooks/useUserRegion'
 import StrainCard from '../components/results/StrainCard'
 import LegalConsent from '../components/shared/LegalConsent'
 import topStrainsData from '../data/top-strains-for.json'
@@ -69,6 +70,7 @@ export default function ExploreStrainsPage() {
   const navigate = useNavigate()
   const { fullStrains, dataLoaded } = useStrainSearch()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { userRegionIndex } = useUserRegion()
   const [expandedStrain, setExpandedStrain] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [showScience, setShowScience] = useState(false)
@@ -97,19 +99,31 @@ export default function ExploreStrainsPage() {
     return map
   }, [fullStrains])
 
-  /* Pick ~50 strains, shuffled weekly, no order */
+  /* Pick ~50 strains, shuffled weekly.
+     When user has location, sort strains popular in their area to the top. */
   const catIndex = activeCategory ? CATEGORIES.findIndex(c => c.id === activeCategory) : 0
   const displayStrains = useMemo(() => {
     if (!catData || !dataLoaded) return []
     const shuffled = weeklyShuffle(catData.strains.slice(0, 50), catIndex)
-    return shuffled
+    const resolved = shuffled
       .map((entry) => {
         const strain = strainById[entry.id]
         if (!strain) return null
         return { ...entry, strain }
       })
       .filter(Boolean)
-  }, [catData, strainById, dataLoaded, catIndex])
+
+    // When user has location, sort by regional availability (popular first)
+    if (userRegionIndex != null) {
+      resolved.sort((a, b) => {
+        const regA = a.strain.reg ? (a.strain.reg[userRegionIndex] || 0) : 0
+        const regB = b.strain.reg ? (b.strain.reg[userRegionIndex] || 0) : 0
+        return regB - regA
+      })
+    }
+
+    return resolved
+  }, [catData, strainById, dataLoaded, catIndex, userRegionIndex])
 
   const handleToggle = useCallback((name) => {
     setExpandedStrain(prev => prev === name ? null : name)
@@ -259,11 +273,14 @@ export default function ExploreStrainsPage() {
           )}
         </div>
 
-        {/* No-ranking notice */}
+        {/* Notice — changes based on whether user has location */}
         <div className="flex items-center gap-2 mb-4 px-3 py-2 rounded-lg bg-leaf-500/[0.04] border border-leaf-500/10">
           <Compass size={14} className="text-leaf-400 flex-shrink-0" />
           <p className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
-            Strains shown in <strong className="text-gray-500 dark:text-[#8a9a8e]">no particular order</strong>. Explore and learn about each one — this is not a ranking.
+            {userRegionIndex != null
+              ? <>Strains <strong className="text-gray-500 dark:text-[#8a9a8e]">popular in your area shown first</strong>. Explore and learn about each one — this is not a ranking.</>
+              : <>Strains shown in <strong className="text-gray-500 dark:text-[#8a9a8e]">no particular order</strong>. Explore and learn about each one — this is not a ranking.</>
+            }
           </p>
         </div>
 
@@ -285,6 +302,7 @@ export default function ExploreStrainsPage() {
                 availability={[]}
                 availabilityLoading={false}
                 onViewDispensary={null}
+                userRegionIndex={userRegionIndex}
               />
             ))}
           </div>

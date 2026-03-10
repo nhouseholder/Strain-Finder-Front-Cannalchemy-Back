@@ -29,6 +29,7 @@ function SearchAutocomplete({
   className = '',
   inputClassName = '',
   showSearchButton = false,
+  userRegionIndex = null,
 }) {
   const navigate = useNavigate()
   const [query, setQuery] = useState(initialQuery)
@@ -53,12 +54,12 @@ function SearchAutocomplete({
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Filter strains
+  // Filter strains — boost locally-available strains when region is known
   const matches = useMemo(() => {
     if (!query || query.trim().length < 1 || strains.length === 0) return []
     const lower = query.toLowerCase().trim()
     const str = (v) => typeof v === 'string' ? v : String(v || '')
-    return strains
+    const filtered = strains
       .filter(s => {
         try {
           return (
@@ -69,8 +70,23 @@ function SearchAutocomplete({
           )
         } catch { return false }
       })
-      .slice(0, 8)
-  }, [query, strains])
+
+    // When user has location, sort by: exact name match first, then regional availability
+    if (userRegionIndex != null && filtered.length > 1) {
+      filtered.sort((a, b) => {
+        // Exact name starts-with match gets priority
+        const aExact = str(a.name).toLowerCase().startsWith(lower) ? 1 : 0
+        const bExact = str(b.name).toLowerCase().startsWith(lower) ? 1 : 0
+        if (aExact !== bExact) return bExact - aExact
+        // Then sort by regional availability
+        const regA = a.reg ? (a.reg[userRegionIndex] || 0) : 0
+        const regB = b.reg ? (b.reg[userRegionIndex] || 0) : 0
+        return regB - regA
+      })
+    }
+
+    return filtered.slice(0, 8)
+  }, [query, strains, userRegionIndex])
 
   const handleChange = (e) => {
     setQuery(e.target.value)
