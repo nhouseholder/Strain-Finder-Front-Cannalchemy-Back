@@ -1,11 +1,14 @@
 /**
- * Dispensary search — Two-layer cache:
- *   1. localStorage (30 min, per-device)
- *   2. Cloudflare KV regional cache (24 hours, shared across ALL users)
- * Falls back to demo data when API is unavailable.
+ * Dispensary search — Serves live dispensary data from Cloudflare KV.
+ *
+ * Data pipeline:
+ *   GitHub Actions cron → Weedmaps API → strain matching → KV
+ *   This service reads from KV via the /api/dispensaries Pages Function.
+ *
+ * Two modes:
+ *   1. City mode: Select a pre-harvested city → instant results from KV
+ *   2. Location mode: Enter zip/city → check KV regional cache → demo fallback
  */
-import { callFreeAI, RateLimitError } from './freeAi'
-import { buildDispensaryPrompt } from './promptBuilder'
 
 const CACHE_PREFIX = 'dispensary_'
 const CACHE_TTL = 30 * 60 * 1000 // 30 minutes (local cache)
@@ -15,63 +18,112 @@ const CACHE_TTL = 30 * 60 * 1000 // 30 minutes (local cache)
 /* ------------------------------------------------------------------ */
 export function getRegionKey(location) {
   if (typeof location === 'string') {
-    // If it's a 5-digit zip, use first 3 digits
     const zipMatch = location.match(/\b(\d{5})\b/)
     if (zipMatch) return zipMatch[1].slice(0, 3)
-    // For city names, create a normalized key
     return location.toLowerCase().replace(/[^a-z0-9]/g, '-').slice(0, 30)
   }
   if (location?.lat != null && location?.lng != null) {
-    // Round to ~10km grid
     return `geo-${Math.round(location.lat * 10)}-${Math.round(location.lng * 10)}`
   }
   return null
 }
 
 /* ------------------------------------------------------------------ */
-/*  Regional cache (Cloudflare KV via Pages Function)                 */
+/*  City-based search (primary — uses pre-harvested KV data)          */
 /* ------------------------------------------------------------------ */
-async function checkRegionalCache(regionKey, strainNames) {
+export async function fetchCities() {
   try {
-    const params = new URLSearchParams({
-      action: 'check',
-      region: regionKey,
-      strains: (strainNames || []).slice(0, 10).join(','),
-    })
+    const res = await fetch('/api/dispensaries')
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.cities || []
+  } catch {
+    return []
+  }
+}
+
+export async function searchByCity(citySlug) {
+  try {
+    const res = await fetch(`/api/dispensaries?city=${citySlug}`)
+    if (!res.ok) return { available: false, dispensaries: [] }
+    const data = await res.json()
+
+    if (!data.available) return { available: false, dispensaries: [] }
+
+    return {
+      available: true,
+      city: data.city,
+      label: data.label,
+      lat: data.lat,
+      lng: data.lng,
+      updatedAt: data.updatedAt,
+      dispensaryCount: data.dispensaryCount,
+      matchedStrainCount: data.matchedStrainCount,
+      dispensaries: normalizeDispensaries(data.dispensaries || []),
+    }
+  } catch (err) {
+    console.error('[DispensarySearch] City fetch failed:', err.message)
+    return { available: false, dispensaries: [] }
+  }
+}
+
+export async function fetchDispensaryMenu(citySlug, dispensaryId) {
+  try {
+    const res = await fetch(`/api/dispensaries?city=${citySlug}&dispensary=${dispensaryId}`)
+    if (!res.ok) return null
+    const data = await res.json()
+    if (!data.available) return null
+    return data.dispensary || null
+  } catch (err) {
+    console.error('[DispensarySearch] Menu fetch failed:', err.message)
+    return null
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Location-based search (fallback — zip/city/geolocation)           */
+/* ------------------------------------------------------------------ */
+async function checkRegionalCache(regionKey) {
+  try {
+    const params = new URLSearchParams({ action: 'check', region: regionKey })
     const res = await fetch(`/api/dispensary-cache?${params}`)
     if (!res.ok) return null
     const data = await res.json()
     if (data.cached && data.dispensaries?.length > 0) {
-      console.log(`[DispensaryCache] Regional HIT for "${regionKey}" (${data.hit_count} hits, ${data.age_hours}h old)`)
+      console.log(`[DispensaryCache] Regional HIT for "${regionKey}" (${data.hit_count} hits)`)
       return data.dispensaries
     }
     return null
-  } catch (err) {
-    console.warn('[DispensaryCache] Regional cache check failed:', err.message)
+  } catch {
     return null
   }
 }
 
-async function storeRegionalCache(regionKey, dispensaries, strainNames, location) {
-  try {
-    await fetch('/api/dispensary-cache?action=store', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        region_key: regionKey,
-        dispensaries,
-        strain_names: strainNames || [],
-        location_query: typeof location === 'string' ? location : 'geolocation',
-      }),
-    })
-    console.log(`[DispensaryCache] Stored regional cache for "${regionKey}"`)
-  } catch (err) {
-    console.warn('[DispensaryCache] Regional cache store failed:', err.message)
+export async function searchDispensaries(location, strainNames, options = {}) {
+  // Check localStorage cache first
+  const cached = getCachedResults(location, strainNames)
+  if (cached) return cached
+
+  // Check KV regional cache
+  const regionKey = getRegionKey(location)
+  if (regionKey) {
+    const regionalHit = await checkRegionalCache(regionKey)
+    if (regionalHit) {
+      const dispensaries = normalizeDispensaries(regionalHit)
+      setCachedResults(location, strainNames, dispensaries)
+      return dispensaries
+    }
   }
+
+  // Fallback: demo data
+  console.log('[DispensarySearch] No cached data — returning demo dispensaries')
+  const demo = buildDemoDispensaries(location, strainNames)
+  setCachedResults(location, strainNames, demo)
+  return demo
 }
 
 /* ------------------------------------------------------------------ */
-/*  Normalize enriched strain objects                                  */
+/*  Normalize dispensary array                                        */
 /* ------------------------------------------------------------------ */
 function normalizeStrainEntry(s) {
   if (typeof s === 'string') return { name: s, price: null, inStock: true, strainMenuUrl: null }
@@ -83,57 +135,6 @@ function normalizeStrainEntry(s) {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/*  Main search function                                               */
-/* ------------------------------------------------------------------ */
-export async function searchDispensaries(location, strainNames, options = {}) {
-  // Layer 1: Check localStorage cache
-  const cached = getCachedResults(location, strainNames)
-  if (cached) return cached
-
-  // Layer 2: Check regional cache (Cloudflare KV — shared across users)
-  const regionKey = getRegionKey(location)
-  if (regionKey) {
-    const regionalHit = await checkRegionalCache(regionKey, strainNames)
-    if (regionalHit) {
-      const dispensaries = normalizeDispensaries(regionalHit)
-      setCachedResults(location, strainNames, dispensaries)
-      return dispensaries
-    }
-  }
-
-  // Layer 3: Call Workers AI (free Llama 3.3 70B)
-  try {
-    const prompt = buildDispensaryPrompt(location, strainNames, options)
-    const rawText = await callFreeAI({ prompt, maxTokens: 4000, retries: 2 })
-    const parsed = parseDispensaryResponse(rawText)
-    const dispensaries = normalizeDispensaries(parsed.dispensaries || [])
-
-    // Store in both caches
-    setCachedResults(location, strainNames, dispensaries)
-    if (regionKey) {
-      storeRegionalCache(regionKey, dispensaries, strainNames, location) // fire-and-forget
-    }
-
-    return dispensaries
-  } catch (err) {
-    // Rate limit errors should surface to the UI — don't silently fall back
-    if (err instanceof RateLimitError) {
-      throw err
-    }
-
-    console.error('Dispensary search — falling back to demo data:', err.message)
-
-    // Return demo dispensary data so the UI always has something to show
-    const demo = buildDemoDispensaries(location, strainNames)
-    setCachedResults(location, strainNames, demo)
-    return demo
-  }
-}
-
-/* ------------------------------------------------------------------ */
-/*  Normalize dispensary array (handles both legacy + enriched format) */
-/* ------------------------------------------------------------------ */
 function normalizeDispensaries(rawList) {
   return (rawList || []).map((d, i) => ({
     id: d.id || `disp-${i}`,
@@ -149,15 +150,20 @@ function normalizeDispensaries(rawList) {
     deliveryMin: d.deliveryMin || d.delivery_min || null,
     deliveryEta: d.deliveryEta || d.delivery_eta || null,
     pickupReady: d.pickupReady || d.pickup_ready || null,
-    matchedStrains: (d.matchedStrains || d.matched_strains || []).map(normalizeStrainEntry),
+    matchedStrains: (d.matchedStrains || d.matched_strains || d.menuSummary?.topMatches || []).map(
+      s => typeof s === 'string' ? { name: s, price: null, inStock: true, strainMenuUrl: null } : normalizeStrainEntry(s)
+    ),
     alternativeStrains: (d.alternativeStrains || d.alternative_strains || []).map(normalizeStrainEntry),
     deals: d.deals || [],
     priceRange: d.priceRange || d.price_range || null,
     hours: d.hours || '',
     phone: d.phone || '',
     website: d.website || '',
-    menuUrl: d.menuUrl || d.menu_url || '',
-    matchType: (d.matchedStrains || d.matched_strains || []).length > 0 ? 'exact' : 'alternative',
+    menuUrl: d.menuUrl || d.menu_url || d.wmUrl || '',
+    wmUrl: d.wmUrl || '',
+    matchType: (d.menuSummary?.matched > 0 || (d.matchedStrains || d.matched_strains || []).length > 0) ? 'exact' : 'alternative',
+    menuSummary: d.menuSummary || null,
+    batchIndex: d.batchIndex ?? null,
   }))
 }
 
@@ -185,7 +191,6 @@ export function buildStrainAvailability(dispensaries) {
     for (const s of (d.matchedStrains || [])) addEntry(s, 'exact')
     for (const s of (d.alternativeStrains || [])) addEntry(s, 'alternative')
   }
-  // Sort each strain's dispensaries by distance
   for (const key of Object.keys(map)) {
     map[key].sort((a, b) => (parseFloat(a.distance) || 999) - (parseFloat(b.distance) || 999))
   }
@@ -193,7 +198,7 @@ export function buildStrainAvailability(dispensaries) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Demo dispensary data — realistic showcase when no API key          */
+/*  Demo dispensary data — showcase when no live data available        */
 /* ------------------------------------------------------------------ */
 function buildDemoDispensaries(location, strainNames) {
   const locStr = typeof location === 'string' ? location : 'your area'
@@ -209,8 +214,6 @@ function buildDemoDispensaries(location, strainNames) {
       rating: 4.8,
       reviewCount: 312,
       delivery: true,
-      deliveryFee: null,
-      deliveryMin: null,
       deliveryEta: '30-45 min',
       pickupReady: '15 min',
       matchedStrains: topStrains.slice(0, 2).map(n => ({ name: n, price: '$45/eighth', inStock: true, strainMenuUrl: null })),
@@ -231,13 +234,11 @@ function buildDemoDispensaries(location, strainNames) {
       rating: 4.6,
       reviewCount: 189,
       delivery: true,
-      deliveryFee: null,
-      deliveryMin: null,
       deliveryEta: '45-60 min',
       pickupReady: '20 min',
       matchedStrains: topStrains.slice(0, 3).map(n => ({ name: n, price: '$40/eighth', inStock: true, strainMenuUrl: null })),
       alternativeStrains: [],
-      deals: ['BOGO 50% off edibles', 'Loyalty points: $1 = 1 point'],
+      deals: ['BOGO 50% off edibles'],
       priceRange: '$30-45/eighth',
       hours: '10am - 10pm',
       phone: '(555) 420-5678',
@@ -253,13 +254,10 @@ function buildDemoDispensaries(location, strainNames) {
       rating: 4.9,
       reviewCount: 427,
       delivery: false,
-      deliveryFee: null,
-      deliveryMin: null,
-      deliveryEta: null,
       pickupReady: '10 min',
       matchedStrains: topStrains.slice(1, 3).map(n => ({ name: n, price: '$50/eighth', inStock: true, strainMenuUrl: null })),
       alternativeStrains: altStrains.map(n => ({ name: n, price: '$35/eighth', inStock: true, strainMenuUrl: null })),
-      deals: ['Daily deal: $25 eighths on select strains', 'Veterans 20% off'],
+      deals: ['Daily deal: $25 eighths on select strains'],
       priceRange: '$25-55/eighth',
       hours: '8am - 10pm',
       phone: '(555) 420-9012',
@@ -267,103 +265,12 @@ function buildDemoDispensaries(location, strainNames) {
       menuUrl: 'https://weedmaps.com',
       matchType: 'exact',
     },
-    {
-      id: 'demo-3',
-      name: 'Zen Cannabis Co.',
-      address: `445 Elm St, ${locStr}`,
-      distance: '3.2 mi',
-      rating: 4.5,
-      reviewCount: 156,
-      delivery: true,
-      deliveryFee: null,
-      deliveryMin: null,
-      deliveryEta: '60-90 min',
-      pickupReady: '25 min',
-      matchedStrains: topStrains.slice(0, 1).map(n => ({ name: n, price: '$42/eighth', inStock: true, strainMenuUrl: null })),
-      alternativeStrains: altStrains.slice(0, 2).map(n => ({ name: n, price: '$36/eighth', inStock: true, strainMenuUrl: null })),
-      deals: ['First-time patient: free pre-roll with purchase'],
-      priceRange: '$40-60/eighth',
-      hours: '9am - 8pm',
-      phone: '(555) 420-3456',
-      website: 'https://leafly.com',
-      menuUrl: 'https://leafly.com',
-      matchType: 'exact',
-    },
-    {
-      id: 'demo-4',
-      name: 'Nature\'s Remedy',
-      address: `780 Birch Dr, ${locStr}`,
-      distance: '4.5 mi',
-      rating: 4.7,
-      reviewCount: 203,
-      delivery: false,
-      deliveryFee: null,
-      deliveryMin: null,
-      deliveryEta: null,
-      pickupReady: '20 min',
-      matchedStrains: [],
-      alternativeStrains: topStrains.slice(0, 2).map(n => ({ name: n, price: '$39/eighth', inStock: true, strainMenuUrl: null })),
-      deals: ['Terpene Tuesday: 10% off all flower', 'Senior discount 15%'],
-      priceRange: '$30-50/eighth',
-      hours: '10am - 9pm',
-      phone: '(555) 420-7890',
-      website: 'https://weedmaps.com',
-      menuUrl: 'https://weedmaps.com',
-      matchType: 'alternative',
-    },
   ]
 }
 
-function sanitizeLLMJson(str) {
-  return str
-    .replace(/,\s*([\]}])/g, '$1')    // trailing commas before } or ]
-    .replace(/\n/g, ' ')              // remove newlines inside JSON
-}
-
-function parseDispensaryResponse(rawText) {
-  if (!rawText) throw new Error('Empty response')
-
-  // Strip markdown code fences if present
-  let cleaned = rawText.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim()
-
-  // Find the outermost JSON object
-  const start = cleaned.indexOf('{')
-  const end = cleaned.lastIndexOf('}')
-  if (start === -1 || end === -1) {
-    // Try to find an array instead
-    const arrStart = cleaned.indexOf('[')
-    const arrEnd = cleaned.lastIndexOf(']')
-    if (arrStart !== -1 && arrEnd !== -1) {
-      try {
-        const arr = JSON.parse(sanitizeLLMJson(cleaned.slice(arrStart, arrEnd + 1)))
-        return { dispensaries: arr }
-      } catch {
-        throw new Error('Could not parse dispensary array response')
-      }
-    }
-    throw new Error('No JSON found in dispensary response')
-  }
-
-  const json = sanitizeLLMJson(cleaned.slice(start, end + 1))
-  let parsed
-  try {
-    parsed = JSON.parse(json)
-  } catch {
-    throw new Error('Dispensary response contained malformed JSON')
-  }
-
-  // Handle various response shapes
-  if (Array.isArray(parsed)) return { dispensaries: parsed }
-  if (parsed.dispensaries) return parsed
-  if (parsed.results) return { dispensaries: parsed.results }
-
-  // If it's a single object with dispensary-like fields, wrap it
-  if (parsed.name && parsed.address) return { dispensaries: [parsed] }
-
-  // Unrecognized shape — return empty to avoid silent failure
-  return { dispensaries: [] }
-}
-
+/* ------------------------------------------------------------------ */
+/*  Local storage caching                                              */
+/* ------------------------------------------------------------------ */
 function buildCacheKey(location, strainNames) {
   const locStr = typeof location === 'string'
     ? location

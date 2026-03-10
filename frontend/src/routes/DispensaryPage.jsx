@@ -1,13 +1,13 @@
-import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
+import { useNavigate, Link } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
-import { useDispensaryAvailability } from '../hooks/useDispensaryAvailability'
-import { RateLimitError } from '../services/freeAi'
-import { BUDGETS } from '../data/budgets'
+import { fetchCities, searchByCity, fetchDispensaryMenu, searchDispensaries } from '../services/dispensarySearch'
+import CitySelector from '../components/dispensary/CitySelector'
 import DispensaryDrawer from '../components/dispensary/DispensaryDrawer'
+import DispensaryMap from '../components/dispensary/DispensaryMap'
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import {
@@ -17,7 +17,6 @@ import {
   Truck,
   Clock,
   Star,
-  Phone,
   ExternalLink,
   Tag,
   ChevronLeft,
@@ -26,6 +25,8 @@ import {
   ArrowUpDown,
   ShoppingBag,
   Store,
+  Leaf,
+  Sparkles,
 } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
@@ -51,7 +52,7 @@ function LocationInput({ onSubmit, geoLoading, onAutoDetect, initialZip }) {
             value={manualLocation}
             onChange={(e) => setManualLocation(e.target.value)}
             placeholder="Enter zip code or city..."
-            className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
+            className="w-full pl-9 pr-4 py-2.5 text-base rounded-xl bg-white dark:bg-white/[0.04] border border-gray-200 dark:border-white/10 text-gray-900 dark:text-[#e8f0ea] placeholder-gray-400 dark:placeholder-[#5a6a5e] focus:outline-none focus:ring-2 focus:ring-leaf-500/40 focus:border-leaf-500/40 transition-all"
           />
         </div>
         <Button type="submit" size="md" disabled={!manualLocation.trim()}>
@@ -87,11 +88,9 @@ function LocationInput({ onSubmit, geoLoading, onAutoDetect, initialZip }) {
 /* ------------------------------------------------------------------ */
 function DispensaryFilters({ sortBy, onSortChange }) {
   const sortOptions = [
-    { value: 'closest', label: 'Closest' },
+    { value: 'matches', label: 'Most Matches' },
     { value: 'rating', label: 'Top Rated' },
-    { value: 'deals', label: 'Best Deals' },
     { value: 'delivery', label: 'Delivery' },
-    { value: 'cheapest', label: 'Budget' },
   ]
 
   return (
@@ -115,7 +114,7 @@ function DispensaryFilters({ sortBy, onSortChange }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  DispensaryCard (inline — now clickable to open drawer)            */
+/*  DispensaryCard (inline — clickable to open drawer)                */
 /* ------------------------------------------------------------------ */
 function DispensaryCardItem({ dispensary, onClick }) {
   const d = dispensary
@@ -177,15 +176,34 @@ function DispensaryCardItem({ dispensary, onClick }) {
             Pickup {d.pickupReady}
           </span>
         )}
-        {d.priceRange ? (
-          <span className="font-medium">{d.priceRange}</span>
-        ) : (
-          <span className="text-gray-400 dark:text-[#5a6a5e] italic text-[10px]">Check menu for prices</span>
-        )}
       </div>
 
-      {/* Matched strains */}
-      {d.matchedStrains?.length > 0 && (
+      {/* Menu match summary (for city-mode) */}
+      {d.menuSummary && d.menuSummary.matched > 0 && (
+        <div className="mb-3">
+          <span className="text-[10px] uppercase tracking-wider text-leaf-400 block mb-1">
+            {d.menuSummary.matched} of {d.menuSummary.total} strains in our database
+          </span>
+          <div className="flex flex-wrap gap-1">
+            {d.menuSummary.topMatches?.map((name, idx) => (
+              <span
+                key={`${name}-${idx}`}
+                className="px-2 py-0.5 rounded-md text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
+              >
+                {name}
+              </span>
+            ))}
+            {d.menuSummary.matched > 3 && (
+              <span className="px-2 py-0.5 rounded-md text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+                +{d.menuSummary.matched - 3} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Legacy matched strains (for location-mode / demo data) */}
+      {!d.menuSummary && d.matchedStrains?.length > 0 && (
         <div className="mb-3">
           <span className="text-[10px] uppercase tracking-wider text-leaf-400 block mb-1">
             Your Strains In Stock
@@ -198,29 +216,6 @@ function DispensaryCardItem({ dispensary, onClick }) {
                 <span
                   key={`${name}-${idx}`}
                   className="px-2 py-0.5 rounded-md text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
-                >
-                  {name}{price ? ` · ${price}` : ''}
-                </span>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Alternative strains */}
-      {d.alternativeStrains?.length > 0 && (
-        <div className="mb-3">
-          <span className="text-[10px] uppercase tracking-wider text-blue-400 block mb-1">
-            Similar Alternatives
-          </span>
-          <div className="flex flex-wrap gap-1">
-            {d.alternativeStrains.map((s, idx) => {
-              const name = typeof s === 'string' ? s : s.name
-              const price = typeof s === 'object' ? s.price : null
-              return (
-                <span
-                  key={`${name}-${idx}`}
-                  className="px-2 py-0.5 rounded-md text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/20"
                 >
                   {name}{price ? ` · ${price}` : ''}
                 </span>
@@ -247,11 +242,27 @@ function DispensaryCardItem({ dispensary, onClick }) {
         </div>
       )}
 
+      {/* Weedmaps link */}
+      {d.wmUrl && (
+        <div className="flex items-center gap-1.5 mb-2">
+          <a
+            href={d.wmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] text-leaf-400/60 hover:text-leaf-400 transition-colors flex items-center gap-1"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink size={10} />
+            View on Weedmaps
+          </a>
+        </div>
+      )}
+
       {/* Tap to expand hint */}
       <div className="flex items-center justify-center gap-1.5 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
         <Store size={11} className="text-leaf-400/60" />
         <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-          Tap for full details & menu
+          Tap for full menu & strain details
         </span>
       </div>
     </Card>
@@ -259,147 +270,287 @@ function DispensaryCardItem({ dispensary, onClick }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  DispensaryPage                                                    */
+/*  Enhanced Menu Drawer — shows matched strains with our data        */
+/* ------------------------------------------------------------------ */
+function EnhancedMenuDrawer({ dispensary, menuData, open, onClose, loading }) {
+  if (!dispensary) return null
+
+  const d = dispensary
+  const matched = menuData?.matchedMenu || []
+  const unmatchedCount = menuData?.unmatchedCount || 0
+
+  return (
+    <DispensaryDrawer
+      dispensary={{
+        ...d,
+        matchedStrains: matched.length > 0
+          ? matched.map(m => ({
+              name: m.strain?.name || m.menuName,
+              price: m.price,
+              inStock: true,
+              strainMenuUrl: null,
+            }))
+          : d.matchedStrains || [],
+        alternativeStrains: d.alternativeStrains || [],
+      }}
+      open={open}
+      onClose={onClose}
+    >
+      {/* Enhanced strain details section */}
+      {loading && (
+        <div className="flex items-center justify-center py-8 gap-3">
+          <Loader2 size={16} className="animate-spin text-leaf-400" />
+          <span className="text-sm text-gray-500 dark:text-[#8a9a8e]">Loading enhanced menu...</span>
+        </div>
+      )}
+
+      {!loading && matched.length > 0 && (
+        <div className="mt-4">
+          <h3 className="text-[10px] uppercase tracking-wider text-leaf-400 font-bold mb-3 flex items-center gap-1.5">
+            <Sparkles size={11} />
+            Enhanced Menu — {matched.length} Strains Matched
+          </h3>
+          <div className="space-y-2">
+            {matched.map((item, i) => (
+              <div
+                key={i}
+                className="p-3 rounded-xl bg-white/[0.02] border border-gray-100 dark:border-white/[0.06]"
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-leaf-500 flex-shrink-0" />
+                    <span className="text-sm font-semibold text-gray-800 dark:text-[#e8f0ea] truncate">
+                      {item.strain?.name || item.menuName}
+                    </span>
+                    {item.strain?.matchTier === 'fuzzy' && (
+                      <span className="text-[8px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        ~match
+                      </span>
+                    )}
+                  </div>
+                  {item.price && (
+                    <span className="text-xs font-bold text-leaf-500 flex-shrink-0">
+                      {item.price}
+                    </span>
+                  )}
+                </div>
+
+                {/* Strain detail chips */}
+                <div className="flex flex-wrap gap-1.5">
+                  {item.strain?.type && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] bg-purple-500/10 text-purple-400 border border-purple-500/15">
+                      {item.strain.type}
+                    </span>
+                  )}
+                  {item.strain?.thc != null && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] bg-green-500/10 text-green-400 border border-green-500/15">
+                      THC {item.strain.thc}%
+                    </span>
+                  )}
+                  {item.strain?.cbd != null && item.strain.cbd > 0 && (
+                    <span className="px-1.5 py-0.5 rounded text-[9px] bg-blue-500/10 text-blue-400 border border-blue-500/15">
+                      CBD {item.strain.cbd}%
+                    </span>
+                  )}
+                  {item.strain?.topTerpenes?.map((t, j) => (
+                    <span key={j} className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/5 text-amber-400/80 border border-amber-500/10">
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Effects */}
+                {item.strain?.topEffects?.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {item.strain.topEffects.map((e, j) => (
+                      <span key={j} className="text-[9px] text-gray-500 dark:text-[#6a7a6e]">
+                        {e}{j < item.strain.topEffects.length - 1 ? ' · ' : ''}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Link to our strain detail page */}
+                {item.strain?.slug && (
+                  <Link
+                    to={`/strain/${item.strain.slug}`}
+                    className="inline-flex items-center gap-1 mt-1.5 text-[10px] text-leaf-400/70 hover:text-leaf-400 transition-colors"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Leaf size={10} />
+                    View full strain profile
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {unmatchedCount > 0 && (
+            <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-3 text-center">
+              + {unmatchedCount} additional items not in our database
+            </p>
+          )}
+        </div>
+      )}
+    </DispensaryDrawer>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  DispensaryPage — Main component                                   */
 /* ------------------------------------------------------------------ */
 export default function DispensaryPage() {
-  usePageTitle('Dispensaries Near You')
+  usePageTitle('Dispensaries')
   const navigate = useNavigate()
   const { state: resultsState } = useContext(ResultsContext)
   const quizCtx = useContext(QuizContext)
   const quizZipCode = quizCtx?.state?.zipCode || ''
-  const quizBudget = quizCtx?.state?.budget || null
-  const budgetDesc = BUDGETS.find((b) => b.id === quizBudget)?.desc || null
   const { location: geoLocation, error: geoError, loading: geoLoading, requestLocation } = useGeolocation()
 
-  // Use shared availability hook
-  const {
-    dispensaries,
-    loading,
-    error: availError,
-    locationUsed,
-    forceSearch,
-    hasData,
-  } = useDispensaryAvailability()
+  // City-based state (primary mode)
+  const [cities, setCities] = useState([])
+  const [citiesLoading, setCitiesLoading] = useState(true)
+  const [citiesUpdatedAt, setCitiesUpdatedAt] = useState(null)
+  const [activeCity, setActiveCity] = useState(null)
+  const [cityData, setCityData] = useState(null)
+  const [cityLoading, setCityLoading] = useState(false)
 
-  const [localError, setLocalError] = useState(null)
-  const [rateLimitCountdown, setRateLimitCountdown] = useState(0)
-  const [sortBy, setSortBy] = useState('closest')
-  const autoSearched = useRef(false)
-  const countdownRef = useRef(null)
+  // Location-based state (fallback mode)
+  const [locationDispensaries, setLocationDispensaries] = useState([])
+  const [locationLoading, setLocationLoading] = useState(false)
+  const [locationUsed, setLocationUsed] = useState(null)
+  const [locationError, setLocationError] = useState(null)
 
-  // Dispensary drawer state
+  // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [drawerDispensary, setDrawerDispensary] = useState(null)
+  const [drawerMenuData, setDrawerMenuData] = useState(null)
+  const [drawerMenuLoading, setDrawerMenuLoading] = useState(false)
 
-  const error = localError || availError
+  // Sorting
+  const [sortBy, setSortBy] = useState('matches')
+
+  // Determine mode
+  const mode = activeCity ? 'city' : locationUsed ? 'location' : null
+  const dispensaries = mode === 'city' ? (cityData?.dispensaries || []) : locationDispensaries
+  const error = locationError
 
   const strainNames = useMemo(
-    () => (resultsState.strains || []).map((s) => s.name),
+    () => (resultsState.strains || []).map(s => s.name),
     [resultsState.strains]
   )
 
-  /* Countdown timer cleanup */
+  /* Load available cities on mount */
   useEffect(() => {
-    return () => { if (countdownRef.current) clearInterval(countdownRef.current) }
-  }, [])
-
-  const startCountdown = useCallback((seconds) => {
-    if (countdownRef.current) clearInterval(countdownRef.current)
-    setRateLimitCountdown(seconds)
-    countdownRef.current = setInterval(() => {
-      setRateLimitCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownRef.current)
-          countdownRef.current = null
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
-  }, [])
-
-  const doSearch = useCallback(
-    async (loc) => {
-      if (rateLimitCountdown > 0) return
-      setLocalError(null)
+    let cancelled = false
+    ;(async () => {
       try {
-        await forceSearch(loc, strainNames, budgetDesc)
-      } catch (err) {
-        if (err instanceof RateLimitError) {
-          setLocalError('RATE_LIMITED')
-          startCountdown(err.retryAfter)
-        } else {
-          setLocalError(err.message || 'Failed to find dispensaries. Please try again.')
+        const data = await fetchCities()
+        if (!cancelled) {
+          setCities(data)
+          setCitiesUpdatedAt(data[0]?.updatedAt || null)
         }
+      } catch {
+        // Cities unavailable — location mode still works
+      } finally {
+        if (!cancelled) setCitiesLoading(false)
       }
-    },
-    [strainNames, budgetDesc, rateLimitCountdown, startCountdown, forceSearch]
-  )
+    })()
+    return () => { cancelled = true }
+  }, [])
 
-  /* Auto-detect callback */
+  /* Select city */
+  const handleCitySelect = useCallback(async (citySlug) => {
+    if (citySlug === activeCity) return
+    setActiveCity(citySlug)
+    setCityLoading(true)
+    setLocationUsed(null)
+    setLocationDispensaries([])
+
+    try {
+      const data = await searchByCity(citySlug)
+      setCityData(data)
+    } catch (err) {
+      console.error('City fetch error:', err)
+      setCityData({ available: false, dispensaries: [] })
+    } finally {
+      setCityLoading(false)
+    }
+  }, [activeCity])
+
+  /* Location-based search */
+  const handleLocationSearch = useCallback(async (loc) => {
+    setActiveCity(null)
+    setCityData(null)
+    setLocationError(null)
+    setLocationUsed(typeof loc === 'string' ? loc : 'Your location')
+    setLocationLoading(true)
+
+    try {
+      const results = await searchDispensaries(loc, strainNames)
+      setLocationDispensaries(results)
+    } catch (err) {
+      setLocationError(err.message || 'Search failed')
+    } finally {
+      setLocationLoading(false)
+    }
+  }, [strainNames])
+
+  /* Auto-detect location */
   const handleAutoDetect = useCallback(() => {
     requestLocation()
   }, [requestLocation])
 
-  /* Auto-search with quiz zip code */
   useEffect(() => {
-    if (quizZipCode.length === 5 && !autoSearched.current && !hasData && !loading) {
-      autoSearched.current = true
-      doSearch(quizZipCode)
-    }
-  }, [quizZipCode, hasData, loading, doSearch])
-
-  /* When geo location arrives */
-  useEffect(() => {
-    if (geoLocation && !loading && !hasData) {
-      doSearch(geoLocation)
+    if (geoLocation && !locationLoading) {
+      handleLocationSearch(geoLocation)
     }
   }, [geoLocation]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* Open dispensary drawer — load full menu if in city mode */
+  const handleCardClick = useCallback(async (dispensary) => {
+    setDrawerDispensary(dispensary)
+    setDrawerOpen(true)
+    setDrawerMenuData(null)
+
+    if (activeCity && dispensary.id) {
+      setDrawerMenuLoading(true)
+      try {
+        const detail = await fetchDispensaryMenu(activeCity, dispensary.id)
+        setDrawerMenuData(detail)
+      } catch {
+        // Menu unavailable — drawer still shows basic info
+      } finally {
+        setDrawerMenuLoading(false)
+      }
+    }
+  }, [activeCity])
 
   /* Sort dispensaries */
   const sortedDispensaries = useMemo(() => {
     const list = [...dispensaries]
     switch (sortBy) {
-      case 'closest':
-        return list.sort((a, b) => (parseFloat(a.distance) || 999) - (parseFloat(b.distance) || 999))
+      case 'matches':
+        return list.sort((a, b) => (b.menuSummary?.matched || b.matchedStrains?.length || 0) - (a.menuSummary?.matched || a.matchedStrains?.length || 0))
       case 'rating':
         return list.sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      case 'deals':
-        return list.sort((a, b) => (b.deals?.length || 0) - (a.deals?.length || 0))
       case 'delivery':
         return list.sort((a, b) => (b.delivery ? 1 : 0) - (a.delivery ? 1 : 0))
-      case 'cheapest':
-        return list.sort((a, b) => (a.priceRange?.length || 2) - (b.priceRange?.length || 2))
       default:
         return list
     }
   }, [dispensaries, sortBy])
 
-  /* Open drawer */
-  const handleCardClick = useCallback((dispensary) => {
-    setDrawerDispensary(dispensary)
-    setDrawerOpen(true)
-  }, [])
-
-  /* No strains state */
-  if (!resultsState.strains || resultsState.strains.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 animate-fade-in">
-        <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-white/[0.04] flex items-center justify-center mb-4">
-          <Search size={28} className="text-gray-300 dark:text-[#5a6a5e]" />
-        </div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">
-          Find Your Strain
-        </h2>
-        <p className="text-sm text-gray-500 dark:text-[#8a9a8e] text-center max-w-xs mb-6">
-          Take the quiz to get personalized strain recommendations backed by real science.
-        </p>
-        <Button onClick={() => navigate('/')}>
-          Take the Quiz
-        </Button>
-      </div>
-    )
-  }
+  /* Map center */
+  const mapCenter = useMemo(() => {
+    if (mode === 'city' && cityData?.lat && cityData?.lng) {
+      return { lat: cityData.lat, lng: cityData.lng }
+    }
+    if (geoLocation?.lat && geoLocation?.lng) {
+      return geoLocation
+    }
+    return null
+  }, [mode, cityData, geoLocation])
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
@@ -413,23 +564,34 @@ export default function DispensaryPage() {
             Dispensaries
           </h1>
           <p className="text-xs text-gray-400 dark:text-[#5a6a5e] mt-0.5">
-            Find your matched strains nearby
+            Real menus, matched with our strain data
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={() => navigate('/results')}>
-          <ChevronLeft size={14} />
-          Back to Strains
-        </Button>
+        {resultsState.strains?.length > 0 && (
+          <Button variant="ghost" size="sm" onClick={() => navigate('/results')}>
+            <ChevronLeft size={14} />
+            My Strains
+          </Button>
+        )}
       </div>
 
-      {/* Location input */}
+      {/* City Selector — primary way to browse */}
+      <CitySelector
+        cities={cities}
+        activeCity={activeCity}
+        onSelect={handleCitySelect}
+        loading={citiesLoading}
+        updatedAt={citiesUpdatedAt}
+      />
+
+      {/* Location Input — alternative / fallback */}
       <Card className="p-4 mb-6">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4] mb-3 flex items-center gap-2">
           <Navigation size={14} />
-          Your Location
+          Search by Location
         </h2>
         <LocationInput
-          onSubmit={doSearch}
+          onSubmit={handleLocationSearch}
           geoLoading={geoLoading}
           onAutoDetect={handleAutoDetect}
           initialZip={quizZipCode}
@@ -440,139 +602,92 @@ export default function DispensaryPage() {
             {geoError}
           </p>
         )}
-        {locationUsed && !loading && (
-          <p className="mt-2 text-xs text-gray-400 dark:text-[#5a6a5e]">
-            Showing results for: <strong className="text-gray-600 dark:text-[#8a9a8e]">{locationUsed}</strong>
-          </p>
-        )}
       </Card>
 
-      {/* Searching strains note */}
-      {strainNames.length > 0 && (
-        <div className="mb-4">
-          <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-[#5a6a5e] mb-1.5">
-            Searching for {strainNames.length} strains
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {strainNames.slice(0, 7).map((name) => (
-              <span
-                key={name}
-                className="px-2 py-0.5 rounded-md text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/20"
-              >
-                {name}
-              </span>
-            ))}
-            {strainNames.length > 7 && (
-              <span className="px-2 py-0.5 rounded-md text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-                +{strainNames.length - 7} more
-              </span>
-            )}
-          </div>
+      {/* Active context indicator */}
+      {mode && !cityLoading && !locationLoading && (
+        <div className="mb-4 text-xs text-gray-400 dark:text-[#5a6a5e]">
+          {mode === 'city' && cityData?.available && (
+            <span>
+              Showing <strong className="text-gray-600 dark:text-[#8a9a8e]">{cityData.dispensaryCount}</strong> dispensaries in{' '}
+              <strong className="text-gray-600 dark:text-[#8a9a8e]">{cityData.label}</strong>
+              {cityData.matchedStrainCount > 0 && (
+                <> &middot; <strong className="text-leaf-400">{cityData.matchedStrainCount}</strong> strains matched</>
+              )}
+            </span>
+          )}
+          {mode === 'location' && locationUsed && (
+            <span>
+              Showing results for: <strong className="text-gray-600 dark:text-[#8a9a8e]">{locationUsed}</strong>
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Map */}
+      {dispensaries.length > 0 && !cityLoading && !locationLoading && (
+        <div className="mb-6">
+          <DispensaryMap
+            dispensaries={dispensaries}
+            center={mapCenter}
+            zoom={mode === 'city' ? 11 : 12}
+          />
         </div>
       )}
 
       {/* Loading */}
-      {loading && (
+      {(cityLoading || locationLoading) && (
         <div className="flex flex-col items-center justify-center py-16 gap-4 animate-fade-in">
           <div className="w-12 h-12 rounded-full border-2 border-leaf-500/20 border-t-leaf-500 animate-spin" />
           <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
-            Searching real dispensaries near you...
-          </p>
-          <p className="text-xs text-gray-400 dark:text-[#5a6a5e]">
-            This may take 15-30 seconds
+            {cityLoading ? 'Loading dispensaries...' : 'Searching nearby...'}
           </p>
         </div>
       )}
 
       {/* Error */}
-      {error && !loading && (
+      {error && !locationLoading && (
         <Card className="p-6 mb-6">
-          {error === 'RATE_LIMITED' ? (
-            <div className="text-center">
-              <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center mx-auto mb-3">
-                <Clock size={24} className="text-amber-400" />
-              </div>
-              <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">
-                Slow Down — Rate Limit Reached
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-[#8a9a8e] mb-4 max-w-sm mx-auto">
-                You've made too many searches recently. This protects our service for all users.
-              </p>
-              {rateLimitCountdown > 0 ? (
-                <div className="mb-4">
-                  <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm font-semibold text-amber-400">
-                    <Clock size={14} />
-                    Try again in {Math.floor(rateLimitCountdown / 60)}:{String(rateLimitCountdown % 60).padStart(2, '0')}
-                  </span>
-                </div>
-              ) : (
-                <Button variant="secondary" size="sm" onClick={() => { setLocalError(null); doSearch(locationUsed) }}>
-                  Try Again
-                </Button>
-              )}
-              <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-3">
-                In the meantime, browse these sites for dispensaries:
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2 justify-center mt-2">
-                <a
-                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  Weedmaps
-                </a>
-                <a
-                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  Leafly
-                </a>
-              </div>
+          <div className="text-center">
+            <AlertCircle size={24} className="text-red-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600 dark:text-[#8a9a8e] mb-3">{error}</p>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
+              <Button variant="secondary" size="sm" onClick={() => handleLocationSearch(locationUsed)}>
+                Try Again
+              </Button>
+              <a
+                href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
+              >
+                <ExternalLink size={12} />
+                Try Weedmaps
+              </a>
             </div>
-          ) : (
-            <div className="text-center">
-              <AlertCircle size={24} className="text-red-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-600 dark:text-[#8a9a8e] mb-3">{error}</p>
-              <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                <Button variant="secondary" size="sm" onClick={() => doSearch(locationUsed)}>
-                  Try Again
-                </Button>
-                <a
-                  href={`https://weedmaps.com/dispensaries/near?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  Try Weedmaps
-                </a>
-                <a
-                  href={`https://www.leafly.com/dispensaries/near-me?q=${encodeURIComponent(locationUsed || '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs rounded-lg bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <ExternalLink size={12} />
-                  Try Leafly
-                </a>
-              </div>
-            </div>
-          )}
+          </div>
+        </Card>
+      )}
+
+      {/* City not available yet */}
+      {mode === 'city' && cityData && !cityData.available && !cityLoading && (
+        <Card className="p-6 mb-6">
+          <div className="text-center">
+            <Clock size={24} className="text-amber-400 mx-auto mb-2" />
+            <h3 className="text-sm font-bold text-gray-800 dark:text-[#e8f0ea] mb-2">
+              Data Updating
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-[#8a9a8e] max-w-xs mx-auto">
+              Dispensary data for this city is being refreshed. Menu data updates daily at 6 AM PT.
+            </p>
+          </div>
         </Card>
       )}
 
       {/* Results */}
-      {!loading && dispensaries.length > 0 && (
+      {!cityLoading && !locationLoading && dispensaries.length > 0 && (
         <>
-          <DispensaryFilters
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-          />
+          <DispensaryFilters sortBy={sortBy} onSortChange={setSortBy} />
 
           <div className="space-y-4 mb-8">
             {sortedDispensaries.map((d) => (
@@ -587,18 +702,47 @@ export default function DispensaryPage() {
       )}
 
       {/* No results */}
-      {!loading && !error && dispensaries.length === 0 && locationUsed && (
+      {!cityLoading && !locationLoading && !error && dispensaries.length === 0 && mode && (
         <div className="text-center py-12 text-sm text-gray-400 dark:text-[#5a6a5e]">
-          No dispensaries found in this area. Try a different location.
+          No dispensaries found. Try selecting a different city or location.
         </div>
       )}
 
-      {/* Dispensary Drawer */}
-      <DispensaryDrawer
-        dispensary={drawerDispensary}
-        open={drawerOpen}
-        onClose={() => { setDrawerOpen(false); setDrawerDispensary(null) }}
-      />
+      {/* Welcome state — no mode selected yet */}
+      {!mode && !citiesLoading && (
+        <div className="text-center py-12 animate-fade-in">
+          <div className="w-16 h-16 rounded-full bg-leaf-500/10 flex items-center justify-center mx-auto mb-4">
+            <Store size={28} className="text-leaf-400" />
+          </div>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-[#e8f0ea] mb-2">
+            Find Real Dispensaries
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-[#8a9a8e] max-w-xs mx-auto mb-2">
+            Browse dispensaries in our featured cities, or search by your location.
+            Menu data is updated daily.
+          </p>
+          <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+            Powered by real dispensary menus matched with our strain database
+          </p>
+        </div>
+      )}
+
+      {/* Dispensary Drawer (enhanced with menu data in city mode) */}
+      {activeCity ? (
+        <EnhancedMenuDrawer
+          dispensary={drawerDispensary}
+          menuData={drawerMenuData}
+          open={drawerOpen}
+          onClose={() => { setDrawerOpen(false); setDrawerDispensary(null); setDrawerMenuData(null) }}
+          loading={drawerMenuLoading}
+        />
+      ) : (
+        <DispensaryDrawer
+          dispensary={drawerDispensary}
+          open={drawerOpen}
+          onClose={() => { setDrawerOpen(false); setDrawerDispensary(null) }}
+        />
+      )}
     </div>
   )
 }
