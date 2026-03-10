@@ -71,17 +71,30 @@ function SearchAutocomplete({
         } catch { return false }
       })
 
-    // When user has location, sort by: exact name match first, then regional availability
-    if (userRegionIndex != null && filtered.length > 1) {
+    // Sort: exact name match → most common/popular → least common
+    if (filtered.length > 1) {
       filtered.sort((a, b) => {
-        // Exact name starts-with match gets priority
+        // 1. Exact name starts-with match gets top priority
         const aExact = str(a.name).toLowerCase().startsWith(lower) ? 1 : 0
         const bExact = str(b.name).toLowerCase().startsWith(lower) ? 1 : 0
         if (aExact !== bExact) return bExact - aExact
-        // Then sort by regional availability
-        const regA = a.reg ? (a.reg[userRegionIndex] || 0) : 0
-        const regB = b.reg ? (b.reg[userRegionIndex] || 0) : 0
-        return regB - regA
+
+        // 2. Higher availability = more common (5 > 2 > 1)
+        const availA = a.availability || 1
+        const availB = b.availability || 1
+        if (availA !== availB) return availB - availA
+
+        // 3. Regional availability boost (if user has location)
+        if (userRegionIndex != null) {
+          const regA = a.reg ? (a.reg[userRegionIndex] || 0) : 0
+          const regB = b.reg ? (b.reg[userRegionIndex] || 0) : 0
+          if (regA !== regB) return regB - regA
+        }
+
+        // 4. Higher sentiment = more popular/well-known
+        const sentA = a.sentimentScore || 0
+        const sentB = b.sentimentScore || 0
+        return sentB - sentA
       })
     }
 
