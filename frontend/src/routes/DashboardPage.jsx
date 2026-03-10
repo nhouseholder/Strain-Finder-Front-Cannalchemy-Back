@@ -79,7 +79,7 @@ function DashboardSearchBar() {
         dataLoaded={dataLoaded}
         placeholder="Search any strain by name..."
         showSearchButton
-        onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
+        onSelect={() => {}}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
         inputClassName="py-3.5 rounded-2xl pl-11 border border-transparent dark:border-transparent bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-none focus:border-leaf-500/40"
       />

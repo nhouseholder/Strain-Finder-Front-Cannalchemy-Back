@@ -22,7 +22,7 @@ import {
  *   onClose — callback
  *   highlightStrain — optional strain name to highlight in the menu
  */
-function DispensaryDrawer({ dispensary, open, onClose, highlightStrain }) {
+function DispensaryDrawer({ dispensary, open, onClose, highlightStrain, children }) {
   if (!dispensary) return null
 
   const d = dispensary
@@ -252,9 +252,12 @@ function DispensaryDrawer({ dispensary, open, onClose, highlightStrain }) {
         )}
       </div>
 
+      {/* Extended content (e.g., enhanced menu from parent) */}
+      {children}
+
       {/* Disclaimer */}
       <p className="text-[8px] text-gray-300 dark:text-[#6a7a6e] text-center mt-4 px-2">
-        Menu data is community-sourced and may not reflect real-time inventory. Always verify with the dispensary.
+        Menu data is updated daily and may not reflect real-time inventory. Always verify with the dispensary.
       </p>
     </Modal>
   )

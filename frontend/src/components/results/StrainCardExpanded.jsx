@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { normalizeStrain } from '../../utils/normalizeStrain'
 import { Link } from 'react-router-dom'
+import { strainSlug } from '../../utils/strainSlug'
 import ExperienceDescription from '../strain-detail/ExperienceDescription'
 import ScienceExplanation from '../strain-detail/ScienceExplanation'
 import EffectsBreakdown from '../strain-detail/EffectsBreakdown'
@@ -61,7 +62,7 @@ export default function StrainCardExpanded({ strain: rawStrain, isQuizResult }) 
             </p>
             {suggestedStrain && (
               <Link
-                to={`/search?q=${encodeURIComponent(suggestedStrain.name)}`}
+                to={`/strain/${strainSlug(suggestedStrain.name)}`}
                 className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1.5 rounded-lg bg-leaf-500/10 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors group"
               >
                 <span className="text-[10px] text-gray-500 dark:text-gray-400">Try instead:</span>
@@ -94,7 +95,7 @@ export default function StrainCardExpanded({ strain: rawStrain, isQuizResult }) 
             </p>
             {suggestedStrain && (
               <Link
-                to={`/search?q=${encodeURIComponent(suggestedStrain.name)}`}
+                to={`/strain/${strainSlug(suggestedStrain.name)}`}
                 className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 transition-colors group"
               >
                 <span className="text-[10px] text-amber-600 dark:text-amber-500">Try instead:</span>

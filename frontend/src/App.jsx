@@ -15,7 +15,7 @@ import lazyRetry from './utils/lazyRetry'
 const LandingPage = lazy(() => lazyRetry(() => import('./routes/LandingPage'), 'LandingPage'))
 const QuizPage = lazy(() => lazyRetry(() => import('./routes/QuizPage'), 'QuizPage'))
 const ResultsPage = lazy(() => lazyRetry(() => import('./routes/ResultsPage'), 'ResultsPage'))
-// const DispensaryPage = lazy(() => lazyRetry(() => import('./routes/DispensaryPage'), 'DispensaryPage')) // Silenced — feature not ready
+const DispensaryPage = lazy(() => lazyRetry(() => import('./routes/DispensaryPage'), 'DispensaryPage'))
 const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), 'JournalPage'))
 const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
 const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
@@ -29,6 +29,7 @@ const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPas
 const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
 const ChatPage = lazy(() => lazyRetry(() => import('./routes/ChatPage'), 'ChatPage'))
+const StrainDetailPage = lazy(() => lazyRetry(() => import('./routes/StrainDetailPage'), 'StrainDetailPage'))
 const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
 
 function LoadingFallback() {
@@ -66,11 +67,11 @@ export default function App() {
                       {/* Guest-accessible — quiz & results work without login (freemium gated) */}
                       <Route path="quiz" element={<QuizPage />} />
                       <Route path="results" element={<ResultsPage />} />
-                      {/* <Route path="dispensaries" element={<DispensaryPage />} /> — Silenced: feature not ready */}
-                      <Route path="dispensaries" element={<Navigate to="/results" replace />} />
+                      <Route path="dispensaries" element={<DispensaryPage />} />
 
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<Navigate to="/journal" replace />} />
+                      <Route path="strain/:slug" element={<StrainDetailPage />} />
                       <Route path="search" element={<StrainSearchPage />} />
                       <Route path="chat" element={<ChatPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />

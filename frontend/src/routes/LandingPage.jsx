@@ -58,7 +58,7 @@ function StrainSearchBar({ strainCount }) {
         dataLoaded={dataLoaded}
         placeholder="Search any strain by name..."
         showSearchButton
-        onSelect={(strain) => navigate(`/search?q=${encodeURIComponent(strain.name)}`)}
+        onSelect={() => {}}
         onSearch={(q) => q && navigate(`/search?q=${encodeURIComponent(q)}`)}
         inputClassName="py-3.5 rounded-2xl pl-11 border border-gray-200/60 dark:border-white/10 bg-white/60 dark:bg-white/[0.04] backdrop-blur-md shadow-lg shadow-black/5 dark:shadow-black/20"
       />
