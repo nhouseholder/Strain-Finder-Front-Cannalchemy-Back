@@ -8,6 +8,7 @@ import { useUserRegion } from '../hooks/useUserRegion'
 import { strainSlug } from '../utils/strainSlug'
 import StrainCard from '../components/results/StrainCard'
 import ChatWidget from '../components/chat/ChatWidget'
+import StrainReviewsSection from '../components/community/StrainReviewsSection'
 import LegalConsent from '../components/shared/LegalConsent'
 
 export default function StrainDetailPage() {
@@ -104,6 +105,9 @@ export default function StrainDetailPage() {
           hideExpandButton={true}
           userRegionIndex={userRegionIndex}
         />
+
+        {/* Community Reviews */}
+        <StrainReviewsSection strainSlug={slug} strainName={strain.name} />
 
         {/* AI Chat — inline, for follow-up questions about this strain */}
         <div className="pt-6 pb-2">

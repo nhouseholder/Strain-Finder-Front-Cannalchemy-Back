@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useContext, useCallback } from 'react'
 import { NavLink, useNavigate, useLocation } from 'react-router-dom'
-import { Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Compass, Leaf, Beaker, Dna, Info, MessageCircle, Store } from 'lucide-react'
+import { Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield, MapPin, UserPlus, ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Compass, Leaf, Beaker, Dna, Info, MessageCircle, Store, Users } from 'lucide-react'
 import clsx from 'clsx'
 import ThemeToggle from './ThemeToggle'
 import { useAuth } from '../../context/AuthContext'
@@ -25,6 +25,7 @@ const coreItems = [
   { to: '/explore-strains', icon: Compass, label: 'Discover', guest: true },
   { to: '/chat', icon: MessageCircle, label: 'AI Chat', guest: true },
   { to: '/dispensaries', icon: Store, label: 'Dispensaries', guest: true },
+  { to: '/community', icon: Users, label: 'Community', guest: true },
   { to: '/journal', icon: BookMarked, label: 'Journal', guest: false },
   { to: '/compare', icon: GitCompareArrows, label: 'Compare', guest: false },
   { to: '/learn', icon: BookOpen, label: 'Learn', guest: true, hasDropdown: true },
@@ -38,6 +39,7 @@ const guestMobileItems = [
   { to: '/explore-strains', icon: Compass, label: 'Discover' },
   { to: '/chat', icon: MessageCircle, label: 'AI Chat' },
   { to: '/dispensaries', icon: Store, label: 'Dispensaries' },
+  { to: '/community', icon: Users, label: 'Community' },
   { to: '/learn', icon: BookOpen, label: 'Learn', hasDropdown: true },
 ]
 

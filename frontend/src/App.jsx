@@ -30,6 +30,7 @@ const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'Term
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
 const ChatPage = lazy(() => lazyRetry(() => import('./routes/ChatPage'), 'ChatPage'))
 const StrainDetailPage = lazy(() => lazyRetry(() => import('./routes/StrainDetailPage'), 'StrainDetailPage'))
+const CommunityPage = lazy(() => lazyRetry(() => import('./routes/CommunityPage'), 'CommunityPage'))
 const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
 
 function LoadingFallback() {
@@ -68,6 +69,7 @@ export default function App() {
                       <Route path="quiz" element={<QuizPage />} />
                       <Route path="results" element={<ResultsPage />} />
                       <Route path="dispensaries" element={<DispensaryPage />} />
+                      <Route path="community" element={<CommunityPage />} />
 
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<Navigate to="/journal" replace />} />
