@@ -29,6 +29,7 @@ const ForgotPasswordPage = lazy(() => lazyRetry(() => import('./routes/ForgotPas
 const TermsPage = lazy(() => lazyRetry(() => import('./routes/TermsPage'), 'TermsPage'))
 const PrivacyPage = lazy(() => lazyRetry(() => import('./routes/PrivacyPage'), 'PrivacyPage'))
 const ChatPage = lazy(() => lazyRetry(() => import('./routes/ChatPage'), 'ChatPage'))
+const DispensaryMenuPage = lazy(() => lazyRetry(() => import('./routes/DispensaryMenuPage'), 'DispensaryMenuPage'))
 const StrainDetailPage = lazy(() => lazyRetry(() => import('./routes/StrainDetailPage'), 'StrainDetailPage'))
 const CommunityPage = lazy(() => lazyRetry(() => import('./routes/CommunityPage'), 'CommunityPage'))
 const NotFoundPage = lazy(() => lazyRetry(() => import('./routes/NotFoundPage'), 'NotFoundPage'))
@@ -69,6 +70,7 @@ export default function App() {
                       <Route path="quiz" element={<QuizPage />} />
                       <Route path="results" element={<ResultsPage />} />
                       <Route path="dispensaries" element={<DispensaryPage />} />
+                      <Route path="dispensary/:citySlug/:dispensaryId" element={<DispensaryMenuPage />} />
                       <Route path="community" element={<CommunityPage />} />
 
                       {/* Protected routes — require login */}

@@ -1,4 +1,5 @@
 import { memo } from 'react'
+import { Link } from 'react-router-dom'
 import Modal from '../shared/Modal'
 import {
   MapPin,
@@ -11,6 +12,7 @@ import {
   Navigation,
   ShoppingBag,
   Store,
+  ArrowRight,
 } from 'lucide-react'
 
 /**
@@ -22,7 +24,7 @@ import {
  *   onClose — callback
  *   highlightStrain — optional strain name to highlight in the menu
  */
-function DispensaryDrawer({ dispensary, open, onClose, highlightStrain, children }) {
+function DispensaryDrawer({ dispensary, open, onClose, highlightStrain, detailUrl, children }) {
   if (!dispensary) return null
 
   const d = dispensary
@@ -210,6 +212,20 @@ function DispensaryDrawer({ dispensary, open, onClose, highlightStrain, children
             ))}
           </div>
         </div>
+      )}
+
+      {/* View Full Page link */}
+      {detailUrl && (
+        <Link
+          to={detailUrl}
+          state={{ dispensary: d }}
+          onClick={onClose}
+          className="flex items-center justify-center gap-2 w-full px-4 py-3 mb-4 rounded-xl text-sm font-semibold bg-leaf-500/10 text-leaf-500 border border-leaf-500/20 hover:bg-leaf-500/20 transition-colors min-h-[44px]"
+        >
+          <Store size={14} />
+          View Full Menu Page
+          <ArrowRight size={14} />
+        </Link>
       )}
 
       {/* Action buttons */}

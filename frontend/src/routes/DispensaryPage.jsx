@@ -272,7 +272,7 @@ function DispensaryCardItem({ dispensary, onClick }) {
 /* ------------------------------------------------------------------ */
 /*  Enhanced Menu Drawer — shows matched strains with our data        */
 /* ------------------------------------------------------------------ */
-function EnhancedMenuDrawer({ dispensary, menuData, open, onClose, loading }) {
+function EnhancedMenuDrawer({ dispensary, menuData, open, onClose, loading, detailUrl }) {
   if (!dispensary) return null
 
   const d = dispensary
@@ -295,6 +295,7 @@ function EnhancedMenuDrawer({ dispensary, menuData, open, onClose, loading }) {
       }}
       open={open}
       onClose={onClose}
+      detailUrl={detailUrl}
     >
       {/* Enhanced strain details section */}
       {loading && (
@@ -507,6 +508,16 @@ export default function DispensaryPage() {
     }
   }, [geoLocation]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* Navigate to full dispensary menu page (from map popup "View Menu") */
+  const handleViewMenu = useCallback((dispensary) => {
+    if (activeCity) {
+      navigate(`/dispensary/${activeCity}/${dispensary.id}`)
+    } else {
+      // Location/demo mode — pass dispensary data via router state
+      navigate(`/dispensary/nearby/${dispensary.id}`, { state: { dispensary } })
+    }
+  }, [activeCity, navigate])
+
   /* Open dispensary drawer — load full menu if in city mode */
   const handleCardClick = useCallback(async (dispensary) => {
     setDrawerDispensary(dispensary)
@@ -631,6 +642,7 @@ export default function DispensaryPage() {
             dispensaries={dispensaries}
             center={mapCenter}
             zoom={mode === 'city' ? 11 : 12}
+            onViewMenu={handleViewMenu}
           />
         </div>
       )}
@@ -735,12 +747,14 @@ export default function DispensaryPage() {
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false); setDrawerDispensary(null); setDrawerMenuData(null) }}
           loading={drawerMenuLoading}
+          detailUrl={drawerDispensary ? `/dispensary/${activeCity}/${drawerDispensary.id}` : null}
         />
       ) : (
         <DispensaryDrawer
           dispensary={drawerDispensary}
           open={drawerOpen}
           onClose={() => { setDrawerOpen(false); setDrawerDispensary(null) }}
+          detailUrl={drawerDispensary ? `/dispensary/nearby/${drawerDispensary.id}` : null}
         />
       )}
     </div>

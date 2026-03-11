@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
-import { MapPin } from 'lucide-react'
+import { MapPin, ExternalLink } from 'lucide-react'
 
 // Dynamically load Leaflet CSS only when this component mounts
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
@@ -44,10 +44,16 @@ function createColoredIcon(matchType) {
   })
 }
 
+/** Extract display name from a strain entry (could be string or object) */
+function strainName(s) {
+  return typeof s === 'string' ? s : s?.name || 'Unknown'
+}
+
 export default function DispensaryMap({
   dispensaries = [],
   center,
   zoom = 12,
+  onViewMenu,
 }) {
   useLeafletCSS()
   const hasValidCenter = center?.lat && center?.lng
@@ -100,7 +106,7 @@ export default function DispensaryMap({
               icon={icons[dispensary.matchType] || icons.none}
             >
               <Popup>
-                <div className="text-xs space-y-1 min-w-[160px]">
+                <div className="text-xs space-y-1 min-w-[180px]">
                   <p className="font-bold text-sm text-gray-900">
                     {dispensary.name}
                   </p>
@@ -114,7 +120,7 @@ export default function DispensaryMap({
                       <span className="font-semibold text-green-600">
                         Has:{' '}
                       </span>
-                      {dispensary.matchedStrains.join(', ')}
+                      {dispensary.matchedStrains.map(strainName).join(', ')}
                     </div>
                   )}
 
@@ -123,7 +129,7 @@ export default function DispensaryMap({
                       <span className="font-semibold text-yellow-600">
                         Similar:{' '}
                       </span>
-                      {dispensary.alternativeStrains.join(', ')}
+                      {dispensary.alternativeStrains.map(strainName).join(', ')}
                     </div>
                   )}
 
@@ -131,6 +137,17 @@ export default function DispensaryMap({
                     <div className="text-amber-600 font-medium">
                       {dispensary.deals[0]}
                     </div>
+                  )}
+
+                  {/* View Menu link */}
+                  {onViewMenu && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onViewMenu(dispensary) }}
+                      className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-500 transition-colors"
+                    >
+                      <ExternalLink size={11} />
+                      View Menu
+                    </button>
                   )}
                 </div>
               </Popup>
