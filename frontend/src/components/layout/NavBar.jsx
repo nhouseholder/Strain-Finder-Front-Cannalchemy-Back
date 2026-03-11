@@ -3,7 +3,7 @@ import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import {
   Search, BookOpen, GitCompareArrows, BookMarked, LogOut, Shield,
   ClipboardList, Sparkles, RotateCcw, SlidersHorizontal, Compass,
-  Leaf, Beaker, Dna, Info, MessageCircle, Store, Users,
+  Leaf, Beaker, Dna, Info, MessageCircle, Map, Users,
   ChevronDown, Menu, X,
 } from 'lucide-react'
 import clsx from 'clsx'
@@ -16,10 +16,9 @@ import { APP_VERSION } from '../../utils/constants'
 /* ─── Grouped sub-pages ─── */
 
 const EXPLORE_PAGES = [
-  { to: '/search', icon: Search, label: 'Search', color: 'text-blue-400', desc: 'Find strains by name' },
   { to: '/explore', icon: SlidersHorizontal, label: 'Explorer', color: 'text-teal-400', desc: 'Filter by effects & terpenes' },
   { to: '/explore-strains', icon: Compass, label: 'Discover', color: 'text-orange-400', desc: 'Browse curated collections' },
-  { to: '/dispensaries', icon: Store, label: 'Dispensaries', color: 'text-rose-400', desc: 'Find nearby dispensaries' },
+  { to: '/compare', icon: GitCompareArrows, label: 'Compare', color: 'text-cyan-400', desc: 'Compare strains side by side' },
 ]
 
 const LEARN_PAGES = [
@@ -148,7 +147,7 @@ export default function NavBar() {
   const initial = user?.email?.[0]?.toUpperCase() || '?'
 
   /* Active-state detection for grouped items */
-  const isExploreActive = ['/search', '/explore', '/explore-strains', '/dispensaries'].some(p => location.pathname.startsWith(p))
+  const isExploreActive = ['/explore', '/explore-strains', '/compare'].some(p => location.pathname.startsWith(p))
   const isLearnActive = location.pathname.startsWith('/learn')
 
   /* Shared active / inactive class sets */
@@ -163,7 +162,7 @@ export default function NavBar() {
     <>
       {/* ═══════════════════════════════════════════
           Desktop top bar  — 7 items (+ admin if admin)
-          Quiz | Explore▾ | AI Chat | Community | Journal | Compare | Learn▾
+          Quiz | Search | Explore▾ | AI Chat | Maps | Journal | Learn▾
          ═══════════════════════════════════════════ */}
       <nav
         className="hidden sm:flex items-center justify-between px-6 py-3 border-b border-gray-200/70 dark:border-white/[0.07] bg-[#f4f7f5]/90 dark:bg-leaf-900/85 backdrop-blur-xl sticky top-0 z-40 shadow-sm dark:shadow-none"
@@ -234,7 +233,13 @@ export default function NavBar() {
             )}
           </div>
 
-          {/* 2 · Explore ▾  (Search, Explorer, Discover, Dispensaries) */}
+          {/* 2 · Search */}
+          <NavLink to="/search" className={({ isActive }) => navCls(isActive)}>
+            <Search size={16} />
+            Search
+          </NavLink>
+
+          {/* 3 · Explore ▾  (Explorer, Discover, Compare) */}
           <div className="relative" ref={dExploreRef}>
             <DropdownTrigger
               icon={Compass}
@@ -253,31 +258,25 @@ export default function NavBar() {
             )}
           </div>
 
-          {/* 3 · AI Chat */}
+          {/* 4 · AI Chat */}
           <NavLink to="/chat" className={({ isActive }) => navCls(isActive)}>
             <MessageCircle size={16} />
-            AI Chat
+            <span className="whitespace-nowrap">AI Chat</span>
           </NavLink>
 
-          {/* 4 · Community */}
-          <NavLink to="/community" className={({ isActive }) => navCls(isActive)}>
-            <Users size={16} />
-            Community
+          {/* 5 · Maps */}
+          <NavLink to="/dispensaries" className={({ isActive }) => navCls(isActive)}>
+            <Map size={16} />
+            Maps
           </NavLink>
 
-          {/* 5 · Journal (auth-only) */}
+          {/* 6 · Journal (auth-only) */}
           {user && (
             <NavLink to="/journal" className={({ isActive }) => navCls(isActive)}>
               <BookMarked size={16} />
               Journal
             </NavLink>
           )}
-
-          {/* 6 · Compare */}
-          <NavLink to="/compare" className={({ isActive }) => navCls(isActive)}>
-            <GitCompareArrows size={16} />
-            Compare
-          </NavLink>
 
           {/* 7 · Learn ▾  (Terpenes, Cannabinoids, Entourage, Archetypes, About) */}
           <div className="relative" ref={dLearnRef}>
@@ -348,7 +347,7 @@ export default function NavBar() {
 
       {/* ═══════════════════════════════════════════
           Mobile bottom bar — 5 items
-          Quiz | Search | Chat | Community | More≡
+          Quiz | Search | Chat | Maps | More≡
          ═══════════════════════════════════════════ */}
       <nav
         className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom"
@@ -440,16 +439,16 @@ export default function NavBar() {
           Chat
         </NavLink>
 
-        {/* Community (direct) */}
+        {/* Maps (direct) */}
         <NavLink
-          to="/community"
+          to="/dispensaries"
           className={({ isActive }) => clsx(
             'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-[10px] font-medium transition-colors min-w-[56px] min-h-[44px] justify-center',
             isActive ? 'text-leaf-400' : 'text-gray-400 dark:text-[#8a9a8e]'
           )}
         >
-          <Users size={20} />
-          Community
+          <Map size={20} />
+          Maps
         </NavLink>
 
         {/* More ≡ (opens bottom sheet) */}
@@ -516,12 +515,19 @@ export default function NavBar() {
                     </div>
                   </div>
 
-                  {/* Tools section */}
+                  {/* Community & Tools */}
                   <div>
                     <p className="text-[10px] font-semibold text-gray-400 dark:text-[#6a7a6e] uppercase tracking-wider px-1 mb-1.5">
-                      Tools
+                      Community & Tools
                     </p>
                     <div className="grid grid-cols-2 gap-1.5">
+                      <button
+                        onClick={() => go('/community')}
+                        className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors min-h-[48px]"
+                      >
+                        <Users size={18} className="text-violet-400" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">Community</span>
+                      </button>
                       {user && (
                         <button
                           onClick={() => go('/journal')}
@@ -531,13 +537,6 @@ export default function NavBar() {
                           <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">Journal</span>
                         </button>
                       )}
-                      <button
-                        onClick={() => go('/compare')}
-                        className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors min-h-[48px]"
-                      >
-                        <GitCompareArrows size={18} className="text-cyan-400" />
-                        <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">Compare</span>
-                      </button>
                     </div>
                   </div>
 
