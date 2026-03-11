@@ -300,28 +300,36 @@ async function fetchMenuItems(browserPage, slug, maxItems) {
 }
 
 function extractPrice(menuItem) {
-  if (menuItem.price && typeof menuItem.price === 'number') return `$${menuItem.price}`
-  if (menuItem.price && typeof menuItem.price === 'string' && menuItem.price.includes('$')) return menuItem.price
-
   const prices = Array.isArray(menuItem.prices) ? menuItem.prices : []
-  if (prices.length === 0) return null
 
-  const eighth = prices.find(p =>
-    (p.label || p.units || '').toLowerCase().includes('eighth') ||
-    (p.label || '').toLowerCase().includes('3.5')
-  )
-  if (eighth?.price) return `$${eighth.price}/eighth`
+  // Find specific price tiers from Weedmaps prices array
+  const eighth = prices.find(p => {
+    const label = (p.label || p.units || '').toLowerCase()
+    return label.includes('eighth') || label.includes('1/8') || label.includes('3.5')
+  })
+  const gram = prices.find(p => {
+    const label = (p.label || p.units || '').toLowerCase()
+    return label.includes('gram') || label === '1g' || label === '1 g'
+  })
 
-  const gram = prices.find(p =>
-    (p.label || p.units || '').toLowerCase().includes('gram') ||
-    (p.label || '') === '1g'
-  )
-  if (gram?.price) return `$${gram.price}/g`
+  // Extract raw eighth price (number) for structured storage
+  const eighthPrice = eighth?.price ?? null
 
-  const first = prices.find(p => p.price)
-  if (first?.price) return `$${first.price}/${first.label || first.units || 'unit'}`
+  // Build display string — prefer eighth, fallback to gram, then first available
+  let display = null
+  if (eighthPrice != null) {
+    display = `$${eighthPrice}`
+  } else if (menuItem.price && typeof menuItem.price === 'number') {
+    display = `$${menuItem.price}`
+  } else if (menuItem.price && typeof menuItem.price === 'string' && menuItem.price.includes('$')) {
+    display = menuItem.price
+  } else if (gram?.price) {
+    display = `$${gram.price}/g`
+  } else if (prices.length > 0 && prices[0]?.price) {
+    display = `$${prices[0].price}`
+  }
 
-  return null
+  return { display, eighthPrice }
 }
 
 /* ── Cloudflare KV Writes ──────────────────────────────────────────── */
@@ -417,9 +425,11 @@ async function harvestCity(browserPage, city, strainDB) {
     for (const item of menuItems) {
       const match = matchStrain(item.name, strainDB)
       if (match) {
+        const { display: price, eighthPrice } = extractPrice(item)
         matchedMenu.push({
           menuName: item.name,
-          price: extractPrice(item),
+          price,
+          priceEighth: eighthPrice,
           brand: item.brand,
           strain: match,
         })
@@ -515,6 +525,7 @@ async function harvestCity(browserPage, city, strainDB) {
         matchedMenu: d.matchedMenu.slice(0, MAX_MATCHED_PER_DISP).map(m => ({
           menuName: m.menuName,
           price: m.price,
+          priceEighth: m.priceEighth ?? null,
           brand: m.brand,
           strain: {
             name: m.strain.name,

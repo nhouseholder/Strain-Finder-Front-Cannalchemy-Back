@@ -35,7 +35,6 @@ import {
   Store,
   ChevronDown,
   ChevronUp,
-  DollarSign,
   Heart,
 } from 'lucide-react'
 
@@ -85,26 +84,39 @@ function levenshtein(a, b) {
   return dp[m][n]
 }
 
-/** Extract display price from a Weedmaps menu item */
+/** Extract display price + structured eighth price from a Weedmaps menu item */
 function extractPrice(item) {
-  if (item.price && typeof item.price === 'number') {
-    return `$${item.price}`
+  const prices = Array.isArray(item.prices) ? item.prices : []
+  const eighth = prices.find((p) =>
+    /eighth|3\.5|1\/8/i.test(p.label || p.units || ''),
+  )
+  const gram = prices.find((p) =>
+    /\b(gram|1g)\b/i.test(p.label || p.units || ''),
+  )
+  const eighthPrice = eighth?.price ?? null
+  let display = null
+  if (eighthPrice != null) {
+    display = `$${eighthPrice}`
+  } else if (item.price && typeof item.price === 'number') {
+    display = `$${item.price}`
+  } else if (gram?.price) {
+    display = `$${gram.price}/g`
+  } else if (prices.length > 0 && prices[0]?.price) {
+    display = `$${prices[0].price}${prices[0].label ? `/${prices[0].label}` : ''}`
   }
-  if (item.prices?.length > 0) {
-    const eighth = item.prices.find((p) =>
-      /eighth|3\.5/i.test(p.label || p.units || ''),
-    )
-    if (eighth?.price) return `$${eighth.price}/eighth`
+  return { display, eighthPrice }
+}
 
-    const gram = item.prices.find((p) =>
-      /\b(gram|1g)\b/i.test(p.label || p.units || ''),
-    )
-    if (gram?.price) return `$${gram.price}/g`
-
-    const first = item.prices[0]
-    if (first?.price) return `$${first.price}${first.label ? `/${first.label}` : ''}`
-  }
-  return null
+/** Parse an existing city-mode price string into a numeric eighth price */
+function parseEighthFromString(priceStr) {
+  if (!priceStr) return null
+  // "$45/eighth" → 45, "$45" → 45
+  const m = priceStr.match(/\$?([\d.]+)/)
+  if (!m) return null
+  const val = parseFloat(m[1])
+  // Only treat as eighth price if it's in the range $10-$100 and string contains eighth or no unit
+  if (priceStr.includes('/g')) return null // gram price, not eighth
+  return isNaN(val) ? null : val
 }
 
 /** Cross-reference raw Weedmaps menu items with our strain database */
@@ -155,7 +167,7 @@ function matchMenuToStrains(menuItems, strainDatabase) {
       }
     }
 
-    const price = extractPrice(item)
+    const { display: price, eighthPrice } = extractPrice(item)
 
     if (dbStrain && !seen.has(dbStrain.name.toLowerCase())) {
       seen.add(dbStrain.name.toLowerCase())
@@ -163,6 +175,7 @@ function matchMenuToStrains(menuItems, strainDatabase) {
       matched.push({
         menuName: item.name,
         price,
+        priceEighth: eighthPrice,
         image: item.image,
         brand: item.brand,
         strain: {
@@ -837,13 +850,26 @@ function StrainMenuCard({ item, isQuizMatch, getStrainSlug, showAuthActions, get
             )}
           </div>
 
-          {/* Live price badge (top-right) */}
-          {item.price && (
-            <div className="flex items-center justify-center min-w-[56px] h-10 px-2 rounded-xl text-sm font-bold border flex-shrink-0 bg-leaf-500/[0.08] border-leaf-500/30 text-leaf-500">
-              <DollarSign size={12} className="mr-0.5 opacity-70" />
-              {item.price.replace('$', '')}
-            </div>
-          )}
+          {/* Live price badge (top-right) — show 3.5g price prominently */}
+          {(() => {
+            const eighth = item.priceEighth ?? parseEighthFromString(item.price)
+            if (eighth != null) {
+              return (
+                <div className="flex flex-col items-center justify-center min-w-[60px] px-2.5 py-1.5 rounded-xl border flex-shrink-0 bg-leaf-500/[0.08] border-leaf-500/30">
+                  <span className="text-base font-extrabold text-leaf-500 leading-tight">${eighth}</span>
+                  <span className="text-[9px] font-medium text-leaf-500/60 tracking-wide">/3.5g</span>
+                </div>
+              )
+            }
+            if (item.price) {
+              return (
+                <div className="flex items-center justify-center min-w-[56px] h-10 px-2 rounded-xl text-sm font-bold border flex-shrink-0 bg-white/[0.04] border-white/10 text-gray-400 dark:text-[#8a9a8e]">
+                  {item.price}
+                </div>
+              )
+            }
+            return null
+          })()}
         </div>
 
         {/* ── Row 2: Effect Tags ── */}
