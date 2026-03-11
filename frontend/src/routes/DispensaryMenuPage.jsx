@@ -84,37 +84,115 @@ function levenshtein(a, b) {
   return dp[m][n]
 }
 
-/** Extract display price + structured eighth price from a Weedmaps menu item */
+/** Extract display price + structured eighth price from a Weedmaps menu item.
+ *  Handles multiple API formats: v1 prices array, variants array, and top-level price. */
 function extractPrice(item) {
   const prices = Array.isArray(item.prices) ? item.prices : []
-  const eighth = prices.find((p) =>
-    /eighth|3\.5|1\/8/i.test(p.label || p.units || ''),
+  const variants = Array.isArray(item.variants) ? item.variants : []
+
+  // Debug: log ALL price-related fields (runs in dev only, strip in prod via tree-shaking)
+  console.log(
+    `[Price] "${item.name}" → price: ${JSON.stringify(item.price)}, ` +
+    `priceUnit: ${item.priceUnit ?? item.price_unit ?? 'n/a'}, ` +
+    `prices(${prices.length}): ${JSON.stringify(prices.slice(0, 6))}, ` +
+    `variants(${variants.length}): ${JSON.stringify(variants.slice(0, 3))}`,
   )
-  const gram = prices.find((p) =>
-    /\b(gram|1g)\b/i.test(p.label || p.units || ''),
-  )
-  const eighthPrice = eighth?.price ?? null
+
+  let eighthPrice = null
   let display = null
-  if (eighthPrice != null) {
-    display = `$${eighthPrice}`
-  } else if (item.price && typeof item.price === 'number') {
-    display = `$${item.price}`
-  } else if (gram?.price) {
-    display = `$${gram.price}/g`
-  } else if (prices.length > 0 && prices[0]?.price) {
-    display = `$${prices[0].price}${prices[0].label ? `/${prices[0].label}` : ''}`
+
+  // ── Strategy 1: v1 API "prices" array (label + price) ──
+  if (prices.length > 0) {
+    const isEighthLabel = (lbl) => {
+      const l = (lbl || '').toLowerCase()
+      return l.includes('eighth') || l.includes('1/8') || l.includes('3.5') ||
+             l.includes('⅛') || /\beighth\b|3\.5\s*g/i.test(l)
+    }
+    const isGramLabel = (lbl) => /\b(gram|1\s*g)\b/i.test((lbl || '').toLowerCase())
+
+    // Resolve numeric price from various shapes: number, string "$45", or {amount: "45"}
+    const resolvePrice = (p) => {
+      if (p == null) return null
+      if (typeof p === 'number') return p > 0 ? p : null
+      if (typeof p === 'string') { const n = parseFloat(p.replace(/[$,]/g, '')); return n > 0 ? n : null }
+      if (typeof p === 'object' && p.amount != null) { const n = parseFloat(String(p.amount).replace(/[$,]/g, '')); return n > 0 ? n : null }
+      return null
+    }
+
+    for (const entry of prices) {
+      const label = entry.label || entry.units || entry.name || ''
+      const val = resolvePrice(entry.price ?? entry.amount ?? entry.value)
+      if (val && isEighthLabel(label)) { eighthPrice = val; break }
+    }
+    if (eighthPrice == null) {
+      // Fallback: gram price
+      for (const entry of prices) {
+        const label = entry.label || entry.units || entry.name || ''
+        const val = resolvePrice(entry.price ?? entry.amount ?? entry.value)
+        if (val && isGramLabel(label)) { display = `$${val}/g`; break }
+      }
+    }
+    if (eighthPrice == null && display == null) {
+      // Fallback: first available price in array
+      for (const entry of prices) {
+        const val = resolvePrice(entry.price ?? entry.amount ?? entry.value)
+        if (val) { display = `$${val}`; eighthPrice = val; break }
+      }
+    }
   }
+
+  // ── Strategy 2: Newer "variants" array ({price: {amount}, weight: {value, unit}}) ──
+  if (eighthPrice == null && variants.length > 0) {
+    for (const v of variants) {
+      const weight = v.weight || v.size || {}
+      const wVal = parseFloat(weight.value || weight.amount || 0)
+      const wUnit = (weight.unit || '').toLowerCase()
+      const amt = parseFloat(
+        String(v.price?.amount ?? v.price ?? v.amount ?? 0).replace(/[$,]/g, ''),
+      )
+      if (amt > 0) {
+        if ((wVal >= 3.4 && wVal <= 3.6 && wUnit.startsWith('g')) || wUnit.includes('eighth') || wUnit.includes('1/8')) {
+          eighthPrice = amt
+          break
+        }
+      }
+    }
+    // Fallback: first variant price
+    if (eighthPrice == null) {
+      for (const v of variants) {
+        const amt = parseFloat(
+          String(v.price?.amount ?? v.price ?? v.amount ?? 0).replace(/[$,]/g, ''),
+        )
+        if (amt > 0) { display = `$${amt}`; eighthPrice = amt; break }
+      }
+    }
+  }
+
+  // ── Strategy 3: Top-level item.price (often the default/eighth for flower) ──
+  if (eighthPrice == null && display == null) {
+    const topPrice = typeof item.price === 'object'
+      ? parseFloat(String(item.price?.amount ?? 0).replace(/[$,]/g, ''))
+      : parseFloat(String(item.price ?? 0).replace(/[$,]/g, ''))
+    if (topPrice > 0) {
+      eighthPrice = topPrice
+      display = `$${topPrice}`
+    }
+  }
+
+  // Final display
+  if (eighthPrice != null && display == null) {
+    display = `$${eighthPrice}`
+  }
+
   return { display, eighthPrice }
 }
 
 /** Parse an existing city-mode price string into a numeric eighth price */
 function parseEighthFromString(priceStr) {
   if (!priceStr) return null
-  // "$45/eighth" → 45, "$45" → 45
   const m = priceStr.match(/\$?([\d.]+)/)
   if (!m) return null
   const val = parseFloat(m[1])
-  // Only treat as eighth price if it's in the range $10-$100 and string contains eighth or no unit
   if (priceStr.includes('/g')) return null // gram price, not eighth
   return isNaN(val) ? null : val
 }

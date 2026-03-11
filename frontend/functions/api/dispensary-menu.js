@@ -93,7 +93,9 @@ async function fetchWeedmapsMenu(slug) {
         allItems.push({
           name: m.name || '',
           prices: m.prices || [],
-          price: m.price || null,
+          variants: m.variants || [],
+          price: m.price ?? null,
+          priceUnit: m.price_unit ?? null,
           image: m.avatar_image?.small_url || null,
           brand: m.brand?.name || null,
         })
