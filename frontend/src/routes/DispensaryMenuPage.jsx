@@ -6,9 +6,14 @@ import { AuthContext } from '../context/AuthContext'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { fetchDispensaryMenu, searchByCity, fetchWeedmapsMenuItems } from '../services/dispensarySearch'
 import { strainSlug as toSlug } from '../utils/strainSlug'
+import sig2 from '../utils/fmt'
 import StrainCardExpanded from '../components/results/StrainCardExpanded'
 import Card from '../components/shared/Card'
 import Button from '../components/shared/Button'
+import { TypeBadge, EffectBadge } from '../components/shared/Badge'
+import TerpBadge from '../components/shared/TerpBadge'
+import ProgressBar from '../components/shared/ProgressBar'
+import QuickRate from '../components/ratings/QuickRate'
 import {
   ChevronLeft,
   MapPin,
@@ -30,7 +35,8 @@ import {
   Store,
   ChevronDown,
   ChevronUp,
-  Beaker,
+  DollarSign,
+  Heart,
 } from 'lucide-react'
 
 /* ================================================================== */
@@ -742,168 +748,226 @@ function StrainActions({ slug, name, showAuth }) {
   )
 }
 
-/** Rich strain card for enhanced menu data — expandable with FULL strain details */
+/** Rich strain card for enhanced menu data — results-style preview with live price */
 function StrainMenuCard({ item, isQuizMatch, getStrainSlug, showAuthActions, getStrainByName }) {
   const [expanded, setExpanded] = useState(false)
   const name = item.strain?.name || item.menuName
   const slug = item.strain?.slug || getStrainSlug(name)
   const match = isQuizMatch(name)
 
-  // Look up full strain data from our database when expanded
+  // Look up full strain data from our database for PREVIEW (not just when expanded)
   const fullStrain = useMemo(() => {
-    if (!expanded || !getStrainByName) return null
+    if (!getStrainByName) return null
     return getStrainByName(name)
-  }, [expanded, getStrainByName, name])
+  }, [getStrainByName, name])
+
+  // Extract preview data from full strain or fall back to item.strain
+  const preview = useMemo(() => {
+    if (!fullStrain) return {
+      type: item.strain?.type,
+      genetics: null,
+      description: null,
+      thc: item.strain?.thc,
+      cbd: item.strain?.cbd,
+      effects: (item.strain?.topEffects || []).map(e => typeof e === 'string' ? { name: e } : e),
+      terpenes: (item.strain?.topTerpenes || []).map(t => typeof t === 'string' ? { name: t } : t),
+      sentimentScore: null,
+      reviewCount: null,
+      bestFor: [],
+    }
+
+    const thc = fullStrain.cannabinoids?.find(c => c.name === 'thc')?.value ?? fullStrain.thc
+    const cbd = fullStrain.cannabinoids?.find(c => c.name === 'cbd')?.value ?? fullStrain.cbd
+
+    const effects = (fullStrain.effects || [])
+      .filter(e => e.category === 'positive' || e.category === 'medical')
+      .sort((a, b) => (b.reports || 0) - (a.reports || 0))
+      .slice(0, 6)
+
+    const terpenes = (fullStrain.terpenes || []).slice(0, 3)
+
+    return {
+      type: fullStrain.type || item.strain?.type,
+      genetics: fullStrain.genetics,
+      description: fullStrain.description,
+      thc,
+      cbd,
+      effects,
+      terpenes,
+      sentimentScore: fullStrain.sentiment_score ?? fullStrain.sentimentScore,
+      reviewCount: fullStrain.review_count ?? fullStrain.reviewCount,
+      bestFor: fullStrain.best_for || fullStrain.bestFor || [],
+    }
+  }, [fullStrain, item.strain])
 
   return (
     <Card className={`transition-all ${match ? 'ring-1 ring-leaf-500/30 bg-leaf-500/[0.03]' : ''} ${expanded ? 'border-leaf-500/20' : ''}`}>
-      {/* Clickable header — always visible */}
-      <div
-        className="flex items-center justify-between gap-3 p-4 cursor-pointer select-none"
-        onClick={() => setExpanded(!expanded)}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded) } }}
-        aria-expanded={expanded}
-      >
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className={`w-2 h-2 rounded-full flex-shrink-0 ${match ? 'bg-leaf-500' : 'bg-gray-300 dark:bg-[#3a4a3e]'}`} />
-            <span className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] truncate">
-              {name}
-            </span>
-            {match && <QuizMatchBadge />}
-            {item.strain?.matchTier === 'fuzzy' && (
-              <span className="text-[8px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 flex-shrink-0">
-                ~match
-              </span>
+      <div className="p-4">
+        {/* ── Row 1: Name + Type Badge + Price ── */}
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3
+                className="text-lg font-bold text-gray-900 dark:text-white truncate max-w-full"
+                style={{ fontFamily: "'Playfair Display', serif" }}
+              >
+                {name}
+              </h3>
+              {preview.type && <TypeBadge type={preview.type} />}
+              {match && <QuizMatchBadge />}
+              {item.strain?.matchTier === 'fuzzy' && (
+                <span className="text-[8px] px-1 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20 flex-shrink-0">
+                  ~match
+                </span>
+              )}
+            </div>
+
+            {/* Genetics / lineage */}
+            {preview.genetics && preview.genetics.toLowerCase() !== 'null' && (
+              <p className="text-[11px] italic text-gray-400 dark:text-[#6a7a6e] mt-0.5 line-clamp-2">
+                {preview.genetics}
+              </p>
+            )}
+
+            {/* Description */}
+            {preview.description && preview.description.toLowerCase() !== 'null' && (
+              <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] mt-1 line-clamp-2">
+                {preview.description}
+              </p>
             )}
           </div>
-          {/* Quick info chips — always visible */}
-          <div className="flex flex-wrap gap-1.5 mt-1.5">
-            {item.strain?.type && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/15">
-                {item.strain.type}
-              </span>
-            )}
-            {item.strain?.thc != null && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/10 text-green-400 border border-green-500/15">
-                THC {item.strain.thc}%
-              </span>
-            )}
-            {item.strain?.cbd != null && item.strain.cbd > 0 && (
-              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/15">
-                CBD {item.strain.cbd}%
-              </span>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0">
+
+          {/* Live price badge (top-right) */}
           {item.price && (
-            <span className="text-sm font-bold text-leaf-500">{item.price}</span>
-          )}
-          {expanded ? (
-            <ChevronUp size={16} className="text-gray-400 dark:text-[#6a7a6e]" />
-          ) : (
-            <ChevronDown size={16} className="text-gray-400 dark:text-[#6a7a6e]" />
+            <div className="flex items-center justify-center min-w-[56px] h-10 px-2 rounded-xl text-sm font-bold border flex-shrink-0 bg-leaf-500/[0.08] border-leaf-500/30 text-leaf-500">
+              <DollarSign size={12} className="mr-0.5 opacity-70" />
+              {item.price.replace('$', '')}
+            </div>
           )}
         </div>
+
+        {/* ── Row 2: Effect Tags ── */}
+        {(preview.bestFor?.length > 0 || preview.effects?.length > 0) && (
+          <div className="flex flex-wrap gap-1 mt-2 mb-3">
+            {preview.bestFor?.slice(0, 3).map((tag) => (
+              <span
+                key={`bf-${tag}`}
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-leaf-500/12 text-leaf-500 dark:text-leaf-400 border border-leaf-500/20"
+              >
+                {tag}
+              </span>
+            ))}
+            {preview.effects.slice(0, preview.bestFor?.length ? 3 : 6).map((effect, idx) => (
+              <EffectBadge key={typeof effect === 'string' ? effect : (effect?.name || idx)} effect={effect} variant="positive" />
+            ))}
+          </div>
+        )}
+
+        {/* ── Row 3: THC / CBD Bars ── */}
+        {(preview.thc != null || (preview.cbd != null && preview.cbd > 0)) && (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 mb-3">
+            {preview.thc != null && (
+              <ProgressBar label="THC" value={preview.thc} max={35} color="#32c864" height={4} />
+            )}
+            {preview.cbd != null && preview.cbd > 0 && (
+              <ProgressBar label="CBD" value={preview.cbd} max={20} color="#3b82f6" height={4} />
+            )}
+          </div>
+        )}
+
+        {/* ── Row 4: Terpenes + Rating ── */}
+        <div className="flex items-center justify-between mt-2">
+          {/* Top 3 terpenes */}
+          <div className="flex flex-wrap gap-1">
+            {preview.terpenes.map((t, idx) => (
+              <TerpBadge
+                key={t.name || `terp-${idx}`}
+                name={t.name}
+                pct={t.value != null ? `${sig2(parseFloat(String(t.value)))}%` : ''}
+              />
+            ))}
+          </div>
+
+          {/* Rating section */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            {/* Compact star rating */}
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <span className="text-[9px] uppercase tracking-wider text-gray-400 dark:text-[#5a6a5e] font-semibold">
+                Rate
+              </span>
+              <QuickRate
+                strainName={name}
+                strainType={preview.type}
+                compact={true}
+              />
+            </div>
+
+            {/* Community sentiment */}
+            {(preview.sentimentScore != null || preview.reviewCount != null) && (
+              <div className="flex items-center gap-1.5">
+                {preview.sentimentScore != null && (
+                  <div className="flex items-center gap-0.5">
+                    <Star size={11} className="text-amber-400" fill="currentColor" />
+                    <span className="text-[11px] font-semibold text-gray-700 dark:text-[#b0c4b4]">
+                      {typeof preview.sentimentScore === 'number' ? sig2(preview.sentimentScore) : preview.sentimentScore}
+                    </span>
+                  </div>
+                )}
+                {preview.reviewCount != null && (
+                  <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">
+                    ({preview.reviewCount})
+                  </span>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── View All Details Button ── */}
+        <div
+          className="mt-3 pt-3 border-t border-gray-100 dark:border-white/[0.04] cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded) } }}
+          aria-expanded={expanded}
+        >
+          {expanded ? (
+            <div className="flex items-center justify-center gap-1.5">
+              <ChevronUp size={14} className="text-leaf-400" />
+              <span className="text-[10px] text-gray-400 dark:text-[#6a7a6e]">Collapse</span>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-leaf-500/[0.08] via-purple-500/[0.06] to-leaf-500/[0.08] border border-leaf-500/20 hover:border-leaf-500/40 transition-all duration-300 group">
+              <span className="text-xs font-semibold text-leaf-500 dark:text-leaf-400 group-hover:text-leaf-400">
+                View All Details
+              </span>
+              <ChevronDown size={16} className="text-leaf-500 dark:text-leaf-400 group-hover:translate-y-0.5 transition-transform duration-200" />
+            </div>
+          )}
+        </div>
+
+        {/* Disclaimer */}
+        {!expanded && (
+          <p className="text-[8px] text-gray-300 dark:text-[#6a7a6e] text-center mt-2 px-2">
+            Community-reported data. Not medical advice. Individual results vary.
+          </p>
+        )}
       </div>
 
-      {/* Expand/collapse toggle label when collapsed */}
-      {!expanded && (
-        <div
-          className="px-4 pb-3 -mt-1 cursor-pointer"
-          onClick={() => setExpanded(true)}
-        >
-          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-leaf-400 hover:text-leaf-300 transition-colors">
-            <Beaker size={10} />
-            View Full Details
-          </span>
-        </div>
-      )}
-
-      {/* Expanded details — FULL strain profile from our database */}
+      {/* ── Expanded: Full strain profile ── */}
       {expanded && (
         <div className="px-4 pb-4 animate-fade-in">
           {fullStrain ? (
             <>
-              {/* Full strain details from our database — same as Strain Detail page */}
               <StrainCardExpanded strain={fullStrain} />
-
-              {/* Connected feature links */}
               <div className="mt-4">
                 <StrainActions slug={slug} name={name} showAuth={showAuthActions} />
               </div>
             </>
           ) : (
             <>
-              {/* Fallback: limited details from harvest/search data */}
-              {item.strain?.topTerpenes?.length > 0 && (
-                <div className="mb-3">
-                  <h4 className="text-[9px] uppercase tracking-wider text-amber-400 font-bold mb-1.5">Terpenes</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {item.strain.topTerpenes.map((t, j) => (
-                      <span
-                        key={j}
-                        className="px-2 py-1 rounded-lg text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/15 font-medium"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {item.strain?.topEffects?.length > 0 && (
-                <div className="mb-3">
-                  <h4 className="text-[9px] uppercase tracking-wider text-leaf-400 font-bold mb-1.5">Effects</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    {item.strain.topEffects.map((e, j) => (
-                      <span
-                        key={j}
-                        className="px-2 py-1 rounded-lg text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/15 font-medium"
-                      >
-                        {e}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {(item.strain?.thc != null || (item.strain?.cbd != null && item.strain.cbd > 0)) && (
-                <div className="mb-3">
-                  <h4 className="text-[9px] uppercase tracking-wider text-green-400 font-bold mb-1.5">Cannabinoids</h4>
-                  <div className="space-y-1.5">
-                    {item.strain?.thc != null && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-medium text-gray-500 dark:text-[#8a9a8e] w-8">THC</span>
-                        <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-green-500/70"
-                            style={{ width: `${Math.min(100, (item.strain.thc / 35) * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-bold text-green-400 w-10 text-right">{item.strain.thc}%</span>
-                      </div>
-                    )}
-                    {item.strain?.cbd != null && item.strain.cbd > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-medium text-gray-500 dark:text-[#8a9a8e] w-8">CBD</span>
-                        <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-blue-500/70"
-                            style={{ width: `${Math.min(100, (item.strain.cbd / 20) * 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[10px] font-bold text-blue-400 w-10 text-right">{item.strain.cbd}%</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* View full strain profile — fallback CTA */}
+              {/* Fallback CTA for strains not in our full database */}
               <Link
                 to={`/strain/${slug}`}
                 className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-leaf-500/15 text-leaf-400 border border-leaf-500/25 hover:bg-leaf-500/25 transition-all min-h-[44px] mb-3"
@@ -912,7 +976,6 @@ function StrainMenuCard({ item, isQuizMatch, getStrainSlug, showAuthActions, get
                 <Leaf size={14} />
                 View Full Strain Profile
               </Link>
-
               <StrainActions slug={slug} name={name} showAuth={showAuthActions} />
             </>
           )}
