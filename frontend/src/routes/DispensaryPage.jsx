@@ -257,19 +257,38 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
         </div>
       )}
 
-      {/* Weedmaps link */}
-      {d.wmUrl && (
-        <div className="flex items-center gap-1.5 mb-2">
-          <a
-            href={d.wmUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[10px] text-leaf-400/60 hover:text-leaf-400 transition-colors flex items-center gap-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <ExternalLink size={10} />
-            View on Weedmaps
-          </a>
+      {/* Source links */}
+      {(d.wmUrl || d.leaflyUrl) && (
+        <div className="flex items-center gap-2 mb-2">
+          {d.wmUrl && (
+            <a
+              href={d.wmUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] text-leaf-400/60 hover:text-leaf-400 transition-colors flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink size={10} />
+              Weedmaps
+            </a>
+          )}
+          {d.leaflyUrl && (
+            <a
+              href={d.leaflyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] text-leaf-400/60 hover:text-leaf-400 transition-colors flex items-center gap-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink size={10} />
+              Leafly
+            </a>
+          )}
+          {d.sources?.length > 1 && (
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-leaf-500/10 text-leaf-400 border border-leaf-500/20 font-medium">
+              {d.sources.length} sources
+            </span>
+          )}
         </div>
       )}
 
@@ -288,16 +307,16 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
             View Menu
           </button>
         )}
-        {d.matchType === 'noMenu' && d.wmUrl && (
+        {d.matchType === 'noMenu' && (d.wmUrl || d.leaflyUrl) && (
           <a
-            href={d.wmUrl}
+            href={d.wmUrl || d.leaflyUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-white/[0.04] text-gray-500 dark:text-[#6a7a6e] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-all min-h-[44px]"
             onClick={(e) => e.stopPropagation()}
           >
             <ExternalLink size={12} />
-            Weedmaps
+            {d.wmUrl ? 'Weedmaps' : 'Leafly'}
           </a>
         )}
       </div>

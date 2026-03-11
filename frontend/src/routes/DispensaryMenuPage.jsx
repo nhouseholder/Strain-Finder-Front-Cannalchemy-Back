@@ -554,6 +554,17 @@ export default function DispensaryMenuPage() {
               Weedmaps
             </a>
           )}
+          {d.leaflyUrl && (
+            <a
+              href={d.leaflyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-medium bg-gray-100 dark:bg-white/[0.04] text-gray-600 dark:text-[#8a9a8e] border border-gray-200 dark:border-white/10 hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-colors min-h-[44px]"
+            >
+              <ExternalLink size={14} />
+              Leafly
+            </a>
+          )}
         </div>
       </Card>
 
@@ -718,34 +729,62 @@ export default function DispensaryMenuPage() {
             Menu Not Available
           </h3>
           <p className="text-xs text-gray-500 dark:text-[#8a9a8e] max-w-xs mx-auto mb-4">
-            We couldn't load the menu for this dispensary. You can view their full menu on Weedmaps.
+            We couldn't load the menu for this dispensary. You can view their full menu externally.
           </p>
-          {(d.menuUrl || d.wmUrl) && (
-            <a
-              href={d.menuUrl || d.wmUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
-            >
-              <ExternalLink size={14} />
-              View Menu on Weedmaps
-            </a>
-          )}
+          <div className="flex items-center justify-center gap-2">
+            {(d.menuUrl || d.wmUrl) && (
+              <a
+                href={d.menuUrl || d.wmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
+              >
+                <ExternalLink size={14} />
+                Weedmaps
+              </a>
+            )}
+            {d.leaflyUrl && (
+              <a
+                href={d.leaflyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
+              >
+                <ExternalLink size={14} />
+                Leafly
+              </a>
+            )}
+          </div>
         </Card>
       )}
 
       {/* ── CTA: View Full External Menu ── */}
-      {(d.menuUrl || d.wmUrl) && (
+      {(d.menuUrl || d.wmUrl || d.leaflyUrl) && (
         <Card className="p-4 mb-6 text-center">
-          <a
-            href={d.menuUrl || d.wmUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
-          >
-            <ExternalLink size={14} />
-            View Full Menu on Weedmaps
-          </a>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            {(d.menuUrl || d.wmUrl) && (
+              <a
+                href={d.menuUrl || d.wmUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
+              >
+                <ExternalLink size={14} />
+                Full Menu on Weedmaps
+              </a>
+            )}
+            {d.leaflyUrl && (
+              <a
+                href={d.leaflyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold bg-leaf-500 text-leaf-900 hover:bg-leaf-400 transition-colors shadow-md shadow-leaf-500/20 min-h-[44px]"
+              >
+                <ExternalLink size={14} />
+                View on Leafly
+              </a>
+            )}
+          </div>
           <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mt-3">
             See the complete live menu with real-time pricing and availability
           </p>

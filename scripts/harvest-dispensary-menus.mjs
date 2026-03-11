@@ -2,12 +2,15 @@
 /**
  * harvest-dispensary-menus.mjs — Daily cron job (GitHub Actions)
  *
- * Phase 1: Uses Weedmaps v2/listings API to discover ALL dispensaries
- *          within a 25mi radius of each city center (no Playwright needed).
- * Phase 2: Uses Playwright browser context to fetch flower menus for each
- *          dispensary (menu API requires browser session to bypass 406).
- * Phase 3: 3-tier strain matching against our 21K strain database.
- * Phase 4: Writes results to Cloudflare KV in paginated format.
+ * Multi-source dispensary harvester:
+ *   1. Weedmaps — v2/listings API discovery + Playwright menu fetch
+ *   2. Leafly   — Playwright-based discovery + menu scraping
+ *
+ * For each city:
+ *   Phase 1: Discover dispensaries from all sources
+ *   Phase 2: Deduplicate across sources
+ *   Phase 3: Fetch menus + 3-tier strain matching
+ *   Phase 4: Write results to Cloudflare KV
  *
  * KV Structure:
  *   cities:index              → list of available cities + counts
@@ -21,12 +24,12 @@
  *   CLOUDFLARE_KV_NAMESPACE_ID  — KV namespace ID (the CACHE binding)
  */
 
-import { readFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
-
-const __dirname = dirname(fileURLToPath(import.meta.url))
+import { loadStrainDB } from './lib/strain-matcher.mjs'
+import { writeCityToKV, writeCitiesIndex } from './lib/kv-writer.mjs'
+import { deduplicateDispensaries } from './lib/dedup.mjs'
+import { discoverDispensaries as discoverWM, harvestMenus as harvestWM } from './sources/weedmaps.mjs'
+import { discoverDispensaries as discoverLeafly, harvestMenus as harvestLeafly } from './sources/leafly.mjs'
 
 /* ── Config ────────────────────────────────────────────────────────── */
 
@@ -38,15 +41,7 @@ const CITIES = [
   { slug: 'denver',      label: 'Denver, CO',       lat: 39.7392, lng: -104.9903 },
 ]
 
-const BOUNDING_RADIUS = '25mi'         // covers full metro area
-const LISTING_PAGE_SIZE = 150          // max allowed by Weedmaps API
-const DISPENSARIES_PER_BATCH = 5       // menu batch size for KV
-const DISPENSARIES_PER_INDEX_PAGE = 100 // index page size for KV
-const FETCH_DELAY_MS = 300             // delay between menu API calls
-const CITY_DELAY_MS = 2000             // delay between cities
-const MAX_MENU_ITEMS_PER_DISP = 300    // max flower items per dispensary
-const MAX_MATCHED_PER_DISP = 50        // max matched strains stored per dispensary in KV
-const MENU_FETCH_RETRIES = 3           // retry failed Playwright menu fetches
+const CITY_DELAY_MS = 2000
 
 const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_KV_NAMESPACE_ID } = process.env
 
@@ -55,551 +50,124 @@ if (!CLOUDFLARE_API_TOKEN || !CLOUDFLARE_ACCOUNT_ID || !CLOUDFLARE_KV_NAMESPACE_
   process.exit(1)
 }
 
-/* ── Load strain database ──────────────────────────────────────────── */
+const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-function loadStrainDB() {
-  const jsonPath = resolve(__dirname, '../frontend/src/data/strains.json')
-  const raw = JSON.parse(readFileSync(jsonPath, 'utf-8'))
+/* ── Harvest a single city ─────────────────────────────────────────── */
 
-  const exactMap = new Map()
-  const nameList = []
-
-  for (const s of raw) {
-    const norm = normalizeName(s.name)
-    const summary = {
-      name: s.name,
-      slug: s.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-      type: s.type,
-      thc: s.cannabinoids?.find(c => c.name === 'thc')?.value ?? null,
-      cbd: s.cannabinoids?.find(c => c.name === 'cbd')?.value ?? null,
-      topEffects: (s.effects || []).slice(0, 3).map(e => e.name),
-      topTerpenes: (s.terpenes || []).slice(0, 3).map(t => t.name),
-    }
-    exactMap.set(norm, summary)
-    nameList.push({ norm, summary })
-  }
-
-  console.log(`[StrainDB] Loaded ${exactMap.size} strains for matching`)
-  return { exactMap, nameList }
-}
-
-function normalizeName(name) {
-  return (name || '')
-    .toLowerCase()
-    .replace(/['']/g, '')
-    .replace(/[^a-z0-9]/g, '')
-}
-
-/* ── 3-Tier Strain Matching ────────────────────────────────────────── */
-
-const EXCLUDED = new Set([
-  'sativa', 'indica', 'hybrid', 'strain', 'unknown', 'na', 'flower',
-  'indoor', 'outdoor', 'greenhouse', 'premium', 'classic', 'gold',
-  'cream', 'lemon', 'grape', 'orange', 'mango', 'cherry', 'lime',
-  'gello', 'sunshine', 'diamond', 'fire', 'ice', 'thunder', 'sugar',
-  'honey', 'butter', 'cake', 'candy', 'cookie', 'cookies',
-])
-
-function matchStrain(menuItemName, strainDB) {
-  const cleaned = (menuItemName || '')
-    // Weight / measurement patterns
-    .replace(/\s*[-–|]\s*\d+(\.\d+)?\s*g\b/gi, '')
-    .replace(/\s*\(\d+(\.\d+)?\s*g\)/gi, '')
-    .replace(/\s*\[\d+(\.\d+)?\s*g\]/gi, '')
-    .replace(/\b\d+(\.\d+)?\s*g(ram)?s?\b/gi, '')
-    .replace(/\b(1\/2\s*oz|half\s*oz|quarter|eighth|oz|ounce)\b/gi, '')
-    // Type / quality indicators
-    .replace(/\s*[-–|]\s*(indica|sativa|hybrid)\b/gi, '')
-    .replace(/\s*[-–|]\s*(small|smalls|smallz|popcorn|shake|trim|minis)\b/gi, '')
-    .replace(/\s*[-–|]\s*(indoor|outdoor|greenhouse|light dep)\b/gi, '')
-    .replace(/\s*[-–|]\s*(flower|premium|gold cuts|classic cuts|top shelf|reserve|exclusive)\b/gi, '')
-    .replace(/\b(pre-?roll|pre-?packed|infused|enhanced|live\s*resin)\b/gi, '')
-    // Brand patterns (pipe/dash separated brand prefixes)
-    .replace(/\bdime\s*bag\s*[-|]\s*/gi, '')
-    .replace(/\bmr\.?\s*zips?\s*[-|]\s*/gi, '')
-    .replace(/\bcam\s*[-|]\s*/gi, '')
-    .replace(/\b3\s*bros\s*[-|]\s*/gi, '')
-    .replace(/\bslugg?ers\s*[-|]\s*(jarred\s*)?flower\s*[-|]\s*\d+g\s*[-|]\s*/gi, '')
-    .replace(/\bconnected\s*(cannabis)?\s*[-|]\s*/gi, '')
-    .replace(/\balien\s*labs?\s*[-|]\s*/gi, '')
-    .replace(/\bjungle\s*boys?\s*[-|]\s*/gi, '')
-    .replace(/\bcookies?\s*(fam)?\s*[-|]\s*/gi, '')
-    .replace(/\bstiiizy\s*[-|]\s*/gi, '')
-    .replace(/\braw\s*garden\s*[-|]\s*/gi, '')
-    .replace(/\bfig\s*farms?\s*[-|]\s*/gi, '')
-    .replace(/\bpackwoods?\s*[-|]\s*/gi, '')
-    .replace(/\bjeeter\s*[-|]\s*/gi, '')
-    .replace(/\bglass\s*house\s*[-|]\s*/gi, '')
-    .replace(/\bcresco\s*[-|]\s*/gi, '')
-    .replace(/\bcuraleaf\s*[-|]\s*/gi, '')
-    .replace(/\bselect\s*[-|]\s*/gi, '')
-    .replace(/\bverano\s*[-|]\s*/gi, '')
-    .replace(/\bgti\s*[-|]\s*/gi, '')
-    .replace(/\btrulieve\s*[-|]\s*/gi, '')
-    .replace(/\bcolumbia\s*care\s*[-|]\s*/gi, '')
-    .replace(/\bholistic\s*industries?\s*[-|]\s*/gi, '')
-    .replace(/\baeyr\s*wellness\s*[-|]\s*/gi, '')
-    .replace(/\bflowery?\s*[-|]\s*/gi, '')
-    .replace(/\bitem\s*nine\s*[-|]\s*/gi, '')
-    .replace(/\bgrow\s*sciences?\s*[-|]\s*/gi, '')
-    .replace(/\bpotent\s*planet\s*[-|]\s*/gi, '')
-    .replace(/\babsolute\s*xtracts?\s*[-|]\s*/gi, '')
-    .replace(/\btru\s*infusion\s*[-|]\s*/gi, '')
-    .replace(/\bmint\s*[-|]\s*/gi, '')
-    .replace(/\bcanamo\s*[-|]\s*/gi, '')
-    // Generic brand prefix pattern: "Brand Name | " or "Brand Name - "
-    .replace(/^[A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?\s*[-|]\s+/, '')
-    // Misc cleanup
-    .replace(/\s+/g, ' ')
-    .trim()
-
-  const norm = normalizeName(cleaned)
-  if (!norm || norm.length < 4) return null
-
-  // Tier 1: Exact match
-  if (strainDB.exactMap.has(norm) && !EXCLUDED.has(norm)) {
-    return { ...strainDB.exactMap.get(norm), matchTier: 'exact' }
-  }
-
-  // Tier 2: Fuzzy match (Levenshtein ≤ 2)
-  for (const { norm: dbNorm, summary } of strainDB.nameList) {
-    if (EXCLUDED.has(dbNorm)) continue
-    if (Math.abs(norm.length - dbNorm.length) > 2) continue
-    if (levenshtein(norm, dbNorm) <= 2) {
-      return { ...summary, matchTier: 'fuzzy' }
-    }
-  }
-
-  // Tier 3: Substring (≥7 chars, ≥40% ratio)
-  for (const { norm: dbNorm, summary } of strainDB.nameList) {
-    if (EXCLUDED.has(dbNorm)) continue
-    if (dbNorm.length < 7) continue
-    if (norm.includes(dbNorm) && (dbNorm.length / norm.length) >= 0.4) {
-      return { ...summary, matchTier: 'substring' }
-    }
-  }
-
-  return null
-}
-
-function levenshtein(a, b) {
-  if (a.length === 0) return b.length
-  if (b.length === 0) return a.length
-  if (Math.abs(a.length - b.length) > 2) return 3
-  const matrix = []
-  for (let i = 0; i <= b.length; i++) matrix[i] = [i]
-  for (let j = 0; j <= a.length; j++) matrix[0][j] = j
-  for (let i = 1; i <= b.length; i++)
-    for (let j = 1; j <= a.length; j++) {
-      const cost = b[i - 1] === a[j - 1] ? 0 : 1
-      matrix[i][j] = Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1, matrix[i - 1][j - 1] + cost)
-    }
-  return matrix[b.length][a.length]
-}
-
-/* ── Phase 1: Discover ALL dispensaries via v2/listings API ─────────── */
-
-async function fetchAllListings(city) {
-  console.log(`  Fetching all listings within ${BOUNDING_RADIUS} of ${city.label}...`)
-
-  const allListings = []
-  let page = 1
-
-  while (true) {
-    const url = `https://api-g.weedmaps.com/discovery/v2/listings` +
-      `?filter[bounding_radius]=${BOUNDING_RADIUS}` +
-      `&filter[bounding_latlng]=${city.lat},${city.lng}` +
-      `&page_size=${LISTING_PAGE_SIZE}` +
-      `&page=${page}`
-
-    const res = await fetch(url)
-    if (!res.ok) {
-      console.warn(`  [WARN] Listing API returned ${res.status} on page ${page}`)
-      break
-    }
-
-    const data = await res.json()
-    const listings = data?.data?.listings || []
-    if (listings.length === 0) break
-
-    for (const L of listings) {
-      // Include dispensaries and delivery services (skip doctors, stores)
-      const type = L.type || ''
-      if (type !== 'dispensary' && type !== 'delivery') continue
-
-      allListings.push({
-        id: L.slug,
-        name: L.name,
-        slug: L.slug,
-        type: L.license_type || type,
-        address: [L.address, L.city, L.state].filter(Boolean).join(', '),
-        lat: L.latitude,
-        lng: L.longitude,
-        rating: L.rating || null,
-        reviewCount: L.reviews_count || 0,
-        phone: L.phone_number || null,
-        website: L.web_url || null,
-        wmUrl: `https://weedmaps.com/dispensaries/${L.slug}`,
-        hours: L.todays_hours_str || null,
-        openNow: L.open_now || false,
-        delivery: (L.retailer_services || []).includes('delivery'),
-        pickup: (L.retailer_services || []).includes('pickup'),
-        storefront: (L.retailer_services || []).includes('storefront'),
-        menuItemsCount: L.menu_items_count || 0,
-      })
-    }
-
-    const totalFromMeta = data?.meta?.total_listings || 0
-    console.log(`    Page ${page}: ${listings.length} items (total: ${totalFromMeta})`)
-
-    if (allListings.length >= totalFromMeta || listings.length < LISTING_PAGE_SIZE) break
-    page++
-    await sleep(300) // small delay between listing pages
-  }
-
-  console.log(`  Found ${allListings.length} dispensaries + delivery services`)
-  return allListings
-}
-
-/* ── Phase 2: Fetch flower menus via browser context ───────────────── */
-
-async function fetchMenuItems(browserPage, slug, maxItems) {
-  return browserPage.evaluate(async ({ slug, maxItems }) => {
-    const items = []
-    let pageNum = 1
-    const maxPages = 3
-
-    while (pageNum <= maxPages && items.length < maxItems) {
-      try {
-        const r = await fetch(
-          `https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/${slug}/menu_items?filter[category]=flower&page_size=100&page=${pageNum}`
-        )
-        if (!r.ok) break
-        const d = await r.json()
-        const menuItems = d?.data?.menu_items || []
-        if (menuItems.length === 0) break
-
-        for (const m of menuItems) {
-          items.push({
-            name: m.name,
-            prices: m.prices || [],
-            variants: m.variants || [],
-            price: m.price ?? null,
-            image: m.avatar_image?.small_url || null,
-            brand: m.brand?.name || null,
-          })
-        }
-
-        const totalPages = d?.meta?.total_pages || 1
-        if (pageNum >= totalPages) break
-        pageNum++
-      } catch { break }
-    }
-
-    return items.slice(0, maxItems)
-  }, { slug, maxItems })
-}
-
-function extractPrice(menuItem) {
-  const prices = Array.isArray(menuItem.prices) ? menuItem.prices : []
-  const variants = Array.isArray(menuItem.variants) ? menuItem.variants : []
-
-  const resolveNum = (v) => {
-    if (v == null) return null
-    if (typeof v === 'number') return v > 0 ? v : null
-    if (typeof v === 'string') { const n = parseFloat(v.replace(/[$,]/g, '')); return n > 0 ? n : null }
-    if (typeof v === 'object' && v.amount != null) { const n = parseFloat(String(v.amount).replace(/[$,]/g, '')); return n > 0 ? n : null }
-    return null
-  }
-
-  let eighthPrice = null
-  let display = null
-
-  // Strategy 1: v1 "prices" array
-  if (prices.length > 0) {
-    for (const p of prices) {
-      const label = (p.label || p.units || p.name || '').toLowerCase()
-      const val = resolveNum(p.price ?? p.amount ?? p.value)
-      if (val && (label.includes('eighth') || label.includes('1/8') || label.includes('3.5') || label.includes('⅛'))) {
-        eighthPrice = val; break
-      }
-    }
-    if (eighthPrice == null) {
-      for (const p of prices) {
-        const val = resolveNum(p.price ?? p.amount ?? p.value)
-        if (val) { eighthPrice = val; break }
-      }
-    }
-  }
-
-  // Strategy 2: "variants" array
-  if (eighthPrice == null && variants.length > 0) {
-    for (const v of variants) {
-      const w = v.weight || v.size || {}
-      const wVal = parseFloat(w.value || w.amount || 0)
-      const wUnit = (w.unit || '').toLowerCase()
-      const amt = resolveNum(v.price ?? v.amount)
-      if (amt && wVal >= 3.4 && wVal <= 3.6 && wUnit.startsWith('g')) { eighthPrice = amt; break }
-    }
-    if (eighthPrice == null) {
-      for (const v of variants) {
-        const amt = resolveNum(v.price ?? v.amount)
-        if (amt) { eighthPrice = amt; break }
-      }
-    }
-  }
-
-  // Strategy 3: top-level price
-  if (eighthPrice == null) {
-    const topPrice = resolveNum(menuItem.price)
-    if (topPrice) eighthPrice = topPrice
-  }
-
-  if (eighthPrice != null) display = `$${eighthPrice}`
-
-  return { display, eighthPrice }
-}
-
-/* ── Cloudflare KV Writes ──────────────────────────────────────────── */
-
-const KV_BASE = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/storage/kv/namespaces/${CLOUDFLARE_KV_NAMESPACE_ID}`
-
-async function kvPut(key, value) {
-  const url = `${KV_BASE}/values/${encodeURIComponent(key)}`
-  const body = JSON.stringify(value)
-  const sizeKB = Buffer.byteLength(body, 'utf-8') / 1024
-
-  if (sizeKB > 200) {
-    console.warn(`  ⚠️  KV "${key}" is ${sizeKB.toFixed(1)}KB — large value!`)
-  }
-
-  const res = await fetch(url, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `Bearer ${CLOUDFLARE_API_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body,
-  })
-
-  if (!res.ok) {
-    const text = await res.text()
-    throw new Error(`KV PUT failed for "${key}": ${res.status} — ${text}`)
-  }
-  console.log(`  ✓ ${key} (${sizeKB.toFixed(1)}KB)`)
-}
-
-/* ── Main Harvest Logic ────────────────────────────────────────────── */
-
-async function harvestCity(browserPage, city, strainDB) {
+async function harvestCity(browser, wmPage, city, strainDB) {
   console.log(`\n${'═'.repeat(60)}`)
   console.log(`  Harvesting: ${city.label}`)
   console.log(`${'═'.repeat(60)}`)
 
-  // Phase 1: Discover ALL dispensaries via public API (no browser needed)
-  const listings = await fetchAllListings(city)
-  if (listings.length === 0) {
-    console.log('  No dispensaries found — skipping city')
+  // Phase 1: Discover dispensaries from all sources
+  const sourceLists = []
+
+  // Weedmaps discovery (no browser needed for listings API)
+  try {
+    const wmDisps = await discoverWM(city)
+    if (wmDisps.length > 0) {
+      sourceLists.push({ source: 'weedmaps', dispensaries: wmDisps })
+    }
+  } catch (err) {
+    console.error(`  [WM] Discovery failed: ${err.message}`)
+  }
+
+  // Leafly discovery (needs browser)
+  try {
+    const leaflyDisps = await discoverLeafly(browser, city)
+    if (leaflyDisps.length > 0) {
+      sourceLists.push({ source: 'leafly', dispensaries: leaflyDisps })
+    }
+  } catch (err) {
+    console.error(`  [Leafly] Discovery failed: ${err.message}`)
+  }
+
+  if (sourceLists.length === 0 || sourceLists.every(s => s.dispensaries.length === 0)) {
+    console.log('  No dispensaries found from any source — skipping city')
     return { dispensaryCount: 0, matchedCount: 0 }
   }
 
-  // Phase 2 + 3: Fetch menus and match strains (needs browser)
+  // Phase 2: Deduplicate across sources
+  const allDispensaries = deduplicateDispensaries(sourceLists)
+
+  // Phase 3: Fetch menus + match strains
+  // Split dispensaries by source for menu fetching
+  const wmOnly = allDispensaries.filter(d => d.sources?.includes('weedmaps') && d.slug)
+  const leaflyOnly = allDispensaries.filter(d =>
+    d.sources?.includes('leafly') &&
+    !d.sources?.includes('weedmaps') &&
+    d.leaflySlug
+  )
+
+  // Harvest Weedmaps menus (uses shared browser page with WM session)
   let totalMatched = 0
-  const enriched = []
+  const enrichedMap = new Map()
 
-  // Sort by menu_items_count descending — process richest menus first
-  listings.sort((a, b) => (b.menuItemsCount || 0) - (a.menuItemsCount || 0))
-
-  for (let i = 0; i < listings.length; i++) {
-    const disp = listings[i]
-    process.stdout.write(`  [${i + 1}/${listings.length}] ${disp.name}... `)
-
-    // Try fetching menu even for dispensaries reporting 0 items
-    // (some dispensaries report 0 in the listing but still have menu data)
-    let menuItems = []
-    let fetchSuccess = false
-
-    for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
-      try {
-        menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP)
-        fetchSuccess = true
-        break
-      } catch (err) {
-        if (attempt < MENU_FETCH_RETRIES) {
-          console.log(`retry ${attempt}/${MENU_FETCH_RETRIES}... `)
-          await sleep(FETCH_DELAY_MS * attempt * 2) // exponential backoff
-        } else {
-          console.log(`FAILED after ${MENU_FETCH_RETRIES} attempts: ${err.message}`)
-        }
-      }
-    }
-    await sleep(FETCH_DELAY_MS)
-
-    if (!fetchSuccess || menuItems.length === 0) {
-      console.log(fetchSuccess ? `0 menu items` : `fetch failed`)
-      enriched.push({
-        ...disp,
-        menuSummary: { total: 0, matched: 0, topMatches: [], hasMenu: false },
-        matchedMenu: [],
-        unmatchedCount: 0,
-      })
-      continue
-    }
-
-    // Match each menu item against our strain DB
-    const matchedMenu = []
-    let unmatchedCount = 0
-
-    for (const item of menuItems) {
-      const match = matchStrain(item.name, strainDB)
-      if (match) {
-        const { display: price, eighthPrice } = extractPrice(item)
-        matchedMenu.push({
-          menuName: item.name,
-          price,
-          priceEighth: eighthPrice,
-          brand: item.brand,
-          strain: match,
-        })
-      } else {
-        unmatchedCount++
-      }
-    }
-
-    totalMatched += matchedMenu.length
-    console.log(`${menuItems.length} items, ${matchedMenu.length} matched, ${unmatchedCount} unmatched`)
-
-    enriched.push({
-      ...disp,
-      menuSummary: {
-        total: menuItems.length,
-        matched: matchedMenu.length,
-        topMatches: matchedMenu.slice(0, 5).map(m => m.strain.name),
-        hasMenu: true,
-      },
-      matchedMenu,
-      unmatchedCount,
-    })
+  if (wmOnly.length > 0) {
+    console.log(`\n  Fetching Weedmaps menus for ${wmOnly.length} dispensaries...`)
+    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(wmPage, wmOnly, strainDB)
+    totalMatched += wmMatched
+    for (const d of wmEnriched) enrichedMap.set(d.id, d)
   }
+
+  // Harvest Leafly menus (opens new contexts per dispensary)
+  if (leaflyOnly.length > 0) {
+    console.log(`\n  Fetching Leafly menus for ${leaflyOnly.length} Leafly-only dispensaries...`)
+    const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(browser, leaflyOnly, strainDB)
+    totalMatched += leaflyMatched
+    for (const d of leaflyEnriched) enrichedMap.set(d.id, d)
+  }
+
+  // Add dispensaries that had menus from both sources already in dedup
+  for (const d of allDispensaries) {
+    if (!enrichedMap.has(d.id)) {
+      enrichedMap.set(d.id, {
+        ...d,
+        menuSummary: d.menuSummary || { total: 0, matched: 0, topMatches: [], hasMenu: false },
+        matchedMenu: d.matchedMenu || [],
+        unmatchedCount: d.unmatchedCount || 0,
+      })
+    }
+  }
+
+  const enriched = [...enrichedMap.values()]
 
   // Phase 4: Write to KV
-  console.log(`\n  Writing to KV...`)
+  await writeCityToKV(city, enriched, totalMatched)
 
-  // Assign batch indices
-  for (let i = 0; i < enriched.length; i++) {
-    enriched[i].batchIndex = Math.floor(i / DISPENSARIES_PER_BATCH)
+  const sourceBreakdown = {
+    weedmaps: wmOnly.length,
+    leafly: leaflyOnly.length,
+    both: allDispensaries.filter(d => d.sources?.length > 1).length,
   }
+  console.log(`  Sources: WM=${sourceBreakdown.weedmaps}, Leafly=${sourceBreakdown.leafly}, Both=${sourceBreakdown.both}`)
 
-  // Build compact dispensary entries for index (strip heavy fields)
-  const compactDisps = enriched.map(d => ({
-    id: d.id,
-    name: d.name,
-    address: d.address,
-    lat: d.lat,
-    lng: d.lng,
-    rating: d.rating,
-    reviewCount: d.reviewCount,
-    phone: d.phone,
-    wmUrl: d.wmUrl,
-    hours: d.hours,
-    openNow: d.openNow,
-    delivery: d.delivery,
-    pickup: d.pickup,
-    storefront: d.storefront,
-    type: d.type,
-    menuSummary: d.menuSummary,
-    hasMenu: d.menuSummary?.hasMenu ?? (d.menuSummary?.total > 0),
-    batchIndex: d.batchIndex,
-  }))
-
-  // Paginate city index (100 dispensaries per page to stay under 25KB)
-  const indexPageCount = Math.ceil(compactDisps.length / DISPENSARIES_PER_INDEX_PAGE)
-
-  // First index page includes meta + first 100 dispensaries
-  const indexBase = {
-    city: city.slug,
-    label: city.label,
-    lat: city.lat,
-    lng: city.lng,
-    updatedAt: new Date().toISOString(),
-    dispensaryCount: enriched.length,
-    matchedStrainCount: totalMatched,
-    indexPages: indexPageCount,
-    dispensaries: compactDisps.slice(0, DISPENSARIES_PER_INDEX_PAGE),
-  }
-  await kvPut(`city:${city.slug}:index`, indexBase)
-
-  // Additional index pages
-  for (let p = 1; p < indexPageCount; p++) {
-    const start = p * DISPENSARIES_PER_INDEX_PAGE
-    const end = start + DISPENSARIES_PER_INDEX_PAGE
-    await kvPut(`city:${city.slug}:index:${p}`, {
-      city: city.slug,
-      page: p,
-      dispensaries: compactDisps.slice(start, end),
-    })
-  }
-
-  // Menu batches (5 dispensaries per batch, up to MAX_MATCHED_PER_DISP matches each)
-  const batchCount = Math.ceil(enriched.length / DISPENSARIES_PER_BATCH)
-  for (let b = 0; b < batchCount; b++) {
-    const batchDisps = enriched.slice(b * DISPENSARIES_PER_BATCH, (b + 1) * DISPENSARIES_PER_BATCH)
-    await kvPut(`city:${city.slug}:batch:${b}`, {
-      city: city.slug,
-      batchIndex: b,
-      updatedAt: new Date().toISOString(),
-      dispensaries: batchDisps.map(d => ({
-        id: d.id,
-        matchedMenu: d.matchedMenu.slice(0, MAX_MATCHED_PER_DISP).map(m => ({
-          menuName: m.menuName,
-          price: m.price,
-          priceEighth: m.priceEighth ?? null,
-          brand: m.brand,
-          strain: {
-            name: m.strain.name,
-            slug: m.strain.slug,
-            type: m.strain.type,
-            thc: m.strain.thc,
-            cbd: m.strain.cbd,
-            topEffects: m.strain.topEffects,
-            topTerpenes: m.strain.topTerpenes,
-            matchTier: m.strain.matchTier,
-          },
-        })),
-        unmatchedCount: d.unmatchedCount,
-        totalMatched: d.matchedMenu.length,
-        hasMenu: d.menuSummary?.hasMenu ?? (d.menuSummary?.total > 0),
-      })),
-    })
-  }
-
-  console.log(`  Done: ${enriched.length} dispensaries, ${totalMatched} matched menu items`)
-  return { dispensaryCount: enriched.length, matchedCount: totalMatched }
+  return { dispensaryCount: enriched.length, matchedCount: totalMatched, sourceBreakdown }
 }
 
 /* ── Main ──────────────────────────────────────────────────────────── */
 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗')
-  console.log('║  MyStrainAI — Full Dispensary Harvest v3                ║')
-  console.log('║  Weedmaps v2/listings API → Strain Matching → KV       ║')
+  console.log('║  MyStrainAI — Multi-Source Dispensary Harvest v4        ║')
+  console.log('║  Weedmaps + Leafly → Dedup → Strain Match → KV        ║')
   console.log(`║  ${new Date().toISOString().padEnd(52)}║`)
   console.log('╚══════════════════════════════════════════════════════════╝')
 
   const strainDB = loadStrainDB()
 
-  // Launch headless browser (needed for menu API calls which block server-side requests)
-  console.log('\nLaunching browser for menu fetches...')
+  // Launch headless browser
+  console.log('\nLaunching browser...')
   const browser = await chromium.launch({ headless: true })
-  const context = await browser.newContext({
+  const wmContext = await browser.newContext({
     viewport: { width: 1280, height: 900 },
     userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
   })
-  const page = await context.newPage()
+  const wmPage = await wmContext.newPage()
 
-  // Establish session for menu API calls
-  console.log('Establishing browser session...')
-  await page.goto('https://weedmaps.com', { waitUntil: 'domcontentloaded', timeout: 30000 })
+  // Establish Weedmaps session for menu API calls
+  console.log('Establishing Weedmaps browser session...')
+  await wmPage.goto('https://weedmaps.com', { waitUntil: 'domcontentloaded', timeout: 30000 })
   await sleep(2000)
   console.log('Session established ✓\n')
 
@@ -609,7 +177,7 @@ async function main() {
 
   for (const city of CITIES) {
     try {
-      const r = await harvestCity(page, city, strainDB)
+      const r = await harvestCity(browser, wmPage, city, strainDB)
       results[city.slug] = r
       totalDisp += r.dispensaryCount
       totalMatched += r.matchedCount
@@ -621,18 +189,7 @@ async function main() {
   }
 
   // Write master cities index
-  const citiesIndex = {
-    updatedAt: new Date().toISOString(),
-    cities: CITIES.map(c => ({
-      slug: c.slug,
-      label: c.label,
-      lat: c.lat,
-      lng: c.lng,
-      dispensaryCount: results[c.slug]?.dispensaryCount || 0,
-      matchedStrainCount: results[c.slug]?.matchedCount || 0,
-    })).filter(c => c.dispensaryCount > 0),
-  }
-  await kvPut('cities:index', citiesIndex)
+  await writeCitiesIndex(CITIES, results)
 
   await browser.close()
   console.log('\nBrowser closed.')
@@ -643,7 +200,8 @@ async function main() {
   console.log(`  ${totalMatched} total matched menu items`)
   for (const c of CITIES) {
     const r = results[c.slug] || {}
-    console.log(`    ${c.label}: ${r.dispensaryCount || 0} dispensaries, ${r.matchedCount || 0} matched`)
+    const sb = r.sourceBreakdown || {}
+    console.log(`    ${c.label}: ${r.dispensaryCount || 0} dispensaries (WM: ${sb.weedmaps || 0}, Leafly: ${sb.leafly || 0}), ${r.matchedCount || 0} matched`)
   }
   console.log('═'.repeat(60))
 }
