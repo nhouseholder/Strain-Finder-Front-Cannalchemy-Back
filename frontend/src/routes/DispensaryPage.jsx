@@ -628,6 +628,16 @@ export default function DispensaryPage() {
         updatedAt={citiesUpdatedAt}
       />
 
+      {/* Expansion notice */}
+      {!citiesLoading && (
+        <div className="flex items-start gap-2.5 px-3 py-2.5 mb-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
+          <MapPin size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
+            Live dispensary menus are currently available in <strong className="text-gray-700 dark:text-[#b0c4b4]">San Diego</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Phoenix</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Los Angeles</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">New York</strong>, and <strong className="text-gray-700 dark:text-[#b0c4b4]">Denver</strong>. We're actively expanding to more cities — stay tuned!
+          </p>
+        </div>
+      )}
+
       {/* Location Input — alternative / fallback */}
       <Card className="p-4 mb-6">
         <h2 className="text-sm font-semibold text-gray-700 dark:text-[#b0c4b4] mb-3 flex items-center gap-2">
