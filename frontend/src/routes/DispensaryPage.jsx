@@ -116,7 +116,7 @@ function DispensaryFilters({ sortBy, onSortChange }) {
 /* ------------------------------------------------------------------ */
 /*  DispensaryCard (inline — clickable to open drawer)                */
 /* ------------------------------------------------------------------ */
-function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain }) {
+function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, isLocationMode }) {
   const d = dispensary
   const hasHighlight = highlightStrain && (d.matchedStrains || []).some(
     (s) => (typeof s === 'string' ? s : s.name)?.toLowerCase() === highlightStrain.toLowerCase()
@@ -274,7 +274,7 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain }
             onClick={(e) => { e.stopPropagation(); onViewPage(d) }}
             className="flex items-center gap-1 text-[10px] font-semibold text-leaf-400 hover:text-leaf-300 transition-colors min-h-[44px]"
           >
-            View Full Page
+            {isLocationMode ? 'View Menu' : 'View Strain Matches'}
             <ExternalLink size={10} />
           </button>
         )}
@@ -437,6 +437,8 @@ export default function DispensaryPage() {
   const [locationLoading, setLocationLoading] = useState(false)
   const [locationUsed, setLocationUsed] = useState(null)
   const [locationError, setLocationError] = useState(null)
+  const [locationCenter, setLocationCenter] = useState(null)
+  const [cityRedirectNotice, setCityRedirectNotice] = useState(null)
 
   // Drawer state
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -500,18 +502,34 @@ export default function DispensaryPage() {
     setActiveCity(null)
     setCityData(null)
     setLocationError(null)
+    setLocationCenter(null)
+    setCityRedirectNotice(null)
     setLocationUsed(typeof loc === 'string' ? loc : 'Your location')
     setLocationLoading(true)
 
     try {
       const results = await searchDispensaries(loc, strainNames)
-      setLocationDispensaries(results)
+
+      // Handle city redirect — nearby pre-harvested city found
+      if (results._cityRedirect) {
+        setCityRedirectNotice(`Found nearby city: ${results.cityLabel} — showing full strain availability!`)
+        setLocationUsed(null)
+        setLocationLoading(false)
+        handleCitySelect(results.citySlug)
+        return
+      }
+
+      // Direct results with center coordinates
+      setLocationDispensaries(results.dispensaries || results)
+      if (results.center) {
+        setLocationCenter(results.center)
+      }
     } catch (err) {
       setLocationError(err.message || 'Search failed')
     } finally {
       setLocationLoading(false)
     }
-  }, [strainNames])
+  }, [strainNames, handleCitySelect])
 
   /* Auto-detect location */
   const handleAutoDetect = useCallback(() => {
@@ -527,9 +545,13 @@ export default function DispensaryPage() {
   /* Navigate to full dispensary menu page (from map popup "View Menu") */
   const handleViewMenu = useCallback((dispensary) => {
     if (activeCity) {
+      // City mode — internal cross-referenced menu page
       navigate(`/dispensary/${activeCity}/${dispensary.id}`)
+    } else if (dispensary.menuUrl || dispensary.wmUrl) {
+      // Location mode — open Weedmaps menu in new tab
+      window.open(dispensary.menuUrl || dispensary.wmUrl, '_blank', 'noopener,noreferrer')
     } else {
-      // Location/demo mode — pass dispensary data via router state
+      // Fallback — pass dispensary data via router state
       navigate(`/dispensary/nearby/${dispensary.id}`, { state: { dispensary } })
     }
   }, [activeCity, navigate])
@@ -568,10 +590,13 @@ export default function DispensaryPage() {
     }
   }, [dispensaries, sortBy])
 
-  /* Map center — city coords → geolocation → compute from dispensary positions */
+  /* Map center — city coords → location center → geolocation → compute from dispensary positions */
   const mapCenter = useMemo(() => {
     if (mode === 'city' && cityData?.lat && cityData?.lng) {
       return { lat: cityData.lat, lng: cityData.lng }
+    }
+    if (locationCenter?.lat && locationCenter?.lng) {
+      return locationCenter
     }
     if (geoLocation?.lat && geoLocation?.lng) {
       return geoLocation
@@ -584,7 +609,7 @@ export default function DispensaryPage() {
       return { lat: avgLat, lng: avgLng }
     }
     return null
-  }, [mode, cityData, geoLocation, dispensaries])
+  }, [mode, cityData, locationCenter, geoLocation, dispensaries])
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
@@ -633,8 +658,16 @@ export default function DispensaryPage() {
         <div className="flex items-start gap-2.5 px-3 py-2.5 mb-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
           <MapPin size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
           <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
-            Live dispensary menus are currently available in <strong className="text-gray-700 dark:text-[#b0c4b4]">San Diego</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Phoenix</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Los Angeles</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">New York</strong>, and <strong className="text-gray-700 dark:text-[#b0c4b4]">Denver</strong>. We're actively expanding to more cities — stay tuned!
+            Full strain matching available in <strong className="text-gray-700 dark:text-[#b0c4b4]">San Diego</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Phoenix</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Los Angeles</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">New York</strong> & <strong className="text-gray-700 dark:text-[#b0c4b4]">Denver</strong>. Other areas show nearby dispensaries with links to their menus.
           </p>
+        </div>
+      )}
+
+      {/* City redirect notice — shown when zip search auto-redirected to a pre-harvested city */}
+      {cityRedirectNotice && (
+        <div className="flex items-center gap-2.5 px-3 py-2.5 mb-4 rounded-xl bg-leaf-500/[0.08] border border-leaf-500/20 animate-fade-in">
+          <Sparkles size={14} className="text-leaf-400 flex-shrink-0" />
+          <p className="text-[11px] text-leaf-400 font-medium">{cityRedirectNotice}</p>
         </div>
       )}
 
@@ -752,6 +785,7 @@ export default function DispensaryPage() {
                 onClick={handleCardClick}
                 onViewPage={handleViewMenu}
                 highlightStrain={highlightStrain}
+                isLocationMode={mode === 'location'}
               />
             ))}
           </div>

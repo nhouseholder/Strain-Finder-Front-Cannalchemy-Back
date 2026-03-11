@@ -115,11 +115,59 @@ export async function searchDispensaries(location, strainNames, options = {}) {
     }
   }
 
-  // Fallback: demo data
-  console.log('[DispensarySearch] No cached data — returning demo dispensaries')
-  const demo = buildDemoDispensaries(location, strainNames)
-  setCachedResults(location, strainNames, demo)
-  return demo
+  // Search via real dispensary search API (geocode + Weedmaps)
+  console.log('[DispensarySearch] Calling dispensary search API...')
+  const result = await fetchNearbyDispensaries(location)
+
+  // If the search returned a city redirect, pass it through
+  if (result._cityRedirect) {
+    return result
+  }
+
+  const dispensaries = result.dispensaries || []
+  if (dispensaries.length > 0) {
+    setCachedResults(location, strainNames, { dispensaries, center: result.center })
+  }
+  return { dispensaries, center: result.center }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fetch real dispensaries from the search API                       */
+/* ------------------------------------------------------------------ */
+async function fetchNearbyDispensaries(location) {
+  try {
+    const locStr = typeof location === 'string' ? location : ''
+    const isZip = /^\d{5}$/.test(locStr.trim())
+    const param = isZip ? `zip=${encodeURIComponent(locStr.trim())}` : `q=${encodeURIComponent(locStr.trim())}`
+    const res = await fetch(`/api/dispensary-search?${param}`)
+
+    if (!res.ok) {
+      console.warn('[DispensarySearch] API returned', res.status)
+      return { dispensaries: [], center: null }
+    }
+
+    const data = await res.json()
+
+    // City redirect — nearby pre-harvested city found
+    if (data.redirect) {
+      return {
+        _cityRedirect: true,
+        citySlug: data.citySlug,
+        cityLabel: data.cityLabel,
+        lat: data.lat,
+        lng: data.lng,
+      }
+    }
+
+    // Direct results from Weedmaps
+    return {
+      dispensaries: normalizeDispensaries(data.dispensaries || []),
+      center: data.center || null,
+    }
+  } catch (err) {
+    console.error('[DispensarySearch] Nearby search failed:', err.message)
+    return { dispensaries: [], center: null }
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -195,77 +243,6 @@ export function buildStrainAvailability(dispensaries) {
     map[key].sort((a, b) => (parseFloat(a.distance) || 999) - (parseFloat(b.distance) || 999))
   }
   return map
-}
-
-/* ------------------------------------------------------------------ */
-/*  Demo dispensary data — showcase when no live data available        */
-/* ------------------------------------------------------------------ */
-function buildDemoDispensaries(location, strainNames) {
-  const locStr = typeof location === 'string' ? location : 'your area'
-  const topStrains = (strainNames || []).slice(0, 3)
-  const altStrains = (strainNames || []).slice(3, 5)
-
-  return [
-    {
-      id: 'demo-0',
-      name: 'Green Leaf Wellness',
-      address: `1240 Main St, ${locStr}`,
-      distance: '0.8 mi',
-      rating: 4.8,
-      reviewCount: 312,
-      delivery: true,
-      deliveryEta: '30-45 min',
-      pickupReady: '15 min',
-      matchedStrains: topStrains.slice(0, 2).map(n => ({ name: n, price: '$45/eighth', inStock: true, strainMenuUrl: null })),
-      alternativeStrains: altStrains.slice(0, 1).map(n => ({ name: n, price: '$38/eighth', inStock: true, strainMenuUrl: null })),
-      deals: ['20% off first-time patients', 'Happy Hour 4-6pm: 15% off flower'],
-      priceRange: '$35-50/eighth',
-      hours: '9am - 9pm',
-      phone: '(555) 420-1234',
-      website: 'https://weedmaps.com',
-      menuUrl: 'https://weedmaps.com',
-      matchType: 'exact',
-    },
-    {
-      id: 'demo-1',
-      name: 'The Herbal Connection',
-      address: `850 Oak Ave, ${locStr}`,
-      distance: '1.4 mi',
-      rating: 4.6,
-      reviewCount: 189,
-      delivery: true,
-      deliveryEta: '45-60 min',
-      pickupReady: '20 min',
-      matchedStrains: topStrains.slice(0, 3).map(n => ({ name: n, price: '$40/eighth', inStock: true, strainMenuUrl: null })),
-      alternativeStrains: [],
-      deals: ['BOGO 50% off edibles'],
-      priceRange: '$30-45/eighth',
-      hours: '10am - 10pm',
-      phone: '(555) 420-5678',
-      website: 'https://leafly.com',
-      menuUrl: 'https://leafly.com',
-      matchType: 'exact',
-    },
-    {
-      id: 'demo-2',
-      name: 'Elevated Dispensary',
-      address: `2100 Cannabis Blvd, ${locStr}`,
-      distance: '2.1 mi',
-      rating: 4.9,
-      reviewCount: 427,
-      delivery: false,
-      pickupReady: '10 min',
-      matchedStrains: topStrains.slice(1, 3).map(n => ({ name: n, price: '$50/eighth', inStock: true, strainMenuUrl: null })),
-      alternativeStrains: altStrains.map(n => ({ name: n, price: '$35/eighth', inStock: true, strainMenuUrl: null })),
-      deals: ['Daily deal: $25 eighths on select strains'],
-      priceRange: '$25-55/eighth',
-      hours: '8am - 10pm',
-      phone: '(555) 420-9012',
-      website: 'https://weedmaps.com',
-      menuUrl: 'https://weedmaps.com',
-      matchType: 'exact',
-    },
-  ]
 }
 
 /* ------------------------------------------------------------------ */

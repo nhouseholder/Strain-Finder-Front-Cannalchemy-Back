@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
-import { MapPin, ExternalLink } from 'lucide-react'
+import { MapPin, ExternalLink, Phone, Clock, Star, Navigation } from 'lucide-react'
 
 // Dynamically load Leaflet CSS only when this component mounts
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
@@ -106,49 +106,96 @@ export default function DispensaryMap({
               icon={icons[dispensary.matchType] || icons.none}
             >
               <Popup>
-                <div className="text-xs space-y-1 min-w-[180px]">
-                  <p className="font-bold text-sm text-gray-900">
+                <div className="text-xs space-y-1.5 min-w-[220px]">
+                  <p className="font-bold text-sm text-gray-900 leading-tight">
                     {dispensary.name}
                   </p>
 
-                  {dispensary.distance && (
-                    <p className="text-gray-500">{dispensary.distance} away</p>
+                  {/* Rating + distance row */}
+                  <div className="flex items-center gap-2 text-gray-500">
+                    {dispensary.rating && (
+                      <span className="flex items-center gap-0.5 text-amber-500">
+                        <Star size={11} className="fill-amber-400 text-amber-400" />
+                        {dispensary.rating}
+                        {dispensary.reviewCount > 0 && (
+                          <span className="text-gray-400 text-[10px]">({dispensary.reviewCount})</span>
+                        )}
+                      </span>
+                    )}
+                    {dispensary.distance && (
+                      <span>{dispensary.distance} away</span>
+                    )}
+                  </div>
+
+                  {/* Address */}
+                  {dispensary.address && (
+                    <div className="flex items-start gap-1 text-gray-600">
+                      <MapPin size={11} className="flex-shrink-0 mt-0.5" />
+                      <span className="leading-tight">{dispensary.address}</span>
+                    </div>
                   )}
 
+                  {/* Phone */}
+                  {dispensary.phone && (
+                    <div className="flex items-center gap-1">
+                      <Phone size={11} className="text-gray-400" />
+                      <a href={`tel:${dispensary.phone}`} className="text-blue-600 hover:text-blue-500" onClick={(e) => e.stopPropagation()}>
+                        {dispensary.phone}
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Hours */}
+                  {dispensary.hours && (
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <Clock size={11} className="flex-shrink-0" />
+                      <span>{dispensary.hours}</span>
+                    </div>
+                  )}
+
+                  {/* Strain matches (city mode) */}
                   {dispensary.matchedStrains?.length > 0 && (
-                    <div>
-                      <span className="font-semibold text-green-600">
-                        Has:{' '}
-                      </span>
+                    <div className="pt-1 border-t border-gray-100">
+                      <span className="font-semibold text-green-600">Has: </span>
                       {dispensary.matchedStrains.map(strainName).join(', ')}
                     </div>
                   )}
 
                   {dispensary.alternativeStrains?.length > 0 && (
                     <div>
-                      <span className="font-semibold text-yellow-600">
-                        Similar:{' '}
-                      </span>
+                      <span className="font-semibold text-yellow-600">Similar: </span>
                       {dispensary.alternativeStrains.map(strainName).join(', ')}
                     </div>
                   )}
 
                   {dispensary.deals?.length > 0 && (
-                    <div className="text-amber-600 font-medium">
-                      {dispensary.deals[0]}
-                    </div>
+                    <div className="text-amber-600 font-medium">{dispensary.deals[0]}</div>
                   )}
 
-                  {/* View Menu link */}
-                  {onViewMenu && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onViewMenu(dispensary) }}
-                      className="mt-1.5 flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-500 transition-colors"
-                    >
-                      <ExternalLink size={11} />
-                      View Menu
-                    </button>
-                  )}
+                  {/* Action links */}
+                  <div className="flex items-center gap-3 pt-1.5 border-t border-gray-100">
+                    {onViewMenu && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onViewMenu(dispensary) }}
+                        className="flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-500 transition-colors"
+                      >
+                        <ExternalLink size={11} />
+                        {dispensary.matchType !== 'none' ? 'Strain Matches' : 'View Menu'}
+                      </button>
+                    )}
+                    {dispensary.lat && dispensary.lng && (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${dispensary.lat},${dispensary.lng}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <Navigation size={11} />
+                        Directions
+                      </a>
+                    )}
+                  </div>
                 </div>
               </Popup>
             </Marker>
