@@ -22,11 +22,6 @@ const EXPLORE_PAGES = [
   { to: '/dispensaries', icon: Store, label: 'Dispensaries', color: 'text-rose-400', desc: 'Find nearby dispensaries' },
 ]
 
-const MY_STRAINS_PAGES = [
-  { to: '/journal', icon: BookMarked, label: 'Journal', color: 'text-emerald-400', desc: 'Track your sessions' },
-  { to: '/compare', icon: GitCompareArrows, label: 'Compare', color: 'text-cyan-400', desc: 'Side-by-side analysis' },
-]
-
 const LEARN_PAGES = [
   { to: '/learn/terpenes', icon: Leaf, label: 'Terpenes', color: 'text-purple-400', desc: 'Aromatic compounds that shape effects' },
   { to: '/learn/cannabinoids', icon: Beaker, label: 'Cannabinoids', color: 'text-green-400', desc: 'Active compounds in cannabis' },
@@ -99,13 +94,12 @@ export default function NavBar() {
   const toast = useToast()
   const { hasResults } = useContext(ResultsContext)
 
-  /* Single state controls all dropdowns: 'quiz' | 'explore' | 'myStrains' | 'learn' | 'more' | null */
+  /* Single state controls all dropdowns: 'quiz' | 'explore' | 'learn' | 'more' | null */
   const [activeDropdown, setActiveDropdown] = useState(null)
 
   /* Refs for outside-click detection */
   const dQuizRef = useRef(null)
   const dExploreRef = useRef(null)
-  const dMyStrainsRef = useRef(null)
   const dLearnRef = useRef(null)
   const mQuizRef = useRef(null)
   const mMoreRef = useRef(null)
@@ -114,7 +108,7 @@ export default function NavBar() {
   useEffect(() => {
     if (!activeDropdown) return
     const handler = (e) => {
-      const allRefs = [dQuizRef, dExploreRef, dMyStrainsRef, dLearnRef, mQuizRef, mMoreRef]
+      const allRefs = [dQuizRef, dExploreRef, dLearnRef, mQuizRef, mMoreRef]
       for (const ref of allRefs) {
         if (ref.current?.contains(e.target)) return
       }
@@ -155,7 +149,6 @@ export default function NavBar() {
 
   /* Active-state detection for grouped items */
   const isExploreActive = ['/search', '/explore', '/explore-strains', '/dispensaries'].some(p => location.pathname.startsWith(p))
-  const isMyStrainsActive = ['/journal', '/compare'].some(p => location.pathname.startsWith(p))
   const isLearnActive = location.pathname.startsWith('/learn')
 
   /* Shared active / inactive class sets */
@@ -169,8 +162,8 @@ export default function NavBar() {
   return (
     <>
       {/* ═══════════════════════════════════════════
-          Desktop top bar  — 6 items (+ admin if admin)
-          Quiz | Explore▾ | AI Chat | Community | My Strains▾ | Learn▾
+          Desktop top bar  — 7 items (+ admin if admin)
+          Quiz | Explore▾ | AI Chat | Community | Journal | Compare | Learn▾
          ═══════════════════════════════════════════ */}
       <nav
         className="hidden sm:flex items-center justify-between px-6 py-3 border-b border-gray-200/70 dark:border-white/[0.07] bg-[#f4f7f5]/90 dark:bg-leaf-900/85 backdrop-blur-xl sticky top-0 z-40 shadow-sm dark:shadow-none"
@@ -272,28 +265,21 @@ export default function NavBar() {
             Community
           </NavLink>
 
-          {/* 5 · My Strains ▾  (Journal, Compare — auth-only) */}
+          {/* 5 · Journal (auth-only) */}
           {user && (
-            <div className="relative" ref={dMyStrainsRef}>
-              <DropdownTrigger
-                icon={BookMarked}
-                label="My Strains"
-                isActive={isMyStrainsActive}
-                isOpen={activeDropdown === 'myStrains'}
-                onClick={toggle('myStrains')}
-              />
-              {activeDropdown === 'myStrains' && (
-                <DropdownPanel
-                  items={MY_STRAINS_PAGES}
-                  title="My Collection"
-                  titleIcon={BookMarked}
-                  onNavigate={go}
-                />
-              )}
-            </div>
+            <NavLink to="/journal" className={({ isActive }) => navCls(isActive)}>
+              <BookMarked size={16} />
+              Journal
+            </NavLink>
           )}
 
-          {/* 6 · Learn ▾  (Terpenes, Cannabinoids, Entourage, Archetypes, About) */}
+          {/* 6 · Compare */}
+          <NavLink to="/compare" className={({ isActive }) => navCls(isActive)}>
+            <GitCompareArrows size={16} />
+            Compare
+          </NavLink>
+
+          {/* 7 · Learn ▾  (Terpenes, Cannabinoids, Entourage, Archetypes, About) */}
           <div className="relative" ref={dLearnRef}>
             <DropdownTrigger
               icon={BookOpen}
@@ -530,26 +516,30 @@ export default function NavBar() {
                     </div>
                   </div>
 
-                  {/* My Strains section (auth-only) */}
-                  {user && (
-                    <div>
-                      <p className="text-[10px] font-semibold text-gray-400 dark:text-[#6a7a6e] uppercase tracking-wider px-1 mb-1.5">
-                        My Strains
-                      </p>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        {MY_STRAINS_PAGES.map(({ to, icon: Icon, label, color }) => (
-                          <button
-                            key={to}
-                            onClick={() => go(to)}
-                            className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors min-h-[48px]"
-                          >
-                            <Icon size={18} className={color} />
-                            <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">{label}</span>
-                          </button>
-                        ))}
-                      </div>
+                  {/* Tools section */}
+                  <div>
+                    <p className="text-[10px] font-semibold text-gray-400 dark:text-[#6a7a6e] uppercase tracking-wider px-1 mb-1.5">
+                      Tools
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {user && (
+                        <button
+                          onClick={() => go('/journal')}
+                          className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors min-h-[48px]"
+                        >
+                          <BookMarked size={18} className="text-emerald-400" />
+                          <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">Journal</span>
+                        </button>
+                      )}
+                      <button
+                        onClick={() => go('/compare')}
+                        className="flex items-center gap-2.5 px-3 py-3 rounded-xl text-left hover:bg-leaf-500/[0.06] active:bg-leaf-500/10 transition-colors min-h-[48px]"
+                      >
+                        <GitCompareArrows size={18} className="text-cyan-400" />
+                        <span className="text-sm font-medium text-gray-700 dark:text-[#c0d4c4]">Compare</span>
+                      </button>
                     </div>
-                  )}
+                  </div>
 
                   {/* Learn section */}
                   <div>
