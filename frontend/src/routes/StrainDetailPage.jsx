@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Search } from 'lucide-react'
+import { ArrowLeft, Search, Store, MapPin, ArrowRight } from 'lucide-react'
 import usePageTitle from '../hooks/usePageTitle'
 import { useStrainSearch } from '../hooks/useStrainSearch'
 import { useFavorites } from '../hooks/useFavorites'
@@ -105,6 +105,28 @@ export default function StrainDetailPage() {
           hideExpandButton={true}
           userRegionIndex={userRegionIndex}
         />
+
+        {/* Find at Dispensaries CTA — connects strain → dispensary flow */}
+        <Link
+          to={`/dispensaries?highlight=${encodeURIComponent(strain.name)}`}
+          className="block mt-6 group"
+        >
+          <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-leaf-500/[0.06] to-emerald-500/[0.04] border border-leaf-500/15 hover:border-leaf-500/30 transition-all duration-300">
+            <div className="w-10 h-10 rounded-xl bg-leaf-500/15 flex items-center justify-center flex-shrink-0">
+              <Store size={20} className="text-leaf-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea]">
+                Find {strain.name} at Dispensaries
+              </p>
+              <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] mt-0.5 flex items-center gap-1">
+                <MapPin size={10} />
+                Check real menus near you
+              </p>
+            </div>
+            <ArrowRight size={16} className="text-leaf-400 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
+          </div>
+        </Link>
 
         {/* Community Reviews */}
         <StrainReviewsSection strainSlug={slug} strainName={strain.name} />

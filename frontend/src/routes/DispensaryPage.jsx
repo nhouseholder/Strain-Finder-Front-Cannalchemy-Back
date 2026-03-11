@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
@@ -116,12 +116,17 @@ function DispensaryFilters({ sortBy, onSortChange }) {
 /* ------------------------------------------------------------------ */
 /*  DispensaryCard (inline — clickable to open drawer)                */
 /* ------------------------------------------------------------------ */
-function DispensaryCardItem({ dispensary, onClick }) {
+function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain }) {
   const d = dispensary
+  const hasHighlight = highlightStrain && (d.matchedStrains || []).some(
+    (s) => (typeof s === 'string' ? s : s.name)?.toLowerCase() === highlightStrain.toLowerCase()
+  )
 
   return (
     <Card
-      className="p-4 cursor-pointer hover:border-leaf-500/20 transition-all duration-200"
+      className={`p-4 cursor-pointer hover:border-leaf-500/20 transition-all duration-200 ${
+        hasHighlight ? 'ring-1 ring-leaf-500/30 border-leaf-500/20' : ''
+      }`}
       onClick={() => onClick?.(d)}
     >
       <div className="flex items-start justify-between gap-3 mb-2">
@@ -258,12 +263,21 @@ function DispensaryCardItem({ dispensary, onClick }) {
         </div>
       )}
 
-      {/* Tap to expand hint */}
-      <div className="flex items-center justify-center gap-1.5 pt-2 border-t border-gray-100 dark:border-white/[0.04]">
-        <Store size={11} className="text-leaf-400/60" />
-        <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-          Tap for full menu & strain details
+      {/* Actions row */}
+      <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/[0.04]">
+        <span className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+          <Store size={11} className="text-leaf-400/60" />
+          Tap for quick view
         </span>
+        {onViewPage && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onViewPage(d) }}
+            className="flex items-center gap-1 text-[10px] font-semibold text-leaf-400 hover:text-leaf-300 transition-colors min-h-[44px]"
+          >
+            View Full Page
+            <ExternalLink size={10} />
+          </button>
+        )}
       </div>
     </Card>
   )
@@ -403,6 +417,8 @@ function EnhancedMenuDrawer({ dispensary, menuData, open, onClose, loading, deta
 export default function DispensaryPage() {
   usePageTitle('Dispensaries')
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const highlightStrain = searchParams.get('highlight') || null
   const { state: resultsState } = useContext(ResultsContext)
   const quizCtx = useContext(QuizContext)
   const quizZipCode = quizCtx?.state?.zipCode || ''
@@ -586,6 +602,16 @@ export default function DispensaryPage() {
         )}
       </div>
 
+      {/* Highlight banner when arriving from strain detail page */}
+      {highlightStrain && (
+        <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-leaf-500/[0.06] border border-leaf-500/15 animate-fade-in">
+          <Leaf size={16} className="text-leaf-500 flex-shrink-0" />
+          <p className="text-xs text-gray-700 dark:text-[#b0c4b4]">
+            Looking for <strong className="text-leaf-500">{highlightStrain}</strong> — select a city or search a location to find dispensaries carrying this strain
+          </p>
+        </div>
+      )}
+
       {/* City Selector — primary way to browse */}
       <CitySelector
         cities={cities}
@@ -707,6 +733,8 @@ export default function DispensaryPage() {
                 key={d.id}
                 dispensary={d}
                 onClick={handleCardClick}
+                onViewPage={handleViewMenu}
+                highlightStrain={highlightStrain}
               />
             ))}
           </div>

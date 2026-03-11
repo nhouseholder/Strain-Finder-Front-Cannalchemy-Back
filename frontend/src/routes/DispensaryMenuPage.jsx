@@ -4,6 +4,7 @@ import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { AuthContext } from '../context/AuthContext'
 import { fetchDispensaryMenu, searchByCity } from '../services/dispensarySearch'
+import { strainSlug as toSlug } from '../utils/strainSlug'
 import Card from '../components/shared/Card'
 import Button from '../components/shared/Button'
 import {
@@ -48,12 +49,15 @@ export default function DispensaryMenuPage() {
   const { state: resultsState } = useContext(ResultsContext)
   const { user } = useContext(AuthContext)
 
-  usePageTitle('Dispensary Menu')
+  const passedDispensary = location.state?.dispensary || null
 
-  const [dispensary, setDispensary] = useState(location.state?.dispensary || null)
+  const [dispensary, setDispensary] = useState(passedDispensary)
   const [menuData, setMenuData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  // If we already have dispensary data (passed via state), skip loading
+  const [loading, setLoading] = useState(!passedDispensary)
   const [error, setError] = useState(null)
+
+  usePageTitle(dispensary ? `${dispensary.name} — Menu` : 'Dispensary Menu')
 
   /* Quiz strain names for highlighting matches */
   const quizStrainNames = useMemo(
@@ -118,14 +122,13 @@ export default function DispensaryMenuPage() {
 
   const isQuizMatch = (name) => quizStrainNames.has(name?.toLowerCase())
   const getStrainSlug = (name) =>
-    quizStrainSlugs[name?.toLowerCase()] ||
-    name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    quizStrainSlugs[name?.toLowerCase()] || toSlug(name)
 
   /* ---------- Loading state ---------- */
   if (loading) {
     return (
       <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
-        <BackButton onClick={() => navigate('/dispensaries')} />
+        <BackButton />
         <div className="flex flex-col items-center justify-center py-20 gap-4">
           <div className="w-12 h-12 rounded-full border-2 border-leaf-500/20 border-t-leaf-500 animate-spin" />
           <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">Loading dispensary menu…</p>
@@ -138,7 +141,7 @@ export default function DispensaryMenuPage() {
   if (error || !d) {
     return (
       <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
-        <BackButton onClick={() => navigate('/dispensaries')} />
+        <BackButton />
         <Card className="p-6 text-center">
           <AlertCircle size={28} className="text-red-400 mx-auto mb-3" />
           <p className="text-sm text-gray-600 dark:text-[#8a9a8e] mb-4">
@@ -158,7 +161,7 @@ export default function DispensaryMenuPage() {
       className="w-full max-w-2xl mx-auto px-4 pt-4 pb-8 animate-fade-in"
       style={{ paddingBottom: 'max(2rem, env(safe-area-inset-bottom, 2rem))' }}
     >
-      <BackButton onClick={() => navigate('/dispensaries')} />
+      <BackButton />
 
       {/* ── Dispensary Hero Card ── */}
       <Card className="p-5 mb-6">
@@ -413,10 +416,11 @@ export default function DispensaryMenuPage() {
 /*  Sub-components                                                     */
 /* ================================================================== */
 
-function BackButton({ onClick }) {
+function BackButton() {
+  const navigate = useNavigate()
   return (
     <button
-      onClick={onClick}
+      onClick={() => navigate(-1)}
       className="flex items-center gap-1 text-sm text-gray-500 dark:text-[#8a9a8e] hover:text-leaf-400 transition-colors mb-4 min-h-[44px]"
     >
       <ChevronLeft size={16} />
