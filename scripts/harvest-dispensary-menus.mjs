@@ -40,11 +40,13 @@ const CITIES = [
 
 const BOUNDING_RADIUS = '25mi'         // covers full metro area
 const LISTING_PAGE_SIZE = 150          // max allowed by Weedmaps API
-const DISPENSARIES_PER_BATCH = 5       // menu batch size for KV (25KB limit)
-const DISPENSARIES_PER_INDEX_PAGE = 100 // index page size for KV (25KB limit)
+const DISPENSARIES_PER_BATCH = 5       // menu batch size for KV
+const DISPENSARIES_PER_INDEX_PAGE = 100 // index page size for KV
 const FETCH_DELAY_MS = 300             // delay between menu API calls
 const CITY_DELAY_MS = 2000             // delay between cities
-const MAX_MENU_ITEMS_PER_DISP = 200    // max flower items per dispensary
+const MAX_MENU_ITEMS_PER_DISP = 300    // max flower items per dispensary
+const MAX_MATCHED_PER_DISP = 50        // max matched strains stored per dispensary in KV
+const MENU_FETCH_RETRIES = 3           // retry failed Playwright menu fetches
 
 const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_KV_NAMESPACE_ID } = process.env
 
@@ -100,19 +102,54 @@ const EXCLUDED = new Set([
 
 function matchStrain(menuItemName, strainDB) {
   const cleaned = (menuItemName || '')
+    // Weight / measurement patterns
     .replace(/\s*[-–|]\s*\d+(\.\d+)?\s*g\b/gi, '')
     .replace(/\s*\(\d+(\.\d+)?\s*g\)/gi, '')
     .replace(/\s*\[\d+(\.\d+)?\s*g\]/gi, '')
+    .replace(/\b\d+(\.\d+)?\s*g(ram)?s?\b/gi, '')
+    .replace(/\b(1\/2\s*oz|half\s*oz|quarter|eighth|oz|ounce)\b/gi, '')
+    // Type / quality indicators
     .replace(/\s*[-–|]\s*(indica|sativa|hybrid)\b/gi, '')
-    .replace(/\s*[-–|]\s*(small|smalls|smallz|popcorn)\b/gi, '')
-    .replace(/\s*[-–|]\s*(indoor|outdoor|greenhouse)\b/gi, '')
-    .replace(/\s*[-–|]\s*(flower|premium|gold cuts|classic cuts)\b/gi, '')
-    .replace(/\b(1\/2\s*oz|half\s*oz|quarter|eighth)\b/gi, '')
-    .replace(/\bdime\s*bag\s*\|\s*/gi, '')
-    .replace(/\bmr\.\s*zips\s*\|\s*/gi, '')
-    .replace(/\bcam\s*\|\s*/gi, '')
-    .replace(/\b3\s*bros\s*\|\s*/gi, '')
+    .replace(/\s*[-–|]\s*(small|smalls|smallz|popcorn|shake|trim|minis)\b/gi, '')
+    .replace(/\s*[-–|]\s*(indoor|outdoor|greenhouse|light dep)\b/gi, '')
+    .replace(/\s*[-–|]\s*(flower|premium|gold cuts|classic cuts|top shelf|reserve|exclusive)\b/gi, '')
+    .replace(/\b(pre-?roll|pre-?packed|infused|enhanced|live\s*resin)\b/gi, '')
+    // Brand patterns (pipe/dash separated brand prefixes)
+    .replace(/\bdime\s*bag\s*[-|]\s*/gi, '')
+    .replace(/\bmr\.?\s*zips?\s*[-|]\s*/gi, '')
+    .replace(/\bcam\s*[-|]\s*/gi, '')
+    .replace(/\b3\s*bros\s*[-|]\s*/gi, '')
     .replace(/\bslugg?ers\s*[-|]\s*(jarred\s*)?flower\s*[-|]\s*\d+g\s*[-|]\s*/gi, '')
+    .replace(/\bconnected\s*(cannabis)?\s*[-|]\s*/gi, '')
+    .replace(/\balien\s*labs?\s*[-|]\s*/gi, '')
+    .replace(/\bjungle\s*boys?\s*[-|]\s*/gi, '')
+    .replace(/\bcookies?\s*(fam)?\s*[-|]\s*/gi, '')
+    .replace(/\bstiiizy\s*[-|]\s*/gi, '')
+    .replace(/\braw\s*garden\s*[-|]\s*/gi, '')
+    .replace(/\bfig\s*farms?\s*[-|]\s*/gi, '')
+    .replace(/\bpackwoods?\s*[-|]\s*/gi, '')
+    .replace(/\bjeeter\s*[-|]\s*/gi, '')
+    .replace(/\bglass\s*house\s*[-|]\s*/gi, '')
+    .replace(/\bcresco\s*[-|]\s*/gi, '')
+    .replace(/\bcuraleaf\s*[-|]\s*/gi, '')
+    .replace(/\bselect\s*[-|]\s*/gi, '')
+    .replace(/\bverano\s*[-|]\s*/gi, '')
+    .replace(/\bgti\s*[-|]\s*/gi, '')
+    .replace(/\btrulieve\s*[-|]\s*/gi, '')
+    .replace(/\bcolumbia\s*care\s*[-|]\s*/gi, '')
+    .replace(/\bholistic\s*industries?\s*[-|]\s*/gi, '')
+    .replace(/\baeyr\s*wellness\s*[-|]\s*/gi, '')
+    .replace(/\bflowery?\s*[-|]\s*/gi, '')
+    .replace(/\bitem\s*nine\s*[-|]\s*/gi, '')
+    .replace(/\bgrow\s*sciences?\s*[-|]\s*/gi, '')
+    .replace(/\bpotent\s*planet\s*[-|]\s*/gi, '')
+    .replace(/\babsolute\s*xtracts?\s*[-|]\s*/gi, '')
+    .replace(/\btru\s*infusion\s*[-|]\s*/gi, '')
+    .replace(/\bmint\s*[-|]\s*/gi, '')
+    .replace(/\bcanamo\s*[-|]\s*/gi, '')
+    // Generic brand prefix pattern: "Brand Name | " or "Brand Name - "
+    .replace(/^[A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?\s*[-|]\s+/, '')
+    // Misc cleanup
     .replace(/\s+/g, ' ')
     .trim()
 
@@ -296,8 +333,8 @@ async function kvPut(key, value) {
   const body = JSON.stringify(value)
   const sizeKB = Buffer.byteLength(body, 'utf-8') / 1024
 
-  if (sizeKB > 24) {
-    console.warn(`  ⚠️  KV "${key}" is ${sizeKB.toFixed(1)}KB — may exceed 25KB limit!`)
+  if (sizeKB > 200) {
+    console.warn(`  ⚠️  KV "${key}" is ${sizeKB.toFixed(1)}KB — large value!`)
   }
 
   const res = await fetch(url, {
@@ -341,62 +378,70 @@ async function harvestCity(browserPage, city, strainDB) {
     const disp = listings[i]
     process.stdout.write(`  [${i + 1}/${listings.length}] ${disp.name}... `)
 
-    // Skip dispensaries with no menu items at all
-    if (disp.menuItemsCount === 0) {
-      console.log(`no menu`)
+    // Try fetching menu even for dispensaries reporting 0 items
+    // (some dispensaries report 0 in the listing but still have menu data)
+    let menuItems = []
+    let fetchSuccess = false
+
+    for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
+      try {
+        menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP)
+        fetchSuccess = true
+        break
+      } catch (err) {
+        if (attempt < MENU_FETCH_RETRIES) {
+          console.log(`retry ${attempt}/${MENU_FETCH_RETRIES}... `)
+          await sleep(FETCH_DELAY_MS * attempt * 2) // exponential backoff
+        } else {
+          console.log(`FAILED after ${MENU_FETCH_RETRIES} attempts: ${err.message}`)
+        }
+      }
+    }
+    await sleep(FETCH_DELAY_MS)
+
+    if (!fetchSuccess || menuItems.length === 0) {
+      console.log(fetchSuccess ? `0 menu items` : `fetch failed`)
       enriched.push({
         ...disp,
-        menuSummary: { total: 0, matched: 0, topMatches: [] },
+        menuSummary: { total: 0, matched: 0, topMatches: [], hasMenu: false },
         matchedMenu: [],
         unmatchedCount: 0,
       })
       continue
     }
 
-    try {
-      const menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP)
-      await sleep(FETCH_DELAY_MS)
+    // Match each menu item against our strain DB
+    const matchedMenu = []
+    let unmatchedCount = 0
 
-      // Match each menu item against our strain DB
-      const matchedMenu = []
-      let unmatchedCount = 0
-
-      for (const item of menuItems) {
-        const match = matchStrain(item.name, strainDB)
-        if (match) {
-          matchedMenu.push({
-            menuName: item.name,
-            price: extractPrice(item),
-            brand: item.brand,
-            strain: match,
-          })
-        } else {
-          unmatchedCount++
-        }
+    for (const item of menuItems) {
+      const match = matchStrain(item.name, strainDB)
+      if (match) {
+        matchedMenu.push({
+          menuName: item.name,
+          price: extractPrice(item),
+          brand: item.brand,
+          strain: match,
+        })
+      } else {
+        unmatchedCount++
       }
-
-      totalMatched += matchedMenu.length
-      console.log(`${menuItems.length} items, ${matchedMenu.length} matched`)
-
-      enriched.push({
-        ...disp,
-        menuSummary: {
-          total: menuItems.length,
-          matched: matchedMenu.length,
-          topMatches: matchedMenu.slice(0, 3).map(m => m.strain.name),
-        },
-        matchedMenu,
-        unmatchedCount,
-      })
-    } catch (err) {
-      console.log(`ERROR: ${err.message}`)
-      enriched.push({
-        ...disp,
-        menuSummary: { total: 0, matched: 0, topMatches: [] },
-        matchedMenu: [],
-        unmatchedCount: 0,
-      })
     }
+
+    totalMatched += matchedMenu.length
+    console.log(`${menuItems.length} items, ${matchedMenu.length} matched, ${unmatchedCount} unmatched`)
+
+    enriched.push({
+      ...disp,
+      menuSummary: {
+        total: menuItems.length,
+        matched: matchedMenu.length,
+        topMatches: matchedMenu.slice(0, 5).map(m => m.strain.name),
+        hasMenu: true,
+      },
+      matchedMenu,
+      unmatchedCount,
+    })
   }
 
   // Phase 4: Write to KV
@@ -425,6 +470,7 @@ async function harvestCity(browserPage, city, strainDB) {
     storefront: d.storefront,
     type: d.type,
     menuSummary: d.menuSummary,
+    hasMenu: d.menuSummary?.hasMenu ?? (d.menuSummary?.total > 0),
     batchIndex: d.batchIndex,
   }))
 
@@ -456,7 +502,7 @@ async function harvestCity(browserPage, city, strainDB) {
     })
   }
 
-  // Menu batches (5 dispensaries per batch, top 15 matches each)
+  // Menu batches (5 dispensaries per batch, up to MAX_MATCHED_PER_DISP matches each)
   const batchCount = Math.ceil(enriched.length / DISPENSARIES_PER_BATCH)
   for (let b = 0; b < batchCount; b++) {
     const batchDisps = enriched.slice(b * DISPENSARIES_PER_BATCH, (b + 1) * DISPENSARIES_PER_BATCH)
@@ -466,7 +512,7 @@ async function harvestCity(browserPage, city, strainDB) {
       updatedAt: new Date().toISOString(),
       dispensaries: batchDisps.map(d => ({
         id: d.id,
-        matchedMenu: d.matchedMenu.slice(0, 15).map(m => ({
+        matchedMenu: d.matchedMenu.slice(0, MAX_MATCHED_PER_DISP).map(m => ({
           menuName: m.menuName,
           price: m.price,
           brand: m.brand,
@@ -475,11 +521,15 @@ async function harvestCity(browserPage, city, strainDB) {
             slug: m.strain.slug,
             type: m.strain.type,
             thc: m.strain.thc,
+            cbd: m.strain.cbd,
+            topEffects: m.strain.topEffects,
+            topTerpenes: m.strain.topTerpenes,
             matchTier: m.strain.matchTier,
           },
         })),
         unmatchedCount: d.unmatchedCount,
         totalMatched: d.matchedMenu.length,
+        hasMenu: d.menuSummary?.hasMenu ?? (d.menuSummary?.total > 0),
       })),
     })
   }
@@ -492,7 +542,7 @@ async function harvestCity(browserPage, city, strainDB) {
 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗')
-  console.log('║  MyStrainAI — Full Dispensary Harvest v2                ║')
+  console.log('║  MyStrainAI — Full Dispensary Harvest v3                ║')
   console.log('║  Weedmaps v2/listings API → Strain Matching → KV       ║')
   console.log(`║  ${new Date().toISOString().padEnd(52)}║`)
   console.log('╚══════════════════════════════════════════════════════════╝')

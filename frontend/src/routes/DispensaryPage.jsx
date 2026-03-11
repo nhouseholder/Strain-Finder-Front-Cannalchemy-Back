@@ -183,6 +183,16 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
         )}
       </div>
 
+      {/* No menu available indicator */}
+      {d.matchType === 'noMenu' && (
+        <div className="flex items-center gap-2 mb-3 px-2.5 py-2 rounded-lg bg-red-500/[0.06] border border-red-500/15">
+          <AlertCircle size={13} className="text-red-400 flex-shrink-0" />
+          <span className="text-[11px] text-red-400 font-medium">
+            No menu available for this dispensary
+          </span>
+        </div>
+      )}
+
       {/* Menu match summary (for city-mode) */}
       {d.menuSummary && d.menuSummary.matched > 0 && (
         <div className="mb-3">
@@ -269,7 +279,7 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
           <Store size={11} className="text-leaf-400/60" />
           Tap for quick view
         </span>
-        {onViewPage && (
+        {onViewPage && d.matchType !== 'noMenu' && (
           <button
             onClick={(e) => { e.stopPropagation(); onViewPage(d) }}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-leaf-500/15 text-leaf-400 border border-leaf-500/25 hover:bg-leaf-500/25 transition-all min-h-[44px]"
@@ -277,6 +287,18 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
             <Leaf size={12} />
             View Menu
           </button>
+        )}
+        {d.matchType === 'noMenu' && d.wmUrl && (
+          <a
+            href={d.wmUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-gray-100 dark:bg-white/[0.04] text-gray-500 dark:text-[#6a7a6e] border border-gray-200 dark:border-white/[0.08] hover:bg-gray-200 dark:hover:bg-white/[0.08] transition-all min-h-[44px]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink size={12} />
+            Weedmaps
+          </a>
         )}
       </div>
     </Card>

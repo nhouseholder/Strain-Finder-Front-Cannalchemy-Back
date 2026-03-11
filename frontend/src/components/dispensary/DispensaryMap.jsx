@@ -21,6 +21,7 @@ function useLeafletCSS() {
 const MATCH_COLORS = {
   exact: '#32c864',
   alternative: '#facc15',
+  noMenu: '#ef4444',
   none: '#9ca3af',
 }
 
@@ -62,6 +63,7 @@ export default function DispensaryMap({
   const icons = useMemo(() => ({
     exact: createColoredIcon('exact'),
     alternative: createColoredIcon('alternative'),
+    noMenu: createColoredIcon('noMenu'),
     none: createColoredIcon('none'),
   }), [])
 
@@ -173,9 +175,18 @@ export default function DispensaryMap({
                     <div className="text-amber-600 font-medium">{dispensary.deals[0]}</div>
                   )}
 
+                  {/* No menu indicator */}
+                  {dispensary.matchType === 'noMenu' && (
+                    <div className="pt-1 border-t border-gray-100">
+                      <span className="text-[10px] font-medium text-red-500">
+                        Menu not available for this dispensary
+                      </span>
+                    </div>
+                  )}
+
                   {/* Action links */}
                   <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
-                    {onViewMenu && (
+                    {onViewMenu && dispensary.matchType !== 'noMenu' && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onViewMenu(dispensary) }}
                         className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-white bg-green-600 hover:bg-green-500 transition-colors shadow-sm"
@@ -183,6 +194,18 @@ export default function DispensaryMap({
                         <Leaf size={12} />
                         View Menu
                       </button>
+                    )}
+                    {dispensary.matchType === 'noMenu' && dispensary.wmUrl && (
+                      <a
+                        href={dispensary.wmUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <ExternalLink size={12} />
+                        View on Weedmaps
+                      </a>
                     )}
                     {dispensary.lat && dispensary.lng && (
                       <a
@@ -207,11 +230,15 @@ export default function DispensaryMap({
     <div className="flex flex-wrap items-center justify-center gap-4 mt-2 px-2">
       <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
         <span className="w-3 h-3 rounded-full bg-[#32c864] border-2 border-white shadow-sm flex-shrink-0" />
-        Has Your Strains
+        Strains Matched
       </span>
       <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
         <span className="w-3 h-3 rounded-full bg-[#facc15] border-2 border-white shadow-sm flex-shrink-0" />
-        Similar Strains
+        Menu Available
+      </span>
+      <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
+        <span className="w-3 h-3 rounded-full bg-[#ef4444] border-2 border-white shadow-sm flex-shrink-0" />
+        No Menu Available
       </span>
       <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
         <span className="w-3 h-3 rounded-full bg-[#9ca3af] border-2 border-white shadow-sm flex-shrink-0" />

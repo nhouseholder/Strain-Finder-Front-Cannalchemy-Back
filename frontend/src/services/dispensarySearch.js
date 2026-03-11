@@ -223,7 +223,15 @@ function normalizeDispensaries(rawList) {
     website: d.website || '',
     menuUrl: d.menuUrl || d.menu_url || d.wmUrl || '',
     wmUrl: d.wmUrl || '',
-    matchType: (d.menuSummary?.matched > 0 || (d.matchedStrains || d.matched_strains || []).length > 0) ? 'exact' : 'alternative',
+    matchType: (() => {
+      const hasMatches = (d.menuSummary?.matched > 0 || (d.matchedStrains || d.matched_strains || []).length > 0)
+      if (hasMatches) return 'exact'
+      // Check if dispensary has menu data at all
+      const hasMenu = d.hasMenu === true || d.menuSummary?.hasMenu === true || (d.menuSummary?.total > 0)
+      if (!hasMenu && d.menuSummary != null) return 'noMenu'
+      if ((d.alternativeStrains || d.alternative_strains || []).length > 0) return 'alternative'
+      return 'none'
+    })(),
     menuSummary: d.menuSummary || null,
     batchIndex: d.batchIndex ?? null,
   }))
