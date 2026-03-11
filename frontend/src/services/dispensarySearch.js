@@ -171,6 +171,20 @@ async function fetchNearbyDispensaries(location) {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Fetch Weedmaps menu items via our proxy API                       */
+/* ------------------------------------------------------------------ */
+export async function fetchWeedmapsMenuItems(slug) {
+  try {
+    const res = await fetch(`/api/dispensary-menu?slug=${encodeURIComponent(slug)}`)
+    if (!res.ok) return []
+    const data = await res.json()
+    return data.menuItems || []
+  } catch {
+    return []
+  }
+}
+
+/* ------------------------------------------------------------------ */
 /*  Normalize dispensary array                                        */
 /* ------------------------------------------------------------------ */
 function normalizeStrainEntry(s) {

@@ -547,11 +547,8 @@ export default function DispensaryPage() {
     if (activeCity) {
       // City mode — internal cross-referenced menu page
       navigate(`/dispensary/${activeCity}/${dispensary.id}`)
-    } else if (dispensary.menuUrl || dispensary.wmUrl) {
-      // Location mode — open Weedmaps menu in new tab
-      window.open(dispensary.menuUrl || dispensary.wmUrl, '_blank', 'noopener,noreferrer')
     } else {
-      // Fallback — pass dispensary data via router state
+      // Location mode — internal menu page (fetches + cross-refs Weedmaps menu)
       navigate(`/dispensary/nearby/${dispensary.id}`, { state: { dispensary } })
     }
   }, [activeCity, navigate])
