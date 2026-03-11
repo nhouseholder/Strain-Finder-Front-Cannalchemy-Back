@@ -233,7 +233,9 @@ async function fetchLeaflyMenu(browser, dispensary) {
 
   try {
     const slug = dispensary.leaflySlug || dispensary.slug
-    const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}/menu/flower`
+    // THC-A shops may not categorize as "flower" — try general menu first for them
+    const menuPath = dispensary._thca ? 'menu' : 'menu/flower'
+    const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}/${menuPath}`
     await page.goto(menuUrl, { waitUntil: 'networkidle', timeout: 20000 })
     await sleep(1500)
 
@@ -344,12 +346,12 @@ async function parseMenuDOM(page) {
 
 /* ── Harvest menus + match strains for Leafly dispensaries ──────────── */
 
-export async function harvestMenus(browser, dispensaries, strainDB) {
+export async function harvestMenus(browser, dispensaries, strainDB, { thca = false } = {}) {
   let totalMatched = 0
   const enriched = []
 
   for (let i = 0; i < dispensaries.length; i++) {
-    const disp = dispensaries[i]
+    const disp = { ...dispensaries[i], _thca: thca }
     process.stdout.write(`  [Leafly] [${i + 1}/${dispensaries.length}] ${disp.name}... `)
 
     let menuItems = []

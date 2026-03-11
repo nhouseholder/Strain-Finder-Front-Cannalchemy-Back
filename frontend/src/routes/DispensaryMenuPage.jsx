@@ -299,6 +299,8 @@ function matchMenuToStrains(menuItems, strainDatabase) {
  *   /dispensary/:citySlug/:dispensaryId  (city mode — fetches from KV API)
  *   /dispensary/nearby/:dispensaryId     (location mode — fetches live from Weedmaps)
  */
+const THCA_CITIES = new Set(['nashville', 'lubbock'])
+
 export default function DispensaryMenuPage() {
   const { citySlug, dispensaryId } = useParams()
   const navigate = useNavigate()
@@ -309,6 +311,7 @@ export default function DispensaryMenuPage() {
 
   const passedDispensary = location.state?.dispensary || null
   const isLocationMode = citySlug === 'nearby'
+  const isThcaCity = THCA_CITIES.has(citySlug)
 
   const [dispensary, setDispensary] = useState(passedDispensary)
   const [menuData, setMenuData] = useState(null)
@@ -567,6 +570,19 @@ export default function DispensaryMenuPage() {
           )}
         </div>
       </Card>
+
+      {/* ── THC-A Market Banner ── */}
+      {isThcaCity && (
+        <div className="flex items-start gap-2.5 px-4 py-3 mb-6 rounded-xl bg-amber-500/[0.08] border border-amber-500/20">
+          <Leaf size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-[11px] font-bold text-amber-400 mb-0.5">THC-A Flower</p>
+            <p className="text-[10px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
+              This shop sells hemp-derived THC-A products, legally available under the 2018 Farm Bill. Same strains and terpene profiles you know and love.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* ── Deals ── */}
       {d.deals?.length > 0 && (

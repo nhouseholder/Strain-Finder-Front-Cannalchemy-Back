@@ -21,8 +21,8 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 /* ── Phase 1: Discover dispensaries via v2/listings API ─────────────── */
 
-export async function discoverDispensaries(city) {
-  console.log(`  [WM] Fetching listings within ${BOUNDING_RADIUS} of ${city.label}...`)
+export async function discoverDispensaries(city, { thca = false } = {}) {
+  console.log(`  [WM] Fetching listings within ${BOUNDING_RADIUS} of ${city.label}${thca ? ' (THC-A market)' : ''}...`)
 
   const allListings = []
   let page = 1
@@ -85,48 +85,54 @@ export async function discoverDispensaries(city) {
 
 /* ── Phase 2: Fetch flower menu via browser context ────────────────── */
 
-async function fetchMenuItems(browserPage, slug, maxItems) {
-  return browserPage.evaluate(async ({ slug, maxItems }) => {
+async function fetchMenuItems(browserPage, slug, maxItems, { categories = ['flower'] } = {}) {
+  return browserPage.evaluate(async ({ slug, maxItems, categories }) => {
     const items = []
-    let pageNum = 1
-    const maxPages = 3
 
-    while (pageNum <= maxPages && items.length < maxItems) {
-      try {
-        const r = await fetch(
-          `https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/${slug}/menu_items?filter[category]=flower&page_size=100&page=${pageNum}`
-        )
-        if (!r.ok) break
-        const d = await r.json()
-        const menuItems = d?.data?.menu_items || []
-        if (menuItems.length === 0) break
+    for (const category of categories) {
+      let pageNum = 1
+      const maxPages = 3
 
-        for (const m of menuItems) {
-          items.push({
-            name: m.name,
-            prices: m.prices || [],
-            variants: m.variants || [],
-            price: m.price ?? null,
-            image: m.avatar_image?.small_url || null,
-            brand: m.brand?.name || null,
-          })
-        }
+      while (pageNum <= maxPages && items.length < maxItems) {
+        try {
+          const r = await fetch(
+            `https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/${slug}/menu_items?filter[category]=${category}&page_size=100&page=${pageNum}`
+          )
+          if (!r.ok) break
+          const d = await r.json()
+          const menuItems = d?.data?.menu_items || []
+          if (menuItems.length === 0) break
 
-        const totalPages = d?.meta?.total_pages || 1
-        if (pageNum >= totalPages) break
-        pageNum++
-      } catch { break }
+          for (const m of menuItems) {
+            items.push({
+              name: m.name,
+              prices: m.prices || [],
+              variants: m.variants || [],
+              price: m.price ?? null,
+              image: m.avatar_image?.small_url || null,
+              brand: m.brand?.name || null,
+            })
+          }
+
+          const totalPages = d?.meta?.total_pages || 1
+          if (pageNum >= totalPages) break
+          pageNum++
+        } catch { break }
+      }
     }
 
     return items.slice(0, maxItems)
-  }, { slug, maxItems })
+  }, { slug, maxItems, categories })
 }
 
 /* ── Harvest menus + match strains for all dispensaries ─────────────── */
 
-export async function harvestMenus(browserPage, dispensaries, strainDB) {
+export async function harvestMenus(browserPage, dispensaries, strainDB, { thca = false } = {}) {
   let totalMatched = 0
   const enriched = []
+
+  // THC-A cities: also fetch from broader categories since hemp shops may list differently
+  const menuCategories = thca ? ['flower', 'pre-rolls', 'concentrates'] : ['flower']
 
   // Sort by menu_items_count descending — process richest menus first
   dispensaries.sort((a, b) => (b.menuItemsCount || 0) - (a.menuItemsCount || 0))
@@ -140,7 +146,7 @@ export async function harvestMenus(browserPage, dispensaries, strainDB) {
 
     for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
       try {
-        menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP)
+        menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP, { categories: menuCategories })
         fetchSuccess = true
         break
       } catch (err) {

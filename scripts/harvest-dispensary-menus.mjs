@@ -34,11 +34,18 @@ import { discoverDispensaries as discoverLeafly, harvestMenus as harvestLeafly }
 /* ── Config ────────────────────────────────────────────────────────── */
 
 const CITIES = [
-  { slug: 'san-diego',   label: 'San Diego, CA',   lat: 32.7157, lng: -117.1611 },
-  { slug: 'phoenix',     label: 'Phoenix, AZ',     lat: 33.4484, lng: -112.0740 },
-  { slug: 'los-angeles', label: 'Los Angeles, CA',  lat: 34.0522, lng: -118.2437 },
-  { slug: 'new-york',    label: 'New York, NY',     lat: 40.7128, lng: -74.0060  },
-  { slug: 'denver',      label: 'Denver, CO',       lat: 39.7392, lng: -104.9903 },
+  // Full-legal cannabis markets
+  { slug: 'san-diego',   label: 'San Diego, CA',    lat: 32.7157, lng: -117.1611 },
+  { slug: 'phoenix',     label: 'Phoenix, AZ',      lat: 33.4484, lng: -112.0740 },
+  { slug: 'los-angeles', label: 'Los Angeles, CA',   lat: 34.0522, lng: -118.2437 },
+  { slug: 'new-york',    label: 'New York, NY',      lat: 40.7128, lng: -74.0060  },
+  { slug: 'denver',      label: 'Denver, CO',        lat: 39.7392, lng: -104.9903 },
+  { slug: 'las-vegas',   label: 'Las Vegas, NV',     lat: 36.1699, lng: -115.1398 },
+  { slug: 'detroit',     label: 'Detroit, MI',       lat: 42.3314, lng: -83.0458  },
+  { slug: 'chicago',     label: 'Chicago, IL',       lat: 41.8781, lng: -87.6298  },
+  // THC-A legal markets (hemp-derived, not rec/medical cannabis)
+  { slug: 'nashville',   label: 'Nashville, TN',     lat: 36.1627, lng: -86.7816, thca: true },
+  { slug: 'lubbock',     label: 'Lubbock, TX',       lat: 33.5779, lng: -101.8552, thca: true },
 ]
 
 const CITY_DELAY_MS = 2000
@@ -55,8 +62,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 /* ── Harvest a single city ─────────────────────────────────────────── */
 
 async function harvestCity(browser, wmPage, city, strainDB) {
+  const isThca = city.thca || false
   console.log(`\n${'═'.repeat(60)}`)
-  console.log(`  Harvesting: ${city.label}`)
+  console.log(`  Harvesting: ${city.label}${isThca ? ' [THC-A Market]' : ''}`)
   console.log(`${'═'.repeat(60)}`)
 
   // Phase 1: Discover dispensaries from all sources
@@ -64,7 +72,7 @@ async function harvestCity(browser, wmPage, city, strainDB) {
 
   // Weedmaps discovery (no browser needed for listings API)
   try {
-    const wmDisps = await discoverWM(city)
+    const wmDisps = await discoverWM(city, { thca: isThca })
     if (wmDisps.length > 0) {
       sourceLists.push({ source: 'weedmaps', dispensaries: wmDisps })
     }
@@ -105,7 +113,7 @@ async function harvestCity(browser, wmPage, city, strainDB) {
 
   if (wmOnly.length > 0) {
     console.log(`\n  Fetching Weedmaps menus for ${wmOnly.length} dispensaries...`)
-    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(wmPage, wmOnly, strainDB)
+    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(wmPage, wmOnly, strainDB, { thca: isThca })
     totalMatched += wmMatched
     for (const d of wmEnriched) enrichedMap.set(d.id, d)
   }
@@ -113,7 +121,7 @@ async function harvestCity(browser, wmPage, city, strainDB) {
   // Harvest Leafly menus (opens new contexts per dispensary)
   if (leaflyOnly.length > 0) {
     console.log(`\n  Fetching Leafly menus for ${leaflyOnly.length} Leafly-only dispensaries...`)
-    const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(browser, leaflyOnly, strainDB)
+    const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(browser, leaflyOnly, strainDB, { thca: isThca })
     totalMatched += leaflyMatched
     for (const d of leaflyEnriched) enrichedMap.set(d.id, d)
   }
@@ -149,8 +157,8 @@ async function harvestCity(browser, wmPage, city, strainDB) {
 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗')
-  console.log('║  MyStrainAI — Multi-Source Dispensary Harvest v4        ║')
-  console.log('║  Weedmaps + Leafly → Dedup → Strain Match → KV        ║')
+  console.log('║  MyStrainAI — Multi-Source Dispensary Harvest v5        ║')
+  console.log('║  WM + Leafly → Dedup → Strain Match → KV (10 cities)  ║')
   console.log(`║  ${new Date().toISOString().padEnd(52)}║`)
   console.log('╚══════════════════════════════════════════════════════════╝')
 

@@ -62,17 +62,24 @@ export default function CitySelector({ cities = [], activeCity, onSelect, loadin
                     : 'bg-white dark:bg-white/[0.03] border-gray-200 dark:border-white/[0.08] hover:border-leaf-500/20 hover:bg-leaf-500/5'
                 }`}
               >
-                <p className={`text-sm font-bold truncate ${
-                  isActive ? 'text-leaf-400' : 'text-gray-800 dark:text-[#e8f0ea]'
-                }`}>
-                  {city.label}
-                </p>
+                <div className="flex items-center gap-1.5">
+                  <p className={`text-sm font-bold truncate ${
+                    isActive ? 'text-leaf-400' : 'text-gray-800 dark:text-[#e8f0ea]'
+                  }`}>
+                    {city.label}
+                  </p>
+                  {city.thca && (
+                    <span className="flex-shrink-0 text-[8px] font-bold px-1 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/25 leading-none">
+                      THC-A
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center gap-1 mt-1.5">
                   <Store size={10} className={isActive ? 'text-leaf-400/60' : 'text-gray-400 dark:text-[#5a6a5e]'} />
                   <span className={`text-[10px] font-medium ${
                     isActive ? 'text-leaf-400/80' : 'text-gray-500 dark:text-[#6a7a6e]'
                   }`}>
-                    {city.dispensaryCount} dispensaries
+                    {city.dispensaryCount} {city.thca ? 'shops' : 'dispensaries'}
                   </span>
                 </div>
                 {city.matchedStrainCount > 0 && (

@@ -15,11 +15,18 @@
 const TTL_SECONDS = 24 * 60 * 60 // 24 hours
 
 const PRE_HARVESTED_CITIES = [
-  { slug: 'san-diego',   label: 'San Diego, CA',  lat: 32.7157, lng: -117.1611 },
-  { slug: 'phoenix',     label: 'Phoenix, AZ',    lat: 33.4484, lng: -112.0740 },
-  { slug: 'los-angeles', label: 'Los Angeles, CA', lat: 34.0522, lng: -118.2437 },
-  { slug: 'new-york',    label: 'New York, NY',    lat: 40.7128, lng: -74.0060  },
-  { slug: 'denver',      label: 'Denver, CO',      lat: 39.7392, lng: -104.9903 },
+  // Full-legal cannabis markets
+  { slug: 'san-diego',   label: 'San Diego, CA',    lat: 32.7157, lng: -117.1611 },
+  { slug: 'phoenix',     label: 'Phoenix, AZ',      lat: 33.4484, lng: -112.0740 },
+  { slug: 'los-angeles', label: 'Los Angeles, CA',   lat: 34.0522, lng: -118.2437 },
+  { slug: 'new-york',    label: 'New York, NY',      lat: 40.7128, lng: -74.0060  },
+  { slug: 'denver',      label: 'Denver, CO',        lat: 39.7392, lng: -104.9903 },
+  { slug: 'las-vegas',   label: 'Las Vegas, NV',     lat: 36.1699, lng: -115.1398 },
+  { slug: 'detroit',     label: 'Detroit, MI',       lat: 42.3314, lng: -83.0458  },
+  { slug: 'chicago',     label: 'Chicago, IL',       lat: 41.8781, lng: -87.6298  },
+  // THC-A legal markets
+  { slug: 'nashville',   label: 'Nashville, TN',     lat: 36.1627, lng: -86.7816  },
+  { slug: 'lubbock',     label: 'Lubbock, TX',       lat: 33.5779, lng: -101.8552 },
 ]
 
 const CITY_REDIRECT_RADIUS_MI = 25

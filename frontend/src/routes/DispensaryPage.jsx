@@ -691,13 +691,16 @@ export default function DispensaryPage() {
         updatedAt={citiesUpdatedAt}
       />
 
-      {/* Expansion notice */}
-      {!citiesLoading && (
-        <div className="flex items-start gap-2.5 px-3 py-2.5 mb-4 rounded-xl bg-amber-500/[0.06] border border-amber-500/15">
-          <MapPin size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
-          <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
-            Full strain matching available in <strong className="text-gray-700 dark:text-[#b0c4b4]">San Diego</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Phoenix</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">Los Angeles</strong>, <strong className="text-gray-700 dark:text-[#b0c4b4]">New York</strong> & <strong className="text-gray-700 dark:text-[#b0c4b4]">Denver</strong>. Other areas show nearby dispensaries with links to their menus.
-          </p>
+      {/* THC-A city banner */}
+      {activeCity && cities.find(c => c.slug === activeCity)?.thca && (
+        <div className="flex items-start gap-2.5 px-3 py-2.5 mb-4 rounded-xl bg-amber-500/[0.08] border border-amber-500/20 animate-fade-in">
+          <Leaf size={14} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-[11px] font-bold text-amber-400 mb-0.5">THC-A Market</p>
+            <p className="text-[10px] text-gray-500 dark:text-[#8a9a8e] leading-relaxed">
+              This area sells legal hemp-derived THC-A flower. Products may differ from traditional dispensaries — same strains, federally legal under the 2018 Farm Bill.
+            </p>
+          </div>
         </div>
       )}
 
@@ -734,8 +737,9 @@ export default function DispensaryPage() {
         <div className="mb-4 text-xs text-gray-400 dark:text-[#5a6a5e]">
           {mode === 'city' && cityData?.available && (
             <span>
-              Showing <strong className="text-gray-600 dark:text-[#8a9a8e]">{cityData.dispensaryCount}</strong> dispensaries in{' '}
+              Showing <strong className="text-gray-600 dark:text-[#8a9a8e]">{cityData.dispensaryCount}</strong> {cityData.thca ? 'shops' : 'dispensaries'} in{' '}
               <strong className="text-gray-600 dark:text-[#8a9a8e]">{cityData.label}</strong>
+              {cityData.thca && <> &middot; <strong className="text-amber-400">THC-A</strong></>}
               {cityData.matchedStrainCount > 0 && (
                 <> &middot; <strong className="text-leaf-400">{cityData.matchedStrainCount}</strong> strains matched</>
               )}

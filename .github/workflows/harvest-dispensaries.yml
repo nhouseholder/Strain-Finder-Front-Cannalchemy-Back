@@ -10,8 +10,8 @@ on:
 jobs:
   harvest:
     runs-on: ubuntu-latest
-    name: Harvest Weedmaps → KV
-    timeout-minutes: 60
+    name: Multi-Source Harvest → KV (10 cities)
+    timeout-minutes: 120
 
     steps:
       - name: Checkout
