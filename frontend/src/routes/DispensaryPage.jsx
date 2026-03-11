@@ -272,10 +272,10 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
         {onViewPage && (
           <button
             onClick={(e) => { e.stopPropagation(); onViewPage(d) }}
-            className="flex items-center gap-1 text-[10px] font-semibold text-leaf-400 hover:text-leaf-300 transition-colors min-h-[44px]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-leaf-500/15 text-leaf-400 border border-leaf-500/25 hover:bg-leaf-500/25 transition-all min-h-[44px]"
           >
-            {isLocationMode ? 'View Menu' : 'View Strain Matches'}
-            <ExternalLink size={10} />
+            <Leaf size={12} />
+            View Menu
           </button>
         )}
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useMemo } from 'react'
+import { useState, useEffect, useContext, useMemo, useCallback } from 'react'
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
@@ -26,6 +26,9 @@ import {
   BookOpen,
   MessageSquare,
   Store,
+  ChevronDown,
+  ChevronUp,
+  Beaker,
 } from 'lucide-react'
 
 /**
@@ -277,10 +280,13 @@ export default function DispensaryMenuPage() {
       {/* ── Enhanced Menu (strains matched with our database) ── */}
       {matched.length > 0 && (
         <section className="mb-6">
-          <h2 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-3 flex items-center gap-2">
+          <h2 className="text-sm font-bold text-gray-900 dark:text-[#e8f0ea] mb-1 flex items-center gap-2">
             <Sparkles size={16} className="text-leaf-400" />
             Menu · {matched.length} Strains Matched
           </h2>
+          <p className="text-[10px] text-gray-400 dark:text-[#5a6a5e] mb-3 ml-6">
+            Tap any strain to view full details
+          </p>
           <div className="space-y-3">
             {matched.map((item, i) => (
               <StrainMenuCard
@@ -491,16 +497,24 @@ function StrainActions({ slug, name, showAuth }) {
   )
 }
 
-/** Rich strain card for enhanced menu data */
+/** Rich strain card for enhanced menu data — expandable */
 function StrainMenuCard({ item, isQuizMatch, getStrainSlug, showAuthActions }) {
+  const [expanded, setExpanded] = useState(false)
   const name = item.strain?.name || item.menuName
   const slug = item.strain?.slug || getStrainSlug(name)
   const match = isQuizMatch(name)
 
   return (
-    <Card className={`p-4 transition-all ${match ? 'ring-1 ring-leaf-500/30 bg-leaf-500/[0.03]' : ''}`}>
-      {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-2">
+    <Card className={`transition-all ${match ? 'ring-1 ring-leaf-500/30 bg-leaf-500/[0.03]' : ''} ${expanded ? 'border-leaf-500/20' : ''}`}>
+      {/* Clickable header — always visible */}
+      <div
+        className="flex items-center justify-between gap-3 p-4 cursor-pointer select-none"
+        onClick={() => setExpanded(!expanded)}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(!expanded) } }}
+        aria-expanded={expanded}
+      >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className={`w-2 h-2 rounded-full flex-shrink-0 ${match ? 'bg-leaf-500' : 'bg-gray-300 dark:bg-[#3a4a3e]'}`} />
@@ -514,53 +528,134 @@ function StrainMenuCard({ item, isQuizMatch, getStrainSlug, showAuthActions }) {
               </span>
             )}
           </div>
+          {/* Quick info chips — always visible */}
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {item.strain?.type && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/15">
+                {item.strain.type}
+              </span>
+            )}
+            {item.strain?.thc != null && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/10 text-green-400 border border-green-500/15">
+                THC {item.strain.thc}%
+              </span>
+            )}
+            {item.strain?.cbd != null && item.strain.cbd > 0 && (
+              <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/15">
+                CBD {item.strain.cbd}%
+              </span>
+            )}
+          </div>
         </div>
-        {item.price && (
-          <span className="text-sm font-bold text-leaf-500 flex-shrink-0">{item.price}</span>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {item.price && (
+            <span className="text-sm font-bold text-leaf-500">{item.price}</span>
+          )}
+          {expanded ? (
+            <ChevronUp size={16} className="text-gray-400 dark:text-[#6a7a6e]" />
+          ) : (
+            <ChevronDown size={16} className="text-gray-400 dark:text-[#6a7a6e]" />
+          )}
+        </div>
       </div>
 
-      {/* Detail chips */}
-      <div className="flex flex-wrap gap-1.5 mb-2">
-        {item.strain?.type && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] bg-purple-500/10 text-purple-400 border border-purple-500/15">
-            {item.strain.type}
+      {/* Expand/collapse toggle label when collapsed */}
+      {!expanded && (
+        <div
+          className="px-4 pb-3 -mt-1 cursor-pointer"
+          onClick={() => setExpanded(true)}
+        >
+          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-leaf-400 hover:text-leaf-300 transition-colors">
+            <Beaker size={10} />
+            View Full Details
           </span>
-        )}
-        {item.strain?.thc != null && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] bg-green-500/10 text-green-400 border border-green-500/15">
-            THC {item.strain.thc}%
-          </span>
-        )}
-        {item.strain?.cbd != null && item.strain.cbd > 0 && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/15">
-            CBD {item.strain.cbd}%
-          </span>
-        )}
-        {item.strain?.topTerpenes?.map((t, j) => (
-          <span
-            key={j}
-            className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/5 text-amber-400/80 border border-amber-500/10"
-          >
-            {t}
-          </span>
-        ))}
-      </div>
-
-      {/* Effects */}
-      {item.strain?.topEffects?.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-3">
-          {item.strain.topEffects.map((e, j) => (
-            <span key={j} className="text-[10px] text-gray-500 dark:text-[#6a7a6e]">
-              {e}
-              {j < item.strain.topEffects.length - 1 ? ' · ' : ''}
-            </span>
-          ))}
         </div>
       )}
 
-      {/* Connected feature links */}
-      <StrainActions slug={slug} name={name} showAuth={showAuthActions} />
+      {/* Expanded details */}
+      {expanded && (
+        <div className="px-4 pb-4 animate-fade-in">
+          {/* Terpene profile */}
+          {item.strain?.topTerpenes?.length > 0 && (
+            <div className="mb-3">
+              <h4 className="text-[9px] uppercase tracking-wider text-amber-400 font-bold mb-1.5">Terpenes</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {item.strain.topTerpenes.map((t, j) => (
+                  <span
+                    key={j}
+                    className="px-2 py-1 rounded-lg text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/15 font-medium"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Effects */}
+          {item.strain?.topEffects?.length > 0 && (
+            <div className="mb-3">
+              <h4 className="text-[9px] uppercase tracking-wider text-leaf-400 font-bold mb-1.5">Effects</h4>
+              <div className="flex flex-wrap gap-1.5">
+                {item.strain.topEffects.map((e, j) => (
+                  <span
+                    key={j}
+                    className="px-2 py-1 rounded-lg text-[10px] bg-leaf-500/10 text-leaf-400 border border-leaf-500/15 font-medium"
+                  >
+                    {e}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Cannabinoid bars */}
+          {(item.strain?.thc != null || (item.strain?.cbd != null && item.strain.cbd > 0)) && (
+            <div className="mb-3">
+              <h4 className="text-[9px] uppercase tracking-wider text-green-400 font-bold mb-1.5">Cannabinoids</h4>
+              <div className="space-y-1.5">
+                {item.strain?.thc != null && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-medium text-gray-500 dark:text-[#8a9a8e] w-8">THC</span>
+                    <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-green-500/70"
+                        style={{ width: `${Math.min(100, (item.strain.thc / 35) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-green-400 w-10 text-right">{item.strain.thc}%</span>
+                  </div>
+                )}
+                {item.strain?.cbd != null && item.strain.cbd > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-medium text-gray-500 dark:text-[#8a9a8e] w-8">CBD</span>
+                    <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-white/[0.06] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-blue-500/70"
+                        style={{ width: `${Math.min(100, (item.strain.cbd / 20) * 100)}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-400 w-10 text-right">{item.strain.cbd}%</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* View full strain profile — prominent CTA */}
+          <Link
+            to={`/strain/${slug}`}
+            className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl text-xs font-bold bg-leaf-500/15 text-leaf-400 border border-leaf-500/25 hover:bg-leaf-500/25 transition-all min-h-[44px] mb-3"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Leaf size={14} />
+            View Full Strain Profile
+          </Link>
+
+          {/* Connected feature links */}
+          <StrainActions slug={slug} name={name} showAuth={showAuthActions} />
+        </div>
+      )}
     </Card>
   )
 }

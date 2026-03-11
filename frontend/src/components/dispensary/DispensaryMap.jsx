@@ -1,7 +1,7 @@
 import { useMemo, useEffect } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
-import { MapPin, ExternalLink, Phone, Clock, Star, Navigation } from 'lucide-react'
+import { MapPin, ExternalLink, Phone, Clock, Star, Navigation, Leaf } from 'lucide-react'
 
 // Dynamically load Leaflet CSS only when this component mounts
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
@@ -84,6 +84,7 @@ export default function DispensaryMap({
       })()
 
   return (
+    <div>
     <div className="rounded-2xl overflow-hidden border border-gray-200 dark:border-surface-border h-[250px] md:h-[350px]">
       <MapContainer
         center={mapCenter}
@@ -173,14 +174,14 @@ export default function DispensaryMap({
                   )}
 
                   {/* Action links */}
-                  <div className="flex items-center gap-3 pt-1.5 border-t border-gray-100">
+                  <div className="flex flex-col gap-2 pt-2 border-t border-gray-100">
                     {onViewMenu && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onViewMenu(dispensary) }}
-                        className="flex items-center gap-1 text-xs font-semibold text-green-600 hover:text-green-500 transition-colors"
+                        className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold text-white bg-green-600 hover:bg-green-500 transition-colors shadow-sm"
                       >
-                        <ExternalLink size={11} />
-                        {dispensary.matchType !== 'none' ? 'Strain Matches' : 'View Menu'}
+                        <Leaf size={12} />
+                        View Menu
                       </button>
                     )}
                     {dispensary.lat && dispensary.lng && (
@@ -188,11 +189,11 @@ export default function DispensaryMap({
                         href={`https://www.google.com/maps/dir/?api=1&destination=${dispensary.lat},${dispensary.lng}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-500 transition-colors"
+                        className="flex items-center justify-center gap-1 text-[11px] font-medium text-blue-600 hover:text-blue-500 transition-colors"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Navigation size={11} />
-                        Directions
+                        Get Directions
                       </a>
                     )}
                   </div>
@@ -201,6 +202,22 @@ export default function DispensaryMap({
             </Marker>
           ))}
       </MapContainer>
+    </div>
+    {/* Map Legend */}
+    <div className="flex flex-wrap items-center justify-center gap-4 mt-2 px-2">
+      <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
+        <span className="w-3 h-3 rounded-full bg-[#32c864] border-2 border-white shadow-sm flex-shrink-0" />
+        Has Your Strains
+      </span>
+      <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
+        <span className="w-3 h-3 rounded-full bg-[#facc15] border-2 border-white shadow-sm flex-shrink-0" />
+        Similar Strains
+      </span>
+      <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
+        <span className="w-3 h-3 rounded-full bg-[#9ca3af] border-2 border-white shadow-sm flex-shrink-0" />
+        No Strain Data
+      </span>
+    </div>
     </div>
   )
 }
