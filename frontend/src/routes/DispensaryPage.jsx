@@ -568,7 +568,7 @@ export default function DispensaryPage() {
     }
   }, [dispensaries, sortBy])
 
-  /* Map center */
+  /* Map center — city coords → geolocation → compute from dispensary positions */
   const mapCenter = useMemo(() => {
     if (mode === 'city' && cityData?.lat && cityData?.lng) {
       return { lat: cityData.lat, lng: cityData.lng }
@@ -576,8 +576,15 @@ export default function DispensaryPage() {
     if (geoLocation?.lat && geoLocation?.lng) {
       return geoLocation
     }
+    // Compute center from dispensary coordinates as fallback (location-mode)
+    const located = dispensaries.filter(d => d.lat && d.lng)
+    if (located.length > 0) {
+      const avgLat = located.reduce((sum, d) => sum + d.lat, 0) / located.length
+      const avgLng = located.reduce((sum, d) => sum + d.lng, 0) / located.length
+      return { lat: avgLat, lng: avgLng }
+    }
     return null
-  }, [mode, cityData, geoLocation])
+  }, [mode, cityData, geoLocation, dispensaries])
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
@@ -661,8 +668,8 @@ export default function DispensaryPage() {
         </div>
       )}
 
-      {/* Map */}
-      {dispensaries.length > 0 && !cityLoading && !locationLoading && (
+      {/* Map — only render when we have a center or dispensaries with coordinates */}
+      {dispensaries.length > 0 && !cityLoading && !locationLoading && (mapCenter || dispensaries.some(d => d.lat && d.lng)) && (
         <div className="mb-6">
           <DispensaryMap
             dispensaries={dispensaries}

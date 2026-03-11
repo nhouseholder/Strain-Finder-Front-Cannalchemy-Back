@@ -70,7 +70,7 @@ export default function DispensaryMap({
       <div className="flex flex-col items-center justify-center h-[250px] md:h-[350px] rounded-2xl border border-gray-200 dark:border-surface-border bg-gray-50 dark:bg-surface text-center px-6">
         <MapPin className="w-10 h-10 text-gray-300 dark:text-[#6a7a6e] mb-3" />
         <p className="text-sm text-gray-500 dark:text-[#8a9a8e]">
-          Enable location to see dispensaries on the map
+          Select a city or search by location to see dispensaries on the map
         </p>
       </div>
     )
