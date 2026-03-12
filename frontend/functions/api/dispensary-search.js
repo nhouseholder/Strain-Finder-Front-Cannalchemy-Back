@@ -154,32 +154,47 @@ export async function onRequest(context) {
   const url = new URL(req.url)
   const zip = url.searchParams.get('zip')
   const query = url.searchParams.get('q')
+  const directLat = url.searchParams.get('lat')
+  const directLng = url.searchParams.get('lng')
   const searchTerm = zip || query
 
-  if (!searchTerm) {
-    return json({ error: 'Missing ?zip= or ?q= parameter' }, 400)
+  // Accept either text search (zip/q) or direct lat/lng coords
+  if (!searchTerm && !(directLat && directLng)) {
+    return json({ error: 'Missing ?zip=, ?q=, or ?lat=&lng= parameter' }, 400)
   }
 
   try {
-    // Check KV cache first
-    const cacheKey = `search:${searchTerm.toLowerCase().replace(/\s+/g, '-')}`
+    // Build a cache key from whatever params we got
+    const cacheLabel = searchTerm
+      ? searchTerm.toLowerCase().replace(/\s+/g, '-')
+      : `geo-${parseFloat(directLat).toFixed(3)}-${parseFloat(directLng).toFixed(3)}`
+    const cacheKey = `search:${cacheLabel}`
     if (env.CACHE) {
       const cached = await env.CACHE.get(cacheKey, 'json')
       if (cached) {
-        console.log(`[DispensarySearch] Cache HIT for "${searchTerm}"`)
+        console.log(`[DispensarySearch] Cache HIT for "${cacheLabel}"`)
         return json({ ...cached, cached: true })
       }
     }
 
-    // Geocode the search term
-    const geocodeQuery = zip ? `${zip}, USA` : searchTerm
-    const geo = await geocode(geocodeQuery)
+    // If direct lat/lng provided, skip geocoding
+    let geo
+    if (directLat && directLng) {
+      geo = {
+        lat: parseFloat(directLat),
+        lng: parseFloat(directLng),
+        displayName: 'Your location',
+      }
+    } else {
+      const geocodeQuery = zip ? `${zip}, USA` : searchTerm
+      geo = await geocode(geocodeQuery)
+    }
 
-    if (!geo) {
+    if (!geo || isNaN(geo.lat) || isNaN(geo.lng)) {
       return json({
         redirect: false,
         center: null,
-        location: searchTerm,
+        location: searchTerm || 'Your location',
         dispensaries: [],
         error: 'Could not find that location. Try a zip code or city name.',
       })

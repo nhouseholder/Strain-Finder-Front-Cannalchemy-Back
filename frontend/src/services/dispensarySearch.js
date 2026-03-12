@@ -136,9 +136,15 @@ export async function searchDispensaries(location, strainNames, options = {}) {
 /* ------------------------------------------------------------------ */
 async function fetchNearbyDispensaries(location) {
   try {
-    const locStr = typeof location === 'string' ? location : ''
-    const isZip = /^\d{5}$/.test(locStr.trim())
-    const param = isZip ? `zip=${encodeURIComponent(locStr.trim())}` : `q=${encodeURIComponent(locStr.trim())}`
+    let param
+    if (typeof location === 'object' && location?.lat != null && location?.lng != null) {
+      // Geolocation object — pass lat/lng directly to skip geocoding
+      param = `lat=${encodeURIComponent(location.lat)}&lng=${encodeURIComponent(location.lng)}`
+    } else {
+      const locStr = typeof location === 'string' ? location : ''
+      const isZip = /^\d{5}$/.test(locStr.trim())
+      param = isZip ? `zip=${encodeURIComponent(locStr.trim())}` : `q=${encodeURIComponent(locStr.trim())}`
+    }
     const res = await fetch(`/api/dispensary-search?${param}`)
 
     if (!res.ok) {
