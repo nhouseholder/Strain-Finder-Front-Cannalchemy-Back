@@ -52,15 +52,32 @@ export function extractPrice(menuItem) {
     }
   }
 
-  // Strategy 2: "variants" array
+  // Strategy 2: "variants" array — supports both WM ({weight:{value,unit}})
+  // and Leafly ({quantity, unit, displayQuantity, normalizedQuantityLabel})
   if (eighthPrice == null && variants.length > 0) {
     for (const v of variants) {
+      const amt = resolveNum(v.price ?? v.amount)
+      if (!amt) continue
+
+      // WM format: weight/size as nested object
       const w = v.weight || v.size || {}
       const wVal = parseFloat(w.value || w.amount || 0)
       const wUnit = (w.unit || '').toLowerCase()
-      const amt = resolveNum(v.price ?? v.amount)
-      if (amt && wVal >= 3.4 && wVal <= 3.6 && wUnit.startsWith('g')) { eighthPrice = amt; break }
+      if (wVal >= 3.4 && wVal <= 3.6 && wUnit.startsWith('g')) { eighthPrice = amt; break }
+
+      // Leafly format: quantity + unit at top level (e.g. quantity:3.5, unit:"g")
+      const qty = parseFloat(v.quantity || v.cartQuantity || 0)
+      const qUnit = (v.unit || v.cartUnit || '').toLowerCase()
+      if (qty >= 3.4 && qty <= 3.6 && qUnit.startsWith('g')) { eighthPrice = amt; break }
+
+      // Also match on displayQuantity ("3.5g") or normalizedQuantityLabel ("1/8 ounce")
+      const dq = (v.displayQuantity || '').toLowerCase()
+      const nql = (v.normalizedQuantityLabel || '').toLowerCase()
+      if (dq === '3.5g' || dq === '3.5 g' || nql.includes('1/8') || nql.includes('eighth')) {
+        eighthPrice = amt; break
+      }
     }
+    // Fallback: take first variant with a price
     if (eighthPrice == null) {
       for (const v of variants) {
         const amt = resolveNum(v.price ?? v.amount)

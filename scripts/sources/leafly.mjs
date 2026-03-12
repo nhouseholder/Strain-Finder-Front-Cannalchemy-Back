@@ -254,7 +254,7 @@ function parseLeaflyMenuItem(item) {
     }
   }
 
-  // Build variants from Leafly's variant structure
+  // Pass through Leafly variants with fields needed for price extraction
   const variants = []
   if (Array.isArray(item.variants)) {
     for (const v of item.variants) {
@@ -262,6 +262,11 @@ function parseLeaflyMenuItem(item) {
         label: v.displayQuantity || v.unit || '',
         price: v.price ?? null,
         quantity: v.quantity ?? null,
+        unit: v.unit || '',
+        cartQuantity: v.cartQuantity ?? null,
+        cartUnit: v.cartUnit || '',
+        displayQuantity: v.displayQuantity || '',
+        normalizedQuantityLabel: v.normalizedQuantityLabel || '',
       })
     }
   }
