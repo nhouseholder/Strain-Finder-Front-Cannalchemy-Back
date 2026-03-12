@@ -131,7 +131,13 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
     >
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-bold text-gray-900 dark:text-[#e8f0ea] truncate">
+          <h3
+            className="text-base font-bold text-leaf-500 hover:text-leaf-400 truncate transition-colors cursor-pointer"
+            onClick={(e) => { e.stopPropagation(); onViewPage?.(d) }}
+            role="link"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.stopPropagation(); onViewPage?.(d) } }}
+          >
             {d.name}
           </h3>
           <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-[#6a7a6e] mt-0.5">
@@ -606,11 +612,11 @@ export default function DispensaryPage() {
     }
   }, [geoLocation]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  /* Navigate to full dispensary menu page (from map popup "View Menu") */
+  /* Navigate to full dispensary menu page (from map popup "View Menu" or card name click) */
   const handleViewMenu = useCallback((dispensary) => {
     if (activeCity) {
-      // City mode — internal cross-referenced menu page
-      navigate(`/dispensary/${activeCity}/${dispensary.id}`)
+      // City mode — internal cross-referenced menu page (pass state for instant rendering)
+      navigate(`/dispensary/${activeCity}/${dispensary.id}`, { state: { dispensary } })
     } else {
       // Location mode — internal menu page (fetches + cross-refs Weedmaps menu)
       navigate(`/dispensary/nearby/${dispensary.id}`, { state: { dispensary } })

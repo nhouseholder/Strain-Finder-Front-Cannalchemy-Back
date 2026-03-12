@@ -348,17 +348,16 @@ export default function DispensaryMenuPage() {
       try {
         if (citySlug && !isLocationMode) {
           // City mode — fetch from KV API
+          // The detail response includes full dispensary data + menu
           const detail = await fetchDispensaryMenu(citySlug, dispensaryId)
           if (cancelled) return
 
           if (detail) {
             setMenuData(detail)
-            // Also get basic dispensary info from city data if we don't have it
+            // The detail response already has dispensary info (name, address, etc.)
+            // Use it directly instead of a separate city fetch
             if (!dispensary) {
-              const cityData = await searchByCity(citySlug)
-              if (cancelled) return
-              const found = cityData?.dispensaries?.find((d) => d.id === dispensaryId)
-              if (found) setDispensary(found)
+              setDispensary(detail)
             }
           } else {
             setError('Dispensary not found or menu unavailable')
