@@ -12,6 +12,7 @@ import {
 import Button from '../components/shared/Button'
 import Card from '../components/shared/Card'
 import SearchAutocomplete from '../components/shared/SearchAutocomplete'
+import ChatWidget from '../components/chat/ChatWidget'
 import NavBar from '../components/layout/NavBar'
 import { APP_VERSION } from '../utils/constants'
 import { TypeBadge, EffectBadge } from '../components/shared/Badge'
@@ -748,6 +749,9 @@ export default function LandingPage() {
       <div className="sm:hidden">
         <NavBar />
       </div>
+
+      {/* Floating AI Chat widget — bottom-right FAB */}
+      <ChatWidget />
 
     </div>
   )
