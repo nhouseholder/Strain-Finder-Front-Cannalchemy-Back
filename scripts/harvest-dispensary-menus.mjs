@@ -105,13 +105,30 @@ async function harvestCity(city, strainDB) {
   let totalMatched = 0
   const enrichedMap = new Map()
 
+  // Step 1: Fetch WM menus
+  let wmEnriched = []
   if (wmOnly.length > 0) {
     console.log(`\n  Fetching Weedmaps menus for ${wmOnly.length} dispensaries...`)
-    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(null, wmOnly, strainDB, { thca: isThca })
-    totalMatched += wmMatched
+    const wmResult = await harvestWM(null, wmOnly, strainDB, { thca: isThca })
+    wmEnriched = wmResult.enriched
+    totalMatched += wmResult.totalMatched
     for (const d of wmEnriched) enrichedMap.set(d.id, d)
   }
 
+  // Step 2: Leafly fallback for WM dispensaries with 0 menu items
+  const wmNoMenu = wmEnriched.filter(d => d.menuSummary?.total === 0 && d.leaflySlug)
+  if (wmNoMenu.length > 0) {
+    console.log(`\n  Leafly fallback for ${wmNoMenu.length} WM dispensaries with empty menus...`)
+    const { enriched: fallbackEnriched, totalMatched: fallbackMatched } = await harvestLeafly(null, wmNoMenu, strainDB, { thca: isThca })
+    totalMatched += fallbackMatched
+    for (const d of fallbackEnriched) {
+      if (d.menuSummary?.total > 0) {
+        enrichedMap.set(d.id, d) // replace empty-menu version
+      }
+    }
+  }
+
+  // Step 3: Fetch Leafly menus for Leafly-only dispensaries
   if (leaflyOnly.length > 0) {
     console.log(`\n  Fetching Leafly menus for ${leaflyOnly.length} Leafly-only dispensaries...`)
     const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(null, leaflyOnly, strainDB, { thca: isThca })

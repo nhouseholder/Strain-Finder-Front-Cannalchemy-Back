@@ -142,53 +142,94 @@ function parseLeaflyDispensary(s) {
 
 /* ── Phase 2: Fetch menu for a single dispensary via HTTP ──────────── */
 
+const MAX_MENU_PAGES = 5  // 18 items/page × 5 = up to 90 flower items
+
 async function fetchLeaflyMenu(dispensary) {
   const slug = dispensary.leaflySlug || dispensary.slug
-  const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}`
-
   const menuItems = []
+  const seenNames = new Set()
 
-  try {
-    const res = await fetch(menuUrl, { headers: HEADERS, redirect: 'follow' })
-    if (!res.ok) return menuItems
-
-    const html = await res.text()
-    const nextData = extractNextData(html)
-    if (!nextData) return menuItems
-
-    const pageProps = nextData?.props?.pageProps || {}
-
-    // Leafly embeds menu items in productsForCategoryCarousels or similar
-    const carousels = pageProps?.productsForCategoryCarousels || []
-
-    // Each carousel is a category (Flower, Concentrate, Edible, etc.)
-    for (const carousel of carousels) {
-      const items = carousel?.items || carousel?.products || carousel || []
-      if (!Array.isArray(items)) continue
-
-      for (const item of items) {
-        const parsed = parseLeaflyMenuItem(item)
-        if (parsed) menuItems.push(parsed)
-      }
+  const addItem = (item) => {
+    const parsed = parseLeaflyMenuItem(item)
+    if (parsed && !seenNames.has(parsed.name)) {
+      seenNames.add(parsed.name)
+      menuItems.push(parsed)
     }
+  }
 
-    // Also check for direct menu items in other possible paths
-    const directMenu =
-      pageProps?.menuItems ||
-      pageProps?.products ||
-      pageProps?.menu?.items ||
-      []
+  // Strategy 1: Paginated /menu page (18 items/page, richest data)
+  try {
+    for (let page = 1; page <= MAX_MENU_PAGES; page++) {
+      const category = dispensary._thca ? '' : 'Flower'
+      const params = new URLSearchParams()
+      if (category) params.set('product_category', category)
+      if (page > 1) params.set('page', String(page))
+      const qs = params.toString() ? `?${params.toString()}` : ''
+      const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}/menu${qs}`
 
-    if (Array.isArray(directMenu)) {
-      for (const item of directMenu) {
-        const parsed = parseLeaflyMenuItem(item)
-        if (parsed && !menuItems.find(m => m.name === parsed.name)) {
-          menuItems.push(parsed)
-        }
-      }
+      const res = await fetch(menuUrl, { headers: HEADERS, redirect: 'manual' })
+
+      // Handle redirects — Leafly may redirect server-side requests
+      if (res.status >= 300 && res.status < 400) break
+
+      if (!res.ok) break
+
+      const html = await res.text()
+      const nextData = extractNextData(html)
+      if (!nextData) break
+
+      const pageProps = nextData?.props?.pageProps || {}
+
+      // menuData.menuItems is the paginated menu (18 per page)
+      const menuData = pageProps?.menuData || {}
+      const items = menuData?.menuItems || []
+
+      if (items.length === 0) break
+      for (const item of items) addItem(item)
+
+      // Check if we've gotten all items
+      const totalItems = menuData?.totalItems || 0
+      if (menuItems.length >= totalItems) break
+
+      await sleep(FETCH_DELAY_MS)
     }
   } catch (err) {
-    console.log(`    menu error: ${err.message}`)
+    // Strategy 1 failed, try fallback
+  }
+
+  // Strategy 2: Detail page carousel (fallback — 8 items per category)
+  if (menuItems.length === 0) {
+    try {
+      const detailUrl = `${LEAFLY_BASE}/dispensary-info/${slug}`
+      const res = await fetch(detailUrl, { headers: HEADERS, redirect: 'manual' })
+
+      if (res.ok) {
+        const html = await res.text()
+        const nextData = extractNextData(html)
+        if (nextData) {
+          const pageProps = nextData?.props?.pageProps || {}
+
+          // productsForCategoryCarousels: [{name: "Flower", menuItems: [...]}]
+          const carousels = pageProps?.productsForCategoryCarousels || []
+          for (const carousel of carousels) {
+            // For non-THC-A, only grab Flower category
+            if (!dispensary._thca && carousel?.name && carousel.name !== 'Flower') continue
+            const items = carousel?.menuItems || carousel?.items || []
+            if (Array.isArray(items)) {
+              for (const item of items) addItem(item)
+            }
+          }
+
+          // Also check direct menu paths
+          const directMenu = pageProps?.menuItems || pageProps?.menuData?.menuItems || []
+          if (Array.isArray(directMenu)) {
+            for (const item of directMenu) addItem(item)
+          }
+        }
+      }
+    } catch (err) {
+      // Both strategies failed
+    }
   }
 
   return menuItems
@@ -198,6 +239,9 @@ async function fetchLeaflyMenu(dispensary) {
 
 function parseLeaflyMenuItem(item) {
   if (!item || !item.name) return null
+
+  // Use strainName if available (cleaner than product name which includes weight)
+  const name = item.strainName || item.name
 
   const prices = []
   if (item.prices) {
@@ -210,15 +254,27 @@ function parseLeaflyMenuItem(item) {
     }
   }
 
-  const price = item.price ?? item.defaultPrice ?? null
+  // Build variants from Leafly's variant structure
+  const variants = []
+  if (Array.isArray(item.variants)) {
+    for (const v of item.variants) {
+      variants.push({
+        label: v.displayQuantity || v.unit || '',
+        price: v.price ?? null,
+        quantity: v.quantity ?? null,
+      })
+    }
+  }
+
+  const price = item.price ?? item.sortPrice ?? item.defaultPrice ?? null
 
   return {
-    name: item.name,
+    name,
     prices,
-    variants: item.variants || [],
+    variants,
     price,
-    image: item.imageUrl || item.image || item.photoUrl || null,
-    brand: item.brandName || item.brand || null,
+    image: item.imageUrl || item.formattedThumbnailUrl || item.thumbnailUrl || null,
+    brand: item.brandName || (typeof item.brand === 'string' ? item.brand : item.brand?.name) || null,
   }
 }
 
