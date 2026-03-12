@@ -29,6 +29,7 @@ import { writeCityToKV, writeCitiesIndex } from './lib/kv-writer.mjs'
 import { deduplicateDispensaries } from './lib/dedup.mjs'
 import { discoverDispensaries as discoverWM, harvestMenus as harvestWM } from './sources/weedmaps.mjs'
 import { discoverDispensaries as discoverLeafly, harvestMenus as harvestLeafly } from './sources/leafly.mjs'
+import { geocodeMissingCoords } from './lib/geocoder.mjs'
 
 /* ── Config ────────────────────────────────────────────────────────── */
 
@@ -93,6 +94,9 @@ async function harvestCity(city, strainDB) {
 
   // Phase 2: Deduplicate across sources
   const allDispensaries = deduplicateDispensaries(sourceLists)
+
+  // Phase 2.5: Geocode dispensaries missing lat/lng (common for Leafly CBD stores)
+  await geocodeMissingCoords(allDispensaries, { lat: city.lat, lng: city.lng })
 
   // Phase 3: Fetch menus + match strains
   const wmOnly = allDispensaries.filter(d => d.sources?.includes('weedmaps') && d.slug)

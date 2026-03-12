@@ -121,6 +121,12 @@ function mergeDispensary(existing, newDisp) {
   // Merge phone if missing
   if (!existing.phone && newDisp.phone) existing.phone = newDisp.phone
 
+  // Merge lat/lng if missing (critical for map markers)
+  if ((!existing.lat || !existing.lng) && newDisp.lat && newDisp.lng) {
+    existing.lat = newDisp.lat
+    existing.lng = newDisp.lng
+  }
+
   // Merge menu data — combine matched menus, avoid duplicates by strain name
   if (newDisp.matchedMenu && newDisp.matchedMenu.length > 0) {
     const existingStrains = new Set(
