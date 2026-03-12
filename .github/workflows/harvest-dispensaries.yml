@@ -11,7 +11,7 @@ jobs:
   harvest:
     runs-on: ubuntu-latest
     name: Pure HTTP Harvest → KV (10 cities)
-    timeout-minutes: 30
+    timeout-minutes: 60
 
     steps:
       - name: Checkout

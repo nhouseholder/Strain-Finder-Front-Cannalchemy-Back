@@ -136,10 +136,72 @@ async function fetchMenuItems(slug, maxItems, { categories = ['flower'] } = {}) 
   return items.slice(0, maxItems)
 }
 
-/* ── Harvest menus + match strains for all dispensaries ─────────────── */
+/* ── Process a single dispensary's menu ─────────────────────────────── */
+
+async function processOneDispensary(disp, strainDB, menuCategories) {
+  let menuItems = []
+  let fetchSuccess = false
+
+  for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
+    try {
+      menuItems = await fetchMenuItems(disp.slug, MAX_MENU_ITEMS_PER_DISP, { categories: menuCategories })
+      fetchSuccess = true
+      break
+    } catch {
+      if (attempt < MENU_FETCH_RETRIES) {
+        await sleep(FETCH_DELAY_MS * attempt * 2)
+      }
+    }
+  }
+
+  if (!fetchSuccess || menuItems.length === 0) {
+    return {
+      ...disp,
+      menuSummary: { total: 0, matched: 0, topMatches: [], hasMenu: false },
+      matchedMenu: [],
+      unmatchedCount: 0,
+      _matched: 0,
+    }
+  }
+
+  const matchedMenu = []
+  let unmatchedCount = 0
+
+  for (const item of menuItems) {
+    const match = matchStrain(item.name, strainDB)
+    if (match) {
+      const { display: price, eighthPrice } = extractPrice(item)
+      matchedMenu.push({
+        menuName: item.name,
+        price,
+        priceEighth: eighthPrice,
+        brand: item.brand,
+        strain: match,
+      })
+    } else {
+      unmatchedCount++
+    }
+  }
+
+  return {
+    ...disp,
+    menuSummary: {
+      total: menuItems.length,
+      matched: matchedMenu.length,
+      topMatches: matchedMenu.slice(0, 5).map(m => m.strain.name),
+      hasMenu: true,
+    },
+    matchedMenu,
+    unmatchedCount,
+    _matched: matchedMenu.length,
+  }
+}
+
+/* ── Harvest menus + match strains (concurrent, 5 at a time) ─────── */
+
+const CONCURRENCY = 5
 
 export async function harvestMenus(_unused, dispensaries, strainDB, { thca = false } = {}) {
-  // Signature keeps first param for backward compat but ignores it (was browserPage)
   let totalMatched = 0
   const enriched = []
 
@@ -148,73 +210,29 @@ export async function harvestMenus(_unused, dispensaries, strainDB, { thca = fal
   // Sort by menu_items_count descending — process richest menus first
   dispensaries.sort((a, b) => (b.menuItemsCount || 0) - (a.menuItemsCount || 0))
 
-  for (let i = 0; i < dispensaries.length; i++) {
-    const disp = dispensaries[i]
-    process.stdout.write(`  [WM] [${i + 1}/${dispensaries.length}] ${disp.name}... `)
+  // Process in batches of CONCURRENCY
+  for (let i = 0; i < dispensaries.length; i += CONCURRENCY) {
+    const batch = dispensaries.slice(i, i + CONCURRENCY)
+    const batchNum = Math.floor(i / CONCURRENCY) + 1
+    const totalBatches = Math.ceil(dispensaries.length / CONCURRENCY)
+    process.stdout.write(`  [WM] Batch ${batchNum}/${totalBatches} (${i + 1}-${Math.min(i + CONCURRENCY, dispensaries.length)}/${dispensaries.length})... `)
 
-    let menuItems = []
-    let fetchSuccess = false
+    const results = await Promise.all(
+      batch.map(disp => processOneDispensary(disp, strainDB, menuCategories))
+    )
 
-    for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
-      try {
-        menuItems = await fetchMenuItems(disp.slug, MAX_MENU_ITEMS_PER_DISP, { categories: menuCategories })
-        fetchSuccess = true
-        break
-      } catch (err) {
-        if (attempt < MENU_FETCH_RETRIES) {
-          console.log(`retry ${attempt}/${MENU_FETCH_RETRIES}... `)
-          await sleep(FETCH_DELAY_MS * attempt * 2)
-        } else {
-          console.log(`FAILED after ${MENU_FETCH_RETRIES} attempts: ${err.message}`)
-        }
-      }
+    let batchMatched = 0
+    let batchItems = 0
+    for (const r of results) {
+      batchMatched += r._matched || 0
+      batchItems += r.menuSummary.total
+      totalMatched += r._matched || 0
+      delete r._matched
+      enriched.push(r)
     }
+
+    console.log(`${batchItems} items, ${batchMatched} matched`)
     await sleep(FETCH_DELAY_MS)
-
-    if (!fetchSuccess || menuItems.length === 0) {
-      console.log(fetchSuccess ? `0 menu items` : `fetch failed`)
-      enriched.push({
-        ...disp,
-        menuSummary: { total: 0, matched: 0, topMatches: [], hasMenu: false },
-        matchedMenu: [],
-        unmatchedCount: 0,
-      })
-      continue
-    }
-
-    const matchedMenu = []
-    let unmatchedCount = 0
-
-    for (const item of menuItems) {
-      const match = matchStrain(item.name, strainDB)
-      if (match) {
-        const { display: price, eighthPrice } = extractPrice(item)
-        matchedMenu.push({
-          menuName: item.name,
-          price,
-          priceEighth: eighthPrice,
-          brand: item.brand,
-          strain: match,
-        })
-      } else {
-        unmatchedCount++
-      }
-    }
-
-    totalMatched += matchedMenu.length
-    console.log(`${menuItems.length} items, ${matchedMenu.length} matched, ${unmatchedCount} unmatched`)
-
-    enriched.push({
-      ...disp,
-      menuSummary: {
-        total: menuItems.length,
-        matched: matchedMenu.length,
-        topMatches: matchedMenu.slice(0, 5).map(m => m.strain.name),
-        hasMenu: true,
-      },
-      matchedMenu,
-      unmatchedCount,
-    })
   }
 
   return { enriched, totalMatched }
