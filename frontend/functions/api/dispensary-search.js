@@ -95,10 +95,9 @@ async function geocode(query) {
 async function fetchWeedmapsListings(lat, lng) {
   const url =
     `https://api-g.weedmaps.com/discovery/v2/listings` +
-    `?filter[any_retailer_services][]=storefront` +
-    `&filter[bounding_radius]=15mi` +
+    `?filter[bounding_radius]=15mi` +
     `&filter[bounding_latlng]=${lat},${lng}` +
-    `&page_size=20` +
+    `&page_size=30` +
     `&page=1`
 
   const res = await fetch(url)
@@ -128,6 +127,7 @@ async function fetchWeedmapsListings(lat, lng) {
       reviewCount: L.reviews_count || 0,
       delivery: (L.retailer_services || []).includes('delivery'),
       pickup: (L.retailer_services || []).includes('pickup'),
+      storefront: (L.retailer_services || []).includes('storefront'),
       website: L.web_url || '',
       wmUrl: `https://weedmaps.com/dispensaries/${L.slug}`,
       menuUrl: `https://weedmaps.com/dispensaries/${L.slug}/menu`,

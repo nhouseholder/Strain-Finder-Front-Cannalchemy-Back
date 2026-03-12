@@ -208,10 +208,19 @@ function normalizeDispensaries(rawList) {
     rating: d.rating || null,
     reviewCount: d.reviewCount || d.review_count || 0,
     delivery: !!d.delivery,
+    storefront: d.storefront !== false, // default true if not explicitly false
+    pickup: !!d.pickup,
     deliveryFee: d.deliveryFee || d.delivery_fee || null,
     deliveryMin: d.deliveryMin || d.delivery_min || null,
     deliveryEta: d.deliveryEta || d.delivery_eta || null,
     pickupReady: d.pickupReady || d.pickup_ready || null,
+    serviceType: (() => {
+      const isDel = !!d.delivery
+      const isSf = d.storefront !== false
+      if (isDel && !isSf) return 'delivery_only'
+      if (isDel && isSf) return 'both'
+      return 'storefront'
+    })(),
     matchedStrains: (d.matchedStrains || d.matched_strains || d.menuSummary?.topMatches || []).map(
       s => typeof s === 'string' ? { name: s, price: null, inStock: true, strainMenuUrl: null } : normalizeStrainEntry(s)
     ),

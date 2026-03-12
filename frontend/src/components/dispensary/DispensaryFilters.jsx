@@ -5,7 +5,6 @@ const SORT_OPTIONS = [
   { id: 'best_deals', label: 'Best Deals' },
   { id: 'cheapest', label: 'Cheapest' },
   { id: 'highest_rated', label: 'Highest Rated' },
-  { id: 'delivery_only', label: 'Delivery Only' },
 ]
 
 export default function DispensaryFilters({ sortBy, onSort, filters }) {

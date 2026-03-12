@@ -172,7 +172,13 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
           <span className="flex items-center gap-1 text-leaf-500">
             <Truck size={11} />
             Delivery
-            {d.deliveryEta && ` (${d.deliveryEta})`}
+            {d.deliveryEta && ` · ${d.deliveryEta}`}
+            {d.deliveryFee && ` · ${d.deliveryFee}`}
+          </span>
+        )}
+        {d.deliveryMin && d.delivery && (
+          <span className="text-[10px] text-gray-400 dark:text-[#5a6a5e]">
+            Min: {d.deliveryMin}
           </span>
         )}
         {d.pickupReady && (
@@ -295,7 +301,10 @@ function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, 
       {/* Actions row */}
       <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-white/[0.04]">
         <span className="flex items-center gap-1.5 text-[10px] text-gray-400 dark:text-[#5a6a5e]">
-          <Store size={11} className="text-leaf-400/60" />
+          {d.serviceType === 'delivery_only'
+            ? <Truck size={11} className="text-blue-400/60" />
+            : <Store size={11} className="text-leaf-400/60" />
+          }
           Tap for quick view
         </span>
         {onViewPage && d.matchType !== 'noMenu' && (
@@ -487,12 +496,26 @@ export default function DispensaryPage() {
   const [drawerMenuData, setDrawerMenuData] = useState(null)
   const [drawerMenuLoading, setDrawerMenuLoading] = useState(false)
 
-  // Sorting
+  // Sorting + service tab
   const [sortBy, setSortBy] = useState('matches')
+  const [serviceTab, setServiceTab] = useState('dispensaries') // 'dispensaries' | 'delivery'
 
   // Determine mode
   const mode = activeCity ? 'city' : locationUsed ? 'location' : null
-  const dispensaries = mode === 'city' ? (cityData?.dispensaries || []) : locationDispensaries
+  const allDispensaries = mode === 'city' ? (cityData?.dispensaries || []) : locationDispensaries
+
+  // Filter by service tab
+  const dispensaries = useMemo(() => {
+    if (serviceTab === 'delivery') {
+      return allDispensaries.filter(d => d.delivery)
+    }
+    // 'dispensaries' tab — show storefronts (includes those with both storefront + delivery)
+    return allDispensaries.filter(d => d.storefront !== false)
+  }, [allDispensaries, serviceTab])
+
+  // Count for tab badges
+  const deliveryCount = useMemo(() => allDispensaries.filter(d => d.delivery).length, [allDispensaries])
+  const storefrontCount = useMemo(() => allDispensaries.filter(d => d.storefront !== false).length, [allDispensaries])
   const error = locationError
 
   const strainNames = useMemo(
@@ -640,14 +663,14 @@ export default function DispensaryPage() {
       return geoLocation
     }
     // Compute center from dispensary coordinates as fallback (location-mode)
-    const located = dispensaries.filter(d => d.lat && d.lng)
+    const located = allDispensaries.filter(d => d.lat && d.lng)
     if (located.length > 0) {
       const avgLat = located.reduce((sum, d) => sum + d.lat, 0) / located.length
       const avgLng = located.reduce((sum, d) => sum + d.lng, 0) / located.length
       return { lat: avgLat, lng: avgLng }
     }
     return null
-  }, [mode, cityData, locationCenter, geoLocation, dispensaries])
+  }, [mode, cityData, locationCenter, geoLocation, allDispensaries])
 
   return (
     <div className="w-full max-w-2xl mx-auto px-4 pt-4 animate-fade-in">
@@ -754,13 +777,14 @@ export default function DispensaryPage() {
       )}
 
       {/* Map — only render when we have a center or dispensaries with coordinates */}
-      {dispensaries.length > 0 && !cityLoading && !locationLoading && (mapCenter || dispensaries.some(d => d.lat && d.lng)) && (
+      {allDispensaries.length > 0 && !cityLoading && !locationLoading && (mapCenter || allDispensaries.some(d => d.lat && d.lng)) && (
         <div className="mb-6">
           <DispensaryMap
             dispensaries={dispensaries}
             center={mapCenter}
             zoom={mode === 'city' ? 11 : 12}
             onViewMenu={handleViewMenu}
+            serviceTab={serviceTab}
           />
         </div>
       )}
@@ -814,6 +838,44 @@ export default function DispensaryPage() {
         </Card>
       )}
 
+      {/* Service type toggle — Dispensaries / Delivery */}
+      {!cityLoading && !locationLoading && allDispensaries.length > 0 && (
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-white/[0.04] border border-gray-200 dark:border-white/[0.06] mb-4">
+          <button
+            onClick={() => setServiceTab('dispensaries')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 min-h-[44px] ${
+              serviceTab === 'dispensaries'
+                ? 'bg-white dark:bg-white/[0.1] text-gray-900 dark:text-[#e8f0ea] shadow-sm'
+                : 'text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#8a9a8e]'
+            }`}
+          >
+            <Store size={14} />
+            Dispensaries
+            {storefrontCount > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                serviceTab === 'dispensaries' ? 'bg-leaf-500/15 text-leaf-500' : 'bg-gray-200 dark:bg-white/[0.06] text-gray-400 dark:text-[#5a6a5e]'
+              }`}>{storefrontCount}</span>
+            )}
+          </button>
+          <button
+            onClick={() => setServiceTab('delivery')}
+            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 min-h-[44px] ${
+              serviceTab === 'delivery'
+                ? 'bg-white dark:bg-white/[0.1] text-gray-900 dark:text-[#e8f0ea] shadow-sm'
+                : 'text-gray-500 dark:text-[#6a7a6e] hover:text-gray-700 dark:hover:text-[#8a9a8e]'
+            }`}
+          >
+            <Truck size={14} />
+            Delivery
+            {deliveryCount > 0 && (
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                serviceTab === 'delivery' ? 'bg-leaf-500/15 text-leaf-500' : 'bg-gray-200 dark:bg-white/[0.06] text-gray-400 dark:text-[#5a6a5e]'
+              }`}>{deliveryCount}</span>
+            )}
+          </button>
+        </div>
+      )}
+
       {/* Results */}
       {!cityLoading && !locationLoading && dispensaries.length > 0 && (
         <>
@@ -837,7 +899,9 @@ export default function DispensaryPage() {
       {/* No results */}
       {!cityLoading && !locationLoading && !error && dispensaries.length === 0 && mode && (
         <div className="text-center py-12 text-sm text-gray-400 dark:text-[#5a6a5e]">
-          No dispensaries found. Try selecting a different city or location.
+          {serviceTab === 'delivery' && allDispensaries.length > 0
+            ? 'No delivery services found in this area. Try the Dispensaries tab.'
+            : 'No dispensaries found. Try selecting a different city or location.'}
         </div>
       )}
 

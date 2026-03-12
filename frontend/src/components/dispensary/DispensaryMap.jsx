@@ -23,25 +23,20 @@ const MATCH_COLORS = {
   alternative: '#facc15',
   noMenu: '#ef4444',
   none: '#9ca3af',
+  delivery: '#3b82f6',
 }
 
-function createColoredIcon(matchType) {
-  const color = MATCH_COLORS[matchType] || MATCH_COLORS.none
+function createColoredIcon(matchType, isDelivery = false) {
+  const color = isDelivery ? MATCH_COLORS.delivery : (MATCH_COLORS[matchType] || MATCH_COLORS.none)
+  const shape = isDelivery
+    ? `width:24px;height:24px;border-radius:6px;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.35);`
+    : `width:24px;height:24px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.35);`
   return L.divIcon({
     className: '',
     iconSize: [24, 24],
     iconAnchor: [12, 12],
     popupAnchor: [0, -14],
-    html: `
-      <div style="
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        background: ${color};
-        border: 3px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.35);
-      "></div>
-    `,
+    html: `<div style="${shape}"></div>`,
   })
 }
 
@@ -55,6 +50,7 @@ export default function DispensaryMap({
   center,
   zoom = 12,
   onViewMenu,
+  serviceTab = 'dispensaries',
 }) {
   useLeafletCSS()
   const hasValidCenter = center?.lat && center?.lng
@@ -65,6 +61,8 @@ export default function DispensaryMap({
     alternative: createColoredIcon('alternative'),
     noMenu: createColoredIcon('noMenu'),
     none: createColoredIcon('none'),
+    delivery_exact: createColoredIcon('exact', true),
+    delivery_none: createColoredIcon('none', true),
   }), [])
 
   if (!hasValidCenter && !hasLocatedDispensaries) {
@@ -106,7 +104,11 @@ export default function DispensaryMap({
             <Marker
               key={dispensary.id}
               position={[dispensary.lat, dispensary.lng]}
-              icon={icons[dispensary.matchType] || icons.none}
+              icon={
+                dispensary.serviceType === 'delivery_only'
+                  ? (dispensary.matchType === 'exact' ? icons.delivery_exact : icons.delivery_none)
+                  : (icons[dispensary.matchType] || icons.none)
+              }
             >
               <Popup>
                 <div className="text-xs space-y-1.5 min-w-[220px]">
@@ -244,6 +246,12 @@ export default function DispensaryMap({
         <span className="w-3 h-3 rounded-full bg-[#9ca3af] border-2 border-white shadow-sm flex-shrink-0" />
         No Strain Data
       </span>
+      {serviceTab === 'delivery' && (
+        <span className="flex items-center gap-1.5 text-[10px] text-gray-500 dark:text-[#8a9a8e]">
+          <span className="w-3 h-3 rounded-md bg-[#3b82f6] border-2 border-white shadow-sm flex-shrink-0" />
+          Delivery Service
+        </span>
+      )}
     </div>
     </div>
   )
