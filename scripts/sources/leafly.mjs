@@ -1,11 +1,13 @@
 /**
- * leafly.mjs — Leafly dispensary discovery + menu scraping
+ * leafly.mjs — Leafly dispensary discovery + menu fetching (pure HTTP)
  *
- * Uses Playwright to discover dispensaries on Leafly and scrape their
- * flower menus. Primary strategy: intercept API requests made by the
- * Leafly SPA to capture structured JSON data.
+ * No Playwright/browser required. Uses HTTP fetch + __NEXT_DATA__ SSR parsing.
  *
- * Fallback strategy: parse rendered DOM if API interception fails.
+ * Discovery: Fetches the dispensary finder HTML page, extracts structured JSON
+ *            from the embedded __NEXT_DATA__ script tag (~30 dispensaries/city).
+ *
+ * Menu:      Fetches each dispensary's info page HTML, extracts menu items from
+ *            __NEXT_DATA__ SSR payload (~8 items per category, ~56 total).
  */
 
 import { matchStrain } from '../lib/strain-matcher.mjs'
@@ -15,114 +17,98 @@ import { extractPrice } from '../lib/price-extractor.mjs'
 
 const LEAFLY_BASE = 'https://www.leafly.com'
 const FETCH_DELAY_MS = 500
-const MAX_DISPENSARIES = 200    // max dispensaries per city
-const MAX_MENU_PAGES = 3        // max menu pages per dispensary
+const MAX_DISPENSARIES = 200
 const MENU_FETCH_RETRIES = 2
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 
-/* ── Build Leafly dispensary finder URL ─────────────────────────────── */
+const HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+  'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'Accept-Language': 'en-US,en;q=0.9',
+}
 
-function buildFinderUrl(city) {
-  // Leafly uses /dispensaries/near-me?lat=XX&lng=XX or /dispensaries/{state}/{city}
-  // The lat/lng approach gives broadest coverage
-  return `${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance`
+/* ── Extract __NEXT_DATA__ JSON from HTML ─────────────────────────── */
+
+function extractNextData(html) {
+  const marker = '<script id="__NEXT_DATA__" type="application/json">'
+  const start = html.indexOf(marker)
+  if (start === -1) return null
+
+  const jsonStart = start + marker.length
+  const jsonEnd = html.indexOf('</script>', jsonStart)
+  if (jsonEnd === -1) return null
+
+  try {
+    return JSON.parse(html.slice(jsonStart, jsonEnd))
+  } catch {
+    return null
+  }
 }
 
 /* ── Phase 1: Discover dispensaries via Leafly ─────────────────────── */
 
-export async function discoverDispensaries(browser, city) {
+export async function discoverDispensaries(_browserUnused, city) {
+  // Signature keeps `browser` param for backward compat but ignores it
   console.log(`  [Leafly] Discovering dispensaries near ${city.label}...`)
 
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-  })
-  const page = await context.newPage()
-
   const dispensaries = []
-  const interceptedData = []
-
-  // Intercept API calls to capture dispensary data
-  page.on('response', async (response) => {
-    const url = response.url()
-    try {
-      if (url.includes('/api/dispensary') || url.includes('/api/finder') || url.includes('dispensaries')) {
-        if (response.headers()['content-type']?.includes('json')) {
-          const json = await response.json().catch(() => null)
-          if (json) interceptedData.push({ url, data: json })
-        }
-      }
-    } catch { /* ignore response parsing errors */ }
-  })
 
   try {
-    const finderUrl = buildFinderUrl(city)
-    console.log(`    [Leafly] Navigating to finder: ${finderUrl}`)
-    await page.goto(finderUrl, { waitUntil: 'networkidle', timeout: 30000 })
-    await sleep(2000)
+    const finderUrl = `${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance`
+    console.log(`    [Leafly] Fetching: ${finderUrl}`)
 
-    // Try to extract from intercepted API data first
-    for (const { data } of interceptedData) {
-      const stores = data?.stores || data?.dispensaries || data?.data?.stores || data?.data || []
-      if (Array.isArray(stores)) {
-        for (const s of stores) {
-          if (dispensaries.length >= MAX_DISPENSARIES) break
-          const parsed = parseLeaflyDispensary(s)
-          if (parsed) dispensaries.push(parsed)
-        }
-      }
+    const res = await fetch(finderUrl, { headers: HEADERS, redirect: 'follow' })
+    if (!res.ok) {
+      console.log(`    [Leafly] HTTP ${res.status} — skipping`)
+      return dispensaries
     }
 
-    // If API interception didn't yield results, parse the DOM
-    if (dispensaries.length === 0) {
-      console.log(`    [Leafly] No API data intercepted, parsing DOM...`)
-      const domDisps = await parseDispensaryDOM(page)
-      dispensaries.push(...domDisps.slice(0, MAX_DISPENSARIES))
+    const html = await res.text()
+    const nextData = extractNextData(html)
+
+    if (!nextData) {
+      console.log(`    [Leafly] No __NEXT_DATA__ found in HTML`)
+      return dispensaries
     }
 
-    // Load more results by scrolling (up to 3 scroll loads)
-    if (dispensaries.length > 0 && dispensaries.length < MAX_DISPENSARIES) {
-      for (let scroll = 0; scroll < 3; scroll++) {
-        const prevCount = dispensaries.length
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-        await sleep(1500)
+    // Leafly embeds dispensaries in multiple possible paths
+    const pageProps = nextData?.props?.pageProps || {}
+    const stores =
+      pageProps?.storeLocatorResults?.data?.organicStores ||
+      pageProps?.storeLocatorResults?.data?.stores ||
+      pageProps?.stores ||
+      pageProps?.dispensaries ||
+      []
 
-        // Check for "Load More" button
-        const loadMore = await page.$('button:has-text("Load More"), button:has-text("Show More"), [data-testid="load-more"]')
-        if (loadMore) {
-          await loadMore.click().catch(() => {})
-          await sleep(2000)
-        }
+    for (const s of stores) {
+      if (dispensaries.length >= MAX_DISPENSARIES) break
+      const parsed = parseLeaflyDispensary(s)
+      if (parsed) dispensaries.push(parsed)
+    }
 
-        // Parse any new intercepted data
-        for (const { data } of interceptedData) {
-          const stores = data?.stores || data?.dispensaries || data?.data?.stores || data?.data || []
-          if (Array.isArray(stores)) {
-            for (const s of stores) {
-              const parsed = parseLeaflyDispensary(s)
-              if (parsed && !dispensaries.find(d => d.leaflySlug === parsed.leaflySlug)) {
-                dispensaries.push(parsed)
-              }
-            }
-          }
-        }
+    // Also check for sponsored/featured stores
+    const sponsoredStores =
+      pageProps?.storeLocatorResults?.data?.sponsoredStores ||
+      pageProps?.storeLocatorResults?.data?.featuredStores ||
+      []
 
-        if (dispensaries.length === prevCount) break // no new results
-        if (dispensaries.length >= MAX_DISPENSARIES) break
+    for (const s of sponsoredStores) {
+      if (dispensaries.length >= MAX_DISPENSARIES) break
+      const parsed = parseLeaflyDispensary(s)
+      if (parsed && !dispensaries.find(d => d.leaflySlug === parsed.leaflySlug)) {
+        dispensaries.push(parsed)
       }
     }
   } catch (err) {
     console.error(`    [Leafly] Discovery error: ${err.message}`)
-  } finally {
-    await context.close()
   }
 
   console.log(`  [Leafly] Found ${dispensaries.length} dispensaries`)
   return dispensaries
 }
 
-/* ── Parse a single Leafly dispensary from API JSON ────────────────── */
+/* ── Parse a single Leafly dispensary from SSR JSON ───────────────── */
 
 function parseLeaflyDispensary(s) {
   if (!s || !s.name) return null
@@ -134,10 +120,10 @@ function parseLeaflyDispensary(s) {
     name: s.name,
     slug: slug,
     type: s.type || s.dispensaryType || 'dispensary',
-    address: [s.address || s.street, s.city, s.state].filter(Boolean).join(', '),
-    lat: s.latitude || s.lat || null,
-    lng: s.longitude || s.lng || s.lon || null,
-    rating: s.rating || s.starRating || null,
+    address: [s.address1 || s.address || s.street, s.city, s.state].filter(Boolean).join(', '),
+    lat: s.lat || s.latitude || null,
+    lng: s.lon || s.lng || s.longitude || null,
+    rating: s.reviewRating || s.rating || s.starRating || null,
     reviewCount: s.reviewCount || s.numReviews || 0,
     phone: s.phone || s.phoneNumber || null,
     website: s.website || s.websiteUrl || null,
@@ -145,208 +131,100 @@ function parseLeaflyDispensary(s) {
     leaflyUrl: `${LEAFLY_BASE}/dispensary-info/${slug}`,
     leaflySlug: slug,
     hours: s.todayHours || s.hours?.today || null,
-    openNow: s.isOpen ?? s.openNow ?? false,
-    delivery: s.delivery ?? false,
-    pickup: s.pickup ?? s.orderAhead ?? false,
+    openNow: s.openStatus === 'open' || s.isOpen || s.openNow || false,
+    delivery: !!(s.configurations?.delivery || s.delivery),
+    pickup: !!(s.configurations?.pickup || s.configurations?.preorder || s.pickup || s.orderAhead),
     storefront: s.storefront ?? s.hasStorefront ?? true,
-    menuItemsCount: s.menuItemCount || s.numMenuItems || 0,
+    menuItemsCount: s.menuItemCount || s.numMenuItems || s.activeMenuDealsCount || 0,
     sources: ['leafly'],
   }
 }
 
-/* ── Parse dispensaries from rendered DOM ───────────────────────────── */
+/* ── Phase 2: Fetch menu for a single dispensary via HTTP ──────────── */
 
-async function parseDispensaryDOM(page) {
-  return page.evaluate((leaflyBase) => {
-    const cards = document.querySelectorAll('[data-testid="dispensary-card"], .dispensary-card, article[class*="dispensary"], a[href*="/dispensary-info/"]')
-    const results = []
-
-    for (const card of cards) {
-      try {
-        const nameEl = card.querySelector('h2, h3, [class*="name"], [data-testid="dispensary-name"]')
-        const name = nameEl?.textContent?.trim()
-        if (!name) continue
-
-        const link = card.querySelector('a[href*="/dispensary-info/"]') || card.closest('a[href*="/dispensary-info/"]')
-        const href = link?.getAttribute('href') || ''
-        const slug = href.split('/dispensary-info/')[1]?.split('?')[0]?.split('/')[0] || ''
-
-        const addressEl = card.querySelector('[class*="address"], [data-testid="address"]')
-        const address = addressEl?.textContent?.trim() || ''
-
-        const ratingEl = card.querySelector('[class*="rating"], [data-testid="star-rating"]')
-        const ratingText = ratingEl?.textContent?.trim() || ''
-        const rating = parseFloat(ratingText) || null
-
-        results.push({
-          id: `leafly-${slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`,
-          name,
-          slug: slug || name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-          type: 'dispensary',
-          address,
-          lat: null,
-          lng: null,
-          rating,
-          reviewCount: 0,
-          phone: null,
-          website: null,
-          wmUrl: null,
-          leaflyUrl: slug ? `${leaflyBase}/dispensary-info/${slug}` : null,
-          leaflySlug: slug || null,
-          hours: null,
-          openNow: false,
-          delivery: false,
-          pickup: false,
-          storefront: true,
-          menuItemsCount: 0,
-          sources: ['leafly'],
-        })
-      } catch { /* skip malformed card */ }
-    }
-
-    return results
-  }, LEAFLY_BASE)
-}
-
-/* ── Phase 2: Fetch menu for a single dispensary ───────────────────── */
-
-async function fetchLeaflyMenu(browser, dispensary) {
-  const context = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-  })
-  const page = await context.newPage()
+async function fetchLeaflyMenu(dispensary) {
+  const slug = dispensary.leaflySlug || dispensary.slug
+  const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}`
 
   const menuItems = []
-  const interceptedMenuData = []
-
-  // Intercept menu API calls
-  page.on('response', async (response) => {
-    const url = response.url()
-    try {
-      if ((url.includes('menu') || url.includes('product')) && response.headers()['content-type']?.includes('json')) {
-        const json = await response.json().catch(() => null)
-        if (json) interceptedMenuData.push({ url, data: json })
-      }
-    } catch { /* ignore */ }
-  })
 
   try {
-    const slug = dispensary.leaflySlug || dispensary.slug
-    // THC-A shops may not categorize as "flower" — try general menu first for them
-    const menuPath = dispensary._thca ? 'menu' : 'menu/flower'
-    const menuUrl = `${LEAFLY_BASE}/dispensary-info/${slug}/${menuPath}`
-    await page.goto(menuUrl, { waitUntil: 'networkidle', timeout: 20000 })
-    await sleep(1500)
+    const res = await fetch(menuUrl, { headers: HEADERS, redirect: 'follow' })
+    if (!res.ok) return menuItems
 
-    // Try intercepted API data first
-    for (const { data } of interceptedMenuData) {
-      const items = data?.menuItems || data?.products || data?.data?.menuItems || data?.data || []
-      if (Array.isArray(items)) {
-        for (const item of items) {
-          const parsed = parseLeaflyMenuItem(item)
-          if (parsed) menuItems.push(parsed)
-        }
+    const html = await res.text()
+    const nextData = extractNextData(html)
+    if (!nextData) return menuItems
+
+    const pageProps = nextData?.props?.pageProps || {}
+
+    // Leafly embeds menu items in productsForCategoryCarousels or similar
+    const carousels = pageProps?.productsForCategoryCarousels || []
+
+    // Each carousel is a category (Flower, Concentrate, Edible, etc.)
+    for (const carousel of carousels) {
+      const items = carousel?.items || carousel?.products || carousel || []
+      if (!Array.isArray(items)) continue
+
+      for (const item of items) {
+        const parsed = parseLeaflyMenuItem(item)
+        if (parsed) menuItems.push(parsed)
       }
     }
 
-    // If no API data, parse DOM
-    if (menuItems.length === 0) {
-      const domItems = await parseMenuDOM(page)
-      menuItems.push(...domItems)
-    }
+    // Also check for direct menu items in other possible paths
+    const directMenu =
+      pageProps?.menuItems ||
+      pageProps?.products ||
+      pageProps?.menu?.items ||
+      []
 
-    // Scroll for more items
-    if (menuItems.length > 0) {
-      for (let scroll = 0; scroll < MAX_MENU_PAGES - 1; scroll++) {
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight))
-        await sleep(1000)
-
-        const loadMore = await page.$('button:has-text("Load More"), button:has-text("Show More")')
-        if (loadMore) {
-          await loadMore.click().catch(() => {})
-          await sleep(1500)
-        } else {
-          break
+    if (Array.isArray(directMenu)) {
+      for (const item of directMenu) {
+        const parsed = parseLeaflyMenuItem(item)
+        if (parsed && !menuItems.find(m => m.name === parsed.name)) {
+          menuItems.push(parsed)
         }
       }
     }
   } catch (err) {
-    console.log(`menu error: ${err.message}`)
-  } finally {
-    await context.close()
+    console.log(`    menu error: ${err.message}`)
   }
 
   return menuItems
 }
 
-/* ── Parse a Leafly menu item from API JSON ────────────────────────── */
+/* ── Parse a Leafly menu item from SSR JSON ──────────────────────── */
 
 function parseLeaflyMenuItem(item) {
   if (!item || !item.name) return null
 
-  // Leafly uses various price formats
   const prices = []
   if (item.prices) {
     if (Array.isArray(item.prices)) {
       prices.push(...item.prices)
     } else if (typeof item.prices === 'object') {
-      // Leafly sometimes uses { "1g": 10, "3.5g": 35, "7g": 60 } format
       for (const [label, price] of Object.entries(item.prices)) {
         prices.push({ label, price })
       }
     }
   }
 
+  const price = item.price ?? item.defaultPrice ?? null
+
   return {
     name: item.name,
     prices,
     variants: item.variants || [],
-    price: item.price ?? item.defaultPrice ?? null,
-    image: item.image || item.imageUrl || item.photoUrl || null,
-    brand: item.brand || item.brandName || null,
+    price,
+    image: item.imageUrl || item.image || item.photoUrl || null,
+    brand: item.brandName || item.brand || null,
   }
-}
-
-/* ── Parse menu items from rendered DOM ────────────────────────────── */
-
-async function parseMenuDOM(page) {
-  return page.evaluate(() => {
-    const cards = document.querySelectorAll('[data-testid="menu-item"], .menu-item, [class*="ProductCard"], [class*="menu-product"]')
-    const results = []
-
-    for (const card of cards) {
-      try {
-        const nameEl = card.querySelector('h3, h4, [class*="name"], [data-testid="product-name"]')
-        const name = nameEl?.textContent?.trim()
-        if (!name) continue
-
-        const priceEl = card.querySelector('[class*="price"], [data-testid="price"]')
-        const priceText = priceEl?.textContent?.trim() || ''
-        const priceMatch = priceText.match(/\$?([\d.]+)/)
-        const price = priceMatch ? parseFloat(priceMatch[1]) : null
-
-        const brandEl = card.querySelector('[class*="brand"], [data-testid="brand"]')
-        const brand = brandEl?.textContent?.trim() || null
-
-        results.push({
-          name,
-          prices: [],
-          variants: [],
-          price,
-          image: null,
-          brand,
-        })
-      } catch { /* skip malformed card */ }
-    }
-
-    return results
-  })
 }
 
 /* ── Harvest menus + match strains for Leafly dispensaries ──────────── */
 
-export async function harvestMenus(browser, dispensaries, strainDB, { thca = false } = {}) {
+export async function harvestMenus(_browserUnused, dispensaries, strainDB, { thca = false } = {}) {
   let totalMatched = 0
   const enriched = []
 
@@ -359,7 +237,7 @@ export async function harvestMenus(browser, dispensaries, strainDB, { thca = fal
 
     for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
       try {
-        menuItems = await fetchLeaflyMenu(browser, disp)
+        menuItems = await fetchLeaflyMenu(disp)
         fetchSuccess = true
         break
       } catch (err) {
@@ -384,7 +262,6 @@ export async function harvestMenus(browser, dispensaries, strainDB, { thca = fal
       continue
     }
 
-    // Match each menu item against our strain DB
     const matchedMenu = []
     let unmatchedCount = 0
 

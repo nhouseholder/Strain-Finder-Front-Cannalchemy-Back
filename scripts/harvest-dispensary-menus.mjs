@@ -2,12 +2,12 @@
 /**
  * harvest-dispensary-menus.mjs — Daily cron job (GitHub Actions)
  *
- * Multi-source dispensary harvester:
- *   1. Weedmaps — v2/listings API discovery + Playwright menu fetch
- *   2. Leafly   — Playwright-based discovery + menu scraping
+ * Multi-source dispensary harvester (pure HTTP — no browser required):
+ *   1. Weedmaps — v2/listings API discovery + v1/menu_items API
+ *   2. Leafly   — HTTP fetch + __NEXT_DATA__ SSR parsing
  *
  * For each city:
- *   Phase 1: Discover dispensaries from all sources
+ *   Phase 1: Discover dispensaries from all sources (parallel)
  *   Phase 2: Deduplicate across sources
  *   Phase 3: Fetch menus + 3-tier strain matching
  *   Phase 4: Write results to Cloudflare KV
@@ -24,7 +24,6 @@
  *   CLOUDFLARE_KV_NAMESPACE_ID  — KV namespace ID (the CACHE binding)
  */
 
-import { chromium } from 'playwright'
 import { loadStrainDB } from './lib/strain-matcher.mjs'
 import { writeCityToKV, writeCitiesIndex } from './lib/kv-writer.mjs'
 import { deduplicateDispensaries } from './lib/dedup.mjs'
@@ -48,7 +47,7 @@ const CITIES = [
   { slug: 'lubbock',     label: 'Lubbock, TX',       lat: 33.5779, lng: -101.8552, thca: true },
 ]
 
-const CITY_DELAY_MS = 2000
+const CITY_DELAY_MS = 1000
 
 const { CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_KV_NAMESPACE_ID } = process.env
 
@@ -61,33 +60,30 @@ const sleep = ms => new Promise(r => setTimeout(r, ms))
 
 /* ── Harvest a single city ─────────────────────────────────────────── */
 
-async function harvestCity(browser, wmPage, city, strainDB) {
+async function harvestCity(city, strainDB) {
   const isThca = city.thca || false
   console.log(`\n${'═'.repeat(60)}`)
   console.log(`  Harvesting: ${city.label}${isThca ? ' [THC-A Market]' : ''}`)
   console.log(`${'═'.repeat(60)}`)
 
-  // Phase 1: Discover dispensaries from all sources
+  // Phase 1: Discover dispensaries from all sources (parallel)
   const sourceLists = []
 
-  // Weedmaps discovery (no browser needed for listings API)
-  try {
-    const wmDisps = await discoverWM(city, { thca: isThca })
-    if (wmDisps.length > 0) {
-      sourceLists.push({ source: 'weedmaps', dispensaries: wmDisps })
-    }
-  } catch (err) {
-    console.error(`  [WM] Discovery failed: ${err.message}`)
+  const [wmResult, leaflyResult] = await Promise.allSettled([
+    discoverWM(city, { thca: isThca }),
+    discoverLeafly(null, city),
+  ])
+
+  if (wmResult.status === 'fulfilled' && wmResult.value.length > 0) {
+    sourceLists.push({ source: 'weedmaps', dispensaries: wmResult.value })
+  } else if (wmResult.status === 'rejected') {
+    console.error(`  [WM] Discovery failed: ${wmResult.reason?.message}`)
   }
 
-  // Leafly discovery (needs browser)
-  try {
-    const leaflyDisps = await discoverLeafly(browser, city)
-    if (leaflyDisps.length > 0) {
-      sourceLists.push({ source: 'leafly', dispensaries: leaflyDisps })
-    }
-  } catch (err) {
-    console.error(`  [Leafly] Discovery failed: ${err.message}`)
+  if (leaflyResult.status === 'fulfilled' && leaflyResult.value.length > 0) {
+    sourceLists.push({ source: 'leafly', dispensaries: leaflyResult.value })
+  } else if (leaflyResult.status === 'rejected') {
+    console.error(`  [Leafly] Discovery failed: ${leaflyResult.reason?.message}`)
   }
 
   if (sourceLists.length === 0 || sourceLists.every(s => s.dispensaries.length === 0)) {
@@ -99,7 +95,6 @@ async function harvestCity(browser, wmPage, city, strainDB) {
   const allDispensaries = deduplicateDispensaries(sourceLists)
 
   // Phase 3: Fetch menus + match strains
-  // Split dispensaries by source for menu fetching
   const wmOnly = allDispensaries.filter(d => d.sources?.includes('weedmaps') && d.slug)
   const leaflyOnly = allDispensaries.filter(d =>
     d.sources?.includes('leafly') &&
@@ -107,26 +102,24 @@ async function harvestCity(browser, wmPage, city, strainDB) {
     d.leaflySlug
   )
 
-  // Harvest Weedmaps menus (uses shared browser page with WM session)
   let totalMatched = 0
   const enrichedMap = new Map()
 
   if (wmOnly.length > 0) {
     console.log(`\n  Fetching Weedmaps menus for ${wmOnly.length} dispensaries...`)
-    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(wmPage, wmOnly, strainDB, { thca: isThca })
+    const { enriched: wmEnriched, totalMatched: wmMatched } = await harvestWM(null, wmOnly, strainDB, { thca: isThca })
     totalMatched += wmMatched
     for (const d of wmEnriched) enrichedMap.set(d.id, d)
   }
 
-  // Harvest Leafly menus (opens new contexts per dispensary)
   if (leaflyOnly.length > 0) {
     console.log(`\n  Fetching Leafly menus for ${leaflyOnly.length} Leafly-only dispensaries...`)
-    const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(browser, leaflyOnly, strainDB, { thca: isThca })
+    const { enriched: leaflyEnriched, totalMatched: leaflyMatched } = await harvestLeafly(null, leaflyOnly, strainDB, { thca: isThca })
     totalMatched += leaflyMatched
     for (const d of leaflyEnriched) enrichedMap.set(d.id, d)
   }
 
-  // Add dispensaries that had menus from both sources already in dedup
+  // Add dispensaries that weren't processed for menus
   for (const d of allDispensaries) {
     if (!enrichedMap.has(d.id)) {
       enrichedMap.set(d.id, {
@@ -157,27 +150,12 @@ async function harvestCity(browser, wmPage, city, strainDB) {
 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════╗')
-  console.log('║  MyStrainAI — Multi-Source Dispensary Harvest v5        ║')
-  console.log('║  WM + Leafly → Dedup → Strain Match → KV (10 cities)  ║')
+  console.log('║  MyStrainAI — Multi-Source Dispensary Harvest v6        ║')
+  console.log('║  Pure HTTP · WM + Leafly → Dedup → Match → KV         ║')
   console.log(`║  ${new Date().toISOString().padEnd(52)}║`)
   console.log('╚══════════════════════════════════════════════════════════╝')
 
   const strainDB = loadStrainDB()
-
-  // Launch headless browser
-  console.log('\nLaunching browser...')
-  const browser = await chromium.launch({ headless: true })
-  const wmContext = await browser.newContext({
-    viewport: { width: 1280, height: 900 },
-    userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
-  })
-  const wmPage = await wmContext.newPage()
-
-  // Establish Weedmaps session for menu API calls
-  console.log('Establishing Weedmaps browser session...')
-  await wmPage.goto('https://weedmaps.com', { waitUntil: 'domcontentloaded', timeout: 30000 })
-  await sleep(2000)
-  console.log('Session established ✓\n')
 
   const results = {}
   let totalDisp = 0
@@ -185,7 +163,7 @@ async function main() {
 
   for (const city of CITIES) {
     try {
-      const r = await harvestCity(browser, wmPage, city, strainDB)
+      const r = await harvestCity(city, strainDB)
       results[city.slug] = r
       totalDisp += r.dispensaryCount
       totalMatched += r.matchedCount
@@ -198,9 +176,6 @@ async function main() {
 
   // Write master cities index
   await writeCitiesIndex(CITIES, results)
-
-  await browser.close()
-  console.log('\nBrowser closed.')
 
   console.log('\n' + '═'.repeat(60))
   console.log(`  HARVEST COMPLETE`)

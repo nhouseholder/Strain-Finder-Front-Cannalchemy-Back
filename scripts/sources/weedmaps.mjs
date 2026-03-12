@@ -1,9 +1,10 @@
 /**
- * weedmaps.mjs — Weedmaps dispensary discovery + menu fetching
+ * weedmaps.mjs — Weedmaps dispensary discovery + menu fetching (pure HTTP)
  *
- * Phase 1: Uses v2/listings API to discover dispensaries (no browser needed).
- * Phase 2: Uses Playwright browser context to fetch flower menus
- *          (menu API returns 406 without browser session).
+ * No Playwright/browser required. All API calls use standard fetch().
+ *
+ * Phase 1: Uses v2/listings API to discover dispensaries.
+ * Phase 2: Uses v1/menu_items API with browser-like headers to fetch menus.
  */
 
 import { matchStrain } from '../lib/strain-matcher.mjs'
@@ -16,8 +17,17 @@ const LISTING_PAGE_SIZE = 150
 const FETCH_DELAY_MS = 300
 const MAX_MENU_ITEMS_PER_DISP = 300
 const MENU_FETCH_RETRIES = 3
+const MAX_MENU_PAGES = 3
 
 const sleep = ms => new Promise(r => setTimeout(r, ms))
+
+const API_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+  'Accept': 'application/json',
+  'Accept-Language': 'en-US,en;q=0.9',
+  'Referer': 'https://weedmaps.com/',
+  'Origin': 'https://weedmaps.com',
+}
 
 /* ── Phase 1: Discover dispensaries via v2/listings API ─────────────── */
 
@@ -34,7 +44,7 @@ export async function discoverDispensaries(city, { thca = false } = {}) {
       `&page_size=${LISTING_PAGE_SIZE}` +
       `&page=${page}`
 
-    const res = await fetch(url)
+    const res = await fetch(url, { headers: API_HEADERS })
     if (!res.ok) {
       console.warn(`  [WM][WARN] Listing API returned ${res.status} on page ${page}`)
       break
@@ -83,55 +93,56 @@ export async function discoverDispensaries(city, { thca = false } = {}) {
   return allListings
 }
 
-/* ── Phase 2: Fetch flower menu via browser context ────────────────── */
+/* ── Phase 2: Fetch menu items via v1/menu_items API (pure HTTP) ──── */
 
-async function fetchMenuItems(browserPage, slug, maxItems, { categories = ['flower'] } = {}) {
-  return browserPage.evaluate(async ({ slug, maxItems, categories }) => {
-    const items = []
+async function fetchMenuItems(slug, maxItems, { categories = ['flower'] } = {}) {
+  const items = []
 
-    for (const category of categories) {
-      let pageNum = 1
-      const maxPages = 3
+  for (const category of categories) {
+    let pageNum = 1
 
-      while (pageNum <= maxPages && items.length < maxItems) {
-        try {
-          const r = await fetch(
-            `https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/${slug}/menu_items?filter[category]=${category}&page_size=100&page=${pageNum}`
-          )
-          if (!r.ok) break
-          const d = await r.json()
-          const menuItems = d?.data?.menu_items || []
-          if (menuItems.length === 0) break
+    while (pageNum <= MAX_MENU_PAGES && items.length < maxItems) {
+      try {
+        const apiUrl =
+          `https://api-g.weedmaps.com/discovery/v1/listings/dispensaries/${slug}/menu_items` +
+          `?filter[category]=${category}&page_size=100&page=${pageNum}`
 
-          for (const m of menuItems) {
-            items.push({
-              name: m.name,
-              prices: m.prices || [],
-              variants: m.variants || [],
-              price: m.price ?? null,
-              image: m.avatar_image?.small_url || null,
-              brand: m.brand?.name || null,
-            })
-          }
+        const res = await fetch(apiUrl, { headers: API_HEADERS })
+        if (!res.ok) break
 
-          const totalPages = d?.meta?.total_pages || 1
-          if (pageNum >= totalPages) break
-          pageNum++
-        } catch { break }
-      }
+        const d = await res.json()
+        const menuItems = d?.data?.menu_items || []
+        if (menuItems.length === 0) break
+
+        for (const m of menuItems) {
+          items.push({
+            name: m.name,
+            prices: m.prices || [],
+            variants: m.variants || [],
+            price: m.price ?? null,
+            image: m.avatar_image?.small_url || null,
+            brand: m.brand?.name || null,
+          })
+        }
+
+        const totalPages = d?.meta?.total_pages || 1
+        if (pageNum >= totalPages) break
+        pageNum++
+        await sleep(FETCH_DELAY_MS)
+      } catch { break }
     }
+  }
 
-    return items.slice(0, maxItems)
-  }, { slug, maxItems, categories })
+  return items.slice(0, maxItems)
 }
 
 /* ── Harvest menus + match strains for all dispensaries ─────────────── */
 
-export async function harvestMenus(browserPage, dispensaries, strainDB, { thca = false } = {}) {
+export async function harvestMenus(_unused, dispensaries, strainDB, { thca = false } = {}) {
+  // Signature keeps first param for backward compat but ignores it (was browserPage)
   let totalMatched = 0
   const enriched = []
 
-  // THC-A cities: also fetch from broader categories since hemp shops may list differently
   const menuCategories = thca ? ['flower', 'pre-rolls', 'concentrates'] : ['flower']
 
   // Sort by menu_items_count descending — process richest menus first
@@ -146,7 +157,7 @@ export async function harvestMenus(browserPage, dispensaries, strainDB, { thca =
 
     for (let attempt = 1; attempt <= MENU_FETCH_RETRIES; attempt++) {
       try {
-        menuItems = await fetchMenuItems(browserPage, disp.slug, MAX_MENU_ITEMS_PER_DISP, { categories: menuCategories })
+        menuItems = await fetchMenuItems(disp.slug, MAX_MENU_ITEMS_PER_DISP, { categories: menuCategories })
         fetchSuccess = true
         break
       } catch (err) {
@@ -171,7 +182,6 @@ export async function harvestMenus(browserPage, dispensaries, strainDB, { thca =
       continue
     }
 
-    // Match each menu item against our strain DB
     const matchedMenu = []
     let unmatchedCount = 0
 
