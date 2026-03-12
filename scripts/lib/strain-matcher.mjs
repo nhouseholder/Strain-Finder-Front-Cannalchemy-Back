@@ -64,6 +64,12 @@ export const EXCLUDED = new Set([
 
 export function cleanMenuItemName(menuItemName) {
   return (menuItemName || '')
+    // THC-A / hemp-derived product prefixes
+    .replace(/\bthc-?a\s*(flower|hemp|premium|indoor|exotic)?\s*[-–|:]\s*/gi, '')
+    .replace(/\bthc-?a\b/gi, '')
+    .replace(/\bhemp[\s-]*(derived|flower)\s*[-–|:]\s*/gi, '')
+    .replace(/\bdelta[\s-]*[89]\s*(thc)?\s*[-–|:]\s*/gi, '')
+    .replace(/\bdelta[\s-]*[89]\s*(thc)?\b/gi, '')
     // Weight / measurement patterns
     .replace(/\s*[-–|]\s*\d+(\.\d+)?\s*g\b/gi, '')
     .replace(/\s*\(\d+(\.\d+)?\s*g\)/gi, '')
@@ -109,6 +115,19 @@ export function cleanMenuItemName(menuItemName) {
     .replace(/\btru\s*infusion\s*[-|]\s*/gi, '')
     .replace(/\bmint\s*[-|]\s*/gi, '')
     .replace(/\bcanamo\s*[-|]\s*/gi, '')
+    // THC-A / hemp-derived brands
+    .replace(/\bvivimu\s*[-|]\s*/gi, '')
+    .replace(/\bhorn\s*creek\s*(hemp)?\s*[-|]\s*/gi, '')
+    .replace(/\bbotanist\s*farms?\s*[-|]\s*/gi, '')
+    .replace(/\bplain\s*jane\s*[-|]\s*/gi, '')
+    .replace(/\bsecret\s*nature\s*[-|]\s*/gi, '')
+    .replace(/\bindustrial\s*hemp\s*farms?\s*[-|]\s*/gi, '')
+    .replace(/\bdelta\s*munchies\s*[-|]\s*/gi, '')
+    .replace(/\b3chi\s*[-|]\s*/gi, '')
+    .replace(/\bbinoid\s*[-|]\s*/gi, '')
+    .replace(/\btorch\s*[-|]\s*/gi, '')
+    .replace(/\burb\s*finest\s*[-|]\s*/gi, '')
+    .replace(/\bghost\s*hemp\s*[-|]\s*/gi, '')
     // Generic brand prefix pattern: "Brand Name | " or "Brand Name - "
     .replace(/^[A-Z][a-zA-Z]+(?:\s[A-Z][a-zA-Z]+)?\s*[-|]\s+/, '')
     // Misc cleanup

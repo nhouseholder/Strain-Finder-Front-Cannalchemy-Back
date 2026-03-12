@@ -12,7 +12,8 @@ import { extractPrice } from '../lib/price-extractor.mjs'
 
 /* ── Config ────────────────────────────────────────────────────────── */
 
-const BOUNDING_RADIUS = '25mi'
+const BOUNDING_RADIUS_DEFAULT = '25mi'
+const BOUNDING_RADIUS_THCA = '50mi'
 const LISTING_PAGE_SIZE = 150
 const FETCH_DELAY_MS = 300
 const MAX_MENU_ITEMS_PER_DISP = 300
@@ -32,14 +33,15 @@ const API_HEADERS = {
 /* ── Phase 1: Discover dispensaries via v2/listings API ─────────────── */
 
 export async function discoverDispensaries(city, { thca = false } = {}) {
-  console.log(`  [WM] Fetching listings within ${BOUNDING_RADIUS} of ${city.label}${thca ? ' (THC-A market)' : ''}...`)
+  const radius = thca ? BOUNDING_RADIUS_THCA : BOUNDING_RADIUS_DEFAULT
+  console.log(`  [WM] Fetching listings within ${radius} of ${city.label}${thca ? ' (THC-A market)' : ''}...`)
 
   const allListings = []
   let page = 1
 
   while (true) {
     const url = `https://api-g.weedmaps.com/discovery/v2/listings` +
-      `?filter[bounding_radius]=${BOUNDING_RADIUS}` +
+      `?filter[bounding_radius]=${radius}` +
       `&filter[bounding_latlng]=${city.lat},${city.lng}` +
       `&page_size=${LISTING_PAGE_SIZE}` +
       `&page=${page}`
@@ -205,7 +207,7 @@ export async function harvestMenus(_unused, dispensaries, strainDB, { thca = fal
   let totalMatched = 0
   const enriched = []
 
-  const menuCategories = thca ? ['flower', 'pre-rolls', 'concentrates'] : ['flower']
+  const menuCategories = thca ? ['flower', 'pre-rolls', 'concentrates', 'edibles', 'vaporizers'] : ['flower']
 
   // Sort by menu_items_count descending — process richest menus first
   dispensaries.sort((a, b) => (b.menuItemsCount || 0) - (a.menuItemsCount || 0))

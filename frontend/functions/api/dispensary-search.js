@@ -29,7 +29,7 @@ const PRE_HARVESTED_CITIES = [
   { slug: 'lubbock',     label: 'Lubbock, TX',       lat: 33.5779, lng: -101.8552 },
 ]
 
-const CITY_REDIRECT_RADIUS_MI = 25
+const CITY_REDIRECT_RADIUS_MI = 35
 
 /* ── Haversine distance (miles) ──────────────────────────────────────── */
 

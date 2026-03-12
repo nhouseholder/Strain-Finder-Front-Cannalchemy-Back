@@ -53,55 +53,70 @@ export async function discoverDispensaries(_browserUnused, city) {
   console.log(`  [Leafly] Discovering dispensaries near ${city.label}...`)
 
   const dispensaries = []
+  const seenSlugs = new Set()
 
-  try {
-    const finderUrl = `${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance`
-    console.log(`    [Leafly] Fetching: ${finderUrl}`)
-
-    const res = await fetch(finderUrl, { headers: HEADERS, redirect: 'follow' })
-    if (!res.ok) {
-      console.log(`    [Leafly] HTTP ${res.status} — skipping`)
-      return dispensaries
-    }
-
-    const html = await res.text()
-    const nextData = extractNextData(html)
-
-    if (!nextData) {
-      console.log(`    [Leafly] No __NEXT_DATA__ found in HTML`)
-      return dispensaries
-    }
-
-    // Leafly embeds dispensaries in multiple possible paths
-    const pageProps = nextData?.props?.pageProps || {}
-    const stores =
-      pageProps?.storeLocatorResults?.data?.organicStores ||
-      pageProps?.storeLocatorResults?.data?.stores ||
-      pageProps?.stores ||
-      pageProps?.dispensaries ||
-      []
-
-    for (const s of stores) {
+  const addStores = (stores) => {
+    for (const s of (stores || [])) {
       if (dispensaries.length >= MAX_DISPENSARIES) break
       const parsed = parseLeaflyDispensary(s)
-      if (parsed) dispensaries.push(parsed)
-    }
-
-    // Also check for sponsored/featured stores
-    const sponsoredStores =
-      pageProps?.storeLocatorResults?.data?.sponsoredStores ||
-      pageProps?.storeLocatorResults?.data?.featuredStores ||
-      []
-
-    for (const s of sponsoredStores) {
-      if (dispensaries.length >= MAX_DISPENSARIES) break
-      const parsed = parseLeaflyDispensary(s)
-      if (parsed && !dispensaries.find(d => d.leaflySlug === parsed.leaflySlug)) {
+      if (parsed && !seenSlugs.has(parsed.leaflySlug)) {
+        seenSlugs.add(parsed.leaflySlug)
         dispensaries.push(parsed)
       }
     }
-  } catch (err) {
-    console.error(`    [Leafly] Discovery error: ${err.message}`)
+  }
+
+  // Build list of Leafly URLs to try
+  const urls = [
+    `${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance`,
+  ]
+  // For THC-A markets, also try CBD/hemp store search and delivery
+  if (city.thca) {
+    urls.push(`${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance&type=cbd-store`)
+    urls.push(`${LEAFLY_BASE}/dispensaries/near-me?lat=${city.lat}&lng=${city.lng}&sort=distance&type=delivery`)
+  }
+
+  for (const finderUrl of urls) {
+    try {
+      console.log(`    [Leafly] Fetching: ${finderUrl}`)
+
+      const res = await fetch(finderUrl, { headers: HEADERS, redirect: 'follow' })
+      if (!res.ok) {
+        console.log(`    [Leafly] HTTP ${res.status} — skipping`)
+        continue
+      }
+
+      const html = await res.text()
+      const nextData = extractNextData(html)
+
+      if (!nextData) {
+        console.log(`    [Leafly] No __NEXT_DATA__ found in HTML`)
+        continue
+      }
+
+      // Leafly embeds dispensaries in multiple possible paths
+      const pageProps = nextData?.props?.pageProps || {}
+      const stores =
+        pageProps?.storeLocatorResults?.data?.organicStores ||
+        pageProps?.storeLocatorResults?.data?.stores ||
+        pageProps?.stores ||
+        pageProps?.dispensaries ||
+        []
+
+      addStores(stores)
+
+      // Also check for sponsored/featured stores
+      const sponsoredStores =
+        pageProps?.storeLocatorResults?.data?.sponsoredStores ||
+        pageProps?.storeLocatorResults?.data?.featuredStores ||
+        []
+
+      addStores(sponsoredStores)
+
+      await sleep(FETCH_DELAY_MS)
+    } catch (err) {
+      console.error(`    [Leafly] Discovery error: ${err.message}`)
+    }
   }
 
   console.log(`  [Leafly] Found ${dispensaries.length} dispensaries`)
