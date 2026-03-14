@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useContext, useMemo } from 'react'
+import { useState, useEffect, useCallback, useContext, useMemo, useRef } from 'react'
 import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
@@ -475,9 +475,11 @@ export default function DispensaryPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const highlightStrain = searchParams.get('highlight') || null
+  const autoSearch = searchParams.get('autoSearch') === '1'
+  const urlZip = searchParams.get('zip') || ''
   const { state: resultsState } = useContext(ResultsContext)
   const quizCtx = useContext(QuizContext)
-  const quizZipCode = quizCtx?.state?.zipCode || ''
+  const quizZipCode = urlZip || quizCtx?.state?.zipCode || ''
   const { location: geoLocation, error: geoError, loading: geoLoading, requestLocation } = useGeolocation()
 
   // City-based state (primary mode)
@@ -547,6 +549,21 @@ export default function DispensaryPage() {
     })()
     return () => { cancelled = true }
   }, [])
+
+  /* Auto-search when arriving from "Find Near Me" button with autoSearch=1 */
+  const hasAutoSearched = useRef(false)
+  useEffect(() => {
+    if (!autoSearch || hasAutoSearched.current || citiesLoading) return
+    hasAutoSearched.current = true
+
+    if (quizZipCode) {
+      // Use zip code to search — handleLocationSearch will be available after first render
+      handleLocationSearch(quizZipCode)
+    } else {
+      // No zip — request browser geolocation
+      requestLocation()
+    }
+  }, [autoSearch, citiesLoading, quizZipCode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Select city */
   const handleCitySelect = useCallback(async (citySlug) => {
@@ -706,7 +723,12 @@ export default function DispensaryPage() {
         <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-leaf-500/[0.06] border border-leaf-500/15 animate-fade-in">
           <Leaf size={16} className="text-leaf-500 flex-shrink-0" />
           <p className="text-xs text-gray-700 dark:text-[#b0c4b4]">
-            Looking for <strong className="text-leaf-500">{highlightStrain}</strong> — select a city or search a location to find dispensaries carrying this strain
+            {(locationLoading || cityLoading)
+              ? <>Searching for <strong className="text-leaf-500">{highlightStrain}</strong> near you...</>
+              : mode
+                ? <>Showing dispensaries with <strong className="text-leaf-500">{highlightStrain}</strong> on their menu</>
+                : <>Looking for <strong className="text-leaf-500">{highlightStrain}</strong> — select a city or search a location to find dispensaries carrying this strain</>
+            }
           </p>
         </div>
       )}
