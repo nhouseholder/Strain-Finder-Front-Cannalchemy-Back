@@ -338,9 +338,10 @@ THIS PERSON WANTS: ${userEffects || 'General wellness'}
 THIS PERSON AVOIDS: ${userAvoid}
 
 RULES:
-- 2-3 sentences MAXIMUM. Confident and warm, not clinical.
-- Name 2-3 key terpenes with a quick analogy each (e.g. "myrcene (mangoes) and pinene (pine forest)") — then explain how they work together for THIS person's goals in one sentence.
-- Don't explain each terpene separately — show the synergy.
-- Use "you/your". No receptor codes. No generic THC claims. No hedging.
+- 4 sentences MAXIMUM. Confident and warm, not clinical.
+- Focus on what makes THIS strain special for THIS person — connect their goals to the strain's standout terpenes and cannabinoids.
+- Mention 2-3 terpenes by name with a simple analogy (e.g. "myrcene, the same terpene in mangoes, promotes deep relaxation") — no receptor codes or Ki values.
+- Briefly note how the compounds work together (entourage effect) in plain terms.
+- Use "you/your". No generic THC claims. No hedging ("may potentially possibly").
 - Write ONLY the explanation. No headers, no formatting, no preamble.`
 }

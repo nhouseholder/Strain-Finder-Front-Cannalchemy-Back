@@ -1172,18 +1172,20 @@ SCIENCE CONTEXT (use sparingly — translate to plain English):
 ${scaffoldContext}
 
 RULES:
-- 2-3 sentences MAXIMUM. Punchy, not academic.
-- Lead with what matters to the user, then weave in 2-3 terpene names naturally with one-word analogies (e.g. "myrcene (mangoes), linalool (lavender), and caryophyllene (black pepper) team up to...").
-- One sentence on how the compounds synergize — don't explain each separately.
-- Use "you/your". NO medical claims. NO receptor codes. NO repeating points.
-- Start directly — no greeting, no preamble.`;
+- 4 sentences MAXIMUM.
+- Lead with what matters to the user: how this strain delivers what they asked for.
+- Mention 2-3 key terpenes by name with a simple analogy (e.g. "caryophyllene, the same compound in black pepper" or "linalool, the calming compound in lavender").
+- Briefly note how the terpenes work together (entourage effect) in plain terms.
+- Use "you/your" — warm and direct, like a knowledgeable budtender.
+- NO medical claims. NO jargon dumps. NO repeating the same point twice.
+- Start directly — no greeting, no "Great news!", no preamble.`;
 
       const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
           { role: 'system', content: 'You are a friendly, knowledgeable cannabis consultant. Write like a smart budtender — concise, warm, and scientifically informed but never preachy or academic. Never make medical claims.' },
           { role: 'user', content: aiPrompt },
         ],
-        max_tokens: 200,
+        max_tokens: 250,
       });
 
       if (aiResult?.response) {
