@@ -308,6 +308,20 @@ def export_strain_data(db_path=None):
                 strain_obj["source"] = "archetype"
         else:
             # Full format: all fields for fully-verified strains
+            # Compute sentiment from external reviews if available, else from effects
+            sentiment = round(_compute_sentiment(effects), 1)
+            review_count = None
+            reviews = conn.execute(
+                "SELECT rating, review_count FROM strain_reviews WHERE strain_id = ?",
+                (strain_id,),
+            ).fetchall()
+            if reviews:
+                total_reviews = sum(r[1] for r in reviews if r[1])
+                if total_reviews > 0:
+                    weighted_rating = sum(r[0] * r[1] for r in reviews if r[0] and r[1]) / total_reviews
+                    sentiment = round(weighted_rating * 2, 1)  # Convert 0-5 to 0-10
+                    review_count = total_reviews
+
             strain_obj = {
                 "id": strain_id,
                 "name": name,
@@ -326,8 +340,10 @@ def export_strain_data(db_path=None):
                 "lineage": lineage,
                 "flavors": [f.title() for f in flavors[:5]],
                 "availability": 5,
-                "sentimentScore": round(_compute_sentiment(effects), 1),
+                "sentimentScore": sentiment,
             }
+            if review_count:
+                strain_obj["reviewCount"] = review_count
             # Regional availability
             if strain_id in region_map:
                 strain_obj["reg"] = [region_map[strain_id][r] for r in REGION_ORDER]

@@ -16,6 +16,8 @@ DB_TABLES = [
     "effect_mappings",
     "strain_aliases",
     "strain_regions",
+    "strain_reviews",
+    "enrichment_log",
 ]
 
 SCHEMA_SQL = """
@@ -189,6 +191,31 @@ CREATE TABLE IF NOT EXISTS strain_regions (
     UNIQUE(strain_id, region_code)
 );
 
+-- Aggregated review data from external sources
+CREATE TABLE IF NOT EXISTS strain_reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    strain_id INTEGER NOT NULL REFERENCES strains(id),
+    source TEXT NOT NULL,
+    rating REAL,
+    review_count INTEGER DEFAULT 0,
+    sentiment_score REAL,
+    pros TEXT DEFAULT '[]',
+    cons TEXT DEFAULT '[]',
+    last_fetched DATETIME,
+    UNIQUE(strain_id, source)
+);
+
+-- Enrichment tracking for idempotent re-runs
+CREATE TABLE IF NOT EXISTS enrichment_log (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    strain_id INTEGER NOT NULL REFERENCES strains(id),
+    pass_name TEXT NOT NULL,
+    status TEXT DEFAULT 'completed',
+    run_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT DEFAULT '',
+    UNIQUE(strain_id, pass_name)
+);
+
 -- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_strain_compositions_strain ON strain_compositions(strain_id);
 CREATE INDEX IF NOT EXISTS idx_strain_compositions_molecule ON strain_compositions(molecule_id);
@@ -202,6 +229,8 @@ CREATE INDEX IF NOT EXISTS idx_effect_mappings_canonical ON effect_mappings(cano
 CREATE INDEX IF NOT EXISTS idx_strain_aliases_canonical ON strain_aliases(canonical_strain_id);
 CREATE INDEX IF NOT EXISTS idx_strain_regions_strain ON strain_regions(strain_id);
 CREATE INDEX IF NOT EXISTS idx_strain_regions_region ON strain_regions(region_code);
+CREATE INDEX IF NOT EXISTS idx_strain_reviews_strain ON strain_reviews(strain_id);
+CREATE INDEX IF NOT EXISTS idx_enrichment_log_strain ON enrichment_log(strain_id);
 """
 
 
