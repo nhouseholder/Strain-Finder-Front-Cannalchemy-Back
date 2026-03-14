@@ -967,6 +967,8 @@ export async function onRequestPost(context) {
   // ── Dispensary menu lookup (if user selected a dispensary) ──
   let dispensaryMenuStrains = null; // Set<lowercase strain name> or null
   let dispensaryMenuMap = null;     // { lowerName: { price, menuName } }
+  let menuStatus = null;           // 'found' | 'noMenu' | 'notFound' | null
+  let menuStrainCount = 0;
   const selectedDisp = quiz.selectedDispensary;
   console.log(`[Recommend] selectedDispensary:`, selectedDisp ? JSON.stringify({ id: selectedDisp.id, citySlug: selectedDisp.citySlug, batchIndex: selectedDisp.batchIndex }) : 'null');
   if (selectedDisp?.id && selectedDisp?.citySlug && env?.CACHE) {
@@ -1011,17 +1013,23 @@ export async function onRequestPost(context) {
                 };
               }
             }
-            console.log(`[Recommend] Dispensary "${selectedDisp.name}" (batch ${batchIdx}) menu loaded: ${dispensaryMenuStrains.size} matched strains`);
+            menuStatus = 'found';
+            menuStrainCount = dispensaryMenuStrains.size;
+            console.log(`[Recommend] Dispensary "${selectedDisp.name}" (batch ${batchIdx}) menu loaded: ${menuStrainCount} matched strains`);
           } else {
+            menuStatus = 'noMenu';
             console.log(`[Recommend] Dispensary "${selectedDisp.name}" found in batch ${batchIdx} but no matchedMenu`);
           }
         } else {
+          menuStatus = 'notFound';
           console.log(`[Recommend] Batch ${batchIdx} not found in KV for ${selectedDisp.citySlug}`);
         }
       } else {
+        menuStatus = 'notFound';
         console.log(`[Recommend] Dispensary "${selectedDisp.id}" — no batchIndex and not found in city index for ${selectedDisp.citySlug}`);
       }
     } catch (e) {
+      menuStatus = 'notFound';
       console.error('Dispensary menu lookup failed (non-fatal):', e.message);
     }
   }
@@ -1201,13 +1209,15 @@ export async function onRequestPost(context) {
 
   // Build dispensary menu matches for the result strains
   let dispensaryResponse = null;
-  if (dispensaryMenuMap && selectedDisp) {
+  if (selectedDisp) {
     const menuMatches = {};
-    const allResultStrains = [...mainResults, ...aiPicks.slice(0, 2)];
-    for (const s of allResultStrains) {
-      const lower = (s.name || '').toLowerCase();
-      if (dispensaryMenuMap[lower]) {
-        menuMatches[s.name] = dispensaryMenuMap[lower];
+    if (dispensaryMenuMap) {
+      const allResultStrains = [...mainResults, ...aiPicks.slice(0, 2)];
+      for (const s of allResultStrains) {
+        const lower = (s.name || '').toLowerCase();
+        if (dispensaryMenuMap[lower]) {
+          menuMatches[s.name] = dispensaryMenuMap[lower];
+        }
       }
     }
     dispensaryResponse = {
@@ -1216,6 +1226,8 @@ export async function onRequestPost(context) {
       citySlug: selectedDisp.citySlug,
       cityLabel: selectedDisp.cityLabel || '',
       menuMatches,
+      menuStatus: menuStatus || 'notFound',
+      menuStrainCount,
     };
   }
 

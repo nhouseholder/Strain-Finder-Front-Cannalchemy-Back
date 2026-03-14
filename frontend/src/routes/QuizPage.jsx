@@ -206,6 +206,8 @@ export default function QuizPage() {
           citySlug: quizState.selectedDispensary.citySlug,
           cityLabel: quizState.selectedDispensary.cityLabel,
           menuMatches: {},
+          menuStatus: 'notFound',
+          menuStrainCount: 0,
         }
       }
       resultsDispatch({ type: 'SET_RESULTS', payload })

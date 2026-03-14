@@ -78,23 +78,49 @@ export default function ResultsPage() {
       </div>
 
       {/* Dispensary banner */}
-      {state.selectedDispensary && (
-        <div className="flex items-center gap-2.5 p-3 mb-4 rounded-xl bg-leaf-500/[0.08] border border-leaf-500/20">
-          <Store size={16} className="text-leaf-400 flex-shrink-0" />
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
-              Results tailored to {state.selectedDispensary.name}
-            </p>
-            <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] flex items-center gap-1">
-              <MapPin size={9} />
-              {state.selectedDispensary.cityLabel}
-              {state.selectedDispensary.menuMatches && (
-                <> &middot; {Object.keys(state.selectedDispensary.menuMatches).length} of {state.strains.length + (state.aiPicks?.length || 0)} on menu</>
+      {state.selectedDispensary && (() => {
+        const disp = state.selectedDispensary;
+        const status = disp.menuStatus || 'notFound';
+        const menuCount = Object.keys(disp.menuMatches || {}).length;
+        const isMenuFound = status === 'found';
+        const bannerBg = isMenuFound
+          ? 'bg-leaf-500/[0.08] border-leaf-500/20'
+          : 'bg-amber-500/[0.06] border-amber-500/20';
+        const iconColor = isMenuFound ? 'text-leaf-400' : 'text-amber-400';
+
+        return (
+          <div className={`flex items-center gap-2.5 p-3 mb-4 rounded-xl border ${bannerBg}`}>
+            <Store size={16} className={`${iconColor} flex-shrink-0`} />
+            <div className="min-w-0 flex-1">
+              {isMenuFound ? (
+                <>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
+                    Results from {disp.name} menu
+                  </p>
+                  <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] flex items-center gap-1">
+                    <MapPin size={9} />
+                    {disp.cityLabel}
+                    {menuCount > 0 && (
+                      <> &middot; {menuCount} of your matches on menu</>
+                    )}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
+                    Menu not available for {disp.name}
+                  </p>
+                  <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] flex items-center gap-1">
+                    <MapPin size={9} />
+                    {disp.cityLabel}
+                    <> &middot; Showing best matches for your area</>
+                  </p>
+                </>
               )}
-            </p>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Section label — Best Matches */}
       <div className="flex items-center gap-2 mb-3">
