@@ -276,6 +276,8 @@ def export_strain_data(db_path=None):
                 strain_obj["cannabinoids"] = cannabinoids[:2]
             if description and description.strip() and description.strip().upper() != "NULL":
                 strain_obj["description"] = description[:100]
+            if flavors:
+                strain_obj["flavors"] = [f.title() for f in flavors[:3]]
         elif is_partial:
             # Compact format: fewer fields for partial strains to save space
             # Only include terpenes/cannabinoids if real data exists

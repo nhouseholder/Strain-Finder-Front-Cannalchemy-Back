@@ -1,8 +1,11 @@
 """Fix and normalize strain flavor tags across the database.
 
-Generates clean flavor tags for all strains using a dual-source approach:
+Generates clean flavor tags for ALL strains using a multi-source approach:
 1. TERPENE SCIENCE — each terpene maps to specific flavor categories
 2. COMMUNITY DATA — existing user-reported flavors from the current JSON export
+3. GENETICS INHERITANCE — parse parent strains, inherit their flavors
+4. NAME ANALYSIS — expanded keyword extraction from strain names + genetics text
+5. TYPE-BASED DEFAULTS — scientifically-backed fallbacks by indica/sativa/hybrid
 
 Flavor categories match the quiz options:
   citrus, pine, earthy, berry, diesel, sweet, spicy, skunky, floral
@@ -24,7 +27,6 @@ JSON_PATH = ROOT / "frontend" / "src" / "data" / "strains.json"
 QUIZ_FLAVORS = ['citrus', 'pine', 'earthy', 'berry', 'diesel', 'sweet', 'spicy', 'skunky', 'floral']
 
 # ── Terpene → flavor category mappings (science-based) ──
-# Primary flavors weighted higher, secondary lower
 TERPENE_FLAVOR_MAP = {
     'myrcene':      {'earthy': 0.8, 'spicy': 0.3},
     'limonene':     {'citrus': 1.0, 'sweet': 0.2},
@@ -48,50 +50,144 @@ TERPENE_FLAVOR_MAP = {
 
 # ── Raw flavor text → quiz category normalization ──
 RAW_FLAVOR_MAP = {
-    # Citrus
     'citrus': 'citrus', 'lemon': 'citrus', 'lime': 'citrus', 'orange': 'citrus',
     'grapefruit': 'citrus', 'tangerine': 'citrus', 'tangy': 'citrus',
-    # Pine
     'pine': 'pine', 'piney': 'pine', 'woody': 'pine', 'cedar': 'pine', 'wood': 'pine',
-    # Earthy
     'earthy': 'earthy', 'earth': 'earthy', 'pungent': 'earthy', 'nutty': 'earthy',
     'coffee': 'earthy', 'tobacco': 'earthy', 'mushroom': 'earthy', 'tea': 'earthy',
     'chocolate': 'earthy', 'hash': 'earthy',
-    # Berry/Fruity
     'berry': 'berry', 'fruity': 'berry', 'blueberry': 'berry', 'grape': 'berry',
     'strawberry': 'berry', 'tropical': 'berry', 'mango': 'berry', 'pineapple': 'berry',
     'banana': 'berry', 'apple': 'berry', 'peach': 'berry', 'cherry': 'berry',
     'plum': 'berry', 'watermelon': 'berry', 'melon': 'berry',
-    # Diesel/Fuel
     'diesel': 'diesel', 'chemical': 'diesel', 'ammonia': 'diesel', 'tar': 'diesel',
     'gas': 'diesel', 'fuel': 'diesel', 'gasoline': 'diesel',
-    # Sweet/Dessert
     'sweet': 'sweet', 'candy': 'sweet', 'vanilla': 'sweet', 'butter': 'sweet',
     'caramel': 'sweet', 'cream': 'sweet', 'honey': 'sweet', 'cake': 'sweet',
     'cookie': 'sweet', 'sugary': 'sweet', 'syrup': 'sweet',
-    # Spicy/Herbal
     'spicy': 'spicy', 'herbal': 'spicy', 'peppery': 'spicy', 'pepper': 'spicy',
     'sage': 'spicy', 'mint': 'spicy', 'minty': 'spicy', 'basil': 'spicy',
     'clove': 'spicy', 'cinnamon': 'spicy',
-    # Skunky
     'skunky': 'skunky', 'skunk': 'skunky', 'dank': 'skunky', 'musky': 'skunky',
     'cheese': 'skunky', 'cheesy': 'skunky', 'funky': 'skunky',
-    # Floral
     'floral': 'floral', 'flowery': 'floral', 'lavender': 'floral', 'rose': 'floral',
     'jasmine': 'floral', 'violet': 'floral',
 }
 
-# ── Strain name hints — some strain names strongly imply flavors ──
-NAME_FLAVOR_HINTS = [
-    (r'lemon|citrus|tangie|clementine|mandarin|orange', 'citrus'),
-    (r'pine|kush|og\b', 'pine'),
-    (r'berry|blueberry|strawberry|grape|fruit|cherry|punch|zkittl', 'berry'),
-    (r'diesel|sour|chem|fuel|gas', 'diesel'),
-    (r'cake|cookie|gelato|sherb|ice\s*cream|candy|runtz|sweet|vanilla', 'sweet'),
-    (r'skunk|cheese|funk', 'skunky'),
-    (r'lavender|rose|floral', 'floral'),
-    (r'haze|sage|herb', 'spicy'),
+# ── Extended name/genetics keyword → flavor map ──
+# Applied to both strain name AND genetics text for broader matching
+KEYWORD_FLAVOR_MAP = [
+    # Citrus family
+    (r'lemon|citrus|tangi[e]?|clementine|mandarin|orange|lime|grapefruit|mimosa|sunshine|sunrise|tang|satsuma|kumquat|zest', 'citrus'),
+    # Pine/Kush/OG family
+    (r'\bpine\b|kush|og\b|afghan|hindu|master\s*kush|bubba|hash\s*plant|landrace', 'pine'),
+    # Berry/Fruit family
+    (r'berry|blueberry|strawberry|grape|fruit|cherry|punch|zkittl|runtz|watermelon|mango|pineapple|papaya|guava|tropical|peach|apricot|plum|banana|apple|melon|acai|razz|sorbet', 'berry'),
+    # Diesel/Chem family
+    (r'diesel|sour|chem|fuel|gas\b|gmo|gassy|gorilla\s*glue|gg[#]?\d|stank|motor', 'diesel'),
+    # Sweet/Dessert family
+    (r'cake|cookie|gelato|sherb|ice\s*cream|candy|sweet|vanilla|sugar|cream|pie|biscotti|dough|frosting|glazed|honey|syrup|caramel|tiramisu|brownie|fudge|waffle|macaroon|truffle|parfait|sundae|custard|pudding|batter|frosted|zushi|mochi', 'sweet'),
+    # Skunky/Cheese family
+    (r'skunk|cheese|funk|garlic|stink|dank|musky|uk\s*cheese|stilton|gouda|roquefort', 'skunky'),
+    # Floral family
+    (r'lavender|rose|floral|flower|lilac|jasmine|violet|hibiscus|chamomile|blossom', 'floral'),
+    # Spicy/Herbal family
+    (r'haze|sage|herb|jack\s*herer|durban|thai|spice|mint|menthol|eucalyptus|trainwreck|amnesia|malawi|lamb', 'spicy'),
+    # Earthy family
+    (r'earth|mud|soil|forest|moss|mushroom|truffle|coffee|chocolate|cocoa|mocha|hash', 'earthy'),
 ]
+
+# ── Well-known parent strains and their verified flavor profiles ──
+# Used for genetics inheritance when a child strain has no direct data
+KNOWN_PARENT_FLAVORS = {
+    'og kush':          ['pine', 'earthy', 'diesel'],
+    'kush':             ['pine', 'earthy'],
+    'girl scout cookies': ['sweet', 'earthy', 'spicy'],
+    'gsc':              ['sweet', 'earthy', 'spicy'],
+    'blue dream':       ['berry', 'earthy', 'sweet'],
+    'gelato':           ['sweet', 'berry', 'citrus'],
+    'wedding cake':     ['sweet', 'earthy', 'spicy'],
+    'sour diesel':      ['diesel', 'earthy', 'citrus'],
+    'gorilla glue':     ['diesel', 'earthy', 'pine'],
+    'gg4':              ['diesel', 'earthy', 'pine'],
+    'northern lights':  ['earthy', 'pine', 'sweet'],
+    'jack herer':       ['pine', 'spicy', 'earthy'],
+    'granddaddy purple':['berry', 'earthy', 'sweet'],
+    'gdp':              ['berry', 'earthy', 'sweet'],
+    'purple punch':     ['berry', 'sweet', 'floral'],
+    'zkittlez':         ['berry', 'sweet', 'floral'],
+    'runtz':            ['sweet', 'berry', 'floral'],
+    'blue cheese':      ['skunky', 'berry', 'earthy'],
+    'cheese':           ['skunky', 'earthy', 'spicy'],
+    'uk cheese':        ['skunky', 'earthy', 'spicy'],
+    'trainwreck':       ['spicy', 'pine', 'earthy'],
+    'haze':             ['spicy', 'citrus', 'earthy'],
+    'super silver haze':['spicy', 'citrus', 'earthy'],
+    'amnesia haze':     ['spicy', 'citrus', 'earthy'],
+    'durban poison':    ['spicy', 'earthy', 'sweet'],
+    'ak-47':            ['earthy', 'spicy', 'pine'],
+    'ak47':             ['earthy', 'spicy', 'pine'],
+    'white widow':      ['spicy', 'earthy', 'pine'],
+    'skunk':            ['skunky', 'earthy', 'sweet'],
+    'super skunk':      ['skunky', 'earthy', 'sweet'],
+    'blueberry':        ['berry', 'sweet', 'earthy'],
+    'strawberry':       ['berry', 'sweet'],
+    'grape ape':        ['berry', 'earthy', 'sweet'],
+    'tangie':           ['citrus', 'sweet'],
+    'lemon':            ['citrus'],
+    'cherry':           ['berry', 'sweet'],
+    'mango':            ['berry', 'sweet'],
+    'pineapple':        ['berry', 'citrus'],
+    'lavender':         ['floral', 'earthy', 'spicy'],
+    'afghani':          ['earthy', 'pine', 'spicy'],
+    'afghan':           ['earthy', 'pine', 'spicy'],
+    'hindu kush':       ['earthy', 'pine', 'sweet'],
+    'bubba kush':       ['earthy', 'sweet', 'pine'],
+    'chemdawg':         ['diesel', 'earthy', 'spicy'],
+    'chem dawg':        ['diesel', 'earthy', 'spicy'],
+    'diesel':           ['diesel', 'earthy'],
+    'nyc diesel':       ['diesel', 'citrus', 'earthy'],
+    'headband':         ['diesel', 'earthy', 'citrus'],
+    'ice cream cake':   ['sweet', 'earthy', 'pine'],
+    'mac':              ['citrus', 'diesel', 'earthy'],
+    'thin mint':        ['sweet', 'spicy', 'earthy'],
+    'cookies':          ['sweet', 'earthy', 'spicy'],
+    'dosidos':          ['earthy', 'sweet', 'floral'],
+    'do-si-dos':        ['earthy', 'sweet', 'floral'],
+    'sherbert':         ['sweet', 'berry', 'citrus'],
+    'sunset sherbert':  ['sweet', 'berry', 'citrus'],
+    'acdc':             ['earthy', 'pine', 'spicy'],
+    'cannatonic':       ['earthy', 'citrus'],
+    'critical':         ['earthy', 'spicy'],
+    'white rhino':      ['earthy', 'pine', 'sweet'],
+    'banana':           ['berry', 'sweet'],
+    'papaya':           ['berry', 'sweet'],
+    'guava':            ['berry', 'citrus'],
+    'mimosa':           ['citrus', 'berry', 'sweet'],
+    'purple':           ['berry', 'earthy'],
+    'fire og':          ['diesel', 'pine', 'earthy'],
+    'sfv og':           ['pine', 'earthy', 'diesel'],
+    'skywalker':        ['earthy', 'pine', 'spicy'],
+    'blackberry':       ['berry', 'earthy', 'sweet'],
+    'mint':             ['spicy', 'sweet'],
+    'garlic':           ['skunky', 'earthy', 'diesel'],
+    'gmo':              ['skunky', 'diesel', 'earthy'],
+    'biscotti':         ['sweet', 'earthy'],
+    'tropicana':        ['citrus', 'berry', 'sweet'],
+    'animal mints':     ['spicy', 'sweet', 'earthy'],
+    'london pound cake':['sweet', 'berry', 'earthy'],
+    'oreoz':            ['sweet', 'earthy', 'diesel'],
+    'jealousy':         ['sweet', 'earthy', 'berry'],
+    'gary payton':      ['sweet', 'spicy', 'earthy'],
+}
+
+# ── Type-based flavor defaults (when all else fails) ──
+# Based on the dominant terpene profiles typical of each type
+TYPE_DEFAULTS = {
+    'indica':  ['earthy', 'sweet', 'pine'],     # Myrcene-heavy → earthy
+    'sativa':  ['citrus', 'spicy', 'earthy'],    # Limonene/terpinolene → citrus/herbal
+    'hybrid':  ['earthy', 'sweet', 'spicy'],     # Balanced terpene mix
+}
 
 
 def clean_raw_flavor(raw):
@@ -103,30 +199,48 @@ def clean_raw_flavor(raw):
 
 
 def compute_terpene_flavors(terpenes):
-    """Compute flavor scores from a strain's terpene profile.
-
-    terpenes: list of (terpene_name, percentage)
-    Returns: Counter of {flavor_category: score}
-    """
+    """Compute flavor scores from a strain's terpene profile."""
     scores = Counter()
     for i, (terp_name, pct) in enumerate(terpenes):
         terp_lower = terp_name.lower()
         if terp_lower not in TERPENE_FLAVOR_MAP:
             continue
-        # Position weight: top terpene = 1.0x, each subsequent decreases
         position_weight = max(0.2, 1.0 - (i * 0.15))
         for flavor_cat, base_score in TERPENE_FLAVOR_MAP[terp_lower].items():
             scores[flavor_cat] += base_score * position_weight
     return scores
 
 
-def get_name_hints(name):
-    """Get flavor hints from the strain name."""
+def get_keyword_flavors(text):
+    """Get flavor hints from any text (strain name, genetics, description)."""
     scores = Counter()
-    lower = name.lower()
-    for pattern, flavor in NAME_FLAVOR_HINTS:
+    lower = text.lower()
+    for pattern, flavor in KEYWORD_FLAVOR_MAP:
         if re.search(pattern, lower):
-            scores[flavor] += 0.5  # Moderate boost
+            scores[flavor] += 0.5
+    return scores
+
+
+def get_genetics_inheritance(genetics_text):
+    """Parse genetics text and look up parent strain flavors."""
+    if not genetics_text or genetics_text.upper() == 'NULL':
+        return Counter()
+
+    scores = Counter()
+    lower = genetics_text.lower()
+
+    # Try to match known parent strains
+    for parent, flavors in KNOWN_PARENT_FLAVORS.items():
+        if parent in lower:
+            for f in flavors:
+                scores[f] += 1.2  # Strong inheritance signal
+            break  # Only use first match to avoid double-counting
+
+    # Also run keyword analysis on genetics text
+    kw = get_keyword_flavors(genetics_text)
+    for cat, score in kw.items():
+        scores[cat] += score * 0.8  # Slightly less weight than direct match
+
     return scores
 
 
@@ -157,20 +271,24 @@ def fix_flavors():
     # Clear existing flavor data to rebuild
     conn.execute("DELETE FROM strain_flavors")
 
-    # Get all strains
+    # Get all strains with genetics
     strains = conn.execute("""
-        SELECT s.id, s.name, s.strain_type FROM strains s ORDER BY s.id
+        SELECT s.id, s.name, s.strain_type, sm.genetics
+        FROM strains s
+        LEFT JOIN strain_metadata sm ON sm.strain_id = s.id
+        ORDER BY s.id
     """).fetchall()
 
     total = len(strains)
     updated = 0
-    no_flavors = 0
-    stats = Counter()
+    source_stats = Counter()
+    flavor_stats = Counter()
 
-    for strain_id, name, strain_type in strains:
+    for strain_id, name, strain_type, genetics in strains:
         flavor_scores = Counter()
+        sources_used = []
 
-        # Source 1: Terpene profile (science) — 1.5x weight
+        # Source 1: Terpene profile (science) — strongest signal
         terpenes = conn.execute("""
             SELECT m.name, sc.percentage
             FROM strain_compositions sc
@@ -179,34 +297,58 @@ def fix_flavors():
             ORDER BY sc.percentage DESC
         """, (strain_id,)).fetchall()
 
-        terp_flavors = compute_terpene_flavors(terpenes)
-        for cat, score in terp_flavors.items():
-            flavor_scores[cat] += score * 1.5
+        if terpenes:
+            terp_flavors = compute_terpene_flavors(terpenes)
+            for cat, score in terp_flavors.items():
+                flavor_scores[cat] += score * 1.5
+            sources_used.append('terpene')
 
-        # Source 2: Community-reported flavors — 2x weight (real user data)
+        # Source 2: Community-reported flavors — strong real-world signal
         comm = community_flavors.get(name, [])
-        for cat in comm:
-            flavor_scores[cat] += 2.0
-            stats['community_used'] += 1
+        if comm:
+            for cat in comm:
+                flavor_scores[cat] += 2.0
+            sources_used.append('community')
 
-        # Source 3: Name-based hints — 0.5x weight (gentle nudge)
-        name_hints = get_name_hints(name)
-        for cat, score in name_hints.items():
-            flavor_scores[cat] += score
+        # Source 3: Genetics inheritance — inherit from known parents
+        if genetics and genetics.strip() and genetics.upper() != 'NULL':
+            gen_flavors = get_genetics_inheritance(genetics)
+            if gen_flavors:
+                for cat, score in gen_flavors.items():
+                    flavor_scores[cat] += score
+                sources_used.append('genetics')
+
+        # Source 4: Name-based keyword analysis
+        name_kw = get_keyword_flavors(name)
+        if name_kw:
+            for cat, score in name_kw.items():
+                flavor_scores[cat] += score
+            if name_kw:
+                sources_used.append('name')
+
+        # Source 5: Type-based defaults (fallback) — only if nothing else worked
+        if not flavor_scores and strain_type in TYPE_DEFAULTS:
+            for f in TYPE_DEFAULTS[strain_type]:
+                flavor_scores[f] += 0.6
+            sources_used.append('type-default')
 
         if not flavor_scores:
-            no_flavors += 1
-            continue
+            # Absolute fallback: hybrid defaults
+            for f in TYPE_DEFAULTS['hybrid']:
+                flavor_scores[f] += 0.6
+            sources_used.append('fallback')
 
-        # Select top flavors with minimum threshold
+        # Select top flavors — lower threshold for inherited/inferred data
+        min_threshold = 0.5 if ('terpene' in sources_used or 'community' in sources_used) else 0.3
         sorted_flavors = [
             (cat, score) for cat, score in flavor_scores.most_common(5)
-            if score >= 0.5
+            if score >= min_threshold
         ]
 
         if not sorted_flavors:
-            no_flavors += 1
-            continue
+            # Still nothing — use type defaults directly
+            sorted_flavors = [(f, 1.0) for f in TYPE_DEFAULTS.get(strain_type, TYPE_DEFAULTS['hybrid'])]
+            sources_used = ['type-default']
 
         # Cap at 4 flavors
         final_flavors = [cat for cat, score in sorted_flavors[:4]]
@@ -216,31 +358,30 @@ def fix_flavors():
                 "INSERT OR IGNORE INTO strain_flavors (strain_id, flavor) VALUES (?, ?)",
                 (strain_id, flavor)
             )
-            stats[flavor] = stats.get(flavor, 0) + 1
+            flavor_stats[flavor] += 1
+
+        # Track source usage
+        for src in set(sources_used):
+            source_stats[src] += 1
 
         updated += 1
-        if updated <= 20:
-            sources = []
-            if terpenes:
-                sources.append(f"terps:{[t[0] for t in terpenes[:3]]}")
-            if comm:
-                sources.append(f"comm:{comm}")
-            print(f"  {name}: {final_flavors}  ({', '.join(sources)})")
+        if updated <= 25:
+            print(f"  {name}: {final_flavors}  (via: {', '.join(sources_used)})")
 
-    if updated > 20:
-        print(f"  ... and {updated - 20} more\n")
+    if updated > 25:
+        print(f"  ... and {updated - 25} more\n")
 
     conn.commit()
     conn.close()
 
     print(f"\nSummary:")
-    print(f"  Updated: {updated} strains with flavor tags")
-    print(f"  No data: {no_flavors} strains")
-    print(f"  Total:   {total} strains")
+    print(f"  Updated: {updated} / {total} strains (100% coverage)")
+    print(f"\nData sources used:")
+    for src in ['terpene', 'community', 'genetics', 'name', 'type-default', 'fallback']:
+        print(f"  {src}: {source_stats.get(src, 0)}")
     print(f"\nFlavor distribution:")
     for cat in QUIZ_FLAVORS:
-        print(f"  {cat}: {stats.get(cat, 0)}")
-    print(f"\n  Community flavors applied: {stats.get('community_used', 0)}")
+        print(f"  {cat}: {flavor_stats.get(cat, 0)}")
 
 
 if __name__ == "__main__":
