@@ -18,7 +18,6 @@ const ResultsPage = lazy(() => lazyRetry(() => import('./routes/ResultsPage'), '
 const DispensaryPage = lazy(() => lazyRetry(() => import('./routes/DispensaryPage'), 'DispensaryPage'))
 const JournalPage = lazy(() => lazyRetry(() => import('./routes/JournalPage'), 'JournalPage'))
 const ComparePage = lazy(() => lazyRetry(() => import('./routes/ComparePage'), 'ComparePage'))
-const StrainSearchPage = lazy(() => lazyRetry(() => import('./routes/StrainSearchPage'), 'StrainSearchPage'))
 const StrainExplorerPage = lazy(() => lazyRetry(() => import('./routes/StrainExplorerPage'), 'StrainExplorerPage'))
 const ExploreStrainsPage = lazy(() => lazyRetry(() => import('./routes/ExploreStrainsPage'), 'ExploreStrainsPage'))
 const LearnPage = lazy(() => lazyRetry(() => import('./routes/LearnPage'), 'LearnPage'))
@@ -76,7 +75,6 @@ export default function App() {
                       {/* Protected routes — require login */}
                       <Route path="dashboard" element={<Navigate to="/journal" replace />} />
                       <Route path="strain/:slug" element={<StrainDetailPage />} />
-                      <Route path="search" element={<StrainSearchPage />} />
                       <Route path="chat" element={<ChatPage />} />
                       <Route path="explore" element={<StrainExplorerPage />} />
                       <Route path="explore-strains" element={<ExploreStrainsPage />} />

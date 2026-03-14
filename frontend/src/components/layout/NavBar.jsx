@@ -12,6 +12,8 @@ import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../context/ToastContext'
 import { ResultsContext } from '../../context/ResultsContext'
 import { APP_VERSION } from '../../utils/constants'
+import { useStrainSearch } from '../../hooks/useStrainSearch'
+import SearchAutocomplete from '../shared/SearchAutocomplete'
 
 /* ─── Grouped sub-pages ─── */
 
@@ -92,22 +94,25 @@ export default function NavBar() {
   const location = useLocation()
   const toast = useToast()
   const { hasResults } = useContext(ResultsContext)
+  const { allStrains, dataLoaded } = useStrainSearch()
 
-  /* Single state controls all dropdowns: 'quiz' | 'explore' | 'learn' | 'more' | null */
+  /* Single state controls all dropdowns: 'quiz' | 'search' | 'explore' | 'learn' | 'more' | null */
   const [activeDropdown, setActiveDropdown] = useState(null)
 
   /* Refs for outside-click detection */
   const dQuizRef = useRef(null)
+  const dSearchRef = useRef(null)
   const dExploreRef = useRef(null)
   const dLearnRef = useRef(null)
   const mQuizRef = useRef(null)
+  const mSearchRef = useRef(null)
   const mMoreRef = useRef(null)
 
   /* Close on outside click */
   useEffect(() => {
     if (!activeDropdown) return
     const handler = (e) => {
-      const allRefs = [dQuizRef, dExploreRef, dLearnRef, mQuizRef, mMoreRef]
+      const allRefs = [dQuizRef, dSearchRef, dExploreRef, dLearnRef, mQuizRef, mSearchRef, mMoreRef]
       for (const ref of allRefs) {
         if (ref.current?.contains(e.target)) return
       }
@@ -234,10 +239,32 @@ export default function NavBar() {
           </div>
 
           {/* 2 · Search */}
-          <NavLink to="/search" className={({ isActive }) => navCls(isActive)}>
-            <Search size={16} />
-            Search
-          </NavLink>
+          <div className="relative" ref={dSearchRef}>
+            <button
+              onClick={toggle('search')}
+              className={navCls(activeDropdown === 'search' || location.pathname === '/search')}
+            >
+              <Search size={16} />
+              Search
+            </button>
+
+            {activeDropdown === 'search' && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[400px] rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-visible animate-fade-in p-2">
+                <SearchAutocomplete
+                  strains={allStrains}
+                  dataLoaded={dataLoaded}
+                  placeholder="Search strains by name, type, effects..."
+                  autoFocus={true}
+                  onSelect={() => setActiveDropdown(null)}
+                  onSearch={(q) => {
+                    setActiveDropdown(null)
+                    if (q) navigate(`/search?q=${encodeURIComponent(q)}`)
+                  }}
+                  inputClassName="py-2.5 rounded-xl text-sm"
+                />
+              </div>
+            )}
+          </div>
 
           {/* 3 · Explore ▾  (Explorer, Discover, Compare) */}
           <div className="relative" ref={dExploreRef}>
@@ -415,17 +442,40 @@ export default function NavBar() {
           )}
         </div>
 
-        {/* Search (direct) */}
-        <NavLink
-          to="/search"
-          className={({ isActive }) => clsx(
-            'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-[10px] font-medium transition-colors min-w-[56px] min-h-[44px] justify-center',
-            isActive ? 'text-leaf-400' : 'text-gray-400 dark:text-[#8a9a8e]'
+        {/* Search (dropdown) */}
+        <div className="relative" ref={mSearchRef}>
+          <button
+            onClick={toggle('search')}
+            className={clsx(
+              'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl text-[10px] font-medium transition-colors min-w-[56px] min-h-[44px] justify-center',
+              activeDropdown === 'search' ? 'text-leaf-400' : 'text-gray-400 dark:text-[#8a9a8e]'
+            )}
+          >
+            <Search size={20} />
+            Search
+          </button>
+
+          {/* Mobile search overlay */}
+          {activeDropdown === 'search' && (
+            <div
+              className="fixed left-4 right-4 rounded-2xl bg-white dark:bg-[#141f16] border border-gray-200 dark:border-white/10 shadow-2xl z-50 overflow-visible animate-fade-in p-2"
+              style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 68px)' }}
+            >
+              <SearchAutocomplete
+                strains={allStrains}
+                dataLoaded={dataLoaded}
+                placeholder="Search strains..."
+                autoFocus={true}
+                onSelect={() => setActiveDropdown(null)}
+                onSearch={(q) => {
+                  setActiveDropdown(null)
+                  if (q) navigate(`/search?q=${encodeURIComponent(q)}`)
+                }}
+                inputClassName="py-3 rounded-xl text-sm"
+              />
+            </div>
           )}
-        >
-          <Search size={20} />
-          Search
-        </NavLink>
+        </div>
 
         {/* Chat (direct) */}
         <NavLink

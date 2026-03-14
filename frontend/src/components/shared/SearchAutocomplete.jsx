@@ -30,6 +30,7 @@ function SearchAutocomplete({
   inputClassName = '',
   showSearchButton = false,
   userRegionIndex = null,
+  autoFocus = false,
 }) {
   const navigate = useNavigate()
   const [query, setQuery] = useState(initialQuery)
@@ -37,6 +38,13 @@ function SearchAutocomplete({
   const [focusIdx, setFocusIdx] = useState(-1)
   const wrapperRef = useRef(null)
   const inputRef = useRef(null)
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      // Small timeout to ensure it focuses after being mounted/rendered in a dropdown
+      setTimeout(() => inputRef.current.focus(), 50)
+    }
+  }, [autoFocus])
 
   // Sync initialQuery changes (e.g. from URL param)
   useEffect(() => {
