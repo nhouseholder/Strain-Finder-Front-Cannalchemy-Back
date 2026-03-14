@@ -872,8 +872,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v5: pharmacological scaffold + tolerance safety + expanded bindings
-  const quizCacheKey = `quiz:v5:${md5Simple(JSON.stringify({
+  // v6: menu-only filtering + rebalanced commonness + dispensary batchIndex
+  const quizCacheKey = `quiz:v6:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
@@ -1079,13 +1079,15 @@ export async function onRequestPost(context) {
     const communityScore = effect;
 
     // ── Pillar 3: COMMONNESS (popularity + sentiment) ─────────────
-    // totalReports range: ~261-561 (median 416), sentimentScore: 8.4-9.5
+    // Use logarithmic normalization to prevent saturation at high report counts.
+    // Old linear formula capped at 560 reports — every popular strain scored identically.
     const totalReports = (strain.effects || []).reduce((sum, e) => sum + (e.reports || 0), 0);
     const sentiment = strain.sentimentScore || 8.5;
-    const reportNorm = Math.min(1, Math.max(0, (totalReports - 260) / 300));
+    // Log scale: 0 reports → 0, 300 reports → ~0.58, 600 reports → ~0.74, 1000 → ~0.82
+    const reportNorm = Math.min(1, Math.log(1 + totalReports) / Math.log(1 + 800));
     const sentNorm   = Math.min(1, Math.max(0, (sentiment - 8.4) / 1.1));
-    // Commonness sub-blend: 70% report volume + 30% sentiment quality
-    const commonnessRaw = reportNorm * 0.7 + sentNorm * 0.3;  // 0-1
+    // Commonness sub-blend: 60% report volume + 40% sentiment quality
+    const commonnessRaw = reportNorm * 0.6 + sentNorm * 0.4;  // 0-1
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
     // ── Pillar 4: LOCATION (regional availability) ──────────────
@@ -1101,12 +1103,15 @@ export async function onRequestPost(context) {
       locationScore = strain.reg[userRegionIndex] || 40;
     }
 
-    // ── Final blended score: 30% science · 20% community · 20% commonness · 30% location
+    // ── Final blended score ──────────────────────────────────────
+    // Rebalanced: give more weight to user preferences (science + community = 60%)
+    // and less to static factors (commonness + location = 40%).
+    // 35% Science · 25% Community · 15% Commonness · 25% Location
     const score = Math.max(0, Math.min(100, Math.round(
-      scienceScore    * 0.30 +
-      communityScore  * 0.20 +
-      commonnessScore * 0.20 +
-      locationScore   * 0.30
+      scienceScore    * 0.35 +
+      communityScore  * 0.25 +
+      commonnessScore * 0.15 +
+      locationScore   * 0.25
     )));
 
     return { strain, score, scienceScore, communityScore, commonnessScore, locationScore, onMenu };
