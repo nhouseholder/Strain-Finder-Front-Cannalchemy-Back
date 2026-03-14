@@ -872,8 +872,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v6: menu-only filtering + rebalanced commonness + dispensary batchIndex
-  const quizCacheKey = `quiz:v6:${md5Simple(JSON.stringify({
+  // v7: on-menu strain inclusion bypass + onMenu flag in results + menuMatches fix
+  const quizCacheKey = `quiz:v7:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
@@ -954,7 +954,7 @@ export async function onRequestPost(context) {
 
     return true;
   }
-  const eligibleStrains = strainData.strains.filter(isQuizEligible);
+  let eligibleStrains = strainData.strains.filter(isQuizEligible);
 
   // ── Resolve user's region from zip code ──
   const regionOrder = strainData.regionOrder || ['PAC', 'MTN', 'MWE', 'GLK', 'SOU', 'NEN', 'MAT'];
@@ -1032,6 +1032,24 @@ export async function onRequestPost(context) {
       menuStatus = 'notFound';
       console.error('Dispensary menu lookup failed (non-fatal):', e.message);
     }
+  }
+
+  // When a dispensary menu is loaded, ensure on-menu strains are included
+  // even if they were excluded by isQuizEligible (e.g., partial data strains).
+  // These are real products on a real menu — they should appear in results.
+  if (dispensaryMenuStrains && dispensaryMenuStrains.size > 0) {
+    const eligibleNames = new Set(eligibleStrains.map(s => (s.name || '').toLowerCase()));
+    const missingMenuStrains = strainData.strains.filter(s => {
+      const lower = (s.name || '').toLowerCase();
+      return dispensaryMenuStrains.has(lower) && !eligibleNames.has(lower);
+    });
+    if (missingMenuStrains.length > 0) {
+      console.log(`[Recommend] Adding ${missingMenuStrains.length} on-menu strains that were excluded by eligibility filter: ${missingMenuStrains.map(s => s.name).join(', ')}`);
+      eligibleStrains = [...eligibleStrains, ...missingMenuStrains];
+    }
+    // Log how many on-menu strains are in the scoring pool
+    const onMenuInPool = eligibleStrains.filter(s => dispensaryMenuStrains.has((s.name || '').toLowerCase())).length;
+    console.log(`[Recommend] On-menu strains in scoring pool: ${onMenuInPool}/${dispensaryMenuStrains.size}`);
   }
 
   // ═══════════════════════════════════════════════════════════════════
@@ -1141,8 +1159,12 @@ export async function onRequestPost(context) {
     finalRanked = scored;
   }
 
-  // Build top 5 results
-  const mainResults = finalRanked.slice(0, 5).map(s => buildStrainResult(s.strain, s.score, desiredCanonicals));
+  // Build top 5 results (include onMenu flag for frontend badge display)
+  const mainResults = finalRanked.slice(0, 5).map(s => {
+    const result = buildStrainResult(s.strain, s.score, desiredCanonicals);
+    result.onMenu = s.onMenu;
+    return result;
+  });
 
   // AI picks: 2 from positions 6-15 with type diversity
   const mainTypes = new Set(mainResults.map(r => r.type));
@@ -1153,10 +1175,12 @@ export async function onRequestPost(context) {
   if (diffType) {
     const result = buildStrainResult(diffType.strain, diffType.score, desiredCanonicals);
     result.reason = `A ${diffType.strain.type} option that brings a different terpene profile to explore.`;
+    result.onMenu = diffType.onMenu;
     aiPicks.push(result);
   } else if (aiPickCandidates.length) {
     const result = buildStrainResult(aiPickCandidates[0].strain, aiPickCandidates[0].score, desiredCanonicals);
     result.reason = 'A hidden gem with a unique molecular profile worth exploring.';
+    result.onMenu = aiPickCandidates[0].onMenu;
     aiPicks.push(result);
   }
 
@@ -1164,6 +1188,7 @@ export async function onRequestPost(context) {
   if (remaining.length) {
     const result = buildStrainResult(remaining[0].strain, remaining[0].score, desiredCanonicals);
     result.reason = 'An unexpected match with complementary receptor activity.';
+    result.onMenu = remaining[0].onMenu;
     aiPicks.push(result);
   }
 
@@ -1211,15 +1236,18 @@ export async function onRequestPost(context) {
   let dispensaryResponse = null;
   if (selectedDisp) {
     const menuMatches = {};
-    if (dispensaryMenuMap) {
-      const allResultStrains = [...mainResults, ...aiPicks.slice(0, 2)];
-      for (const s of allResultStrains) {
-        const lower = (s.name || '').toLowerCase();
-        if (dispensaryMenuMap[lower]) {
-          menuMatches[s.name] = dispensaryMenuMap[lower];
-        }
+    const allResultStrains = [...mainResults, ...aiPicks.slice(0, 2)];
+    for (const s of allResultStrains) {
+      const lower = (s.name || '').toLowerCase();
+      if (dispensaryMenuMap && dispensaryMenuMap[lower]) {
+        menuMatches[s.name] = dispensaryMenuMap[lower];
+      } else if (s.onMenu) {
+        // Strain was matched via dispensaryMenuStrains Set but wasn't in the detailed map
+        // (edge case: name normalization differences). Still mark as on-menu.
+        menuMatches[s.name] = { price: null, menuName: s.name };
       }
     }
+    console.log(`[Recommend] menuMatches built: ${Object.keys(menuMatches).length} of ${allResultStrains.length} result strains on menu`);
     dispensaryResponse = {
       id: selectedDisp.id,
       name: selectedDisp.name,

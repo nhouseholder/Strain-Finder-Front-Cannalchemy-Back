@@ -98,7 +98,7 @@ export default function AiPicksSection() {
                   isQuizResult
                   userRegionIndex={state.userRegionIndex}
                   dispensaryMatch={state.selectedDispensary?.menuMatches?.[pick.name] || null}
-                  dispensaryName={state.selectedDispensary?.name || null}
+                  dispensaryName={state.selectedDispensary?.menuStatus === 'found' ? state.selectedDispensary.name : null}
                 />
               ))}
             </div>

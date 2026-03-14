@@ -145,7 +145,7 @@ export default function ResultsPage() {
             aiAnalysis={state.aiAnalysis}
             userRegionIndex={state.userRegionIndex}
             dispensaryMatch={state.selectedDispensary?.menuMatches?.[strain.name] || null}
-            dispensaryName={state.selectedDispensary?.name || null}
+            dispensaryName={state.selectedDispensary?.menuStatus === 'found' ? state.selectedDispensary.name : null}
           />
         ))}
       </div>
