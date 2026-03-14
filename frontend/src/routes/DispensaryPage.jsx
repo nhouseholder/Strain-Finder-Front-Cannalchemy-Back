@@ -4,7 +4,7 @@ import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
-import { fetchCities, searchByCity, fetchDispensaryMenu, searchDispensaries } from '../services/dispensarySearch'
+import { fetchCities, searchByCity, fetchDispensaryMenu, searchDispensaries, fetchStrainAvailabilityForCity } from '../services/dispensarySearch'
 import CitySelector from '../components/dispensary/CitySelector'
 import DispensaryDrawer from '../components/dispensary/DispensaryDrawer'
 import DispensaryMap from '../components/dispensary/DispensaryMap'
@@ -116,19 +116,45 @@ function DispensaryFilters({ sortBy, onSortChange }) {
 /* ------------------------------------------------------------------ */
 /*  DispensaryCard (inline — clickable to open drawer)                */
 /* ------------------------------------------------------------------ */
-function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, isLocationMode }) {
+function DispensaryCardItem({ dispensary, onClick, onViewPage, highlightStrain, strainAvailability = {}, isLocationMode }) {
   const d = dispensary
-  const hasHighlight = highlightStrain && (d.matchedStrains || []).some(
-    (s) => (typeof s === 'string' ? s : s.name)?.toLowerCase() === highlightStrain.toLowerCase()
-  )
+  const stockInfo = highlightStrain ? strainAvailability[d.id] : null
+  const hasStrain = !!stockInfo?.inStock
+  const hasAvailabilityData = highlightStrain && Object.keys(strainAvailability).length > 0
 
   return (
     <Card
       className={`p-4 cursor-pointer hover:border-leaf-500/20 transition-all duration-200 ${
-        hasHighlight ? 'ring-1 ring-leaf-500/30 border-leaf-500/20' : ''
-      }`}
+        hasStrain ? 'ring-1 ring-leaf-500/30 border-leaf-500/20' : ''
+      } ${hasAvailabilityData && !hasStrain ? 'opacity-60' : ''}`}
       onClick={() => onClick?.(d)}
     >
+      {/* Strain availability badge */}
+      {hasAvailabilityData && (
+        <div className={`flex items-center gap-2 mb-3 px-2.5 py-2 rounded-lg ${
+          hasStrain
+            ? 'bg-leaf-500/[0.08] border border-leaf-500/20'
+            : 'bg-gray-500/[0.04] border border-gray-500/10'
+        }`}>
+          {hasStrain ? (
+            <>
+              <Sparkles size={13} className="text-leaf-400 flex-shrink-0" />
+              <span className="text-[11px] font-bold text-leaf-400">
+                {highlightStrain} is in stock
+                {stockInfo.price && <span className="font-normal text-[#8a9a8e]"> · {stockInfo.price}</span>}
+              </span>
+            </>
+          ) : (
+            <>
+              <AlertCircle size={13} className="text-gray-400 dark:text-[#5a6a5e] flex-shrink-0" />
+              <span className="text-[11px] text-gray-400 dark:text-[#5a6a5e]">
+                {highlightStrain} not found on menu
+              </span>
+            </>
+          )}
+        </div>
+      )}
+
       <div className="flex items-start justify-between gap-3 mb-2">
         <div className="flex-1 min-w-0">
           <h3
@@ -508,6 +534,10 @@ export default function DispensaryPage() {
   const [sortBy, setSortBy] = useState('matches')
   const [serviceTab, setServiceTab] = useState('dispensaries') // 'dispensaries' | 'delivery'
 
+  // Strain availability (when highlightStrain is set)
+  const [strainAvailability, setStrainAvailability] = useState({}) // { dispensaryId: { inStock, price, menuName } }
+  const [availabilityLoading, setAvailabilityLoading] = useState(false)
+
   // Determine mode
   const mode = activeCity ? 'city' : locationUsed ? 'location' : null
   const allDispensaries = mode === 'city' ? (cityData?.dispensaries || []) : locationDispensaries
@@ -549,6 +579,20 @@ export default function DispensaryPage() {
     })()
     return () => { cancelled = true }
   }, [])
+
+  /* Fetch strain availability when highlightStrain + city data are ready */
+  useEffect(() => {
+    if (!highlightStrain || !activeCity || !cityData?.dispensaryCount) return
+    let cancelled = false
+    setAvailabilityLoading(true)
+    fetchStrainAvailabilityForCity(activeCity, highlightStrain, cityData.dispensaryCount)
+      .then(avail => {
+        if (!cancelled) setStrainAvailability(avail)
+      })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setAvailabilityLoading(false) })
+    return () => { cancelled = true }
+  }, [highlightStrain, activeCity, cityData?.dispensaryCount])
 
   /* Auto-search when arriving from "Find Near Me" button with autoSearch=1 */
   const hasAutoSearched = useRef(false)
@@ -659,9 +703,22 @@ export default function DispensaryPage() {
     }
   }, [activeCity])
 
-  /* Sort dispensaries */
+  /* Sort dispensaries — when highlightStrain is set, prioritize dispensaries that have it in stock */
   const sortedDispensaries = useMemo(() => {
     const list = [...dispensaries]
+
+    // When highlightStrain is active with availability data, sort in-stock to the top
+    if (highlightStrain && Object.keys(strainAvailability).length > 0) {
+      list.sort((a, b) => {
+        const aInStock = strainAvailability[a.id]?.inStock ? 1 : 0
+        const bInStock = strainAvailability[b.id]?.inStock ? 1 : 0
+        if (aInStock !== bInStock) return bInStock - aInStock
+        // Secondary sort within each group
+        return (b.menuSummary?.matched || 0) - (a.menuSummary?.matched || 0)
+      })
+      return list
+    }
+
     switch (sortBy) {
       case 'matches':
         return list.sort((a, b) => (b.menuSummary?.matched || b.matchedStrains?.length || 0) - (a.menuSummary?.matched || a.matchedStrains?.length || 0))
@@ -672,7 +729,7 @@ export default function DispensaryPage() {
       default:
         return list
     }
-  }, [dispensaries, sortBy])
+  }, [dispensaries, sortBy, highlightStrain, strainAvailability])
 
   /* Map center — city coords → location center → geolocation → compute from dispensary positions */
   const mapCenter = useMemo(() => {
@@ -719,19 +776,31 @@ export default function DispensaryPage() {
       </div>
 
       {/* Highlight banner when arriving from strain detail page */}
-      {highlightStrain && (
-        <div className="flex items-center gap-3 p-3 mb-4 rounded-xl bg-leaf-500/[0.06] border border-leaf-500/15 animate-fade-in">
-          <Leaf size={16} className="text-leaf-500 flex-shrink-0" />
-          <p className="text-xs text-gray-700 dark:text-[#b0c4b4]">
-            {(locationLoading || cityLoading)
-              ? <>Searching for <strong className="text-leaf-500">{highlightStrain}</strong> near you...</>
-              : mode
-                ? <>Showing dispensaries with <strong className="text-leaf-500">{highlightStrain}</strong> on their menu</>
-                : <>Looking for <strong className="text-leaf-500">{highlightStrain}</strong> — select a city or search a location to find dispensaries carrying this strain</>
-            }
-          </p>
-        </div>
-      )}
+      {highlightStrain && (() => {
+        const inStockCount = Object.keys(strainAvailability).length
+        const hasAvailability = inStockCount > 0 && !availabilityLoading
+        return (
+          <div className={`flex items-center gap-3 p-3 mb-4 rounded-xl border animate-fade-in ${
+            hasAvailability
+              ? 'bg-leaf-500/[0.08] border-leaf-500/20'
+              : 'bg-leaf-500/[0.06] border-leaf-500/15'
+          }`}>
+            <Leaf size={16} className="text-leaf-500 flex-shrink-0" />
+            <p className="text-xs text-gray-700 dark:text-[#b0c4b4]">
+              {(locationLoading || cityLoading)
+                ? <>Searching for <strong className="text-leaf-500">{highlightStrain}</strong> near you...</>
+                : availabilityLoading
+                  ? <>Checking menus for <strong className="text-leaf-500">{highlightStrain}</strong>...</>
+                  : hasAvailability
+                    ? <><strong className="text-leaf-500">{inStockCount} {inStockCount === 1 ? 'dispensary has' : 'dispensaries have'}</strong> <strong>{highlightStrain}</strong> in stock right now</>
+                    : mode
+                      ? <><strong className="text-leaf-500">{highlightStrain}</strong> was not found on any dispensary menu in this area</>
+                      : <>Looking for <strong className="text-leaf-500">{highlightStrain}</strong> — select a city or search a location to find dispensaries carrying this strain</>
+              }
+            </p>
+          </div>
+        )
+      })()}
 
       {/* City Selector — primary way to browse */}
       <CitySelector
@@ -917,6 +986,7 @@ export default function DispensaryPage() {
                 onClick={handleCardClick}
                 onViewPage={handleViewMenu}
                 highlightStrain={highlightStrain}
+                strainAvailability={strainAvailability}
                 isLocationMode={mode === 'location'}
               />
             ))}

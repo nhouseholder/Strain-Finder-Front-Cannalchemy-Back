@@ -203,11 +203,24 @@ function normalizeStrainEntry(s) {
   }
 }
 
+function coerceAddress(addr) {
+  if (!addr) return ''
+  if (typeof addr === 'string') return addr
+  // Handle object addresses from APIs (e.g., {street, city, state} or {formatted})
+  if (typeof addr === 'object') {
+    if (addr.formatted) return addr.formatted
+    if (addr.full) return addr.full
+    const parts = [addr.street || addr.address1 || addr.address, addr.city, addr.state].filter(Boolean)
+    if (parts.length > 0) return parts.join(', ')
+  }
+  return String(addr)
+}
+
 function normalizeDispensaries(rawList) {
   return (rawList || []).map((d, i) => ({
     id: d.id || `disp-${i}`,
     name: d.name || 'Unknown Dispensary',
-    address: d.address || '',
+    address: coerceAddress(d.address),
     lat: d.lat || null,
     lng: d.lng || null,
     distance: d.distance || '',
@@ -280,6 +293,48 @@ export function buildStrainAvailability(dispensaries) {
     map[key].sort((a, b) => (parseFloat(a.distance) || 999) - (parseFloat(b.distance) || 999))
   }
   return map
+}
+
+/* ------------------------------------------------------------------ */
+/*  Strain availability — checks batch data for a specific strain      */
+/* ------------------------------------------------------------------ */
+export async function fetchStrainAvailabilityForCity(citySlug, strainName, dispensaryCount) {
+  if (!citySlug || !strainName || !dispensaryCount) return {}
+
+  const batchCount = Math.ceil(dispensaryCount / 5) // DISPENSARIES_PER_BATCH = 5
+  const lowerStrain = strainName.toLowerCase()
+
+  // Fetch all batches in parallel
+  const batchPromises = []
+  for (let b = 0; b < batchCount; b++) {
+    batchPromises.push(
+      fetch(`/api/dispensaries?city=${citySlug}&batch=${b}`)
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
+    )
+  }
+
+  const batches = await Promise.all(batchPromises)
+
+  // Build map: dispensaryId → { inStock, price, menuName }
+  const availability = {}
+  for (const batch of batches) {
+    if (!batch?.dispensaries) continue
+    for (const d of batch.dispensaries) {
+      const match = (d.matchedMenu || []).find(
+        m => (m.strain?.name || m.menuName || '').toLowerCase() === lowerStrain
+      )
+      if (match) {
+        availability[d.id] = {
+          inStock: true,
+          price: match.price || null,
+          menuName: match.menuName || match.strain?.name || strainName,
+        }
+      }
+    }
+  }
+
+  return availability
 }
 
 /* ------------------------------------------------------------------ */

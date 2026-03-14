@@ -376,6 +376,79 @@ export default function DispensaryMenuPage() {
     return () => { cancelled = true }
   }, [citySlug, dispensaryId]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* CITY MODE: enrich KV batch data with live Weedmaps prices */
+  useEffect(() => {
+    if (isLocationMode || !menuData?.matchedMenu || !dispensary) return
+
+    // Extract WM slug from dispensary id or wmUrl
+    const wmSlug = dispensary.id?.startsWith?.('wm-')
+      ? dispensary.id.slice(3)
+      : dispensary.wmUrl?.match(/dispensaries\/([^/?]+)/)?.[1]
+        || (dispensary.slug && !dispensary.id?.startsWith?.('leafly-') ? dispensary.slug : null)
+
+    if (!wmSlug) return
+
+    // Check if prices are already present in batch data
+    const hasAnyPrice = menuData.matchedMenu.some(m => m.price || m.priceEighth)
+    if (hasAnyPrice) return // Prices already exist from harvest, no need to fetch live
+
+    let cancelled = false
+
+    async function enrichWithLivePrices() {
+      try {
+        console.log(`[DispensaryMenu] Fetching live WM prices for ${wmSlug}...`)
+        const rawMenu = await fetchWeedmapsMenuItems(wmSlug)
+        if (cancelled || rawMenu.length === 0) return
+
+        // Build price map from live menu: cleaned name → { price, priceEighth }
+        const priceMap = new Map()
+        for (const item of rawMenu) {
+          const cleaned = cleanMenuItemName(item.name).toLowerCase()
+          if (!cleaned) continue
+          const { display, eighthPrice } = extractPrice(item)
+          if (display || eighthPrice) {
+            priceMap.set(cleaned, { price: display, priceEighth: eighthPrice })
+          }
+        }
+
+        if (priceMap.size === 0) return
+
+        // Merge live prices into existing matched menu
+        let enriched = 0
+        const updatedMenu = menuData.matchedMenu.map(m => {
+          if (m.price || m.priceEighth) return m // Already has price
+          const strainName = (m.strain?.name || m.menuName || '').toLowerCase()
+          const menuName = cleanMenuItemName(m.menuName || '').toLowerCase()
+
+          const livePrice = priceMap.get(strainName) || priceMap.get(menuName)
+          if (livePrice) {
+            enriched++
+            return { ...m, price: livePrice.price, priceEighth: livePrice.priceEighth }
+          }
+
+          // Fuzzy match: check if any live menu item contains the strain name
+          for (const [key, val] of priceMap) {
+            if (key.includes(strainName) || strainName.includes(key)) {
+              enriched++
+              return { ...m, price: val.price, priceEighth: val.priceEighth }
+            }
+          }
+          return m
+        })
+
+        if (enriched > 0) {
+          console.log(`[DispensaryMenu] Enriched ${enriched} items with live WM prices`)
+          setMenuData(prev => ({ ...prev, matchedMenu: updatedMenu }))
+        }
+      } catch (err) {
+        console.warn('[DispensaryMenu] Live price enrichment failed:', err.message)
+      }
+    }
+
+    enrichWithLivePrices()
+    return () => { cancelled = true }
+  }, [isLocationMode, menuData?.matchedMenu?.length, dispensary]) // eslint-disable-line react-hooks/exhaustive-deps
+
   /* LOCATION MODE: fetch Weedmaps menu + cross-reference with strain DB */
   useEffect(() => {
     if (!isLocationMode || !dispensary || !dataLoaded) return
