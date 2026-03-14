@@ -1,7 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useContext } from 'react'
 import { normalizeStrain } from '../../utils/normalizeStrain'
 import { Link } from 'react-router-dom'
+import { Navigation, MapPin } from 'lucide-react'
 import { strainSlug } from '../../utils/strainSlug'
+import { QuizContext } from '../../context/QuizContext'
 import ExperienceDescription from '../strain-detail/ExperienceDescription'
 import ScienceExplanation from '../strain-detail/ScienceExplanation'
 import EffectsBreakdown from '../strain-detail/EffectsBreakdown'
@@ -24,6 +26,8 @@ export default function StrainCardExpanded({ strain: rawStrain, isQuizResult, ai
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
   const { fullStrains } = useStrainSearch()
+  const quizCtx = useContext(QuizContext)
+  const quizZip = quizCtx?.state?.zipCode || ''
   const existingRating = getRating(strain.name)
 
   const cannabinoids = strain.cannabinoids || []
@@ -175,15 +179,41 @@ export default function StrainCardExpanded({ strain: rawStrain, isQuizResult, ai
         <LineageTree lineage={strain.lineage} />
       )}
 
-      {/* 12. Rate This Strain — inline quick-rate widget */}
-      <Card className="p-4 border-leaf-500/20 bg-leaf-500/[0.02]">
-        <QuickRate
-          strainName={strain.name}
-          strainType={strain.type}
-          existingRating={existingRating}
-          onRate={rateStrain}
-        />
-      </Card>
+      {/* 12. Find Near Me + Rate This Strain */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        {/* Find Near Me */}
+        <Link
+          to={`/dispensaries?highlight=${encodeURIComponent(strain.name)}&autoSearch=1${quizZip ? `&zip=${encodeURIComponent(quizZip)}` : ''}`}
+          className="flex-1 group"
+        >
+          <Card className="p-4 border-leaf-500/20 bg-gradient-to-r from-leaf-500/[0.06] to-emerald-500/[0.04] hover:from-leaf-500/[0.12] hover:to-emerald-500/[0.08] transition-all duration-300 h-full">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-leaf-500/15 flex items-center justify-center flex-shrink-0 group-hover:bg-leaf-500/25 transition-colors">
+                <Navigation size={16} className="text-leaf-500" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-gray-900 dark:text-[#e8f0ea]">
+                  Find Near Me
+                </p>
+                <p className="text-[10px] text-gray-500 dark:text-[#6a7a6e] mt-0.5 flex items-center gap-1">
+                  <MapPin size={9} />
+                  {quizZip ? `Dispensaries near ${quizZip}` : 'Search nearby dispensaries'}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </Link>
+
+        {/* Rate This Strain */}
+        <Card className="flex-1 p-4 border-leaf-500/20 bg-leaf-500/[0.02]">
+          <QuickRate
+            strainName={strain.name}
+            strainType={strain.type}
+            existingRating={existingRating}
+            onRate={rateStrain}
+          />
+        </Card>
+      </div>
     </div>
   )
 }
