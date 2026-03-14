@@ -1,8 +1,10 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * Dual-mode scoring engine — Dispensary: 60% Science · 40% Community (menu-only),
- * No dispensary: 35% Science · 25% Community · 15% Commonness · 25% Location — with receptor-level scoring,
+ * Dual-mode scoring engine with flavor support:
+ * Dispensary + flavors: 55% Science · 35% Community · 10% Flavor (menu-only),
+ * No dispensary + flavors: 30% Science · 20% Community · 15% Commonness · 25% Location · 10% Flavor
+ * (Without flavor preference, flavor weight redistributes to other pillars) — with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -844,6 +846,7 @@ function buildStrainResult(strain, matchPct, desiredCanonicals) {
     description: strain.description || '',
     availability: strain.availability || 5,
     reg: strain.reg || null,
+    flavors: strain.flavors || [],
     effectPredictions,
     pathways,
   };
@@ -873,8 +876,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v9: dual-mode scoring — dispensary mode uses Science+Community only, no commonness/location
-  const quizCacheKey = `quiz:v9:${md5Simple(JSON.stringify({
+  // v10: added flavor scoring to recommendation algorithm
+  const quizCacheKey = `quiz:v10:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
@@ -886,6 +889,7 @@ export async function onRequestPost(context) {
     budget: quiz.budget || 'no_preference',
     zipCode: quiz.zipCode || '',
     dispensary: quiz.selectedDispensary?.id || '',
+    flavors: (quiz.flavors || []).slice().sort(),
   }))}`
 
   if (env?.CACHE) {
@@ -1056,14 +1060,47 @@ export async function onRequestPost(context) {
   // ═══════════════════════════════════════════════════════════════════
   // Dual-mode scoring
   // ═══════════════════════════════════════════════════════════════════
+  // ── User flavor preferences ──
+  // Flavor selections from the quiz (e.g., ['citrus', 'sweet', 'berry'])
+  // When present, strains matching these flavors get a scoring bonus.
+  const userFlavors = (quiz.flavors || []).filter(f => f !== 'no_preference');
+  const userFlavorSet = new Set(userFlavors.map(f => f.toLowerCase()));
+  const hasFlavorPreference = userFlavorSet.size > 0;
+
+  // ── Flavor scoring function ──
+  // Computes 0-100 score based on overlap between strain's flavor tags
+  // and user's selected flavors. Used as a bonus multiplier, not a hard filter.
+  function calcFlavorScore(strain) {
+    if (!hasFlavorPreference) return 50; // Neutral when no preference
+    const strainFlavors = (strain.flavors || []).map(f => f.toLowerCase());
+    if (!strainFlavors.length) return 30; // Slight penalty for no flavor data
+    let matches = 0;
+    for (const sf of strainFlavors) {
+      if (userFlavorSet.has(sf)) matches++;
+    }
+    // Score: 0 matches → 20, 1 match → 55, 2 matches → 80, 3+ → 95
+    if (matches === 0) return 20;
+    if (matches === 1) return 55;
+    if (matches === 2) return 80;
+    return 95;
+  }
+
+  if (hasFlavorPreference) {
+    console.log(`[Recommend] User flavor preferences: ${[...userFlavorSet].join(', ')}`);
+  }
+
   // DISPENSARY MODE (dispensary selected → menu-only strains):
-  //   60% Science · 40% Community
+  //   55% Science · 35% Community · 10% Flavor
   //   Commonness and Location are ignored — the dispensary menu IS the
   //   availability filter, so we score purely on user preference match.
   //
   // NO-DISPENSARY MODE (general recommendations):
-  //   35% Science · 25% Community · 15% Commonness · 25% Location
+  //   30% Science · 20% Community · 15% Commonness · 25% Location · 10% Flavor
   //   Commonness + Location (40%) help surface strains the user can find.
+  //   (When no flavor preference, flavor weight redistributes to other pillars)
+  //
+  // When user has NO flavor preference, flavor pillar weight goes to 0 and
+  // other pillars scale proportionally (same effective ratios).
   // ═══════════════════════════════════════════════════════════════════
   // Pillar 1 – SCIENCE: receptor pharmacology, scaffold molecular
   //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
@@ -1074,6 +1111,8 @@ export async function onRequestPost(context) {
   //   derived from total report volume + sentiment score.
   // Pillar 4 – LOCATION: regional availability score based on
   //   user's zip code → 7-region heuristic availability data.
+  // Pillar 5 – FLAVOR: how well the strain's flavor profile matches
+  //   the user's selected flavor preferences from the quiz.
   // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
   const scored = eligibleStrains.map(strain => {
@@ -1141,28 +1180,50 @@ export async function onRequestPost(context) {
       locationScore = strain.reg[userRegionIndex] || 40;
     }
 
+    // ── Pillar 5: FLAVOR (user flavor preference match) ──────────
+    const flavorScore = calcFlavorScore(strain);
+
     // ── Final blended score ──────────────────────────────────────
-    // Two modes:
-    //   Dispensary mode: 60% Science · 40% Community (ignore commonness + location;
-    //     menu filtering handles availability, so score purely on preference match)
-    //   No dispensary:   35% Science · 25% Community · 15% Commonness · 25% Location
-    //     (commonness + location = 40% help surface strains the user can actually find)
+    // When user has flavor preferences, 10% goes to flavor scoring:
+    //   Dispensary mode: 55% Science · 35% Community · 10% Flavor
+    //   No dispensary:   30% Science · 20% Community · 15% Commonness · 25% Location · 10% Flavor
+    // When NO flavor preference, flavor weight redistributes proportionally:
+    //   Dispensary mode: 60% Science · 40% Community (same as before)
+    //   No dispensary:   35% Science · 25% Community · 15% Commonness · 25% Location (same as before)
     let score;
     if (dispensaryMenuStrains) {
-      score = Math.max(0, Math.min(100, Math.round(
-        scienceScore   * 0.60 +
-        communityScore * 0.40
-      )));
+      if (hasFlavorPreference) {
+        score = Math.max(0, Math.min(100, Math.round(
+          scienceScore   * 0.55 +
+          communityScore * 0.35 +
+          flavorScore    * 0.10
+        )));
+      } else {
+        score = Math.max(0, Math.min(100, Math.round(
+          scienceScore   * 0.60 +
+          communityScore * 0.40
+        )));
+      }
     } else {
-      score = Math.max(0, Math.min(100, Math.round(
-        scienceScore    * 0.35 +
-        communityScore  * 0.25 +
-        commonnessScore * 0.15 +
-        locationScore   * 0.25
-      )));
+      if (hasFlavorPreference) {
+        score = Math.max(0, Math.min(100, Math.round(
+          scienceScore    * 0.30 +
+          communityScore  * 0.20 +
+          commonnessScore * 0.15 +
+          locationScore   * 0.25 +
+          flavorScore     * 0.10
+        )));
+      } else {
+        score = Math.max(0, Math.min(100, Math.round(
+          scienceScore    * 0.35 +
+          communityScore  * 0.25 +
+          commonnessScore * 0.15 +
+          locationScore   * 0.25
+        )));
+      }
     }
 
-    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore, onMenu };
+    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore, flavorScore, onMenu };
   });
 
   // Sort all results by the unified blended score
