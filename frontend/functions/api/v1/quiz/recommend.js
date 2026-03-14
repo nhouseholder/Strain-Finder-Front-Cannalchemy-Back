@@ -968,6 +968,7 @@ export async function onRequestPost(context) {
   let dispensaryMenuStrains = null; // Set<lowercase strain name> or null
   let dispensaryMenuMap = null;     // { lowerName: { price, menuName } }
   const selectedDisp = quiz.selectedDispensary;
+  console.log(`[Recommend] selectedDispensary:`, selectedDisp ? JSON.stringify({ id: selectedDisp.id, citySlug: selectedDisp.citySlug, batchIndex: selectedDisp.batchIndex }) : 'null');
   if (selectedDisp?.id && selectedDisp?.citySlug && env?.CACHE) {
     try {
       // Strategy: use batchIndex from frontend if available (most reliable —

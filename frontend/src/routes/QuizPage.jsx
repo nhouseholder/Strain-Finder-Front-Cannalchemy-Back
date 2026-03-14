@@ -195,8 +195,20 @@ export default function QuizPage() {
       // Call MyStrainAI backend — scores 24,853 strains with receptor science
       const parsed = await getRecommendations(quizState)
 
-      // Dispatch results immediately (stored in state)
-      resultsDispatch({ type: 'SET_RESULTS', payload: parsed })
+      // Dispatch results immediately (stored in state).
+      // Always pass selectedDispensary from quiz state so the banner shows
+      // even if the API's KV menu lookup didn't find menu data.
+      const payload = { ...parsed }
+      if (quizState.selectedDispensary && !payload.selectedDispensary) {
+        payload.selectedDispensary = {
+          id: quizState.selectedDispensary.id,
+          name: quizState.selectedDispensary.name,
+          citySlug: quizState.selectedDispensary.citySlug,
+          cityLabel: quizState.selectedDispensary.cityLabel,
+          menuMatches: {},
+        }
+      }
+      resultsDispatch({ type: 'SET_RESULTS', payload })
 
       // Save full quiz snapshot for history (per-user)
       saveQuiz(quizState, parsed.strains || [])
