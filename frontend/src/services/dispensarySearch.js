@@ -340,6 +340,22 @@ export async function fetchStrainAvailabilityForCity(citySlug, strainName, dispe
 /* ------------------------------------------------------------------ */
 /*  Fetch all dispensaries across all cities (for quiz autocomplete)    */
 /* ------------------------------------------------------------------ */
+
+// Hardcoded fallback — the cities:index KV key may be empty even when
+// individual city data exists.  These must match harvest-dispensary-menus.mjs.
+export const KNOWN_CITIES = [
+  { slug: 'san-diego',   label: 'San Diego, CA' },
+  { slug: 'phoenix',     label: 'Phoenix, AZ' },
+  { slug: 'los-angeles', label: 'Los Angeles, CA' },
+  { slug: 'new-york',    label: 'New York, NY' },
+  { slug: 'denver',      label: 'Denver, CO' },
+  { slug: 'las-vegas',   label: 'Las Vegas, NV' },
+  { slug: 'detroit',     label: 'Detroit, MI' },
+  { slug: 'chicago',     label: 'Chicago, IL' },
+  { slug: 'nashville',   label: 'Nashville, TN' },
+  { slug: 'lubbock',     label: 'Lubbock, TX' },
+]
+
 let _allDispensaryIndexCache = null
 let _allDispensaryIndexPromise = null
 
@@ -350,9 +366,13 @@ export async function fetchAllDispensaryIndex() {
 
   _allDispensaryIndexPromise = (async () => {
     try {
-      const cities = await fetchCities()
-      console.log('[DispensaryIndex] Cities found:', cities.length, cities.map(c => c.slug))
-      if (!cities.length) return []
+      // Try the KV cities index first; fall back to hardcoded list
+      let cities = await fetchCities()
+      if (!cities.length) {
+        console.log('[DispensaryIndex] cities:index empty, using hardcoded fallback')
+        cities = KNOWN_CITIES
+      }
+      console.log('[DispensaryIndex] Querying', cities.length, 'cities:', cities.map(c => c.slug))
 
       const cityResults = await Promise.all(
         cities.map(async (city) => {
@@ -368,7 +388,7 @@ export async function fetchAllDispensaryIndex() {
               name: d.name || 'Unknown',
               address: d.address || '',
               citySlug: city.slug,
-              cityLabel: city.label,
+              cityLabel: city.label || data.label || city.slug,
               rating: d.rating || null,
               delivery: !!d.delivery,
               storefront: d.storefront !== false,

@@ -4,7 +4,7 @@ import usePageTitle from '../hooks/usePageTitle'
 import { ResultsContext } from '../context/ResultsContext'
 import { QuizContext } from '../context/QuizContext'
 import { useGeolocation } from '../hooks/useGeolocation'
-import { fetchCities, searchByCity, fetchDispensaryMenu, searchDispensaries, fetchStrainAvailabilityForCity } from '../services/dispensarySearch'
+import { fetchCities, searchByCity, fetchDispensaryMenu, searchDispensaries, fetchStrainAvailabilityForCity, KNOWN_CITIES } from '../services/dispensarySearch'
 import CitySelector from '../components/dispensary/CitySelector'
 import DispensaryDrawer from '../components/dispensary/DispensaryDrawer'
 import DispensaryMap from '../components/dispensary/DispensaryMap'
@@ -566,13 +566,16 @@ export default function DispensaryPage() {
     let cancelled = false
     ;(async () => {
       try {
-        const data = await fetchCities()
+        let data = await fetchCities()
+        // Fallback to hardcoded list when KV cities:index is empty
+        if (!data.length) data = KNOWN_CITIES
         if (!cancelled) {
           setCities(data)
           setCitiesUpdatedAt(data[0]?.updatedAt || null)
         }
       } catch {
-        // Cities unavailable — location mode still works
+        // Cities unavailable — use hardcoded fallback
+        if (!cancelled) setCities(KNOWN_CITIES)
       } finally {
         if (!cancelled) setCitiesLoading(false)
       }
