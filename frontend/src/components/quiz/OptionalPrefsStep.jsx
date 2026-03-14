@@ -21,7 +21,7 @@ export default function OptionalPrefsStep({ onComplete }) {
   } = useQuizState()
 
   const handleNext = () => {
-    setStep(5) // Advance to dispensary step
+    setStep(4) // Advance to dispensary step
   }
 
   return (
@@ -231,7 +231,7 @@ export default function OptionalPrefsStep({ onComplete }) {
 
       {/* Navigation */}
       <div className="flex items-center justify-between pt-2">
-        <Button variant="ghost" size="md" onClick={() => setStep(3)} aria-label="Go back to consumption step">
+        <Button variant="ghost" size="md" onClick={() => setStep(2)} aria-label="Go back to tolerance step">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>

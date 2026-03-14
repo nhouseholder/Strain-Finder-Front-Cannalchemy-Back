@@ -280,7 +280,7 @@ export default function DispensaryStep({ onComplete }) {
 
       {/* Navigation */}
       <div className="flex items-center justify-between pt-2">
-        <Button variant="ghost" size="md" onClick={() => setStep(4)} aria-label="Go back to fine-tune step">
+        <Button variant="ghost" size="md" onClick={() => setStep(3)} aria-label="Go back to fine-tune step">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
           </svg>

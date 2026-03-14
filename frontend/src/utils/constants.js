@@ -1,5 +1,5 @@
 export const APP_NAME = 'MyStrainAI';
-export const APP_VERSION = 'v5.63.1 · Mar 14, 2026';
+export const APP_VERSION = 'v5.64.0 · Mar 14, 2026';
 
 export const STORAGE_KEYS = {
   THEME: 'sf-theme',
@@ -22,7 +22,6 @@ export const INVALID_STRAIN_NAMES = ['sativa', 'indica', 'hybrid', 'strain', 'un
 export const QUIZ_STEPS = [
   { id: 'effects', label: 'Effects', number: 1 },
   { id: 'tolerance', label: 'Tolerance', number: 2 },
-  { id: 'consumption', label: 'Method', number: 3 },
-  { id: 'preferences', label: 'Fine-Tune', number: 4 },
-  { id: 'dispensary', label: 'Dispensary', number: 5 },
+  { id: 'preferences', label: 'Fine-Tune', number: 3 },
+  { id: 'dispensary', label: 'Dispensary', number: 4 },
 ];

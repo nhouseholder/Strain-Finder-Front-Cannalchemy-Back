@@ -455,13 +455,6 @@ function calcPreferenceScore(strain, quiz) {
   const subtypeScore = (!subtypePref || subtypePref === 'no_preference') ? 100
     : strainType === subtypePref ? 100 : 40;
 
-  const consumption = strain.consumption_suitability || {};
-  const method = quiz.consumptionMethod || 'no_preference';
-  let consumptionScore = 100;
-  if (method && method !== 'no_preference') {
-    consumptionScore = consumption[method] ? (consumption[method] / 5) * 100 : 60;
-  }
-
   const budget = quiz.budget || 'no_preference';
   let budgetScore = 100;
   if (budget && budget !== 'no_preference') {
@@ -471,7 +464,7 @@ function calcPreferenceScore(strain, quiz) {
     else budgetScore = 60;
   }
 
-  return subtypeScore * 0.5 + consumptionScore * 0.25 + budgetScore * 0.25;
+  return subtypeScore * 0.6 + budgetScore * 0.4;
 }
 
 // ============================================================
@@ -876,8 +869,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v10: added flavor scoring to recommendation algorithm
-  const quizCacheKey = `quiz:v10:${md5Simple(JSON.stringify({
+  // v11: removed consumption method from quiz and scoring
+  const quizCacheKey = `quiz:v11:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
@@ -885,7 +878,6 @@ export async function onRequestPost(context) {
     thcPreference: quiz.thcPreference || 'no_preference',
     cbdPreference: quiz.cbdPreference || 'no_preference',
     subtype: quiz.subtype || 'no_preference',
-    consumptionMethod: quiz.consumptionMethod || 'no_preference',
     budget: quiz.budget || 'no_preference',
     zipCode: quiz.zipCode || '',
     dispensary: quiz.selectedDispensary?.id || '',

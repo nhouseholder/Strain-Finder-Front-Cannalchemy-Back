@@ -84,7 +84,7 @@ export function QuizProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored)
         // Never restore the loading step — it's transient
-        if (parsed.currentStep >= 6 || parsed.currentStep === 0) parsed.currentStep = 1
+        if (parsed.currentStep >= 5 || parsed.currentStep === 0) parsed.currentStep = 1
         return { ...initialState, ...parsed }
       }
     } catch {}
