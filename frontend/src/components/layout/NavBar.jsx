@@ -146,6 +146,18 @@ export default function NavBar() {
 
   const initial = user?.email?.[0]?.toUpperCase() || '?'
 
+  /* Hide mobile bottom bar when virtual keyboard is open */
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const threshold = window.innerHeight * 0.75
+    const check = () => setKeyboardOpen(vv.height < threshold)
+    check()
+    vv.addEventListener('resize', check)
+    return () => vv.removeEventListener('resize', check)
+  }, [])
+
   /* Active-state detection for grouped items */
   const isExploreActive = ['/explore', '/explore-strains', '/compare'].some(p => location.pathname.startsWith(p))
   const isLearnActive = location.pathname.startsWith('/learn')
@@ -350,7 +362,10 @@ export default function NavBar() {
           Quiz | Search | Chat | Maps | More≡
          ═══════════════════════════════════════════ */}
       <nav
-        className="sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom"
+        className={clsx(
+          'sm:hidden fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around px-2 py-1.5 border-t border-gray-200/70 dark:border-white/[0.06] bg-[#f4f7f5]/95 dark:bg-leaf-900/92 backdrop-blur-xl safe-area-bottom transition-transform duration-200',
+          keyboardOpen && 'translate-y-full pointer-events-none opacity-0'
+        )}
         style={{ paddingBottom: 'max(0.375rem, env(safe-area-inset-bottom, 0.375rem))' }}
         role="navigation"
         aria-label="Main navigation"

@@ -50,13 +50,17 @@ function SearchAutocomplete({
     if (!vv) return
     const update = () => {
       const input = inputRef.current
+      // Reserve space for mobile bottom nav (~64px) when keyboard is closed
+      const mobileNav = window.innerWidth < 640 ? 64 : 0
+      const keyboardOpen = vv.height < window.innerHeight * 0.75
+      const bottomPad = keyboardOpen ? 8 : mobileNav + 8
       if (input) {
         const rect = input.getBoundingClientRect()
         const bottomOfInput = rect.bottom + 8 // 8px gap
-        const available = vv.height - bottomOfInput
+        const available = vv.height - bottomOfInput - (keyboardOpen ? 0 : mobileNav)
         setDropdownMaxH(`${Math.max(available, 120)}px`)
       } else {
-        setDropdownMaxH(`${Math.min(vv.height * 0.4, vv.height - 140)}px`)
+        setDropdownMaxH(`${Math.min(vv.height * 0.4, vv.height - 140 - bottomPad)}px`)
       }
     }
     update()
