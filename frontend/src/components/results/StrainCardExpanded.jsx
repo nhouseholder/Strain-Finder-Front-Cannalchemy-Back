@@ -19,7 +19,7 @@ import { useRatings } from '../../hooks/useRatings'
 import { useStrainSearch } from '../../hooks/useStrainSearch'
 import Card from '../shared/Card'
 
-export default function StrainCardExpanded({ strain: rawStrain, isQuizResult }) {
+export default function StrainCardExpanded({ strain: rawStrain, isQuizResult, aiAnalysis }) {
   // Normalize snake_case → camelCase and derive computed fields
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
@@ -124,11 +124,11 @@ export default function StrainCardExpanded({ strain: rawStrain, isQuizResult }) 
         </div>
       ) : null}
 
-      {/* 1. The Experience — AI-generated strain description */}
-      <ExperienceDescription strain={strain} />
+      {/* 1. Why This Strain — merged AI pharmacological analysis + per-strain science */}
+      <ScienceExplanation strain={strain} isQuizResult={isQuizResult} aiAnalysis={aiAnalysis} />
 
-      {/* 2. AI Science Explanation (lazy-loaded on click) */}
-      <ScienceExplanation strain={strain} isQuizResult={isQuizResult} />
+      {/* 2. The Experience — AI-generated strain description */}
+      <ExperienceDescription strain={strain} />
 
       {/* 3. Full Effects Breakdown — positive, medical, negative with reports & confidence */}
       <EffectsBreakdown effects={strain.effects} />

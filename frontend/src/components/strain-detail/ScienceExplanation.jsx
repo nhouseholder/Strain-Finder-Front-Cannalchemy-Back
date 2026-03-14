@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Brain, Loader2 } from 'lucide-react'
 import { QuizContext } from '../../context/QuizContext'
 import { callFreeAI } from '../../services/freeAi'
 import { buildScienceExplanation } from '../../services/promptBuilder'
@@ -34,7 +34,7 @@ function setCache(strainName, text) {
   }
 }
 
-export default function ScienceExplanation({ strain, isQuizResult }) {
+export default function ScienceExplanation({ strain, isQuizResult, aiAnalysis }) {
   const quiz = useContext(QuizContext)
   const hasQuizData = isQuizResult && quiz?.state?.effects?.length > 0
   const [explanation, setExplanation] = useState(() => hasQuizData ? getCached(strain?.name) : null)
@@ -75,34 +75,44 @@ export default function ScienceExplanation({ strain, isQuizResult }) {
     return () => { cancelled = true }
   }, [strain?.name, hasQuizData]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Don't render if no quiz data, or nothing to show
-  if (!hasQuizData || (!explanation && !loading && !error)) return null
+  // Don't render if no quiz data and no aiAnalysis, or nothing to show
+  const hasContent = aiAnalysis || explanation || loading || error
+  if (!hasQuizData || !hasContent) return null
 
   return (
-    <div className="rounded-xl border border-teal-500/20 bg-teal-500/[0.04] p-4">
+    <div className="rounded-xl border border-purple-500/15 bg-gradient-to-br from-purple-500/[0.05] via-teal-500/[0.03] to-purple-500/[0.05] p-4">
       <div className="flex items-start gap-3">
-        <div className="w-7 h-7 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+        <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
           {loading ? (
-            <Loader2 size={14} className="text-teal-400 animate-spin" />
+            <Loader2 size={14} className="text-purple-400 animate-spin" />
           ) : (
-            <Sparkles size={14} className="text-teal-400" />
+            <Brain size={14} className="text-purple-400" />
           )}
         </div>
-        <div className="min-w-0">
-          <h4 className="text-[10px] font-bold uppercase tracking-wider text-teal-400 mb-1.5">
-            Why This Strain <span className="text-teal-400/50 normal-case font-normal">(AI)</span>
+        <div className="min-w-0 space-y-2.5">
+          <h4 className="text-[10px] font-bold uppercase tracking-wider text-purple-400 mb-1.5">
+            Why This Strain <span className="text-purple-400/50 normal-case font-normal">(AI Pharmacological Analysis)</span>
           </h4>
+
+          {/* Top-level AI pharmacological analysis from quiz results */}
+          {aiAnalysis && (
+            <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b0c4b4]">
+              {aiAnalysis}
+            </p>
+          )}
+
+          {/* Per-strain science explanation */}
           {loading ? (
             <p className="text-xs text-gray-400 dark:text-[#6a7a6e] italic">
-              Analyzing molecular profile...
+              Analyzing molecular profile for {strain?.name}...
             </p>
           ) : error ? (
             <p className="text-[10px] text-red-400">{error}</p>
-          ) : (
+          ) : explanation ? (
             <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b0c4b4]">
               {explanation}
             </p>
-          )}
+          ) : null}
         </div>
       </div>
     </div>

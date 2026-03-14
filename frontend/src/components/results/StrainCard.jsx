@@ -41,7 +41,7 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult, userRegionIndex }) {
+function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult, aiAnalysis, userRegionIndex }) {
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
   const existingRating = getRating(strain.name)
@@ -281,7 +281,7 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
 
       {/* Expanded detail section */}
       {expanded && (
-        <StrainCardExpanded strain={strain} isQuizResult={isQuizResult} />
+        <StrainCardExpanded strain={strain} isQuizResult={isQuizResult} aiAnalysis={aiAnalysis} />
       )}
 
       {/* Legal micro-disclaimer */}
