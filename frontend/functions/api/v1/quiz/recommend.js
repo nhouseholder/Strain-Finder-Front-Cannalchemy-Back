@@ -872,8 +872,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v7: on-menu strain inclusion bypass + onMenu flag in results + menuMatches fix
-  const quizCacheKey = `quiz:v7:${md5Simple(JSON.stringify({
+  // v8: fix hemp COA contamination — corrected THC/CBD values for 277 strains
+  const quizCacheKey = `quiz:v8:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
