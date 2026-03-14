@@ -11,7 +11,7 @@
  * Results cached in KV for 24 hours.
  */
 
-const TTL_SECONDS = 24 * 60 * 60 // 24 hours
+const TTL_SECONDS = 4 * 60 * 60 // 4 hours
 const MAX_PAGES = 3
 const MAX_ITEMS = 200
 
@@ -46,8 +46,8 @@ export async function onRequest(context) {
       totalItems: menuItems.length,
     }
 
-    // Cache in KV (even empty results to avoid repeated failed requests)
-    if (env.CACHE) {
+    // Cache in KV (only cache non-empty results; empty results should retry next request)
+    if (env.CACHE && menuItems.length > 0) {
       await env.CACHE.put(cacheKey, JSON.stringify(result), { expirationTtl: TTL_SECONDS })
     }
 
@@ -90,11 +90,32 @@ async function fetchWeedmapsMenu(slug) {
       if (items.length === 0) break
 
       for (const m of items) {
+        // WM v1 API returns prices in various shapes — capture all of them
+        const prices = m.prices || []
+        const variants = m.variants || []
+
+        // Also extract from price_range / price_tiers if available
+        if (prices.length === 0 && m.price_range) {
+          // e.g. { "eighth": 35, "quarter": 60 }
+          for (const [label, val] of Object.entries(m.price_range)) {
+            if (typeof val === 'number' && val > 0) {
+              prices.push({ label, price: val })
+            }
+          }
+        }
+        if (prices.length === 0 && m.price_tiers) {
+          for (const tier of (Array.isArray(m.price_tiers) ? m.price_tiers : [])) {
+            if (tier.price || tier.amount) {
+              prices.push({ label: tier.name || tier.label || '', price: tier.price || tier.amount })
+            }
+          }
+        }
+
         allItems.push({
           name: m.name || '',
-          prices: m.prices || [],
-          variants: m.variants || [],
-          price: m.price ?? null,
+          prices,
+          variants,
+          price: m.price ?? m.default_price ?? null,
           priceUnit: m.price_unit ?? null,
           image: m.avatar_image?.small_url || null,
           brand: m.brand?.name || null,
