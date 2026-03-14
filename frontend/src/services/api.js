@@ -103,6 +103,41 @@ export async function getUserPreferenceProfile(userId) {
   return response.json()
 }
 
+// ── Strain Lookup & Request API ───────────────────────────────
+
+/**
+ * Look up a strain by name. Returns full data from the live database.
+ * @param {string} name - Strain name to look up
+ * @returns {Promise<{found: boolean, strain: Object|null, enrichmentStatus: string, message: string}>}
+ */
+export async function lookupStrain(name) {
+  const response = await fetch(`${API_BASE}/strains/lookup/${encodeURIComponent(name)}`)
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || 'Failed to look up strain')
+  }
+  return response.json()
+}
+
+/**
+ * Request a strain be added and enriched.
+ * Creates a minimal record if not found, kicks off background enrichment.
+ * @param {string} name - Strain name to request
+ * @returns {Promise<{found: boolean, strain: Object|null, enrichmentStatus: string, message: string}>}
+ */
+export async function requestStrain(name) {
+  const response = await fetch(`${API_BASE}/strains/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  })
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    throw new Error(errorData.detail || 'Failed to request strain')
+  }
+  return response.json()
+}
+
 /**
  * Delete a rating for a specific strain.
  */
