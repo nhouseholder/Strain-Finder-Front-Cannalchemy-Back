@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef, useMemo, memo } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Search, X, Loader2, Cannabis } from 'lucide-react'
+import { Search, X, Loader2, Cannabis, Plus } from 'lucide-react'
 import { strainSlug } from '../../utils/strainSlug'
+import { requestStrain } from '../../services/api'
 
 const effectLabel = (e) => typeof e === 'string' ? e : (e?.name || e?.label || '')
 
@@ -35,6 +36,8 @@ function SearchAutocomplete({
   const [query, setQuery] = useState(initialQuery)
   const [open, setOpen] = useState(false)
   const [focusIdx, setFocusIdx] = useState(-1)
+  const [requestLoading, setRequestLoading] = useState(false)
+  const [requestError, setRequestError] = useState(null)
   const wrapperRef = useRef(null)
   const inputRef = useRef(null)
   const dropdownRef = useRef(null)
@@ -183,6 +186,24 @@ function SearchAutocomplete({
     }
   }
 
+  const handleRequestStrain = useCallback(async () => {
+    const name = query.trim()
+    if (!name || requestLoading) return
+    setRequestLoading(true)
+    setRequestError(null)
+    try {
+      const result = await requestStrain(name)
+      if (result.found && result.strain) {
+        setOpen(false)
+        navigate(`/strain/${strainSlug(result.strain.name || name)}`)
+      }
+    } catch (err) {
+      setRequestError(err.message || 'Failed to request strain')
+    } finally {
+      setRequestLoading(false)
+    }
+  }, [query, requestLoading, navigate])
+
   const handleClear = () => {
     setQuery('')
     setOpen(false)
@@ -262,8 +283,31 @@ function SearchAutocomplete({
               Loading strain database...
             </div>
           ) : matches.length === 0 ? (
-            <div className="px-4 py-3 text-xs text-gray-400 dark:text-[#6a7a6e]">
-              No strains match "{query}"
+            <div className="px-4 py-3 space-y-2">
+              <p className="text-xs text-gray-400 dark:text-[#6a7a6e]">
+                No strains match &ldquo;{query}&rdquo;
+              </p>
+              <button
+                type="button"
+                onClick={handleRequestStrain}
+                disabled={requestLoading}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r from-leaf-500 to-emerald-500 text-white text-xs font-semibold hover:from-leaf-400 hover:to-emerald-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {requestLoading ? (
+                  <>
+                    <Loader2 size={12} className="animate-spin" />
+                    Searching sources...
+                  </>
+                ) : (
+                  <>
+                    <Plus size={12} />
+                    Request This Strain
+                  </>
+                )}
+              </button>
+              {requestError && (
+                <p className="text-[10px] text-red-400">{requestError}</p>
+              )}
             </div>
           ) : (
             matches.map((strain, idx) => {
