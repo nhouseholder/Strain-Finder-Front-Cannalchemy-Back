@@ -142,6 +142,15 @@ export default function QuizPage() {
   const pendingResult = useRef(null)
   const startTimeRef = useRef(null)
 
+  /* Guard: if we land on step 6 but nothing is running (e.g. browser back
+     from results), redirect to the last real quiz step instead of showing
+     a frozen loading screen. */
+  useEffect(() => {
+    if (currentStep === 6 && !isRunning && !error) {
+      setStep(5)
+    }
+  }, [currentStep, isRunning, error, setStep])
+
   /* Advance loading messages ---------------------------------------- */
   useEffect(() => {
     if (currentStep !== 6 || !isRunning) return
