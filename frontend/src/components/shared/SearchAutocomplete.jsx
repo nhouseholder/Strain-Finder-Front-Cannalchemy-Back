@@ -37,6 +37,47 @@ function SearchAutocomplete({
   const [focusIdx, setFocusIdx] = useState(-1)
   const wrapperRef = useRef(null)
   const inputRef = useRef(null)
+  const dropdownRef = useRef(null)
+
+  // Track visual viewport height (shrinks when mobile keyboard opens).
+  // Compute available space below the input so the dropdown fits above the keyboard.
+  const [dropdownMaxH, setDropdownMaxH] = useState('40vh')
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => {
+      const input = inputRef.current
+      if (input) {
+        const rect = input.getBoundingClientRect()
+        const bottomOfInput = rect.bottom + 8 // 8px gap
+        const available = vv.height - bottomOfInput
+        setDropdownMaxH(`${Math.max(available, 120)}px`)
+      } else {
+        setDropdownMaxH(`${Math.min(vv.height * 0.4, vv.height - 140)}px`)
+      }
+    }
+    update()
+    vv.addEventListener('resize', update)
+    vv.addEventListener('scroll', update)
+    return () => {
+      vv.removeEventListener('resize', update)
+      vv.removeEventListener('scroll', update)
+    }
+  }, [])
+
+  // On mobile, scroll the input into view when focused so the dropdown
+  // isn't hidden behind the virtual keyboard.
+  useEffect(() => {
+    const input = inputRef.current
+    if (!input) return
+    const handleFocus = () => {
+      setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 300)
+    }
+    input.addEventListener('focus', handleFocus)
+    return () => input.removeEventListener('focus', handleFocus)
+  }, [])
 
   // Sync initialQuery changes (e.g. from URL param)
   useEffect(() => {
@@ -210,7 +251,9 @@ function SearchAutocomplete({
       {/* Dropdown */}
       {showDropdown && (
         <div
-          className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-gray-200/50 dark:border-white/10 bg-white dark:bg-[#121a14] shadow-2xl shadow-black/25 z-50 overflow-hidden max-h-[40vh] overflow-y-auto"
+          ref={dropdownRef}
+          className="absolute top-full left-0 right-0 mt-1.5 rounded-xl border border-gray-200/50 dark:border-white/10 bg-white dark:bg-[#121a14] shadow-2xl shadow-black/25 z-50 overflow-hidden overflow-y-auto"
+          style={{ maxHeight: dropdownMaxH }}
           role="listbox"
         >
           {!dataLoaded ? (
