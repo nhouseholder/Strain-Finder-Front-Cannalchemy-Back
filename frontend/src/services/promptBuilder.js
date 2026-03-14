@@ -332,16 +332,15 @@ export function buildScienceExplanation(strain, quizState) {
 STRAIN: ${strain.name} (${strain.type}) — ${strain.matchPct}% match
 TERPENES: ${terpStr || 'No terpene data'}
 CANNABINOIDS: ${cannabStr || 'No cannabinoid data'}
-KEY PATHWAYS: ${pathwayStr || 'No pathway data'}
 WHAT USERS REPORT: ${forumPros || 'Limited data'}
 THIS PERSON WANTS: ${userEffects || 'General wellness'}
 THIS PERSON AVOIDS: ${userAvoid}
 
 RULES:
-- 4 sentences MAXIMUM. Confident and warm, not clinical.
+- 3 sentences MAXIMUM. One short paragraph only.
 - Focus on what makes THIS strain special for THIS person — connect their goals to the strain's standout terpenes and cannabinoids.
-- Mention 2-3 terpenes by name with a simple analogy (e.g. "myrcene, the same terpene in mangoes, promotes deep relaxation") — no receptor codes or Ki values.
-- Briefly note how the compounds work together (entourage effect) in plain terms.
+- Mention 2-3 terpenes by name with a simple analogy (e.g. "myrcene, the same terpene in mangoes, promotes deep relaxation").
+- NEVER mention receptor names (CB1, CB2, TRPV1, 5-HT, etc.) or Ki values. NEVER use the word "receptor".
 - Use "you/your". No generic THC claims. No hedging ("may potentially possibly").
 - Write ONLY the explanation. No headers, no formatting, no preamble.`
 }

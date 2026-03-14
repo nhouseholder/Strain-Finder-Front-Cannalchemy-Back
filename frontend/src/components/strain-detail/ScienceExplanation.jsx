@@ -51,7 +51,7 @@ export default function ScienceExplanation({ strain, isQuizResult, aiAnalysis })
       setError(null)
       try {
         const prompt = buildScienceExplanation(strain, quiz?.state)
-        const result = await callFreeAI({ prompt, maxTokens: 220, retries: 2 })
+        const result = await callFreeAI({ prompt, maxTokens: 160, retries: 2 })
         const cleaned = (result || '').trim()
         if (!cancelled && cleaned) {
           setExplanation(cleaned)
@@ -94,23 +94,16 @@ export default function ScienceExplanation({ strain, isQuizResult, aiAnalysis })
             Why This Strain <span className="text-teal-400/50 normal-case font-normal">(AI Pharmacological Analysis)</span>
           </h4>
 
-          {/* Top-level AI pharmacological analysis from quiz results */}
-          {aiAnalysis && (
-            <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b0c4b4]">
-              {aiAnalysis}
-            </p>
-          )}
-
-          {/* Per-strain science explanation */}
+          {/* Single paragraph — prefer per-strain explanation, fall back to aiAnalysis */}
           {loading ? (
             <p className="text-xs text-gray-400 dark:text-[#6a7a6e] italic">
               Analyzing molecular profile for {strain?.name}...
             </p>
           ) : error ? (
             <p className="text-[10px] text-red-400">{error}</p>
-          ) : explanation ? (
+          ) : (explanation || aiAnalysis) ? (
             <p className="text-xs leading-relaxed text-gray-600 dark:text-[#b0c4b4]">
-              {explanation}
+              {explanation || aiAnalysis}
             </p>
           ) : null}
         </div>
