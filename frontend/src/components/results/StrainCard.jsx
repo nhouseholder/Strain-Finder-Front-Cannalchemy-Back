@@ -41,7 +41,7 @@ function CannabinoidMiniGrid({ strain }) {
   )
 }
 
-function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult, aiAnalysis, userRegionIndex }) {
+function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavorite, availability, availabilityLoading, onViewDispensary, hideExpandButton, isQuizResult, aiAnalysis, userRegionIndex, dispensaryMatch, dispensaryName }) {
   const strain = useMemo(() => normalizeStrain(rawStrain), [rawStrain])
   const { getRating, rateStrain } = useRatings()
   const existingRating = getRating(strain.name)
@@ -105,6 +105,19 @@ function StrainCard({ strain: rawStrain, expanded, onToggle, isFavorite, onFavor
                 // a strain is uncommon, since our availability data is estimated
                 return null
               })()}
+              {/* Dispensary availability badge */}
+              {dispensaryName && (
+                dispensaryMatch ? (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-semibold border bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700/40">
+                    At {dispensaryMatch.menuName || dispensaryName}
+                    {dispensaryMatch.price && <> &middot; ${dispensaryMatch.price}/3.5g</>}
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium border bg-gray-50 text-gray-400 dark:bg-gray-800/30 dark:text-gray-500 border-gray-200 dark:border-gray-700/30">
+                    Not on menu
+                  </span>
+                )
+              )}
               {/* Why This Match - info icon tooltip */}
               {strain.whyMatch && (
                 <Tooltip content={strain.whyMatch}>

@@ -20,8 +20,8 @@ export default function OptionalPrefsStep({ onComplete }) {
     setStep,
   } = useQuizState()
 
-  const handleFinish = () => {
-    if (onComplete) onComplete()
+  const handleNext = () => {
+    setStep(5) // Advance to dispensary step
   }
 
   return (
@@ -239,13 +239,13 @@ export default function OptionalPrefsStep({ onComplete }) {
         </Button>
 
         <div className="flex items-center gap-3">
-          <Button variant="secondary" size="md" onClick={handleFinish} aria-label="Skip fine-tuning and find matches">
+          <Button variant="secondary" size="md" onClick={handleNext} aria-label="Skip fine-tuning">
             Skip
           </Button>
-          <Button size="lg" onClick={handleFinish} aria-label="Find my matches">
-            Find My Matches
+          <Button size="lg" onClick={handleNext} aria-label="Continue to next step">
+            Next
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </Button>
         </div>

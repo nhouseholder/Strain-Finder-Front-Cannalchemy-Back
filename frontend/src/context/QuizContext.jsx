@@ -16,6 +16,7 @@ const initialState = {
   thcPreference: 'no_preference',
   cbdPreference: 'none',
   flavors: [],
+  selectedDispensary: null, // { id, name, citySlug, cityLabel }
 }
 
 function quizReducer(state, action) {
@@ -55,6 +56,8 @@ function quizReducer(state, action) {
       return { ...state, thcPreference: action.payload }
     case 'SET_CBD_PREFERENCE':
       return { ...state, cbdPreference: action.payload }
+    case 'SET_SELECTED_DISPENSARY':
+      return { ...state, selectedDispensary: action.payload }
     case 'TOGGLE_FLAVOR': {
       const id = action.payload
       if (id === 'no_preference') return { ...state, flavors: [] }
@@ -81,7 +84,7 @@ export function QuizProvider({ children }) {
       if (stored) {
         const parsed = JSON.parse(stored)
         // Never restore the loading step — it's transient
-        if (parsed.currentStep >= 5 || parsed.currentStep === 0) parsed.currentStep = 1
+        if (parsed.currentStep >= 6 || parsed.currentStep === 0) parsed.currentStep = 1
         return { ...initialState, ...parsed }
       }
     } catch {}

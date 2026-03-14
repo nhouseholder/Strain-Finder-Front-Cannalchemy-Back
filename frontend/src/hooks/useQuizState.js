@@ -17,6 +17,7 @@ export function useQuizState() {
   const setThcPreference = useCallback((val) => dispatch({ type: 'SET_THC_PREFERENCE', payload: val }), [dispatch])
   const setCbdPreference = useCallback((val) => dispatch({ type: 'SET_CBD_PREFERENCE', payload: val }), [dispatch])
   const toggleFlavor = useCallback((id) => dispatch({ type: 'TOGGLE_FLAVOR', payload: id }), [dispatch])
+  const setSelectedDispensary = useCallback((val) => dispatch({ type: 'SET_SELECTED_DISPENSARY', payload: val }), [dispatch])
 
   return {
     ...state,
@@ -33,6 +34,7 @@ export function useQuizState() {
     setThcPreference,
     setCbdPreference,
     toggleFlavor,
+    setSelectedDispensary,
     reset,
   }
 }

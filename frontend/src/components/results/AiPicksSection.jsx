@@ -97,6 +97,8 @@ export default function AiPicksSection() {
                   onFavorite={toggleFavorite}
                   isQuizResult
                   userRegionIndex={state.userRegionIndex}
+                  dispensaryMatch={state.selectedDispensary?.menuMatches?.[pick.name] || null}
+                  dispensaryName={state.selectedDispensary?.name || null}
                 />
               ))}
             </div>

@@ -9,7 +9,7 @@ import AiPicksSection from '../components/results/AiPicksSection'
 // import DispensaryDrawer from '../components/dispensary/DispensaryDrawer' // Silenced — feature not ready
 import LegalConsent from '../components/shared/LegalConsent'
 import Button from '../components/shared/Button'
-import { RotateCcw } from 'lucide-react'
+import { RotateCcw, Store, MapPin } from 'lucide-react'
 
 /* ------------------------------------------------------------------ */
 /*  ResultsPage                                                       */
@@ -77,6 +77,25 @@ export default function ResultsPage() {
         </Button>
       </div>
 
+      {/* Dispensary banner */}
+      {state.selectedDispensary && (
+        <div className="flex items-center gap-2.5 p-3 mb-4 rounded-xl bg-leaf-500/[0.08] border border-leaf-500/20">
+          <Store size={16} className="text-leaf-400 flex-shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-gray-900 dark:text-[#e8f0ea] truncate">
+              Results tailored to {state.selectedDispensary.name}
+            </p>
+            <p className="text-[11px] text-gray-500 dark:text-[#6a7a6e] flex items-center gap-1">
+              <MapPin size={9} />
+              {state.selectedDispensary.cityLabel}
+              {state.selectedDispensary.menuMatches && (
+                <> &middot; {Object.keys(state.selectedDispensary.menuMatches).length} of {state.strains.length + (state.aiPicks?.length || 0)} on menu</>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Section label — Best Matches */}
       <div className="flex items-center gap-2 mb-3">
         <div className="h-px flex-1 bg-gray-200 dark:bg-white/[0.06]" />
@@ -99,6 +118,8 @@ export default function ResultsPage() {
             isQuizResult
             aiAnalysis={state.aiAnalysis}
             userRegionIndex={state.userRegionIndex}
+            dispensaryMatch={state.selectedDispensary?.menuMatches?.[strain.name] || null}
+            dispensaryName={state.selectedDispensary?.name || null}
           />
         ))}
       </div>

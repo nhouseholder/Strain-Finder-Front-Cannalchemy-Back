@@ -338,6 +338,56 @@ export async function fetchStrainAvailabilityForCity(citySlug, strainName, dispe
 }
 
 /* ------------------------------------------------------------------ */
+/*  Fetch all dispensaries across all cities (for quiz autocomplete)    */
+/* ------------------------------------------------------------------ */
+let _allDispensaryIndexCache = null
+let _allDispensaryIndexPromise = null
+
+export async function fetchAllDispensaryIndex() {
+  if (_allDispensaryIndexCache) return _allDispensaryIndexCache
+  if (_allDispensaryIndexPromise) return _allDispensaryIndexPromise
+
+  _allDispensaryIndexPromise = (async () => {
+    try {
+      const cities = await fetchCities()
+      if (!cities.length) return []
+
+      const cityResults = await Promise.all(
+        cities.map(async (city) => {
+          try {
+            const res = await fetch(`/api/dispensaries?city=${city.slug}`)
+            if (!res.ok) return []
+            const data = await res.json()
+            return (data.dispensaries || []).map(d => ({
+              id: d.id || '',
+              name: d.name || 'Unknown',
+              address: coerceAddress(d.address),
+              citySlug: city.slug,
+              cityLabel: city.label,
+              rating: d.rating || null,
+              delivery: !!d.delivery,
+              storefront: d.storefront !== false,
+              matchedStrainCount: d.menuSummary?.matched || 0,
+              totalMenuItems: d.menuSummary?.total || 0,
+            }))
+          } catch { return [] }
+        })
+      )
+
+      const index = cityResults.flat()
+      _allDispensaryIndexCache = index
+      return index
+    } catch {
+      return []
+    } finally {
+      _allDispensaryIndexPromise = null
+    }
+  })()
+
+  return _allDispensaryIndexPromise
+}
+
+/* ------------------------------------------------------------------ */
 /*  Local storage caching                                              */
 /* ------------------------------------------------------------------ */
 function buildCacheKey(location, strainNames) {

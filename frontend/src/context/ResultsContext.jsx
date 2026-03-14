@@ -9,6 +9,7 @@ const emptyState = {
   aiAnalysis: null,
   userRegion: null,
   userRegionIndex: null,
+  selectedDispensary: null, // { id, name, citySlug, cityLabel, menuMatches }
   isLoading: false,
   error: null,
 }
@@ -28,6 +29,7 @@ function getInitialState() {
           aiAnalysis: parsed.aiAnalysis || null,
           userRegion: parsed.userRegion || null,
           userRegionIndex: parsed.userRegionIndex ?? null,
+          selectedDispensary: parsed.selectedDispensary || null,
         }
       }
     }
@@ -48,6 +50,7 @@ function resultsReducer(state, action) {
         aiAnalysis: action.payload.aiAnalysis || null,
         userRegion: action.payload.userRegion || null,
         userRegionIndex: action.payload.userRegionIndex ?? null,
+        selectedDispensary: action.payload.selectedDispensary || null,
         isLoading: false,
         error: null,
       }
@@ -78,6 +81,7 @@ export function ResultsProvider({ children }) {
           aiAnalysis: state.aiAnalysis,
           userRegion: state.userRegion,
           userRegionIndex: state.userRegionIndex,
+          selectedDispensary: state.selectedDispensary,
         }))
       } catch { /* storage full or unavailable */ }
     } else {

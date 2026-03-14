@@ -4,19 +4,21 @@ import EffectsStep from './EffectsStep'
 import ToleranceStep from './ToleranceStep'
 import ConsumptionStep from './ConsumptionStep'
 import OptionalPrefsStep from './OptionalPrefsStep'
+import DispensaryStep from './DispensaryStep'
 
 const stepComponents = {
   1: EffectsStep,
   2: ToleranceStep,
   3: ConsumptionStep,
   4: OptionalPrefsStep,
+  5: DispensaryStep,
 }
 
 export default function QuizShell({ onComplete }) {
   const { currentStep } = useQuizState()
 
-  // Steps 0 (splash) and 5+ (loading/results) are handled externally
-  if (currentStep < 1 || currentStep > 4) return null
+  // Steps 0 (splash) and 6+ (loading/results) are handled externally
+  if (currentStep < 1 || currentStep > 5) return null
 
   const StepComponent = stepComponents[currentStep]
 

@@ -884,6 +884,7 @@ export async function onRequestPost(context) {
     consumptionMethod: quiz.consumptionMethod || 'no_preference',
     budget: quiz.budget || 'no_preference',
     zipCode: quiz.zipCode || '',
+    dispensary: quiz.selectedDispensary?.id || '',
   }))}`
 
   if (env?.CACHE) {
@@ -963,6 +964,44 @@ export async function onRequestPost(context) {
   const userRegion = userZipPrefix ? regionMap[userZipPrefix] || '' : '';
   const userRegionIndex = userRegion ? regionOrder.indexOf(userRegion) : -1;
 
+  // ── Dispensary menu lookup (if user selected a dispensary) ──
+  let dispensaryMenuStrains = null; // Set<lowercase strain name> or null
+  let dispensaryMenuMap = null;     // { lowerName: { price, menuName } }
+  const selectedDisp = quiz.selectedDispensary;
+  if (selectedDisp?.id && selectedDisp?.citySlug && env?.CACHE) {
+    try {
+      // Read city index to find the dispensary's batch
+      const cityIndex = await env.CACHE.get(`city:${selectedDisp.citySlug}:index`, 'json');
+      if (cityIndex?.dispensaries) {
+        const dispEntry = cityIndex.dispensaries.find(d => d.id === selectedDisp.id);
+        const batchIdx = dispEntry?.batchIndex ?? null;
+        if (batchIdx != null) {
+          const batchData = await env.CACHE.get(`city:${selectedDisp.citySlug}:batch:${batchIdx}`, 'json');
+          if (batchData?.dispensaries) {
+            const fullDisp = batchData.dispensaries.find(d => d.id === selectedDisp.id);
+            if (fullDisp?.matchedMenu?.length) {
+              dispensaryMenuStrains = new Set();
+              dispensaryMenuMap = {};
+              for (const item of fullDisp.matchedMenu) {
+                const strainName = item.strain?.name || item.menuName || '';
+                if (strainName) {
+                  const lower = strainName.toLowerCase();
+                  dispensaryMenuStrains.add(lower);
+                  dispensaryMenuMap[lower] = {
+                    price: item.price || item.priceEighth || null,
+                    menuName: item.menuName || strainName,
+                  };
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Dispensary menu lookup failed (non-fatal):', e.message);
+    }
+  }
+
   // ═══════════════════════════════════════════════════════════════════
   // 4-pillar scoring: 30% Science · 20% Community · 20% Commonness · 30% Location
   // ═══════════════════════════════════════════════════════════════════
@@ -1026,10 +1065,14 @@ export async function onRequestPost(context) {
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
     // ── Pillar 4: LOCATION (regional availability) ──────────────
-    // 0-100 based on strain's availability score in the user's region.
-    // If no zip provided, locationScore = 50 (neutral midpoint).
+    // If user selected a dispensary, override with menu availability.
+    // Otherwise, use zip-code regional availability as before.
     let locationScore = 50;
-    if (userRegionIndex >= 0 && strain.reg) {
+    if (dispensaryMenuStrains) {
+      // Dispensary mode: strains on their menu get a strong boost
+      const strainLower = (strain.name || '').toLowerCase();
+      locationScore = dispensaryMenuStrains.has(strainLower) ? 95 : 30;
+    } else if (userRegionIndex >= 0 && strain.reg) {
       locationScore = strain.reg[userRegionIndex] || 40;
     }
 
@@ -1115,12 +1158,33 @@ export async function onRequestPost(context) {
     subtype: quiz.subtype || 'hybrid',
   };
 
+  // Build dispensary menu matches for the result strains
+  let dispensaryResponse = null;
+  if (dispensaryMenuMap && selectedDisp) {
+    const menuMatches = {};
+    const allResultStrains = [...mainResults, ...aiPicks.slice(0, 2)];
+    for (const s of allResultStrains) {
+      const lower = (s.name || '').toLowerCase();
+      if (dispensaryMenuMap[lower]) {
+        menuMatches[s.name] = dispensaryMenuMap[lower];
+      }
+    }
+    dispensaryResponse = {
+      id: selectedDisp.id,
+      name: selectedDisp.name,
+      citySlug: selectedDisp.citySlug,
+      cityLabel: selectedDisp.cityLabel || '',
+      menuMatches,
+    };
+  }
+
   const responseData = {
     strains: mainResults,
     aiPicks: aiPicks.slice(0, 2),
     idealProfile,
     userRegion: userRegion || null,
     userRegionIndex: userRegionIndex >= 0 ? userRegionIndex : null,
+    selectedDispensary: dispensaryResponse,
   }
 
   // ── Workers AI Analysis (free Llama 3.3 70B) ─────────────────────
