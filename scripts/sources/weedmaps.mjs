@@ -58,7 +58,7 @@ export async function discoverDispensaries(city, { thca = false } = {}) {
 
     for (const L of listings) {
       const type = L.type || ''
-      if (type !== 'dispensary' && type !== 'delivery') continue
+      if (type !== 'dispensary' && type !== 'delivery' && type !== 'retailer') continue
 
       allListings.push({
         id: L.slug,

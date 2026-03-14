@@ -51,10 +51,58 @@ export async function onRequest(context) {
 
 /* ── Handlers ──────────────────────────────────────────────────────── */
 
+// Known cities — must match harvest-dispensary-menus.mjs CITIES array.
+// Used as fallback when cities:index KV key is empty.
+const KNOWN_CITY_SLUGS = [
+  { slug: 'san-diego',   label: 'San Diego, CA' },
+  { slug: 'phoenix',     label: 'Phoenix, AZ' },
+  { slug: 'los-angeles', label: 'Los Angeles, CA' },
+  { slug: 'new-york',    label: 'New York, NY' },
+  { slug: 'denver',      label: 'Denver, CO' },
+  { slug: 'las-vegas',   label: 'Las Vegas, NV' },
+  { slug: 'detroit',     label: 'Detroit, MI' },
+  { slug: 'chicago',     label: 'Chicago, IL' },
+  { slug: 'nashville',   label: 'Nashville, TN' },
+  { slug: 'lubbock',     label: 'Lubbock, TX' },
+]
+
 async function handleCitiesList(env) {
   const data = await env.CACHE.get('cities:index', 'json')
 
-  if (!data) {
+  if (data?.cities?.length) {
+    return json({
+      available: true,
+      updatedAt: data.updatedAt,
+      cities: data.cities,
+    })
+  }
+
+  // Fallback: cities:index is empty/missing. Probe individual city index keys
+  // to build a dynamic list from whatever data exists in KV.
+  console.log('[Dispensaries] cities:index empty — probing individual city keys')
+  const probeResults = await Promise.all(
+    KNOWN_CITY_SLUGS.map(async (c) => {
+      try {
+        const cityData = await env.CACHE.get(`city:${c.slug}:index`, 'json')
+        if (cityData?.dispensaryCount > 0) {
+          return {
+            slug: c.slug,
+            label: cityData.label || c.label,
+            lat: cityData.lat || null,
+            lng: cityData.lng || null,
+            dispensaryCount: cityData.dispensaryCount,
+            matchedStrainCount: cityData.matchedStrainCount || 0,
+          }
+        }
+      } catch { /* skip */ }
+      return null
+    })
+  )
+
+  const cities = probeResults.filter(Boolean)
+  console.log(`[Dispensaries] Fallback found ${cities.length} cities with data`)
+
+  if (!cities.length) {
     return json({
       available: false,
       message: 'Dispensary data is being updated. Check back soon.',
@@ -62,10 +110,21 @@ async function handleCitiesList(env) {
     })
   }
 
+  // Write the probed data back to cities:index so future requests don't need to probe
+  try {
+    await env.CACHE.put('cities:index', JSON.stringify({
+      updatedAt: new Date().toISOString(),
+      cities,
+    }))
+    console.log('[Dispensaries] Wrote cities:index from probe results')
+  } catch (err) {
+    console.error('[Dispensaries] Failed to write cities:index:', err.message)
+  }
+
   return json({
     available: true,
-    updatedAt: data.updatedAt,
-    cities: data.cities,
+    updatedAt: new Date().toISOString(),
+    cities,
   })
 }
 
