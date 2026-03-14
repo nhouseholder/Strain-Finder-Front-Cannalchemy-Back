@@ -120,7 +120,7 @@ export async function onRequestGet(context) {
     }
   }
 
-  if (bestMatch && bestScore >= 75) {
+  if (bestMatch && bestScore >= 80) {
     return Response.json(
       { found: true, strain: bestMatch, enrichmentStatus: 'complete', message: `Showing results for '${bestMatch.name}'` },
       { headers: corsHeaders() }

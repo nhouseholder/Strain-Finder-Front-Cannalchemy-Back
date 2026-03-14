@@ -11,7 +11,12 @@
     "make-admin": "node scripts/makeAdmin.mjs",
     "bootstrap-admin": "node scripts/bootstrapAdmin.mjs",
     "dev:local": "npx wrangler pages dev --port 8788 -- npx vite --port 5173",
-    "dev:preview": "npx vite build && npx wrangler pages dev dist --port 8788"
+    "dev:preview": "npx vite build && npx wrangler pages dev dist --port 8788",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:e2e": "npx playwright test",
+    "test:e2e:ui": "npx playwright test --ui"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -36,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.58.2",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
@@ -43,6 +49,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitest": "^4.1.0"
   }
 }

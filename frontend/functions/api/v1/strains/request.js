@@ -96,7 +96,7 @@ function findLocalStrain(name) {
       bestMatch = strain
     }
   }
-  if (bestMatch && bestScore >= 75) {
+  if (bestMatch && bestScore >= 80) {
     return { strain: bestMatch, message: `Did you mean '${bestMatch.name}'?` }
   }
 
