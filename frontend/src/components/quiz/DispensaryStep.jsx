@@ -75,6 +75,7 @@ export default function DispensaryStep({ onComplete }) {
       name: disp.name,
       citySlug: disp.citySlug,
       cityLabel: disp.cityLabel,
+      batchIndex: disp.batchIndex ?? null,
     })
     setQuery('')
     setOpen(false)

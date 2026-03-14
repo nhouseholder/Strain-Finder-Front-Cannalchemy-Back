@@ -394,6 +394,7 @@ export async function fetchAllDispensaryIndex() {
               storefront: d.storefront !== false,
               matchedStrainCount: d.menuSummary?.matched || d.matchedStrains?.length || 0,
               totalMenuItems: d.menuSummary?.total || 0,
+              batchIndex: d.batchIndex ?? null,
             }))
           } catch (err) {
             console.error(`[DispensaryIndex] ${city.slug} fetch failed:`, err.message)

@@ -970,51 +970,55 @@ export async function onRequestPost(context) {
   const selectedDisp = quiz.selectedDispensary;
   if (selectedDisp?.id && selectedDisp?.citySlug && env?.CACHE) {
     try {
-      // Read city index to find the dispensary's batch.
-      // The index may be paginated (100 dispensaries per page), so we must
-      // search the base page AND any additional pages.
-      const cityIndex = await env.CACHE.get(`city:${selectedDisp.citySlug}:index`, 'json');
-      if (cityIndex) {
-        // Search base page first
-        let dispEntry = (cityIndex.dispensaries || []).find(d => d.id === selectedDisp.id);
+      // Strategy: use batchIndex from frontend if available (most reliable —
+      // avoids paginated index search that can miss dispensaries beyond page 1).
+      // Falls back to searching all index pages if batchIndex wasn't provided.
+      let batchIdx = selectedDisp.batchIndex ?? null;
 
-        // If not found and there are more pages, search them
-        if (!dispEntry && cityIndex.indexPages > 1) {
-          for (let p = 1; p < cityIndex.indexPages && !dispEntry; p++) {
-            const page = await env.CACHE.get(`city:${selectedDisp.citySlug}:index:${p}`, 'json');
-            if (page?.dispensaries) {
-              dispEntry = page.dispensaries.find(d => d.id === selectedDisp.id);
+      if (batchIdx == null) {
+        // Fallback: search city index pages for this dispensary
+        const cityIndex = await env.CACHE.get(`city:${selectedDisp.citySlug}:index`, 'json');
+        if (cityIndex) {
+          let dispEntry = (cityIndex.dispensaries || []).find(d => d.id === selectedDisp.id);
+          if (!dispEntry && cityIndex.indexPages > 1) {
+            for (let p = 1; p < cityIndex.indexPages && !dispEntry; p++) {
+              const page = await env.CACHE.get(`city:${selectedDisp.citySlug}:index:${p}`, 'json');
+              if (page?.dispensaries) {
+                dispEntry = page.dispensaries.find(d => d.id === selectedDisp.id);
+              }
             }
           }
+          batchIdx = dispEntry?.batchIndex ?? null;
         }
+      }
 
-        const batchIdx = dispEntry?.batchIndex ?? null;
-        if (batchIdx != null) {
-          const batchData = await env.CACHE.get(`city:${selectedDisp.citySlug}:batch:${batchIdx}`, 'json');
-          if (batchData?.dispensaries) {
-            const fullDisp = batchData.dispensaries.find(d => d.id === selectedDisp.id);
-            if (fullDisp?.matchedMenu?.length) {
-              dispensaryMenuStrains = new Set();
-              dispensaryMenuMap = {};
-              for (const item of fullDisp.matchedMenu) {
-                const strainName = item.strain?.name || item.menuName || '';
-                if (strainName) {
-                  const lower = strainName.toLowerCase();
-                  dispensaryMenuStrains.add(lower);
-                  dispensaryMenuMap[lower] = {
-                    price: item.price || item.priceEighth || null,
-                    menuName: item.menuName || strainName,
-                  };
-                }
+      if (batchIdx != null) {
+        const batchData = await env.CACHE.get(`city:${selectedDisp.citySlug}:batch:${batchIdx}`, 'json');
+        if (batchData?.dispensaries) {
+          const fullDisp = batchData.dispensaries.find(d => d.id === selectedDisp.id);
+          if (fullDisp?.matchedMenu?.length) {
+            dispensaryMenuStrains = new Set();
+            dispensaryMenuMap = {};
+            for (const item of fullDisp.matchedMenu) {
+              const strainName = item.strain?.name || item.menuName || '';
+              if (strainName) {
+                const lower = strainName.toLowerCase();
+                dispensaryMenuStrains.add(lower);
+                dispensaryMenuMap[lower] = {
+                  price: item.price || item.priceEighth || null,
+                  menuName: item.menuName || strainName,
+                };
               }
-              console.log(`[Recommend] Dispensary "${selectedDisp.name}" menu loaded: ${dispensaryMenuStrains.size} matched strains`);
-            } else {
-              console.log(`[Recommend] Dispensary "${selectedDisp.name}" found in batch ${batchIdx} but no matchedMenu`);
             }
+            console.log(`[Recommend] Dispensary "${selectedDisp.name}" (batch ${batchIdx}) menu loaded: ${dispensaryMenuStrains.size} matched strains`);
+          } else {
+            console.log(`[Recommend] Dispensary "${selectedDisp.name}" found in batch ${batchIdx} but no matchedMenu`);
           }
         } else {
-          console.log(`[Recommend] Dispensary "${selectedDisp.id}" not found in city index for ${selectedDisp.citySlug}`);
+          console.log(`[Recommend] Batch ${batchIdx} not found in KV for ${selectedDisp.citySlug}`);
         }
+      } else {
+        console.log(`[Recommend] Dispensary "${selectedDisp.id}" — no batchIndex and not found in city index for ${selectedDisp.citySlug}`);
       }
     } catch (e) {
       console.error('Dispensary menu lookup failed (non-fatal):', e.message);
