@@ -81,20 +81,31 @@ async function handleCityIndex(env, city) {
     })
   }
 
-  // If the index is paginated, fetch additional pages and concatenate
+  // If the index is paginated, fetch additional pages and concatenate.
+  // Pages beyond 0 are stored as city:{slug}:index:{page}.
+  // If a page is missing from KV, we skip it but log for debugging.
   let allDispensaries = data.dispensaries || []
 
   if (data.indexPages && data.indexPages > 1) {
     const pagePromises = []
     for (let p = 1; p < data.indexPages; p++) {
-      pagePromises.push(env.CACHE.get(`city:${city}:index:${p}`, 'json'))
+      pagePromises.push(
+        env.CACHE.get(`city:${city}:index:${p}`, 'json')
+          .catch(err => {
+            console.error(`[Dispensaries] Failed to read index page ${p} for ${city}:`, err.message)
+            return null
+          })
+      )
     }
     const pages = await Promise.all(pagePromises)
+    let pagesLoaded = 0
     for (const page of pages) {
       if (page?.dispensaries) {
         allDispensaries = allDispensaries.concat(page.dispensaries)
+        pagesLoaded++
       }
     }
+    console.log(`[Dispensaries] ${city}: base=${(data.dispensaries||[]).length}, pages loaded=${pagesLoaded}/${data.indexPages - 1}, total=${allDispensaries.length}`)
   }
 
   return json({

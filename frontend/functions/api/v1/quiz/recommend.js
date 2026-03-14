@@ -1088,13 +1088,14 @@ export async function onRequestPost(context) {
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
     // ── Pillar 4: LOCATION (regional availability) ──────────────
-    // If user selected a dispensary, override with menu availability.
+    // If user selected a dispensary, mark on-menu strains (filtering happens below).
     // Otherwise, use zip-code regional availability as before.
     let locationScore = 50;
+    let onMenu = false;
     if (dispensaryMenuStrains) {
-      // Dispensary mode: strains on their menu get a strong boost
       const strainLower = (strain.name || '').toLowerCase();
-      locationScore = dispensaryMenuStrains.has(strainLower) ? 95 : 30;
+      onMenu = dispensaryMenuStrains.has(strainLower);
+      locationScore = onMenu ? 95 : 30;
     } else if (userRegionIndex >= 0 && strain.reg) {
       locationScore = strain.reg[userRegionIndex] || 40;
     }
@@ -1107,13 +1108,24 @@ export async function onRequestPost(context) {
       locationScore   * 0.30
     )));
 
-    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore };
+    return { strain, score, scienceScore, communityScore, commonnessScore, locationScore, onMenu };
   });
 
   // Sort all results by the unified blended score
   scored.sort((a, b) => b.score - a.score || b.scienceScore - a.scienceScore);
 
-  const finalRanked = scored;
+  // When a dispensary is selected, ONLY show strains from their menu.
+  // If the menu has fewer than 5 matched strains, supplement with top off-menu strains.
+  let finalRanked;
+  if (dispensaryMenuStrains && dispensaryMenuStrains.size > 0) {
+    const menuOnly = scored.filter(s => s.onMenu);
+    const offMenu = scored.filter(s => !s.onMenu);
+    console.log(`[Recommend] Dispensary filter: ${menuOnly.length} on-menu, ${offMenu.length} off-menu`);
+    // Use menu strains first, then pad with off-menu if needed
+    finalRanked = [...menuOnly, ...offMenu];
+  } else {
+    finalRanked = scored;
+  }
 
   // Build top 5 results
   const mainResults = finalRanked.slice(0, 5).map(s => buildStrainResult(s.strain, s.score, desiredCanonicals));
