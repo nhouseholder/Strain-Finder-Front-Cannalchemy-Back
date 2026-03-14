@@ -1,7 +1,8 @@
 /**
  * Cloudflare Pages Function — Full quiz recommendation engine.
  *
- * 4-pillar scoring engine (30% Science · 20% Community · 20% Commonness · 30% Location) with receptor-level scoring,
+ * Dual-mode scoring engine — Dispensary: 60% Science · 40% Community (menu-only),
+ * No dispensary: 35% Science · 25% Community · 15% Commonness · 25% Location — with receptor-level scoring,
  * tolerance-aware THC safety, entourage synergy analysis, and
  * scaffold-driven molecular profile optimization.
  *
@@ -872,8 +873,8 @@ export async function onRequestPost(context) {
   }
 
   // ── KV cache check (deterministic engine — same inputs = same outputs) ──
-  // v8: fix hemp COA contamination — corrected THC/CBD values for 277 strains
-  const quizCacheKey = `quiz:v8:${md5Simple(JSON.stringify({
+  // v9: dual-mode scoring — dispensary mode uses Science+Community only, no commonness/location
+  const quizCacheKey = `quiz:v9:${md5Simple(JSON.stringify({
     effects: (quiz.effects || []).slice().sort(),
     effectRanking: quiz.effectRanking || [],
     avoidEffects: (quiz.avoidEffects || []).slice().sort(),
@@ -1053,16 +1054,25 @@ export async function onRequestPost(context) {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // 4-pillar scoring: 30% Science · 20% Community · 20% Commonness · 30% Location
+  // Dual-mode scoring
   // ═══════════════════════════════════════════════════════════════════
-  // Pillar 1 – SCIENCE (30%): receptor pharmacology, scaffold molecular
+  // DISPENSARY MODE (dispensary selected → menu-only strains):
+  //   60% Science · 40% Community
+  //   Commonness and Location are ignored — the dispensary menu IS the
+  //   availability filter, so we score purely on user preference match.
+  //
+  // NO-DISPENSARY MODE (general recommendations):
+  //   35% Science · 25% Community · 15% Commonness · 25% Location
+  //   Commonness + Location (40%) help surface strains the user can find.
+  // ═══════════════════════════════════════════════════════════════════
+  // Pillar 1 – SCIENCE: receptor pharmacology, scaffold molecular
   //   profiles, tolerance safety, avoidance penalties, cannabinoid match,
   //   user preference alignment, entourage synergy (7 sub-layers).
-  // Pillar 2 – COMMUNITY (20%): weighted community effect-report alignment
+  // Pillar 2 – COMMUNITY: weighted community effect-report alignment
   //   — how strongly real users report the effects the quiz-taker wants.
-  // Pillar 3 – COMMONNESS (20%): how well-known the strain is,
+  // Pillar 3 – COMMONNESS: how well-known the strain is,
   //   derived from total report volume + sentiment score.
-  // Pillar 4 – LOCATION (30%): regional availability score based on
+  // Pillar 4 – LOCATION: regional availability score based on
   //   user's zip code → 7-region heuristic availability data.
   // ═══════════════════════════════════════════════════════════════════
   const toleranceId = quiz.tolerance || 'intermediate';
@@ -1117,28 +1127,40 @@ export async function onRequestPost(context) {
     const commonnessScore = commonnessRaw * 100;               // 0-100
 
     // ── Pillar 4: LOCATION (regional availability) ──────────────
-    // If user selected a dispensary, mark on-menu strains (filtering happens below).
-    // Otherwise, use zip-code regional availability as before.
+    // When a dispensary is selected, we filter to menu-only strains and
+    // score purely on user preference match (Science + Community).
+    // Without a dispensary, location + commonness help surface findable strains.
     let locationScore = 50;
     let onMenu = false;
     if (dispensaryMenuStrains) {
       const strainLower = (strain.name || '').toLowerCase();
       onMenu = dispensaryMenuStrains.has(strainLower);
+      // Location score not used in dispensary mode (weight = 0)
       locationScore = onMenu ? 95 : 30;
     } else if (userRegionIndex >= 0 && strain.reg) {
       locationScore = strain.reg[userRegionIndex] || 40;
     }
 
     // ── Final blended score ──────────────────────────────────────
-    // Rebalanced: give more weight to user preferences (science + community = 60%)
-    // and less to static factors (commonness + location = 40%).
-    // 35% Science · 25% Community · 15% Commonness · 25% Location
-    const score = Math.max(0, Math.min(100, Math.round(
-      scienceScore    * 0.35 +
-      communityScore  * 0.25 +
-      commonnessScore * 0.15 +
-      locationScore   * 0.25
-    )));
+    // Two modes:
+    //   Dispensary mode: 60% Science · 40% Community (ignore commonness + location;
+    //     menu filtering handles availability, so score purely on preference match)
+    //   No dispensary:   35% Science · 25% Community · 15% Commonness · 25% Location
+    //     (commonness + location = 40% help surface strains the user can actually find)
+    let score;
+    if (dispensaryMenuStrains) {
+      score = Math.max(0, Math.min(100, Math.round(
+        scienceScore   * 0.60 +
+        communityScore * 0.40
+      )));
+    } else {
+      score = Math.max(0, Math.min(100, Math.round(
+        scienceScore    * 0.35 +
+        communityScore  * 0.25 +
+        commonnessScore * 0.15 +
+        locationScore   * 0.25
+      )));
+    }
 
     return { strain, score, scienceScore, communityScore, commonnessScore, locationScore, onMenu };
   });
