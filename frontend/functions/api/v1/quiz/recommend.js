@@ -970,10 +970,24 @@ export async function onRequestPost(context) {
   const selectedDisp = quiz.selectedDispensary;
   if (selectedDisp?.id && selectedDisp?.citySlug && env?.CACHE) {
     try {
-      // Read city index to find the dispensary's batch
+      // Read city index to find the dispensary's batch.
+      // The index may be paginated (100 dispensaries per page), so we must
+      // search the base page AND any additional pages.
       const cityIndex = await env.CACHE.get(`city:${selectedDisp.citySlug}:index`, 'json');
-      if (cityIndex?.dispensaries) {
-        const dispEntry = cityIndex.dispensaries.find(d => d.id === selectedDisp.id);
+      if (cityIndex) {
+        // Search base page first
+        let dispEntry = (cityIndex.dispensaries || []).find(d => d.id === selectedDisp.id);
+
+        // If not found and there are more pages, search them
+        if (!dispEntry && cityIndex.indexPages > 1) {
+          for (let p = 1; p < cityIndex.indexPages && !dispEntry; p++) {
+            const page = await env.CACHE.get(`city:${selectedDisp.citySlug}:index:${p}`, 'json');
+            if (page?.dispensaries) {
+              dispEntry = page.dispensaries.find(d => d.id === selectedDisp.id);
+            }
+          }
+        }
+
         const batchIdx = dispEntry?.batchIndex ?? null;
         if (batchIdx != null) {
           const batchData = await env.CACHE.get(`city:${selectedDisp.citySlug}:batch:${batchIdx}`, 'json');
@@ -993,8 +1007,13 @@ export async function onRequestPost(context) {
                   };
                 }
               }
+              console.log(`[Recommend] Dispensary "${selectedDisp.name}" menu loaded: ${dispensaryMenuStrains.size} matched strains`);
+            } else {
+              console.log(`[Recommend] Dispensary "${selectedDisp.name}" found in batch ${batchIdx} but no matchedMenu`);
             }
           }
+        } else {
+          console.log(`[Recommend] Dispensary "${selectedDisp.id}" not found in city index for ${selectedDisp.citySlug}`);
         }
       }
     } catch (e) {
