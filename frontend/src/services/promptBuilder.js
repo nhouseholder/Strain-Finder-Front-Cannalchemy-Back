@@ -327,18 +327,20 @@ export function buildScienceExplanation(strain, quizState) {
     .map(id => id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()))
     .join(', ') || 'none specified'
 
-  return `You are a cannabis pharmacology expert writing for a curious consumer. Explain in 3 sentences maximum WHY this strain matches the user. Speak directly to them using "you" and "your". Be conversational but scientifically grounded. Mention at least one terpene or cannabinoid by name, its receptor target, and the resulting effect. Keep it simple enough for a non-scientist. NEVER say "high THC content" or make generic THC potency claims — focus on the specific terpenes, cannabinoids, and receptor pathways that make this strain unique.
+  return `You're a knowledgeable budtender explaining why this specific strain suits this person. Be warm, direct, and specific — like talking to a friend at a dispensary.
 
 STRAIN: ${strain.name} (${strain.type}) — ${strain.matchPct}% match
 TERPENES: ${terpStr || 'No terpene data'}
 CANNABINOIDS: ${cannabStr || 'No cannabinoid data'}
-RECEPTOR PATHWAYS: ${pathwayStr || 'No pathway data'}
-COMMUNITY REPORTS: Top effects — ${forumPros || 'Limited data'}
-USER WANTS: ${userEffects || 'General wellness'}
-USER AVOIDS: ${userAvoid}
+KEY PATHWAYS: ${pathwayStr || 'No pathway data'}
+WHAT USERS REPORT: ${forumPros || 'Limited data'}
+THIS PERSON WANTS: ${userEffects || 'General wellness'}
+THIS PERSON AVOIDS: ${userAvoid}
 
 RULES:
-- 3 sentences maximum
-- Do NOT mention "high THC" or generic THC potency as a reason — be specific about terpenes, minor cannabinoids, and pathways
-- Write ONLY the explanation. No JSON, no headers, no formatting.`
+- 2 sentences maximum. Short and punchy.
+- Focus on what makes THIS strain special for THIS person — connect their goals to the strain's standout terpene or cannabinoid.
+- Use one simple science detail (e.g. "myrcene, the same terpene in mangoes, promotes deep relaxation") — no receptor codes or Ki values.
+- Use "you/your". No generic THC claims. No hedging ("may potentially possibly").
+- Write ONLY the explanation. No headers, no formatting, no preamble.`
 }

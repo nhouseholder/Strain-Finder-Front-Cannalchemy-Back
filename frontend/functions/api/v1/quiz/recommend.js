@@ -1159,29 +1159,33 @@ export async function onRequestPost(context) {
         : toleranceId === 'experienced' ? 'experienced (THC 18-26% suitable)'
         : 'high tolerance (any THC level appropriate)';
 
-      const aiPrompt = `You are a cannabis pharmacology analyst for an AI recommendation app. A user took a quiz and our tri-pillar scoring engine ranked strains using three pillars: 35% Science (receptor binding, entourage synergy, terpene-to-effect pathways, tolerance safety), 20% Community (real user effect reports weighted by strength), and 45% Commonness (popularity and dispensary availability). Write a brief, personalized analysis (3-4 sentences max) explaining why the top match scored highest across all three pillars.
+      const aiPrompt = `You are a cannabis consultant writing a brief personal note to someone who just got their quiz results. Explain why ${mainResults[0]?.name || 'the top strain'} is their #1 match in plain language that a first-timer could understand but a connoisseur would respect.
 
-User's desired effects: ${desiredLabels.join(', ')}
-${avoidLabels.length ? `Effects to avoid: ${avoidLabels.join(', ')}` : ''}
-Experience level: ${toleranceLabel}
-THC preference: ${quiz.thcPreference || 'no preference'}
-CBD preference: ${quiz.cbdPreference || 'no preference'}
-Type preference: ${quiz.subtype || 'no preference'}
+USER PROFILE:
+- Wants: ${desiredLabels.join(', ')}
+${avoidLabels.length ? `- Wants to avoid: ${avoidLabels.join(', ')}` : ''}- Experience: ${toleranceLabel}
 
-PHARMACOLOGICAL FRAMEWORK (what our engine targeted):
-${scaffoldContext}
-
-Top matches from our algorithm:
+TOP MATCH DATA:
 ${topStrainSummaries}
 
-Write a concise analysis explaining WHY ${mainResults[0]?.name || 'the top strain'} is the best match for this user. Reference specific terpenes and their receptor targets (CB1, CB2, 5-HT1A, TRPV1, GABA-A), how the terpene-cannabinoid entourage effect creates the desired experience, and note that community reports and strain popularity reinforce the science. Be scientifically grounded but accessible. Do NOT make medical claims. Speak directly to the user using "you" and "your". Start directly with the analysis — no greeting or preamble.`;
+SCIENCE CONTEXT (use sparingly — translate to plain English):
+${scaffoldContext}
+
+RULES:
+- 2-3 short sentences MAXIMUM. Be punchy, not academic.
+- Lead with what matters to the user: how this strain delivers what they asked for.
+- Mention 1-2 key terpenes by name with a simple analogy (e.g. "caryophyllene, the same compound in black pepper") — don't list receptor codes.
+- If relevant, briefly note how the terpenes work together (entourage effect) in plain terms.
+- Use "you/your" — warm and direct, like a knowledgeable budtender.
+- NO medical claims. NO jargon dumps. NO repeating the same point twice.
+- Start directly — no greeting, no "Great news!", no preamble.`;
 
       const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
-          { role: 'system', content: 'You are a cannabis science expert. Be concise, scientific, and never make medical claims.' },
+          { role: 'system', content: 'You are a friendly, knowledgeable cannabis consultant. Write like a smart budtender — concise, warm, and scientifically informed but never preachy or academic. Never make medical claims.' },
           { role: 'user', content: aiPrompt },
         ],
-        max_tokens: 250,
+        max_tokens: 180,
       });
 
       if (aiResult?.response) {

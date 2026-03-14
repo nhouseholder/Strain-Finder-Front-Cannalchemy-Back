@@ -51,7 +51,7 @@ export default function ScienceExplanation({ strain, isQuizResult, aiAnalysis })
       setError(null)
       try {
         const prompt = buildScienceExplanation(strain, quiz?.state)
-        const result = await callFreeAI({ prompt, maxTokens: 400, retries: 2 })
+        const result = await callFreeAI({ prompt, maxTokens: 150, retries: 2 })
         const cleaned = (result || '').trim()
         if (!cancelled && cleaned) {
           setExplanation(cleaned)
