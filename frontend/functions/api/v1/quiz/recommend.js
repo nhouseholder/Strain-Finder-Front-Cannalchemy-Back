@@ -1172,21 +1172,18 @@ SCIENCE CONTEXT (use sparingly — translate to plain English):
 ${scaffoldContext}
 
 RULES:
-- 3-5 sentences. Warm and confident, not academic.
-- Lead with what matters to the user: how this strain delivers what they asked for.
-- Name 3-4 key terpenes or compounds and explain each one's role in plain English with a vivid analogy (e.g. "caryophyllene, the same spicy compound in black pepper, targets your body's inflammation pathways" or "linalool — think lavender fields — calms the nervous system").
-- Show how these compounds work as a team (entourage effect) — explain the synergy, not just list ingredients.
-- Briefly mention the cannabinoid ratio (THC/CBD balance) and what it means for the experience.
-- Use "you/your" — warm and direct, like a knowledgeable budtender who genuinely loves the science.
-- NO medical claims. NO receptor codes or Ki values. NO repeating the same point twice.
-- Start directly — no greeting, no "Great news!", no preamble.`;
+- 2-3 sentences MAXIMUM. Punchy, not academic.
+- Lead with what matters to the user, then weave in 2-3 terpene names naturally with one-word analogies (e.g. "myrcene (mangoes), linalool (lavender), and caryophyllene (black pepper) team up to...").
+- One sentence on how the compounds synergize — don't explain each separately.
+- Use "you/your". NO medical claims. NO receptor codes. NO repeating points.
+- Start directly — no greeting, no preamble.`;
 
       const aiResult = await env.AI.run('@cf/meta/llama-3.3-70b-instruct-fp8-fast', {
         messages: [
           { role: 'system', content: 'You are a friendly, knowledgeable cannabis consultant. Write like a smart budtender — concise, warm, and scientifically informed but never preachy or academic. Never make medical claims.' },
           { role: 'user', content: aiPrompt },
         ],
-        max_tokens: 300,
+        max_tokens: 200,
       });
 
       if (aiResult?.response) {

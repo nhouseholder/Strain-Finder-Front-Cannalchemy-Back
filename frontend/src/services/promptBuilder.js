@@ -338,10 +338,9 @@ THIS PERSON WANTS: ${userEffects || 'General wellness'}
 THIS PERSON AVOIDS: ${userAvoid}
 
 RULES:
-- 3-4 sentences. Confident and warm, not clinical.
-- Name 2-3 key terpenes and explain each one's contribution with a vivid real-world analogy (e.g. "myrcene, the same compound that makes mangoes smell tropical, deepens relaxation" or "pinene — think fresh pine forest — sharpens focus and opens airways").
-- Show how these terpenes and cannabinoids work together as a team — explain the synergy, don't just list ingredients.
-- Connect the science directly to what THIS person asked for — make it personal.
-- Use "you/your". No receptor codes or Ki values. No generic THC claims. No hedging ("may potentially possibly").
+- 2-3 sentences MAXIMUM. Confident and warm, not clinical.
+- Name 2-3 key terpenes with a quick analogy each (e.g. "myrcene (mangoes) and pinene (pine forest)") — then explain how they work together for THIS person's goals in one sentence.
+- Don't explain each terpene separately — show the synergy.
+- Use "you/your". No receptor codes. No generic THC claims. No hedging.
 - Write ONLY the explanation. No headers, no formatting, no preamble.`
 }
