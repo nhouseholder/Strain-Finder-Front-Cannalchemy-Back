@@ -344,40 +344,53 @@ let _allDispensaryIndexCache = null
 let _allDispensaryIndexPromise = null
 
 export async function fetchAllDispensaryIndex() {
-  if (_allDispensaryIndexCache) return _allDispensaryIndexCache
+  // Return cache only if it has actual data
+  if (_allDispensaryIndexCache && _allDispensaryIndexCache.length > 0) return _allDispensaryIndexCache
   if (_allDispensaryIndexPromise) return _allDispensaryIndexPromise
 
   _allDispensaryIndexPromise = (async () => {
     try {
       const cities = await fetchCities()
+      console.log('[DispensaryIndex] Cities found:', cities.length, cities.map(c => c.slug))
       if (!cities.length) return []
 
       const cityResults = await Promise.all(
         cities.map(async (city) => {
           try {
-            const res = await fetch(`/api/dispensaries?city=${city.slug}`)
-            if (!res.ok) return []
-            const data = await res.json()
-            return (data.dispensaries || []).map(d => ({
+            const data = await searchByCity(city.slug)
+            if (!data.available || !data.dispensaries?.length) {
+              console.log(`[DispensaryIndex] ${city.slug}: no dispensaries`)
+              return []
+            }
+            console.log(`[DispensaryIndex] ${city.slug}: ${data.dispensaries.length} dispensaries`)
+            return data.dispensaries.map(d => ({
               id: d.id || '',
               name: d.name || 'Unknown',
-              address: coerceAddress(d.address),
+              address: d.address || '',
               citySlug: city.slug,
               cityLabel: city.label,
               rating: d.rating || null,
               delivery: !!d.delivery,
               storefront: d.storefront !== false,
-              matchedStrainCount: d.menuSummary?.matched || 0,
+              matchedStrainCount: d.menuSummary?.matched || d.matchedStrains?.length || 0,
               totalMenuItems: d.menuSummary?.total || 0,
             }))
-          } catch { return [] }
+          } catch (err) {
+            console.error(`[DispensaryIndex] ${city.slug} fetch failed:`, err.message)
+            return []
+          }
         })
       )
 
       const index = cityResults.flat()
-      _allDispensaryIndexCache = index
+      console.log('[DispensaryIndex] Total dispensaries indexed:', index.length)
+      // Only cache non-empty results
+      if (index.length > 0) {
+        _allDispensaryIndexCache = index
+      }
       return index
-    } catch {
+    } catch (err) {
+      console.error('[DispensaryIndex] Fatal error:', err.message)
       return []
     } finally {
       _allDispensaryIndexPromise = null
