@@ -22,6 +22,7 @@ from collections import Counter
 ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = ROOT / "data" / "processed" / "cannalchemy.db"
 JSON_PATH = ROOT / "frontend" / "src" / "data" / "strains.json"
+ALLBUD_JSON_PATH = ROOT / "scripts" / "allbud_flavors_scraped.json"
 
 # ── Quiz flavor categories (must match frontend/src/data/flavors.js) ──
 QUIZ_FLAVORS = ['citrus', 'pine', 'earthy', 'berry', 'diesel', 'sweet', 'spicy', 'skunky', 'floral']
@@ -244,8 +245,40 @@ def get_genetics_inheritance(genetics_text):
     return scores
 
 
+def load_allbud_flavors():
+    allbud_flavors = {}
+    try:
+        with open(ALLBUD_JSON_PATH, encoding="utf-8") as f:
+            scraped = json.load(f)
+        for name, raw_flavors in scraped.items():
+            cleaned = []
+            seen = set()
+            for raw in raw_flavors or []:
+                cat = clean_raw_flavor(raw)
+                if cat and cat not in seen:
+                    cleaned.append(cat)
+                    seen.add(cat)
+            if cleaned:
+                allbud_flavors[name] = cleaned
+    except Exception as e:
+        print(f"Warning: Could not load AllBud flavors: {e}")
+    return allbud_flavors
+
+
+def rank_flavors(flavor_scores, min_threshold):
+    return sorted(
+        [
+            (cat, score) for cat, score in flavor_scores.items()
+            if score >= min_threshold
+        ],
+        key=lambda item: (-item[1], item[0])
+    )
+
+
 def fix_flavors():
     conn = sqlite3.connect(str(DB_PATH))
+    allbud_flavors = load_allbud_flavors()
+    print(f"Loaded AllBud flavor data for {len(allbud_flavors)} strains")
 
     # Load existing community flavor data from JSON export
     community_flavors = {}
@@ -287,8 +320,9 @@ def fix_flavors():
     for strain_id, name, strain_type, genetics in strains:
         flavor_scores = Counter()
         sources_used = []
+        allbud = allbud_flavors.get(name, [])
+        comm = community_flavors.get(name, [])
 
-        # Source 1: Terpene profile (science) — strongest signal
         terpenes = conn.execute("""
             SELECT m.name, sc.percentage
             FROM strain_compositions sc
@@ -297,53 +331,66 @@ def fix_flavors():
             ORDER BY sc.percentage DESC
         """, (strain_id,)).fetchall()
 
-        if terpenes:
-            terp_flavors = compute_terpene_flavors(terpenes)
-            for cat, score in terp_flavors.items():
-                flavor_scores[cat] += score * 1.5
-            sources_used.append('terpene')
-
-        # Source 2: Community-reported flavors — strong real-world signal
-        comm = community_flavors.get(name, [])
-        if comm:
-            for cat in comm:
-                flavor_scores[cat] += 2.0
-            sources_used.append('community')
-
-        # Source 3: Genetics inheritance — inherit from known parents
-        if genetics and genetics.strip() and genetics.upper() != 'NULL':
-            gen_flavors = get_genetics_inheritance(genetics)
-            if gen_flavors:
-                for cat, score in gen_flavors.items():
-                    flavor_scores[cat] += score
-                sources_used.append('genetics')
-
-        # Source 4: Name-based keyword analysis
-        name_kw = get_keyword_flavors(name)
-        if name_kw:
-            for cat, score in name_kw.items():
-                flavor_scores[cat] += score
+        if allbud:
+            for cat in allbud:
+                flavor_scores[cat] += 5.0
+            sources_used.append('allbud')
+            if comm:
+                for cat in comm:
+                    if cat in flavor_scores:
+                        flavor_scores[cat] += 0.75
+                sources_used.append('community')
+            if terpenes:
+                terp_flavors = compute_terpene_flavors(terpenes)
+                for cat, score in terp_flavors.items():
+                    if cat in flavor_scores:
+                        flavor_scores[cat] += score * 0.35
+                sources_used.append('terpene')
+            if genetics and genetics.strip() and genetics.upper() != 'NULL':
+                gen_flavors = get_genetics_inheritance(genetics)
+                if gen_flavors:
+                    for cat, score in gen_flavors.items():
+                        if cat in flavor_scores:
+                            flavor_scores[cat] += score * 0.2
+                    sources_used.append('genetics')
+            name_kw = get_keyword_flavors(name)
             if name_kw:
+                for cat, score in name_kw.items():
+                    if cat in flavor_scores:
+                        flavor_scores[cat] += score * 0.15
                 sources_used.append('name')
+        else:
+            if comm:
+                for cat in comm:
+                    flavor_scores[cat] += 2.0
+                sources_used.append('community')
+            if terpenes:
+                terp_flavors = compute_terpene_flavors(terpenes)
+                for cat, score in terp_flavors.items():
+                    flavor_scores[cat] += score * 1.5
+                sources_used.append('terpene')
+            if genetics and genetics.strip() and genetics.upper() != 'NULL':
+                gen_flavors = get_genetics_inheritance(genetics)
+                if gen_flavors:
+                    for cat, score in gen_flavors.items():
+                        flavor_scores[cat] += score
+                    sources_used.append('genetics')
+            name_kw = get_keyword_flavors(name)
+            if name_kw:
+                for cat, score in name_kw.items():
+                    flavor_scores[cat] += score
+                sources_used.append('name')
+            if not flavor_scores and strain_type in TYPE_DEFAULTS:
+                for f in TYPE_DEFAULTS[strain_type]:
+                    flavor_scores[f] += 0.6
+                sources_used.append('type-default')
+            if not flavor_scores:
+                for f in TYPE_DEFAULTS['hybrid']:
+                    flavor_scores[f] += 0.6
+                sources_used.append('fallback')
 
-        # Source 5: Type-based defaults (fallback) — only if nothing else worked
-        if not flavor_scores and strain_type in TYPE_DEFAULTS:
-            for f in TYPE_DEFAULTS[strain_type]:
-                flavor_scores[f] += 0.6
-            sources_used.append('type-default')
-
-        if not flavor_scores:
-            # Absolute fallback: hybrid defaults
-            for f in TYPE_DEFAULTS['hybrid']:
-                flavor_scores[f] += 0.6
-            sources_used.append('fallback')
-
-        # Select top flavors — lower threshold for inherited/inferred data
-        min_threshold = 0.5 if ('terpene' in sources_used or 'community' in sources_used) else 0.3
-        sorted_flavors = [
-            (cat, score) for cat, score in flavor_scores.most_common(5)
-            if score >= min_threshold
-        ]
+        min_threshold = 4.0 if 'allbud' in sources_used else (0.5 if ('terpene' in sources_used or 'community' in sources_used) else 0.3)
+        sorted_flavors = rank_flavors(flavor_scores, min_threshold)[:5]
 
         if not sorted_flavors:
             # Still nothing — use type defaults directly
@@ -377,7 +424,7 @@ def fix_flavors():
     print(f"\nSummary:")
     print(f"  Updated: {updated} / {total} strains (100% coverage)")
     print(f"\nData sources used:")
-    for src in ['terpene', 'community', 'genetics', 'name', 'type-default', 'fallback']:
+    for src in ['allbud', 'community', 'terpene', 'genetics', 'name', 'type-default', 'fallback']:
         print(f"  {src}: {source_stats.get(src, 0)}")
     print(f"\nFlavor distribution:")
     for cat in QUIZ_FLAVORS:
