@@ -16,8 +16,9 @@ export const THC_PREFERENCES = [
 ];
 
 export const CBD_PREFERENCES = [
-  { id: 'none', label: 'None Needed', desc: 'Minimal CBD', range: [0, 1] },
-  { id: 'some', label: 'Some CBD', desc: 'Balanced 1–5%', range: [1, 5] },
-  { id: 'high', label: 'High CBD', desc: 'Therapeutic 5–15%', range: [5, 15] },
-  { id: 'cbd_dominant', label: 'CBD-Dominant', desc: '15%+ CBD', range: [15, 30] },
+  { id: 'no_preference', label: 'No Preference', desc: 'Any CBD level', range: [0, 30] },
+  { id: 'none', label: 'Very Low', desc: 'Under 0.5%', range: [0, 0.5] },
+  { id: 'some', label: 'Low', desc: '0.5–1%', range: [0.5, 1] },
+  { id: 'high', label: 'Some CBD', desc: '1–5%', range: [1, 5] },
+  { id: 'cbd_dominant', label: 'CBD-Rich', desc: '5%+ CBD', range: [5, 30] },
 ];

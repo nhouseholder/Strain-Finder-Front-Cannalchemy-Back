@@ -12,7 +12,7 @@ class QuizRequest(BaseModel):
     openToDeals: bool = True
     subtype: str = "no_preference"
     thcPreference: str = "no_preference"
-    cbdPreference: str = "none"
+    cbdPreference: str = "no_preference"
     flavors: list[str] = Field(default_factory=list)
 
 

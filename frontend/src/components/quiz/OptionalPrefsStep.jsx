@@ -122,6 +122,9 @@ export default function OptionalPrefsStep({ onComplete }) {
           <p className="text-xs font-semibold text-gray-500 dark:text-[#6a7a6e] uppercase tracking-wider mb-2 text-center">
             CBD Level
           </p>
+          <p className="text-[11px] text-gray-500 dark:text-[#8a9a8e] text-center mb-3">
+            If you&apos;re unsure, leave this on No Preference.
+          </p>
           <div className="flex flex-wrap justify-center gap-2">
             {CBD_PREFERENCES.map((pref) => {
               const isSelected = cbdPreference === pref.id

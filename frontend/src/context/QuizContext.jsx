@@ -14,7 +14,7 @@ const initialState = {
   zipCode: '',
   subtype: 'no_preference',
   thcPreference: 'no_preference',
-  cbdPreference: 'none',
+  cbdPreference: 'no_preference',
   flavors: [],
   selectedDispensary: null, // { id, name, citySlug, cityLabel }
 }

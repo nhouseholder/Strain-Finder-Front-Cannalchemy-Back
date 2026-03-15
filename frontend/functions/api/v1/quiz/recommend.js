@@ -90,8 +90,8 @@ const THC_RANGES = {
   very_high: [28, 40], no_preference: [0, 40],
 };
 const CBD_RANGES = {
-  none: [0, 1], some: [1, 5], high: [5, 15],
-  cbd_dominant: [15, 30], no_preference: [0, 30],
+  none: [0, 0.5], some: [0.5, 1], high: [1, 5],
+  cbd_dominant: [5, 30], no_preference: [0, 30],
 };
 const BUDGET_ORDER = ['budget', 'mid', 'premium', 'top_shelf'];
 

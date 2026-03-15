@@ -31,10 +31,10 @@ THC_RANGES = {
 
 # CBD preference ranges
 CBD_RANGES = {
-    "none": (0, 1),
-    "some": (1, 5),
-    "high": (5, 15),
-    "cbd_dominant": (15, 30),
+    "none": (0, 0.5),
+    "some": (0.5, 1),
+    "high": (1, 5),
+    "cbd_dominant": (5, 30),
     "no_preference": (0, 30),
 }
 
